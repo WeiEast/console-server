@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<dubbo:application name="saas-gateway" />
+
+	<dubbo:monitor protocol="registry" />
+
+	<!-- 使用multicast广播注册中心暴露发现服务地址 -->
+	<dubbo:registry address="${dubbo.zookeeper.address:zookeeper://192.168.5.241:2181}" />
+	<dubbo:protocol name="dubbo" port="20192" />
+
+	<dubbo:consumer check="false"/>
+
+	<!--消费者 -->
+	<dubbo:reference id="crawlerService" interface="com.datatrees.rawdatacentral.api.CrawlerService" />
+	<dubbo:reference id="iMobileAttributionService" interface="com.treefinance.commonservice.facade.mobileattribution.IMobileAttributionService" />
+
+	<dubbo:reference id="geocodeService" interface="com.treefinance.commonservice.facade.location.GeocodeService" />
+	<dubbo:reference id="ipLocationService" interface="com.treefinance.commonservice.facade.location.IpLocationService" />
+
+</beans>
+
+

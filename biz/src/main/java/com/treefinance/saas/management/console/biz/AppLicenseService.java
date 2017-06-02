@@ -16,6 +16,7 @@
 
 package com.treefinance.saas.management.console.biz;
 
+import com.alibaba.fastjson.JSON;
 import com.datatrees.toolkits.util.crypto.AES;
 import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
@@ -26,8 +27,11 @@ import com.treefinance.saas.management.console.dao.entity.AppLicense;
 import com.treefinance.saas.management.console.dao.entity.AppLicenseCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppLicenseMapper;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -40,8 +44,15 @@ import java.util.List;
 @Component
 public class AppLicenseService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AppLicenseService.class);
+
+    private final static String APPID_SUFFIX = "saas_gateway_app_license:";
+
     @Autowired
-    private AppLicenseMapper appLicenseMapper;
+    private StringRedisTemplate stringRedisTemplate;
+
+//    @Autowired
+//    private AppLicenseMapper appLicenseMapper;
 
     /**
      * 根据传入的appId查找对应的app许可
@@ -51,13 +62,17 @@ public class AppLicenseService {
      */
     @Cacheable(value = "DAY", key = "'saas_gateway_app_license:'+#appId")
     public AppLicenseDTO selectOneByAppId(String appId) {
-        AppLicenseCriteria criteria = new AppLicenseCriteria();
-        criteria.createCriteria().andAppIdEqualTo(appId);
-        criteria.setOrderByClause("Id desc limit 1");
-
-        List<AppLicense> licenseList = appLicenseMapper.selectByExample(criteria);
-
-        return licenseList.isEmpty() ? null : BeanUtils.convert(licenseList.get(0), new AppLicenseDTO());
+//        AppLicenseCriteria criteria = new AppLicenseCriteria();
+//        criteria.createCriteria().andAppIdEqualTo(appId);
+//        criteria.setOrderByClause("Id desc limit 1");
+//        List<AppLicense> licenseList = appLicenseMapper.selectByExample(criteria);
+//        return licenseList.isEmpty() ? null : BeanUtils.convert(licenseList.get(0), new AppLicenseDTO());
+        String key = APPID_SUFFIX + appId;
+        AppLicenseDTO result = null;
+        if (stringRedisTemplate.hasKey(key)) {
+            result = JSON.parseObject(stringRedisTemplate.opsForValue().get(key), AppLicenseDTO.class);
+        }
+        return result;
     }
 
     /**
@@ -68,9 +83,12 @@ public class AppLicenseService {
     public Result<String> generateAppLicense() {
         String appId = Helper.generateAppId();
         AppLicense license = Helper.generateLicense(appId);
-        appLicenseMapper.insert(license);
+        String key = APPID_SUFFIX + appId;
+        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
+//        appLicenseMapper.insert(license);
         Result<String> result = new Result<>();
         result.setData(appId);
+        logger.info("generateAppLicense : key={}, license={}", key, JSON.toJSONString(license));
         return result;
     }
 
@@ -87,7 +105,11 @@ public class AppLicenseService {
             return new Result("授权许可已经存在！");
         }
         AppLicense license = Helper.generateLicense(appId);
-        appLicenseMapper.insert(license);
+//        appLicenseMapper.insert(license);
+
+        String key = APPID_SUFFIX + appId;
+        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
+        logger.info("generateAppLicense : key={},license={}", key, JSON.toJSONString(license));
         return new Result<>(license.getId());
     }
 

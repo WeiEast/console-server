@@ -129,7 +129,7 @@
           </dependency>
         </dependencies>
         <configuration>
-          <configurationFile>../console-server-dao/src/mybatis-generator/generatorConfig.xml</configurationFile>
+          <configurationFile>../dao/src/mybatis-generator/generatorConfig.xml</configurationFile>
           <outputDirectory>${project.build.directory}/generated-sources/mybatis-generator</outputDirectory>
           <overwrite>true</overwrite>
         </configuration>

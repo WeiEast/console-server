@@ -7,10 +7,10 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>console-server-common</module>
-		<module>console-server-dao</module>
-		<module>console-server-biz</module>
-		<module>console-server-web</module>
+		<module>common</module>
+		<module>dao</module>
+		<module>biz</module>
+		<module>web</module>
 	</modules>
 
 	<name>console-server</name>

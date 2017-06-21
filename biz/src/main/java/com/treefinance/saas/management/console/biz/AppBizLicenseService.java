@@ -18,7 +18,7 @@ public class AppBizLicenseService {
 
     public List<AppBizLicense> getByLicenseId(Integer licenseId) {
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andLicenseIdEqualTo(licenseId);
+//        appBizLicenseCriteria.createCriteria().andLicenseIdEqualTo(licenseId);
         return appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
     }
 }

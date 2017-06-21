@@ -70,37 +70,37 @@ public class WebContextFilter extends AbstractRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
-    try {
-      String token = request.getHeader(LOGIN_TOKEN);
-      if (token == null) {
-        throw new ForbiddenException("Can not find header 'appid' in request.");
-      }
-
-      if (StringUtils.isBlank(token)) {
-        throw new ForbiddenException("Invalid app id.");
-      }
-      String ip = null;
-      try {
-        ip = ServletRequestUtils.getIP(request);
-        logger.error(String
-            .format("@[%s;%s;%s] >> token: %s", request.getRequestURI(), request.getMethod(), ip,
-                    token));
-      } catch (Exception e) {
-        logger.warn(e.getMessage(), e);
-        logger.error(String
-            .format("@[%s;%s] >> token: %s", request.getRequestURI(), request.getMethod(), token));
-      }
-
-      request.setAttribute(WEB_CONTEXT_ATTRIBUTE, createWebContext(token, ip));
+//    try {
+//      String token = request.getHeader(LOGIN_TOKEN);
+//      if (token == null) {
+//        throw new ForbiddenException("Can not find header 'appid' in request.");
+//      }
+//
+//      if (StringUtils.isBlank(token)) {
+//        throw new ForbiddenException("Invalid app id.");
+//      }
+//      String ip = null;
+//      try {
+//        ip = ServletRequestUtils.getIP(request);
+//        logger.error(String
+//            .format("@[%s;%s;%s] >> token: %s", request.getRequestURI(), request.getMethod(), ip,
+//                    token));
+//      } catch (Exception e) {
+//        logger.warn(e.getMessage(), e);
+//        logger.error(String
+//            .format("@[%s;%s] >> token: %s", request.getRequestURI(), request.getMethod(), token));
+//      }
+//
+//      request.setAttribute(WEB_CONTEXT_ATTRIBUTE, createWebContext(token, ip));
 
       try {
         filterChain.doFilter(request, response);
       } finally {
         request.removeAttribute(WEB_CONTEXT_ATTRIBUTE);
       }
-    } catch (ForbiddenException e) {
-      forbidden(request, response, e);
-    }
+//    } catch (ForbiddenException e) {
+//      forbidden(request, response, e);
+//    }
   }
 
   private WebContext createWebContext(String token, String ip) throws ForbiddenException {

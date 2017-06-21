@@ -22,20 +22,12 @@ import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
 import com.treefinance.saas.management.console.common.domain.Result;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.entity.AppLicense;
-import com.treefinance.saas.management.console.dao.entity.AppLicenseCriteria;
-import com.treefinance.saas.management.console.dao.mapper.AppLicenseMapper;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Jerry
@@ -51,22 +43,14 @@ public class AppLicenseService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-//    @Autowired
-//    private AppLicenseMapper appLicenseMapper;
 
     /**
      * 根据传入的appId查找对应的app许可
      *
      * @param appId 第三方的appId
-     * @return {@link AppLicense}
      */
     @Cacheable(value = "DAY", key = "'saas_gateway_app_license:'+#appId")
     public AppLicenseDTO selectOneByAppId(String appId) {
-//        AppLicenseCriteria criteria = new AppLicenseCriteria();
-//        criteria.createCriteria().andAppIdEqualTo(appId);
-//        criteria.setOrderByClause("Id desc limit 1");
-//        List<AppLicense> licenseList = appLicenseMapper.selectByExample(criteria);
-//        return licenseList.isEmpty() ? null : BeanUtils.convert(licenseList.get(0), new AppLicenseDTO());
         String key = APPID_SUFFIX + appId;
         AppLicenseDTO result = null;
         if (stringRedisTemplate.hasKey(key)) {
@@ -75,22 +59,6 @@ public class AppLicenseService {
         return result;
     }
 
-    /**
-     * app许可
-     *
-     * @return
-     */
-    public Result<String> generateAppLicense() {
-        String appId = Helper.generateAppId();
-        AppLicense license = Helper.generateLicense(appId);
-        String key = APPID_SUFFIX + appId;
-        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
-//        appLicenseMapper.insert(license);
-        Result<String> result = new Result<>();
-        result.setData(appId);
-        logger.info("generateAppLicense : key={}, license={}", key, JSON.toJSONString(license));
-        return result;
-    }
 
     /**
      * 依据给定的APPID，生成对应app许可
@@ -104,13 +72,11 @@ public class AppLicenseService {
         if (appLicenseDTO != null) {
             return new Result("授权许可已经存在！");
         }
-        AppLicense license = Helper.generateLicense(appId);
-//        appLicenseMapper.insert(license);
-
+        AppLicenseDTO license = Helper.generateLicense(appId);
         String key = APPID_SUFFIX + appId;
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
         logger.info("generateAppLicense : key={},license={}", key, JSON.toJSONString(license));
-        return new Result<>(license.getId());
+        return null;
     }
 
 
@@ -119,25 +85,14 @@ public class AppLicenseService {
      */
     public static class Helper {
         /**
-         * 生成APPID
-         *
-         * @return
-         */
-        public static String generateAppId() {
-            return RandomStringUtils.randomAlphanumeric(16);
-        }
-
-        /**
          * 生成许可
          *
          * @return
          */
-        public static AppLicense generateLicense(String appId) {
-            Date now = new Date();
-            AppLicense license = new AppLicense();
+        public static AppLicenseDTO generateLicense(String appId) {
+            AppLicenseDTO license = new AppLicenseDTO();
             license.setAppId(appId);
-            license.setCreateTime(now);
-            license.setLastUpdateTime(now);
+
             // sdk密钥
             SimpleKeyPair sdk = RSA.generateKey();
             license.setSdkPrivateKey(sdk.getPrivateKeyString());

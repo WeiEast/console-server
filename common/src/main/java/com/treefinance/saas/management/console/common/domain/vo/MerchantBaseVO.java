@@ -8,6 +8,7 @@ import java.util.List;
  * Created by haojiahong on 2017/6/21.
  */
 public class MerchantBaseVO implements Serializable {
+
     private String appId;
     private String appName;
     private String contactPerson;
@@ -16,6 +17,7 @@ public class MerchantBaseVO implements Serializable {
     private String password;
     private String company;
     private List<AppBizLicenseVO> appBizLicenseVOList;
+    private AppLicenseVO appLicenseVO;
 
     public String getAppId() {
         return appId;
@@ -79,6 +81,14 @@ public class MerchantBaseVO implements Serializable {
 
     public void setAppBizLicenseVOList(List<AppBizLicenseVO> appBizLicenseVOList) {
         this.appBizLicenseVOList = appBizLicenseVOList;
+    }
+
+    public AppLicenseVO getAppLicenseVO() {
+        return appLicenseVO;
+    }
+
+    public void setAppLicenseVO(AppLicenseVO appLicenseVO) {
+        this.appLicenseVO = appLicenseVO;
     }
 
 }

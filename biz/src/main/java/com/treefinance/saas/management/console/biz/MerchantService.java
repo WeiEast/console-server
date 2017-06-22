@@ -9,8 +9,11 @@ import java.util.List;
  */
 public interface MerchantService {
 
+    MerchantBaseVO getMerchantById(Long id);
+
     List<MerchantBaseVO> getMerchantList();
 
-    void addMerchant(MerchantBaseVO merchantBaseVO);
+    Long addMerchant(MerchantBaseVO merchantBaseVO);
 
+    void updateMerchant(MerchantBaseVO merchantBaseVO, Long id);
 }

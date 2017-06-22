@@ -20,14 +20,27 @@ import com.alibaba.fastjson.JSON;
 import com.datatrees.toolkits.util.crypto.AES;
 import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
+import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.common.domain.Result;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
+import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
+import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.CommonUtils;
+import com.treefinance.saas.management.console.dao.entity.MerchantBase;
+import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
+import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Jerry
@@ -42,6 +55,8 @@ public class AppLicenseService {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private MerchantBaseMapper merchantBaseMapper;
 
 
     /**
@@ -66,7 +81,7 @@ public class AppLicenseService {
      * @param appId
      * @return
      */
-    public Result<Integer> generateAppLicenseByAppId(String appId) {
+    public Result generateAppLicenseByAppId(String appId) {
         // 验证是否已经含有license
         AppLicenseDTO appLicenseDTO = this.selectOneByAppId(appId);
         if (appLicenseDTO != null) {
@@ -77,6 +92,52 @@ public class AppLicenseService {
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
         logger.info("generateAppLicense : key={},license={}", key, JSON.toJSONString(license));
         return null;
+    }
+
+    public Result<String> generateAppLicense() {
+        String appId = CommonUtils.generateAppId();
+        AppLicenseDTO license = Helper.generateLicense(appId);
+        String key = APPID_SUFFIX + appId;
+        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
+        Result<String> result = new Result<>();
+        result.setData(appId);
+        logger.info("generateAppLicense : key={}, license={}", key, JSON.toJSONString(license));
+        return result;
+    }
+
+    public List<AppLicenseVO> getAppLicenseList() {
+        List<AppLicenseVO> appLicenseVOList = Lists.newArrayList();
+        String key = APPID_SUFFIX + "*";
+        Set<String> keySet = stringRedisTemplate.keys(key);
+        if (CollectionUtils.isEmpty(keySet)) {
+            return appLicenseVOList;
+        }
+        List<String> resultStrList = stringRedisTemplate.opsForValue().multiGet(keySet);
+        if (CollectionUtils.isEmpty(resultStrList)) {
+            return appLicenseVOList;
+        }
+        List<AppLicenseDTO> appLicenseDTOList = Lists.newArrayList();
+        for (String result : resultStrList) {
+            AppLicenseDTO appLicenseDTO = JSON.parseObject(result, AppLicenseDTO.class);
+            appLicenseDTOList.add(appLicenseDTO);
+        }
+        List<String> appIdList = appLicenseDTOList.stream().map(AppLicenseDTO::getAppId).collect(Collectors.toList());
+        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
+        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
+        for (AppLicenseDTO appLicenseDTO : appLicenseDTOList) {
+            AppLicenseVO appLicenseVO = new AppLicenseVO();
+            BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
+            MerchantBase merchantBase = merchantBaseMap.get(appLicenseDTO.getAppId());
+            if (merchantBase != null) {
+                appLicenseVO.setAppName(merchantBase.getAppName());
+            }
+            appLicenseVOList.add(appLicenseVO);
+        }
+
+        return appLicenseVOList;
+
     }
 
 
@@ -92,7 +153,6 @@ public class AppLicenseService {
         public static AppLicenseDTO generateLicense(String appId) {
             AppLicenseDTO license = new AppLicenseDTO();
             license.setAppId(appId);
-
             // sdk密钥
             SimpleKeyPair sdk = RSA.generateKey();
             license.setSdkPrivateKey(sdk.getPrivateKeyString());

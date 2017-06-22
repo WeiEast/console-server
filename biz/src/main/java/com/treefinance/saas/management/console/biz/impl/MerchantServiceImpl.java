@@ -5,7 +5,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.AppLicenseService;
 import com.treefinance.saas.management.console.biz.MerchantService;
+import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
@@ -14,6 +16,7 @@ import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,51 @@ public class MerchantServiceImpl implements MerchantService {
     @Autowired
     private AppLicenseService appLicenseService;
 
+
+    @Override
+    public MerchantBaseVO getMerchantById(Long id) {
+        MerchantBase merchantBase = merchantBaseMapper.selectByPrimaryKey(id);
+        if (merchantBase == null) {
+            return null;
+        }
+        MerchantBaseVO merchantBaseVO = new MerchantBaseVO();
+        Long merchantId = merchantBase.getId();
+        String appId = merchantBase.getAppId();
+        BeanUtils.copyProperties(merchantBase, merchantBaseVO);
+
+        MerchantUserCriteria merchantUserCriteria = new MerchantUserCriteria();
+        merchantUserCriteria.createCriteria().andMerchantIdEqualTo(merchantId);
+        List<MerchantUser> merchantUserList = merchantUserMapper.selectByExample(merchantUserCriteria);
+        if (!CollectionUtils.isEmpty(merchantUserList)) {
+            MerchantUser merchantUser = merchantUserList.get(0);
+            merchantBaseVO.setLoginName(merchantUser.getLoginName());
+            //todo 解密
+            merchantBaseVO.setPassword(merchantUser.getPassword());
+        }
+
+        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
+        appBizLicenseCriteria.createCriteria().andAppIdEqualTo(appId);
+        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        if (!CollectionUtils.isEmpty(appBizLicenseList)) {
+            List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
+            for (AppBizLicense appBizLicense : appBizLicenseList) {
+                AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
+                appBizLicenseVO.setBizType(appBizLicense.getBizType());
+                appBizLicenseVO.setBizName(EBizType.getName(appBizLicense.getBizType()));
+                appBizLicenseVOList.add(appBizLicenseVO);
+            }
+            merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);
+
+        }
+
+        AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
+        if (appLicenseDTO != null) {
+            AppLicenseVO appLicenseVO = new AppLicenseVO();
+            BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
+            merchantBaseVO.setAppLicenseVO(appLicenseVO);
+        }
+        return merchantBaseVO;
+    }
 
     @Override
     public List<MerchantBaseVO> getMerchantList() {
@@ -83,6 +131,7 @@ public class MerchantServiceImpl implements MerchantService {
             MerchantUser merchantUser = merchantUserMerchantIdMap.get(merchantBase.getId());
             if (merchantUser != null) {
                 merchantBaseVO.setLoginName(merchantUser.getLoginName());
+                //TODO 解密
                 merchantBaseVO.setPassword(merchantUser.getPassword());
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
@@ -103,26 +152,39 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     @Transactional
-    public void addMerchant(MerchantBaseVO merchantBaseVO) {
+    public Long addMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("添加商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         String appId = CommonUtils.generateAppId();
         merchantBaseVO.setAppId(appId);
+        //生成商户基本信息
         Long merchantId = insertMerchantBase(merchantBaseVO);
+        //生成商户用户名密码
         insertMerchantUser(merchantBaseVO, merchantId);
+        //生成商户开通服务
         if (!CollectionUtils.isEmpty(merchantBaseVO.getAppBizLicenseVOList())) {
             insertAppBizLicense(merchantBaseVO, appId);
         }
-        appLicenseService.generateAppLicense(appId);
+        //生成相关秘钥key
+        appLicenseService.generateAppLicenseByAppId(appId);
+        return merchantId;
     }
 
+    @Override
+    public void updateMerchant(MerchantBaseVO merchantBaseVO, Long id) {
+        MerchantBase merchantBase = new MerchantBase();
+        BeanUtils.copyProperties(merchantBaseVO, merchantBase);
+        merchantBase.setId(id);
+        merchantBaseMapper.updateByPrimaryKeySelective(merchantBase);
+
+    }
 
     private void insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {
         MerchantUser merchantUser = new MerchantUser();
         merchantUser.setMerchantId(merchantId);
         merchantUser.setLoginName(merchantBaseVO.getLoginName());
-        merchantUser.setPassword(merchantBaseVO.getPassword());
+        merchantUser.setPassword(DigestUtils.md5Hex(merchantBaseVO.getPassword()));
         merchantUser.setIsActive(Boolean.TRUE);
-        merchantUserMapper.insert(merchantUser);
+        merchantUserMapper.insertSelective(merchantUser);
     }
 
     private void insertAppBizLicense(MerchantBaseVO merchantBaseVO, String appId) {
@@ -130,7 +192,7 @@ public class MerchantServiceImpl implements MerchantService {
             AppBizLicense appBizLicense = new AppBizLicense();
             appBizLicense.setAppId(appId);
             appBizLicense.setBizType(appBizLicenseVO.getBizType());
-            appBizLicenseMapper.insert(appBizLicense);
+            appBizLicenseMapper.insertSelective(appBizLicense);
         }
     }
 
@@ -141,7 +203,7 @@ public class MerchantServiceImpl implements MerchantService {
         merchantBase.setContactPerson(merchantBaseVO.getContactPerson());
         merchantBase.setContactMobile(merchantBaseVO.getContactMobile());
         merchantBase.setCompany(merchantBaseVO.getCompany());
-        long merchantId = merchantBaseMapper.insert(merchantBase);
-        return merchantId;
+        merchantBaseMapper.insertSelective(merchantBase);
+        return merchantBase.getId();
     }
 }

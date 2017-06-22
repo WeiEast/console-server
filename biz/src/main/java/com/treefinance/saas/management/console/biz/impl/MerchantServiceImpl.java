@@ -63,8 +63,6 @@ public class MerchantServiceImpl implements MerchantService {
         if (!CollectionUtils.isEmpty(merchantUserList)) {
             MerchantUser merchantUser = merchantUserList.get(0);
             merchantBaseVO.setLoginName(merchantUser.getLoginName());
-            //todo 解密
-            merchantBaseVO.setPassword(merchantUser.getPassword());
         }
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
@@ -131,8 +129,6 @@ public class MerchantServiceImpl implements MerchantService {
             MerchantUser merchantUser = merchantUserMerchantIdMap.get(merchantBase.getId());
             if (merchantUser != null) {
                 merchantBaseVO.setLoginName(merchantUser.getLoginName());
-                //TODO 解密
-                merchantBaseVO.setPassword(merchantUser.getPassword());
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
             if (!CollectionUtils.isEmpty(licenseList)) {
@@ -152,21 +148,24 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     @Transactional
-    public Long addMerchant(MerchantBaseVO merchantBaseVO) {
+    public Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("添加商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         String appId = CommonUtils.generateAppId();
         merchantBaseVO.setAppId(appId);
         //生成商户基本信息
         Long merchantId = insertMerchantBase(merchantBaseVO);
         //生成商户用户名密码
-        insertMerchantUser(merchantBaseVO, merchantId);
+        String plainTextPassword = insertMerchantUser(merchantBaseVO, merchantId);
         //生成商户开通服务
         if (!CollectionUtils.isEmpty(merchantBaseVO.getAppBizLicenseVOList())) {
             insertAppBizLicense(merchantBaseVO, appId);
         }
         //生成相关秘钥key
         appLicenseService.generateAppLicenseByAppId(appId);
-        return merchantId;
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("merchantId", merchantId);
+        map.put("plainTextPassword", plainTextPassword);
+        return map;
     }
 
     @Override
@@ -178,13 +177,15 @@ public class MerchantServiceImpl implements MerchantService {
 
     }
 
-    private void insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {
+    private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {
         MerchantUser merchantUser = new MerchantUser();
         merchantUser.setMerchantId(merchantId);
-        merchantUser.setLoginName(merchantBaseVO.getLoginName());
-        merchantUser.setPassword(DigestUtils.md5Hex(merchantBaseVO.getPassword()));
+        merchantUser.setLoginName(CommonUtils.generateLoginName(merchantBaseVO.getAppName()));
+        String plainTextPassword = CommonUtils.generatePassword();
+        merchantUser.setPassword(DigestUtils.md5Hex(plainTextPassword));
         merchantUser.setIsActive(Boolean.TRUE);
         merchantUserMapper.insertSelective(merchantUser);
+        return plainTextPassword;
     }
 
     private void insertAppBizLicense(MerchantBaseVO merchantBaseVO, String appId) {

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商户管理
@@ -28,9 +29,9 @@ public class MerchantController {
     }
 
     @RequestMapping(value = "add", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public Result<Long> addMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
-        Long merchantId = merchantService.addMerchant(merchantBaseVO);
-        return new Result<>(merchantId);
+    public Result<Map<String, Object>> addMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
+        Map<String, Object> map = merchantService.addMerchant(merchantBaseVO);
+        return new Result<>(map);
     }
 
     @RequestMapping(value = "update/{id}", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")

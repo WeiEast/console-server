@@ -177,6 +177,22 @@ public class MerchantServiceImpl implements MerchantService {
 
     }
 
+    @Override
+    public String resetPassWord(Long id) {
+        MerchantUserCriteria criteria = new MerchantUserCriteria();
+        criteria.createCriteria().andMerchantIdEqualTo(id);
+        List<MerchantUser> merchantUserList = merchantUserMapper.selectByExample(criteria);
+        if (CollectionUtils.isEmpty(merchantUserList)) {
+            return null;
+        }
+        MerchantUser merchantUser = new MerchantUser();
+        merchantUser.setId(merchantUserList.get(0).getId());
+        String newPwd = CommonUtils.generatePassword();
+        merchantUser.setPassword(DigestUtils.md5Hex(newPwd));
+        merchantUserMapper.updateByPrimaryKeySelective(merchantUser);
+        return newPwd;
+    }
+
     private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {
         MerchantUser merchantUser = new MerchantUser();
         merchantUser.setMerchantId(merchantId);

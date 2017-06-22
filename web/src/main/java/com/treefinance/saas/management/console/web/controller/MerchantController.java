@@ -47,5 +47,14 @@ public class MerchantController {
 
     }
 
+    @RequestMapping(value = "reset/pwd/{id}", method = RequestMethod.GET, produces = "application/json")
+    public Result<String> resetPassword(@PathVariable Long id) {
+        String plainTextPwd = merchantService.resetPassWord(id);
+        Result<String> result = new Result<>();
+        result.setData(plainTextPwd);
+        return result;
+
+    }
+
 
 }

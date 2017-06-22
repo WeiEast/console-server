@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class MerchantBaseVO implements Serializable {
 
+    private Long id;
     private String appId;
     private String appName;
     private String contactPerson;
@@ -18,6 +19,14 @@ public class MerchantBaseVO implements Serializable {
     private String company;
     private List<AppBizLicenseVO> appBizLicenseVOList;
     private AppLicenseVO appLicenseVO;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getAppId() {
         return appId;

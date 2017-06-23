@@ -18,7 +18,7 @@ import java.util.List;
  * Created by yh-treefinance on 2017/5/19.
  */
 @RestController
-@RequestMapping("/saas/backend/applicense")
+@RequestMapping("/saas/console/applicense")
 public class AppLicenseController {
     private static final Logger logger = LoggerFactory.getLogger(AppLicenseController.class);
 
@@ -41,7 +41,7 @@ public class AppLicenseController {
     }
 
     @RequestMapping(value = "list", produces = "application/json")
-    public Result<List<AppLicenseVO>> getkeyList() {
+    public Result<List<AppLicenseVO>> getKeyList() {
         return new Result<>(appLicenseService.getAppLicenseList());
     }
 }

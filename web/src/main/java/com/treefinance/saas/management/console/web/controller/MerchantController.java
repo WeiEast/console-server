@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by haojiahong on 2017/6/21.
  */
 @RestController
-@RequestMapping("/saas/backend/merchant")
+@RequestMapping("/saas/console/merchant")
 public class MerchantController {
     private static final Logger logger = LoggerFactory.getLogger(AppLicenseController.class);
 
@@ -40,7 +40,7 @@ public class MerchantController {
         return new Result<>(Boolean.TRUE);
     }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "get/{id}", method = RequestMethod.GET, produces = "application/json")
     public Result<MerchantBaseVO> getMerchantById(@PathVariable Long id) {
         MerchantBaseVO merchantBaseVO = merchantService.getMerchantById(id);
         return new Result<>(merchantBaseVO);

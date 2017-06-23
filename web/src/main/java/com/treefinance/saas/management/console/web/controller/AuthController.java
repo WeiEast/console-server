@@ -29,7 +29,9 @@ public class AuthController {
         Subject subject = SecurityUtils.getSubject();
         logger.info("用户退出：", subject.getPrincipal());
         subject.logout();
-        return new Result<>("退出成功!");
+        Result<String> result = new Result<>();
+        result.setData("退出成功!");
+        return result;
     }
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET}, produces = "application/json")

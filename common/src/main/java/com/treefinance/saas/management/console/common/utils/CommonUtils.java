@@ -32,7 +32,7 @@ public class CommonUtils {
     }
 
     public static String generatePassword() {
-        return RandomStringUtils.randomNumeric(6);
+        return RandomStringUtils.randomAlphabetic(2) + RandomStringUtils.randomNumeric(4);
     }
 
 }

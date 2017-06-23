@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -150,6 +151,7 @@ public class MerchantServiceImpl implements MerchantService {
     @Transactional
     public Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("添加商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
+        Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
         String appId = CommonUtils.generateAppId();
         merchantBaseVO.setAppId(appId);
         //生成商户基本信息
@@ -170,6 +172,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public void updateMerchant(MerchantBaseVO merchantBaseVO, Long id) {
+        Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
         MerchantBase merchantBase = new MerchantBase();
         BeanUtils.copyProperties(merchantBaseVO, merchantBase);
         merchantBase.setId(id);

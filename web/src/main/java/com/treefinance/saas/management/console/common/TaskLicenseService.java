@@ -1,7 +1,7 @@
 package com.treefinance.saas.management.console.common;
 
-import com.treefinance.saas.management.console.biz.AppBizLicenseService;
-import com.treefinance.saas.management.console.biz.AppLicenseService;
+import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
+import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.dao.entity.AppBizLicense;

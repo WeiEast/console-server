@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz;
+package com.treefinance.saas.management.console.biz.service;
 import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
 import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;

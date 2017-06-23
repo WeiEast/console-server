@@ -1,6 +1,6 @@
 package com.treefinance.saas.management.console.web.controller;
 
-import com.treefinance.saas.management.console.biz.MerchantService;
+import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.Result;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import org.slf4j.Logger;

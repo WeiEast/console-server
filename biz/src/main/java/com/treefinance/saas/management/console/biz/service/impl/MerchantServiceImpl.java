@@ -1,10 +1,10 @@
-package com.treefinance.saas.management.console.biz.impl;
+package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.treefinance.saas.management.console.biz.AppLicenseService;
-import com.treefinance.saas.management.console.biz.MerchantService;
+import com.treefinance.saas.management.console.biz.service.AppLicenseService;
+import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;

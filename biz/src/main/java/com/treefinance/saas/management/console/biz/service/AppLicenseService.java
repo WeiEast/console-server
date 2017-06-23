@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.treefinance.saas.management.console.biz;
+package com.treefinance.saas.management.console.biz.service;
 
 import com.alibaba.fastjson.JSON;
 import com.datatrees.toolkits.util.crypto.AES;

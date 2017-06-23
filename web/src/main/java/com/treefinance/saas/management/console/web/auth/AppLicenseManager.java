@@ -16,7 +16,7 @@
 
 package com.treefinance.saas.management.console.web.auth;
 
-import com.treefinance.saas.management.console.biz.AppLicenseService;
+import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
 import org.slf4j.Logger;

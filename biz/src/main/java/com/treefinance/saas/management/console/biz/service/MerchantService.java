@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz;
+package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 

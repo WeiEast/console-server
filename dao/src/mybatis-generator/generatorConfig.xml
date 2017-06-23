@@ -63,6 +63,10 @@
       <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
     </table>
 
+    <table tableName="console_user" domainObjectName="ConsoleUser">
+      <property name="useActualColumnNames" value="true"/>
+      <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
+    </table>
 
 
 

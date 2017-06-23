@@ -3,8 +3,8 @@ package com.treefinance.saas.management.console.common.domain;
 import com.datatrees.common.conf.PropertiesConfiguration;
 
 public interface Constants {
-	
-		String PREFIX_KEY = "saas-gateway:";
+
+    String PREFIX_KEY = "saas-gateway:";
 
     int REDIS_KEY_TIMEOUT = PropertiesConfiguration.getInstance().getInt("platform.redisKey.timeout", 600);
 
@@ -13,4 +13,6 @@ public interface Constants {
     String REFRESH_LOGIN_CODE = "REFRESH_LOGIN_CODE";
     String REFRESH_LOGIN_RANDOMPASSWORD = "REFRESH_LOGIN_RANDOMPASSWORD";
     String RETURN_PICTURE_CODE = "RETURN_PICTURE_CODE";
+
+    static final String USER_KEY = "login_user";
 }

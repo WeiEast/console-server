@@ -21,9 +21,10 @@ import com.datatrees.toolkits.util.crypto.AES;
 import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
 import com.google.common.collect.Lists;
-import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
@@ -85,7 +86,7 @@ public class AppLicenseService {
         // 验证是否已经含有license
         AppLicenseDTO appLicenseDTO = this.selectOneByAppId(appId);
         if (appLicenseDTO != null) {
-            return new Result("授权许可已经存在！");
+            throw new BizException("授权许可已经存在！");
         }
         AppLicenseDTO license = Helper.generateLicense(appId);
         String key = APPID_SUFFIX + appId;

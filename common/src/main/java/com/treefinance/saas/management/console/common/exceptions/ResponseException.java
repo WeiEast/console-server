@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.treefinance.saas.management.console.exception;
+package com.treefinance.saas.management.console.common.exceptions;
 
 /**
  * @author Jerry

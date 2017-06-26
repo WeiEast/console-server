@@ -1,9 +1,10 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
-import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
+import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.Results;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,6 @@ public class AppLicenseController {
 
     @RequestMapping(value = "list", produces = "application/json")
     public Result<List<AppLicenseVO>> getKeyList() {
-        return new Result<>(appLicenseService.getAppLicenseList());
+        return Results.newSuccessResult(appLicenseService.getAppLicenseList());
     }
 }

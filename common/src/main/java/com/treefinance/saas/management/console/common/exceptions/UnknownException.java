@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.exception;
+package com.treefinance.saas.management.console.common.exceptions;
 
 public class UnknownException extends RuntimeException {
     private static final long serialVersionUID = -290315695168000010L;

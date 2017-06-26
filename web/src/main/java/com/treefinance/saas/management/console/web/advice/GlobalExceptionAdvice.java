@@ -17,10 +17,10 @@ package com.treefinance.saas.management.console.web.advice;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
-import com.google.common.collect.Maps;
-import com.treefinance.saas.management.console.common.domain.Result;
-import com.treefinance.saas.management.console.exception.TaskTimeOutException;
-import com.treefinance.saas.management.console.exception.UnknownException;
+import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.exceptions.TaskTimeOutException;
+import com.treefinance.saas.management.console.common.exceptions.UnknownException;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +34,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ValidationException;
-import java.util.Map;
 
 /**
- *
  * @author <A HREF="mailto:yaojun@datatrees.com.cn">Jun Yao</A>
  * @version 1.0
  * @since 2017年3月06日 上午10:12:41
@@ -78,9 +76,18 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public void handleValidationException(ValidationException ex,
-                                                        HttpServletRequest request, HttpServletResponse response) {
+                                          HttpServletRequest request, HttpServletResponse response) {
         responseException(request, ex, HttpStatus.BAD_REQUEST, response);
     }
+
+    @ExceptionHandler(BizException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public void handleBizException(ValidationException ex,
+                                   HttpServletRequest request, HttpServletResponse response) {
+        responseException(request, ex, HttpStatus.BAD_REQUEST, response);
+    }
+
 
     private void handleLog(HttpServletRequest request, Exception ex) {
         StringBuffer logBuffer = new StringBuffer();
@@ -94,16 +101,11 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         logger.error(logBuffer.toString(), ex);
     }
 
-    private void responseException(HttpServletRequest request, Exception ex, HttpStatus httpStatus, HttpServletResponse response) {
+    private void responseException(HttpServletRequest request, Exception ex,
+                                   HttpStatus httpStatus, HttpServletResponse response) {
         handleLog(request, ex);
         Result result = new Result();
-        if (ex instanceof ForbiddenException) {
-            Map map = Maps.newHashMap();
-            map.put("mark", 0);
-            result.setData(map);
-        }
-        result.setErrorMsg("系统忙，请稍后重试");//暂时
-        //result.setErrorMsg(ex.getMessage());
+        result.setStatusText(ex.getMessage());
         String responseBody = Jackson.toJSONString(result);
         ServletResponseUtils.responseJson(response, httpStatus.value(), responseBody);
     }

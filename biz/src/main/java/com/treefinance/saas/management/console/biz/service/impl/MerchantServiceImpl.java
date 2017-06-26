@@ -10,6 +10,7 @@ import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
+import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -91,11 +92,12 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public List<MerchantBaseVO> getMerchantList() {
+    public Map<String, Object> getMerchantList(PageRequest request) {
         List<MerchantBaseVO> merchantBaseVOList = Lists.newArrayList();
+
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(null);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
-            return merchantBaseVOList;
+            return null;
         }
         //<merchantId,MerchantBase>
         Map<Long, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getId, merchantBase -> merchantBase));
@@ -144,7 +146,7 @@ public class MerchantServiceImpl implements MerchantService {
             }
             merchantBaseVOList.add(merchantBaseVO);
         }
-        return merchantBaseVOList;
+        return null;
     }
 
     @Override

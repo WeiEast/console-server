@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
@@ -11,6 +12,8 @@ import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.result.PageRequest;
+import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -92,13 +95,17 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Map<String, Object> getMerchantList(PageRequest request) {
+    public Result<Map<String, Object>> getMerchantList(PageRequest request) {
         List<MerchantBaseVO> merchantBaseVOList = Lists.newArrayList();
 
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(null);
-        if (CollectionUtils.isEmpty(merchantBaseList)) {
-            return null;
+        long total = merchantBaseMapper.countByExample(null);
+        if (Optional.fromNullable(total).or(Long.valueOf(0)) <= 0) {
+            return Results.newSuccessPageResult(request, total, merchantBaseVOList);
         }
+        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
+        criteria.setOffset(request.getOffset());
+        criteria.setLimit(request.getPageSize());
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
         //<merchantId,MerchantBase>
         Map<Long, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getId, merchantBase -> merchantBase));
         //<appId,merchantBase>
@@ -146,7 +153,7 @@ public class MerchantServiceImpl implements MerchantService {
             }
             merchantBaseVOList.add(merchantBaseVO);
         }
-        return null;
+        return Results.newSuccessPageResult(request, total, merchantBaseVOList);
     }
 
     @Override

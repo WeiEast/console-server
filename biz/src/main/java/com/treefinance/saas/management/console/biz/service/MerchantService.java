@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
+import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public interface MerchantService {
 
     MerchantBaseVO getMerchantById(Long id);
 
-    Map<String, Object> getMerchantList(PageRequest request);
+    Result<Map<String, Object>> getMerchantList(PageRequest request);
 
     Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO);
 

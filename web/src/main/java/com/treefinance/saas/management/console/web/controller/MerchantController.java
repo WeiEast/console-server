@@ -26,9 +26,8 @@ public class MerchantController {
 
     @RequestMapping(value = "list", produces = "application/json")
     public Result<Map<String, Object>> getMerchantList(PageRequest request) {
-        //todo  分页
-        Map<String, Object> map = merchantService.getMerchantList(request);
-        return Results.newSuccessPageResult(request, 1, map.get("data"));
+        Result<Map<String, Object>> result = merchantService.getMerchantList(request);
+        return result;
     }
 
     @RequestMapping(value = "add", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")

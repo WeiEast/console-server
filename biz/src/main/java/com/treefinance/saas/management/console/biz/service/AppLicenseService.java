@@ -21,7 +21,7 @@ import com.datatrees.toolkits.util.crypto.AES;
 import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
 import com.google.common.collect.Lists;
-import com.treefinance.saas.management.console.common.domain.Result;
+import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;

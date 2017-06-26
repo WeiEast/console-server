@@ -20,12 +20,11 @@ import com.datatrees.toolkits.util.http.servlet.ServletRequestUtils;
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
 import com.google.common.collect.Maps;
-import com.treefinance.saas.management.console.common.domain.Result;
+import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.domain.vo.LoginUserVO;
 import com.treefinance.saas.management.console.web.auth.LoginManager;
 import com.treefinance.saas.management.console.web.context.WebContext;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 

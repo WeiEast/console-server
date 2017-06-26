@@ -18,7 +18,7 @@ package com.treefinance.saas.management.console.web.advice;
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
 import com.google.common.collect.Maps;
-import com.treefinance.saas.management.console.common.domain.Result;
+import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.exception.TaskTimeOutException;
 import com.treefinance.saas.management.console.exception.UnknownException;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;

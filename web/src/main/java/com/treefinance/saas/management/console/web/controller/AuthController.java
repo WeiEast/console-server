@@ -1,7 +1,7 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.common.domain.Constants;
-import com.treefinance.saas.management.console.common.domain.Result;
+import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;

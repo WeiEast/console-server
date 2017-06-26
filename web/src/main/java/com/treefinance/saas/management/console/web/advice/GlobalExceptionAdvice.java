@@ -17,10 +17,10 @@ package com.treefinance.saas.management.console.web.advice;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
-import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.exceptions.TaskTimeOutException;
 import com.treefinance.saas.management.console.common.exceptions.UnknownException;
+import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public void handleAllException(HttpServletRequest request, Exception ex, HttpServletResponse response) {
-        responseException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR, response);
+        responseSystemException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR, response);
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -110,4 +110,20 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         ServletResponseUtils.responseJson(response, httpStatus.value(), responseBody);
     }
 
+    /**
+     * 友好未知异常信息
+     *
+     * @param request
+     * @param ex
+     * @param httpStatus
+     * @param response
+     */
+    private void responseSystemException(HttpServletRequest request, Exception ex,
+                                         HttpStatus httpStatus, HttpServletResponse response) {
+        handleLog(request, ex);
+        Result result = new Result();
+        result.setStatusText("系统内部错误,联系管理员!");
+        String responseBody = Jackson.toJSONString(result);
+        ServletResponseUtils.responseJson(response, httpStatus.value(), responseBody);
+    }
 }

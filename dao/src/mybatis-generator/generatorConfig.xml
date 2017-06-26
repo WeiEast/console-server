@@ -63,7 +63,12 @@
       <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
     </table>
 
-    <table tableName="console_user" domainObjectName="ConsoleUser">
+    <table tableName="console_user" domainObjectName="ConsoleUser"
+           enableSelectPaginationByExample="true"
+           enableInsertOrUpdateBySelective="true"
+           enableBatchInsert="true"
+           enableBatchUpdateByPrimaryKey="true"
+           enableBatchUpdateByPrimaryKeySelective="true">
       <property name="useActualColumnNames" value="true"/>
       <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
     </table>

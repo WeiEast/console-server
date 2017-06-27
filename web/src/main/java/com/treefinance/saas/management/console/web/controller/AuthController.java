@@ -3,6 +3,7 @@ package com.treefinance.saas.management.console.web.controller;
 import com.treefinance.saas.management.console.common.cache.redis.MoreRedisTemplate;
 import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.bo.AuthUserBO;
+import com.treefinance.saas.management.console.common.domain.vo.LoginVO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -17,6 +18,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,8 +55,10 @@ public class AuthController {
         return Results.newFailedResult(CommonStateCode.NO_PERMISSION);
     }
 
-    @RequestMapping(value = "/login", method = {RequestMethod.POST}, produces = "application/json")
-    public Result<?> doLogin(String username, String password, HttpSession session) throws ForbiddenException {
+    @RequestMapping(value = "/login", method = {RequestMethod.POST}, produces = "application/json", consumes = "application/json")
+    public Result<?> doLogin(@RequestBody LoginVO loginVO, HttpSession session) throws ForbiddenException {
+        String username = loginVO.getUsername();
+        String password = loginVO.getPassword();
         //防止用户重复点击登录.
         String key = RedisKeyUtils.genRedisKey(String.format("%s:%s", "auth", username));
         Boolean lock = moreRedisTemplate.acquireLock(key, 10 * 60 * 1000);

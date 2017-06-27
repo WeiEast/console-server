@@ -36,9 +36,9 @@ public class MerchantController {
         return Results.newSuccessResult(map);
     }
 
-    @RequestMapping(value = "update", method = RequestMethod.POST, produces = "application/json")
-    public Result<Boolean> updateMerchant(MerchantBaseVO merchantBaseVO) {
-        merchantService.updateMerchant(merchantBaseVO);
+    @RequestMapping(value = "update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    public Result<Boolean> updateMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
+         merchantService.updateMerchant(merchantBaseVO);
         return Results.newSuccessResult(Boolean.TRUE);
     }
 

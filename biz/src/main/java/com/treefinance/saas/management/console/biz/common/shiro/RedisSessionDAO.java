@@ -1,7 +1,7 @@
 /**
  * Copyright © 2017 Treefinance All Rights Reserved
  */
-package com.treefinance.saas.management.console.biz.shiro;
+package com.treefinance.saas.management.console.biz.common.shiro;
 
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;

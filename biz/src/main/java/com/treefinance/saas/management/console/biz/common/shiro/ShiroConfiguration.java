@@ -1,10 +1,9 @@
 /**
  * Copyright © 2017 Treefinance All Rights Reserved
  */
-package com.treefinance.saas.management.console.biz.shiro;
+package com.treefinance.saas.management.console.biz.common.shiro;
 
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
-import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;

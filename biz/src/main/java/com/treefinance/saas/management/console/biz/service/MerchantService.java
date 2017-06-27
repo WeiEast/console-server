@@ -17,7 +17,7 @@ public interface MerchantService {
 
     Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO);
 
-    void updateMerchant(MerchantBaseVO merchantBaseVO, Long id);
+    void updateMerchant(MerchantBaseVO merchantBaseVO);
 
     String resetPassWord(Long id);
 }

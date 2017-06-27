@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,6 +18,7 @@ public class MerchantBaseVO implements Serializable {
     private String loginName;
     private String password;
     private String company;
+    private Date lastUpdateTime;
     private List<AppBizLicenseVO> appBizLicenseVOList;
     private AppLicenseVO appLicenseVO;
 
@@ -100,4 +102,11 @@ public class MerchantBaseVO implements Serializable {
         this.appLicenseVO = appLicenseVO;
     }
 
+    public Date getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(Date lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
 }

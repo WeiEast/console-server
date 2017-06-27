@@ -180,11 +180,11 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public void updateMerchant(MerchantBaseVO merchantBaseVO, Long id) {
+    public void updateMerchant(MerchantBaseVO merchantBaseVO) {
         Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
+        Assert.notNull(merchantBaseVO.getId(), "id不能为空");
         MerchantBase merchantBase = new MerchantBase();
         BeanUtils.copyProperties(merchantBaseVO, merchantBase);
-        merchantBase.setId(id);
         merchantBaseMapper.updateByPrimaryKeySelective(merchantBase);
 
     }

@@ -1,10 +1,12 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.management.console.common.cache.redis.MoreRedisTemplate;
 import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.bo.AuthUserBO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.RedisKeyUtils;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -14,6 +16,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +29,9 @@ import javax.servlet.http.HttpSession;
 @RestController
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
+    @Autowired
+    private MoreRedisTemplate moreRedisTemplate;
 
     @RequestMapping(value = "/logout", method = {RequestMethod.POST}, produces = "application/json")
     public Result<?> logout() {
@@ -49,9 +55,16 @@ public class AuthController {
 
     @RequestMapping(value = "/login", method = {RequestMethod.POST}, produces = "application/json")
     public Result<?> doLogin(String username, String password, HttpSession session) throws ForbiddenException {
-        UsernamePasswordToken userToken = new UsernamePasswordToken(username, password);
-        Subject subject = SecurityUtils.getSubject();
+        //防止用户重复点击登录.
+        String key = RedisKeyUtils.genRedisKey(String.format("%s:%s", "auth", username));
+        Boolean lock = moreRedisTemplate.acquireLock(key, 10 * 60 * 1000);
+        if (!lock) {
+            logger.info("用户发起重复登录请求!");
+            return null;
+        }
         try {
+            UsernamePasswordToken userToken = new UsernamePasswordToken(username, password);
+            Subject subject = SecurityUtils.getSubject();
             logger.info("对用户[{}]进行登录验证..验证开始", username);
             subject.login(userToken);
             logger.info("用户[{}]登录认证通过", username);
@@ -68,6 +81,8 @@ public class AuthController {
         } catch (Exception e) {
             logger.error(String.format("登陆失败，username=%s", username), e);
             return Results.newFailedResult(CommonStateCode.FAILURE);
+        } finally {
+            moreRedisTemplate.releaseLock(key);
         }
     }
 

@@ -230,7 +230,7 @@ public class MerchantServiceImpl implements MerchantService {
         merchantBase.setAppId(merchantBaseVO.getAppId());
         merchantBase.setAppName(merchantBaseVO.getAppName());
         merchantBase.setContactPerson(merchantBaseVO.getContactPerson());
-        merchantBase.setContactMobile(merchantBaseVO.getContactMobile());
+        merchantBase.setContactValue(merchantBaseVO.getContactValue());
         merchantBase.setCompany(merchantBaseVO.getCompany());
         merchantBaseMapper.insertSelective(merchantBase);
         return merchantBase.getId();

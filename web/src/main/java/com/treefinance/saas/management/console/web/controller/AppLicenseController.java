@@ -2,17 +2,17 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
-import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
+import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * 授权管理Controller
@@ -41,8 +41,8 @@ public class AppLicenseController {
         return appLicenseService.generateAppLicenseByAppId(appId);
     }
 
-    @RequestMapping(value = "list", produces = "application/json")
-    public Result<List<AppLicenseVO>> getKeyList() {
-        return Results.newSuccessResult(appLicenseService.getAppLicenseList());
+    @RequestMapping(value = "list", produces = "application/json", method = RequestMethod.GET)
+    public Result<Map<String, Object>> getKeyList(PageRequest request) {
+        return appLicenseService.getAppLicenseList(request);
     }
 }

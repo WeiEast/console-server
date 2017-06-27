@@ -13,7 +13,7 @@ public class MerchantBaseVO implements Serializable {
     private String appId;
     private String appName;
     private String contactPerson;
-    private String contactMobile;
+    private String contactValue;
     private String loginName;
     private String password;
     private String company;
@@ -52,12 +52,12 @@ public class MerchantBaseVO implements Serializable {
         this.contactPerson = contactPerson;
     }
 
-    public String getContactMobile() {
-        return contactMobile;
+    public String getContactValue() {
+        return contactValue;
     }
 
-    public void setContactMobile(String contactMobile) {
-        this.contactMobile = contactMobile;
+    public void setContactValue(String contactValue) {
+        this.contactValue = contactValue;
     }
 
     public String getLoginName() {

@@ -12,6 +12,7 @@ public class AppLicenseVO {
     private String serverPublicKey;
     private String serverPrivateKey;
     private String dataSecretKey;
+    private Integer createTime;
 
     public String getAppId() {
         return appId;
@@ -69,4 +70,11 @@ public class AppLicenseVO {
         this.appName = appName;
     }
 
+    public Integer getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Integer createTime) {
+        this.createTime = createTime;
+    }
 }

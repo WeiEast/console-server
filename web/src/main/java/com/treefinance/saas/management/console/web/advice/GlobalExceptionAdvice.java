@@ -65,13 +65,6 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         responseException(request, ex, HttpStatus.FORBIDDEN, response);
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public void handleAllException(HttpServletRequest request, Exception ex, HttpServletResponse response) {
-        responseSystemException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR, response);
-    }
-
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -88,6 +81,21 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         responseException(request, ex, HttpStatus.BAD_REQUEST, response);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public void handleIllegalArgumentException(IllegalArgumentException ex,
+                                               HttpServletRequest request, HttpServletResponse response) {
+        responseException(request, ex, HttpStatus.BAD_REQUEST, response);
+    }
+
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public void handleAllException(HttpServletRequest request, Exception ex, HttpServletResponse response) {
+        responseSystemException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR, response);
+    }
 
     private void handleLog(HttpServletRequest request, Exception ex) {
         StringBuffer logBuffer = new StringBuffer();
@@ -111,7 +119,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * 友好未知异常信息
+     * 友好处理未知异常信息
      *
      * @param request
      * @param ex

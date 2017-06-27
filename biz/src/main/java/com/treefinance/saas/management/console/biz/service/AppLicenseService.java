@@ -24,7 +24,9 @@ import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
@@ -38,6 +40,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,22 +109,30 @@ public class AppLicenseService {
         return result;
     }
 
-    public List<AppLicenseVO> getAppLicenseList() {
+    public Result<Map<String, Object>> getAppLicenseList(PageRequest request) {
         List<AppLicenseVO> appLicenseVOList = Lists.newArrayList();
         String key = APPID_SUFFIX + "*";
         Set<String> keySet = stringRedisTemplate.keys(key);
         if (CollectionUtils.isEmpty(keySet)) {
-            return appLicenseVOList;
+            return Results.newSuccessPageResult(request, 0L, appLicenseVOList);
         }
         List<String> resultStrList = stringRedisTemplate.opsForValue().multiGet(keySet);
         if (CollectionUtils.isEmpty(resultStrList)) {
-            return appLicenseVOList;
+            return Results.newSuccessPageResult(request, 0L, appLicenseVOList);
         }
         List<AppLicenseDTO> appLicenseDTOList = Lists.newArrayList();
         for (String result : resultStrList) {
             AppLicenseDTO appLicenseDTO = JSON.parseObject(result, AppLicenseDTO.class);
             appLicenseDTOList.add(appLicenseDTO);
         }
+        final long total = appLicenseDTOList.size();
+        int start = request.getOffset();
+        int end = request.getOffset() + request.getPageSize();
+        if (end > total) {
+            end = (int) total;
+        }
+        Collections.sort(appLicenseDTOList, (o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime()));
+        appLicenseDTOList = appLicenseDTOList.subList(start, end);
         List<String> appIdList = appLicenseDTOList.stream().map(AppLicenseDTO::getAppId).collect(Collectors.toList());
         MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
         merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
@@ -137,7 +148,7 @@ public class AppLicenseService {
             appLicenseVOList.add(appLicenseVO);
         }
 
-        return appLicenseVOList;
+        return Results.newSuccessPageResult(request, total, appLicenseVOList);
 
     }
 
@@ -154,6 +165,7 @@ public class AppLicenseService {
         public static AppLicenseDTO generateLicense(String appId) {
             AppLicenseDTO license = new AppLicenseDTO();
             license.setAppId(appId);
+            license.setCreateTime((int) (System.currentTimeMillis() / 1000));
             // sdk密钥
             SimpleKeyPair sdk = RSA.generateKey();
             license.setSdkPrivateKey(sdk.getPrivateKeyString());

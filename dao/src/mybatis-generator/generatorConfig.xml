@@ -48,10 +48,10 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="app_biz_license" domainObjectName="AppBizLicense">
-            <property name="useActualColumnNames" value="true"/>
-            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
-        </table>
+        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
 
         <table tableName="merchant_base" domainObjectName="MerchantBase"
                enableSelectPaginationByExample="true"
@@ -63,20 +63,20 @@
             <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
         </table>
 
-        <table tableName="merchant_user" domainObjectName="MerchantUser">
-            <property name="useActualColumnNames" value="true"/>
-            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
-        </table>
+        <!--<table tableName="merchant_user" domainObjectName="MerchantUser">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
 
-        <table tableName="console_user" domainObjectName="ConsoleUser"
-               enableSelectPaginationByExample="true"
-               enableInsertOrUpdateBySelective="true"
-               enableBatchInsert="true"
-               enableBatchUpdateByPrimaryKey="true"
-               enableBatchUpdateByPrimaryKeySelective="true">
-            <property name="useActualColumnNames" value="true"/>
-            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
-        </table>
+        <!--<table tableName="console_user" domainObjectName="ConsoleUser"-->
+               <!--enableSelectPaginationByExample="true"-->
+               <!--enableInsertOrUpdateBySelective="true"-->
+               <!--enableBatchInsert="true"-->
+               <!--enableBatchUpdateByPrimaryKey="true"-->
+               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
 
 
         <!--<table tableName="merchant_callback_config" domainObjectName="MerchantCallbackConfig">-->

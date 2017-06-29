@@ -20,4 +20,5 @@ public interface CommonStateCode {
     StateCode NO_PERMISSION = new StateCode(-1003, "用户无权限");
     StateCode ACCOUNT_DOES_NOT_EXIST = new StateCode(-1004, "账号不存在");
     StateCode ACCOUNT_NOT_ACTIVATED = new StateCode(-1005, "账号未激活");
+    StateCode REPEAT_LOGGED_IN = new StateCode(-1006, "正在登录,请稍后...");
 }

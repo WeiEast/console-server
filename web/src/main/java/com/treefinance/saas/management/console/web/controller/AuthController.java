@@ -64,7 +64,7 @@ public class AuthController {
         Boolean lock = moreRedisTemplate.acquireLock(key, 10 * 60 * 1000);
         if (!lock) {
             logger.info("用户发起重复登录请求!");
-            return null;
+            return Results.newFailedResult(CommonStateCode.REPEAT_LOGGED_IN);
         }
         try {
             UsernamePasswordToken userToken = new UsernamePasswordToken(username, password);

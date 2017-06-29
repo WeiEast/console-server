@@ -105,6 +105,7 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantBaseCriteria criteria = new MerchantBaseCriteria();
         criteria.setOffset(request.getOffset());
         criteria.setLimit(request.getPageSize());
+        criteria.setOrderByClause("CreateTime desc");
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
         //<merchantId,MerchantBase>
         Map<Long, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getId, merchantBase -> merchantBase));

@@ -18,9 +18,12 @@ package com.treefinance.saas.management.console.web.advice;
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.exceptions.RequestLimitException;
 import com.treefinance.saas.management.console.common.exceptions.TaskTimeOutException;
 import com.treefinance.saas.management.console.common.exceptions.UnknownException;
-import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.CommonStateCode;
+import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.result.StateCode;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,21 +51,21 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ResponseBody
     public void handleUnknownException(HttpServletRequest request, UnknownException ex, HttpServletResponse response) {
-        responseException(request, ex, HttpStatus.SERVICE_UNAVAILABLE, response);
+        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.SERVICE_UNAVAILABLE, response);
     }
 
     @ExceptionHandler(value = TaskTimeOutException.class)
     @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
     @ResponseBody
     public void handleTimeoutException(HttpServletRequest request, TaskTimeOutException ex, HttpServletResponse response) {
-        responseException(request, ex, HttpStatus.GATEWAY_TIMEOUT, response);
+        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.GATEWAY_TIMEOUT, response);
     }
 
     @ExceptionHandler(value = ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
     public void handleForbiddenException(HttpServletRequest request, ForbiddenException ex, HttpServletResponse response) {
-        responseException(request, ex, HttpStatus.FORBIDDEN, response);
+        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.FORBIDDEN, response);
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -70,7 +73,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseBody
     public void handleValidationException(ValidationException ex,
                                           HttpServletRequest request, HttpServletResponse response) {
-        responseException(request, ex, HttpStatus.BAD_REQUEST, response);
+        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.BAD_REQUEST, response);
     }
 
     @ExceptionHandler(BizException.class)
@@ -78,7 +81,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseBody
     public void handleBizException(ValidationException ex,
                                    HttpServletRequest request, HttpServletResponse response) {
-        responseException(request, ex, HttpStatus.BAD_REQUEST, response);
+        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.BAD_REQUEST, response);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -86,7 +89,14 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseBody
     public void handleIllegalArgumentException(IllegalArgumentException ex,
                                                HttpServletRequest request, HttpServletResponse response) {
-        responseException(request, ex, HttpStatus.BAD_REQUEST, response);
+        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.BAD_REQUEST, response);
+    }
+
+    @ExceptionHandler(RequestLimitException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public void handleRequestLimitException(RequestLimitException ex, HttpServletRequest request, HttpServletResponse response) {
+        responseException(request, CommonStateCode.REPEAT_REQUEST_ERROR, ex, HttpStatus.BAD_REQUEST, response);
     }
 
 
@@ -109,12 +119,10 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         logger.error(logBuffer.toString(), ex);
     }
 
-    private void responseException(HttpServletRequest request, Exception ex,
+    private void responseException(HttpServletRequest request, StateCode stateCode, Exception ex,
                                    HttpStatus httpStatus, HttpServletResponse response) {
         handleLog(request, ex);
-        Result result = new Result();
-        result.setStatusText(ex.getMessage());
-        String responseBody = Jackson.toJSONString(result);
+        String responseBody = Jackson.toJSONString(Results.newFailedResult(stateCode, ex.getMessage()));
         ServletResponseUtils.responseJson(response, httpStatus.value(), responseBody);
     }
 
@@ -129,9 +137,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     private void responseSystemException(HttpServletRequest request, Exception ex,
                                          HttpStatus httpStatus, HttpServletResponse response) {
         handleLog(request, ex);
-        Result result = new Result();
-        result.setStatusText("系统内部错误,联系管理员!");
-        String responseBody = Jackson.toJSONString(result);
+        String responseBody = Jackson.toJSONString(Results.newFailedResult(CommonStateCode.FAILURE));
         ServletResponseUtils.responseJson(response, httpStatus.value(), responseBody);
     }
 }

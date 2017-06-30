@@ -17,18 +17,22 @@
 package com.treefinance.saas.management.console.common.cache;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public interface RedisService {
 
-  boolean saveString(final String key, final String value);
+    boolean saveString(final String key, final String value);
 
-  boolean saveString(String key, String value, int ttlSeconds);
+    boolean saveString(String key, String value, int ttlSeconds);
 
-  String getString(final String key);
+    String getString(final String key);
 
-  boolean saveListString(final String key, final List<String> value);
+    boolean saveListString(final String key, final List<String> value);
 
-  String getStringFromList(final String key);
+    String getStringFromList(final String key);
 
-  boolean deleteKey(String key);
+    boolean deleteKey(String key);
+
+    Long[] increaseRequestLimitCounter(String ip, long[] times, TimeUnit[] timeUnits);
+
 }

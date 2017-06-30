@@ -1,13 +1,12 @@
 package com.treefinance.saas.management.console.web.controller;
 
-import com.treefinance.saas.management.console.common.cache.redis.MoreRedisTemplate;
+import com.treefinance.saas.management.console.common.annotations.RequestLimit;
 import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.bo.AuthUserBO;
 import com.treefinance.saas.management.console.common.domain.vo.LoginVO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
-import com.treefinance.saas.management.console.common.utils.RedisKeyUtils;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -17,13 +16,13 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by haojiahong on 2017/6/23.
@@ -31,10 +30,7 @@ import javax.servlet.http.HttpSession;
 @RestController
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
-    @Autowired
-    private MoreRedisTemplate moreRedisTemplate;
-
+    
     @RequestMapping(value = "/logout", method = {RequestMethod.POST}, produces = "application/json")
     public Result<?> logout() {
         Subject subject = SecurityUtils.getSubject();
@@ -56,16 +52,11 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/login", method = {RequestMethod.POST}, produces = "application/json", consumes = "application/json")
+    @RequestLimit(counts = {5, 30, 40}, times = {1, 30, 1},
+            timeUnits = {TimeUnit.SECONDS, TimeUnit.SECONDS, TimeUnit.MINUTES})
     public Result<?> doLogin(@RequestBody LoginVO loginVO, HttpSession session) throws ForbiddenException {
         String username = loginVO.getUsername();
         String password = loginVO.getPassword();
-        //防止用户重复点击登录.
-        String key = RedisKeyUtils.genRedisKey(String.format("%s:%s", "auth", username));
-        Boolean lock = moreRedisTemplate.acquireLock(key, 10 * 60 * 1000);
-        if (!lock) {
-            logger.info("用户发起重复登录请求!");
-            return Results.newFailedResult(CommonStateCode.REPEAT_LOGGED_IN);
-        }
         try {
             UsernamePasswordToken userToken = new UsernamePasswordToken(username, password);
             Subject subject = SecurityUtils.getSubject();
@@ -85,8 +76,6 @@ public class AuthController {
         } catch (Exception e) {
             logger.error(String.format("登陆失败，username=%s", username), e);
             return Results.newFailedResult(CommonStateCode.FAILURE);
-        } finally {
-            moreRedisTemplate.releaseLock(key);
         }
     }
 

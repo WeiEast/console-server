@@ -92,6 +92,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.BAD_REQUEST, response);
     }
 
+    //现将此异常作为警告信息
     @ExceptionHandler(RequestLimitException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody

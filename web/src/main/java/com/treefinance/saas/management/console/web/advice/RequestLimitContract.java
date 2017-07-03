@@ -48,6 +48,7 @@ public class RequestLimitContract {
         final int[] counts = limit.counts();
         for (int i = 0; i < limits.length; i++) {
             if (limits[i] > counts[i]) {
+                logger.error("ip={}请求频繁", ip);
                 throw new RequestLimitException("请求频繁，请稍后重试");
             }
         }

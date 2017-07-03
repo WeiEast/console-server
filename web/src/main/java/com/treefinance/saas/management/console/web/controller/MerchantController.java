@@ -30,9 +30,15 @@ public class MerchantController {
         return result;
     }
 
+    /**
+     * 获取app列表
+     *
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "app/list", produces = "application/json")
-    public Result<Map<String, Object>> getMerchantBaseList(PageRequest request) {
-        Result<Map<String, Object>> result = merchantService.getMerchantList(request);
+    public Result<Map<String, Object>> getMerchantBaseList() {
+        Result<Map<String, Object>> result = merchantService.getMerchantList(null);
         return result;
     }
 

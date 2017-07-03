@@ -84,8 +84,9 @@ public class MerchantServiceImpl implements MerchantService {
             merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);
 
         }
-
+        logger.info("查询秘钥appId={}", appId);
         AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
+        logger.info("查询秘钥appId={},result={}", appId, JSON.toJSONString(appLicenseDTO));
         if (appLicenseDTO != null) {
             AppLicenseVO appLicenseVO = new AppLicenseVO();
             BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);

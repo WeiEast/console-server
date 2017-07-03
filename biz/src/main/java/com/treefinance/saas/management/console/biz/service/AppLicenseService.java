@@ -68,11 +68,13 @@ public class AppLicenseService {
      * @param appId 第三方的appId
      */
     public AppLicenseDTO selectOneByAppId(String appId) {
+        logger.info("根据appId={}查询秘钥key", appId);
         String key = APPID_SUFFIX + appId;
         AppLicenseDTO result = null;
         if (stringRedisTemplate.hasKey(key)) {
             result = JSON.parseObject(stringRedisTemplate.opsForValue().get(key), AppLicenseDTO.class);
         }
+        logger.info("根据appId={}查询秘钥key结果为result={}", appId, JSON.toJSONString(result));
         return result;
     }
 

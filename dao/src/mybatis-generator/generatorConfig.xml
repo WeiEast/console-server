@@ -48,12 +48,24 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense">-->
+        <table tableName="app_biz_license" domainObjectName="AppBizLicense">
+            <property name="useActualColumnNames" value="true"/>
+            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
+        </table>
+
+        <!--<table tableName="merchant_base" domainObjectName="MerchantBase"-->
+               <!--enableSelectPaginationByExample="true"-->
+               <!--enableInsertOrUpdateBySelective="true"-->
+               <!--enableBatchInsert="true"-->
+               <!--enableBatchUpdateByPrimaryKey="true"-->
+               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
             <!--<property name="useActualColumnNames" value="true"/>-->
             <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->
 
-        <table tableName="merchant_base" domainObjectName="MerchantBase"
+
+
+        <table tableName="biz_license_type" domainObjectName="BizLicenseType"
                enableSelectPaginationByExample="true"
                enableInsertOrUpdateBySelective="true"
                enableBatchInsert="true"
@@ -62,6 +74,8 @@
             <property name="useActualColumnNames" value="true"/>
             <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
         </table>
+
+
 
         <!--<table tableName="merchant_user" domainObjectName="MerchantUser">-->
             <!--<property name="useActualColumnNames" value="true"/>-->

@@ -30,6 +30,12 @@ public class MerchantController {
         return result;
     }
 
+    @RequestMapping(value = "app/list", produces = "application/json")
+    public Result<Map<String, Object>> getMerchantBaseList(PageRequest request) {
+        Result<Map<String, Object>> result = merchantService.getMerchantList(request);
+        return result;
+    }
+
     @RequestMapping(value = "add", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public Result<Map<String, Object>> addMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
         Map<String, Object> map = merchantService.addMerchant(merchantBaseVO);
@@ -38,7 +44,7 @@ public class MerchantController {
 
     @RequestMapping(value = "update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public Result<Boolean> updateMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
-         merchantService.updateMerchant(merchantBaseVO);
+        merchantService.updateMerchant(merchantBaseVO);
         return Results.newSuccessResult(Boolean.TRUE);
     }
 

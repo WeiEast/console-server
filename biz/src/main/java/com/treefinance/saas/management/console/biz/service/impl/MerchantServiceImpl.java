@@ -182,6 +182,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public void updateMerchant(MerchantBaseVO merchantBaseVO) {
+        logger.info("更新商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
         MerchantBase merchantBase = new MerchantBase();
@@ -201,6 +202,7 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantUser merchantUser = new MerchantUser();
         merchantUser.setId(merchantUserList.get(0).getId());
         String newPwd = CommonUtils.generatePassword();
+        logger.info("重置商户id={}密码 newPwd={}", id, newPwd);
         merchantUser.setPassword(DigestUtils.md5Hex(newPwd));
         merchantUserMapper.updateByPrimaryKeySelective(merchantUser);
         return newPwd;

@@ -53,21 +53,21 @@
             <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-        <table tableName="merchant_base" domainObjectName="MerchantBase"
-               enableSelectPaginationByExample="true"
-               enableBatchInsert="true"
-               enableBatchUpdateByPrimaryKey="true"
-               enableBatchUpdateByPrimaryKeySelective="true">
-            <property name="useActualColumnNames" value="true"/>
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        </table>
-
-
-
-        <!--<table tableName="biz_license_type" domainObjectName="BizLicenseType">-->
+        <!--<table tableName="merchant_base" domainObjectName="MerchantBase"-->
+               <!--enableSelectPaginationByExample="true"-->
+               <!--enableBatchInsert="true"-->
+               <!--enableBatchUpdateByPrimaryKey="true"-->
+               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
             <!--<property name="useActualColumnNames" value="true"/>-->
             <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
+
+
+
+        <table tableName="app_biz_type" domainObjectName="AppBizType">
+            <property name="useActualColumnNames" value="true"/>
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        </table>
 
 
 

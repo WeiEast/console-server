@@ -84,7 +84,6 @@ public class MerchantServiceImpl implements MerchantService {
             merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);
 
         }
-
         AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
         if (appLicenseDTO != null) {
             AppLicenseVO appLicenseVO = new AppLicenseVO();

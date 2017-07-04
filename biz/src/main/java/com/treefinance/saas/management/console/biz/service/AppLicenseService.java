@@ -35,7 +35,6 @@ import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -68,13 +67,14 @@ public class AppLicenseService {
      *
      * @param appId 第三方的appId
      */
-    @Cacheable(value = "DAY", key = "'saas_gateway_app_license:'+#appId")
     public AppLicenseDTO selectOneByAppId(String appId) {
+        logger.info("根据appId={}查询秘钥key", appId);
         String key = APPID_SUFFIX + appId;
         AppLicenseDTO result = null;
         if (stringRedisTemplate.hasKey(key)) {
             result = JSON.parseObject(stringRedisTemplate.opsForValue().get(key), AppLicenseDTO.class);
         }
+        logger.info("根据appId={}查询秘钥key结果为result={}", appId, JSON.toJSONString(result));
         return result;
     }
 

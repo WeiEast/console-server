@@ -106,6 +106,8 @@ public class ShiroConfiguration {
         //LogoutFilter logoutFilter = new LogoutFilter();
         //logoutFilter.setRedirectUrl("/login");
         //shiroFilterFactoryBean.getFilters().put("logout", logoutFilter);
+        FormAuthenticationExtFilter authcFilter = new FormAuthenticationExtFilter();
+        shiroFilterFactoryBean.getFilters().put("authc", authcFilter);
         // 权限配置
         Map<String, String> filterChainDefinitionManager = new LinkedHashMap<>();
         //filterChainDefinitionManager.put("/logout", "logout");

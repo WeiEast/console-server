@@ -21,7 +21,6 @@ import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +68,7 @@ public class MerchantServiceImpl implements MerchantService {
         if (!CollectionUtils.isEmpty(merchantUserList)) {
             MerchantUser merchantUser = merchantUserList.get(0);
             merchantBaseVO.setLoginName(merchantUser.getLoginName());
+            merchantBaseVO.setPassword(CommonUtils.decodeBase64(merchantUser.getPassword()));
         }
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
@@ -140,6 +140,7 @@ public class MerchantServiceImpl implements MerchantService {
             MerchantUser merchantUser = merchantUserMerchantIdMap.get(merchantBase.getId());
             if (merchantUser != null) {
                 merchantBaseVO.setLoginName(merchantUser.getLoginName());
+                merchantBaseVO.setPassword(CommonUtils.decodeBase64(merchantUser.getPassword()));
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
             if (!CollectionUtils.isEmpty(licenseList)) {
@@ -203,7 +204,7 @@ public class MerchantServiceImpl implements MerchantService {
         merchantUser.setId(merchantUserList.get(0).getId());
         String newPwd = CommonUtils.generatePassword();
         logger.info("重置商户id={}密码 newPwd={}", id, newPwd);
-        merchantUser.setPassword(DigestUtils.md5Hex(newPwd));
+        merchantUser.setPassword(CommonUtils.encodeBase64(newPwd));
         merchantUserMapper.updateByPrimaryKeySelective(merchantUser);
         return newPwd;
     }
@@ -214,7 +215,7 @@ public class MerchantServiceImpl implements MerchantService {
         merchantUser.setMerchantId(merchantId);
         merchantUser.setLoginName(CommonUtils.generateLoginName(merchantBaseVO.getAppName()));
         String plainTextPassword = CommonUtils.generatePassword();
-        merchantUser.setPassword(DigestUtils.md5Hex(plainTextPassword));
+        merchantUser.setPassword(CommonUtils.encodeBase64(plainTextPassword));
         merchantUser.setIsActive(Boolean.TRUE);
         merchantUserMapper.insertSelective(merchantUser);
         return plainTextPassword;

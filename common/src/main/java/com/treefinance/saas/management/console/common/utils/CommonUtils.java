@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.common.utils;
 
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,6 @@ public class CommonUtils {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtils.class);
 
     private static final String DA_SHU = "dashu";
-
 
     public static String generateAppId() {
         return RandomStringUtils.randomAlphanumeric(16);
@@ -33,6 +33,17 @@ public class CommonUtils {
 
     public static String generatePassword() {
         return RandomStringUtils.randomAlphabetic(2) + RandomStringUtils.randomNumeric(4);
+    }
+
+    public static String encodeBase64(String str) {
+        byte[] b = Base64.encodeBase64(str.getBytes(), true);
+        return new String(b);
+    }
+
+    public static String decodeBase64(String str) {
+        byte[] b = Base64.decodeBase64(str.getBytes());
+        return new String(b);
+
     }
 
 }

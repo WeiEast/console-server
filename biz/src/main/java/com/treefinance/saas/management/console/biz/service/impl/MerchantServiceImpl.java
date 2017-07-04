@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -209,6 +210,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {
         MerchantUser merchantUser = new MerchantUser();
+        merchantUser.setId(UidGenerator.getId());
         merchantUser.setMerchantId(merchantId);
         merchantUser.setLoginName(CommonUtils.generateLoginName(merchantBaseVO.getAppName()));
         String plainTextPassword = CommonUtils.generatePassword();
@@ -221,6 +223,7 @@ public class MerchantServiceImpl implements MerchantService {
     private void insertAppBizLicense(MerchantBaseVO merchantBaseVO, String appId) {
         for (AppBizLicenseVO appBizLicenseVO : merchantBaseVO.getAppBizLicenseVOList()) {
             AppBizLicense appBizLicense = new AppBizLicense();
+            appBizLicense.setId(UidGenerator.getId());
             appBizLicense.setAppId(appId);
             appBizLicense.setBizType(appBizLicenseVO.getBizType());
             appBizLicenseMapper.insertSelective(appBizLicense);
@@ -229,6 +232,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     private Long insertMerchantBase(MerchantBaseVO merchantBaseVO) {
         MerchantBase merchantBase = new MerchantBase();
+        merchantBase.setId(UidGenerator.getId());
         merchantBase.setAppId(merchantBaseVO.getAppId());
         merchantBase.setAppName(merchantBaseVO.getAppName());
         merchantBase.setContactPerson(merchantBaseVO.getContactPerson());

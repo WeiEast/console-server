@@ -165,7 +165,7 @@ public class AppLicenseService {
         public static AppLicenseDTO generateLicense(String appId) {
             AppLicenseDTO license = new AppLicenseDTO();
             license.setAppId(appId);
-            license.setCreateTime((int) (System.currentTimeMillis() / 1000));
+            license.setCreateTime(System.currentTimeMillis() / 1000);
             // sdk密钥
             SimpleKeyPair sdk = RSA.generateKey();
             license.setSdkPrivateKey(sdk.getPrivateKeyString());

@@ -65,7 +65,7 @@ public class AppLicenseDTO implements Serializable {
      *
      * @mbggenerated Fri May 19 19:07:27 CST 2017
      */
-    private Integer createTime;
+    private Long createTime;
 
 
     /**
@@ -237,7 +237,7 @@ public class AppLicenseDTO implements Serializable {
      * @return the value of s_app_license.CreateTime
      * @mbggenerated Fri May 19 19:07:27 CST 2017
      */
-    public Integer getCreateTime() {
+    public Long getCreateTime() {
         return createTime;
     }
 
@@ -248,7 +248,7 @@ public class AppLicenseDTO implements Serializable {
      * @param createTime the value for s_app_license.CreateTime
      * @mbggenerated Fri May 19 19:07:27 CST 2017
      */
-    public void setCreateTime(Integer createTime) {
+    public void setCreateTime(Long createTime) {
         this.createTime = createTime;
     }
 

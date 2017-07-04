@@ -48,48 +48,37 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="app_biz_license" domainObjectName="AppBizLicense">
-            <property name="useActualColumnNames" value="true"/>
-            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
-        </table>
-
-        <!--<table tableName="merchant_base" domainObjectName="MerchantBase"-->
-               <!--enableSelectPaginationByExample="true"-->
-               <!--enableInsertOrUpdateBySelective="true"-->
-               <!--enableBatchInsert="true"-->
-               <!--enableBatchUpdateByPrimaryKey="true"-->
-               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense">-->
             <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-
-
-        <table tableName="biz_license_type" domainObjectName="BizLicenseType"
+        <table tableName="merchant_base" domainObjectName="MerchantBase"
                enableSelectPaginationByExample="true"
-               enableInsertOrUpdateBySelective="true"
                enableBatchInsert="true"
                enableBatchUpdateByPrimaryKey="true"
                enableBatchUpdateByPrimaryKeySelective="true">
             <property name="useActualColumnNames" value="true"/>
-            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         </table>
+
+
+
+        <!--<table tableName="biz_license_type" domainObjectName="BizLicenseType">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--</table>-->
 
 
 
         <!--<table tableName="merchant_user" domainObjectName="MerchantUser">-->
             <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-        <!--<table tableName="console_user" domainObjectName="ConsoleUser"-->
-               <!--enableSelectPaginationByExample="true"-->
-               <!--enableInsertOrUpdateBySelective="true"-->
-               <!--enableBatchInsert="true"-->
-               <!--enableBatchUpdateByPrimaryKey="true"-->
-               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+        <!--<table tableName="console_user" domainObjectName="ConsoleUser">-->
             <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
 

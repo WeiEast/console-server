@@ -36,8 +36,8 @@ public class CommonUtils {
     }
 
     public static String encodeBase64(String str) {
-        byte[] b = Base64.encodeBase64(str.getBytes(), true);
-        return new String(b);
+        String b = Base64.encodeBase64String(str.getBytes());
+        return b;
     }
 
     public static String decodeBase64(String str) {

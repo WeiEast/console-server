@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,18 +29,6 @@ public class MerchantController {
     @RequestMapping(value = "list", produces = "application/json")
     public Result<Map<String, Object>> getMerchantList(PageRequest request) {
         Result<Map<String, Object>> result = merchantService.getMerchantList(request);
-        return result;
-    }
-
-    /**
-     * 获取app列表
-     *
-     * @param request
-     * @return
-     */
-    @RequestMapping(value = "app/list", produces = "application/json")
-    public Result<Map<String, Object>> getMerchantBaseList() {
-        Result<Map<String, Object>> result = merchantService.getMerchantList(null);
         return result;
     }
 
@@ -66,6 +56,17 @@ public class MerchantController {
         String plainTextPwd = merchantService.resetPassWord(id);
         return Results.newSuccessResult(plainTextPwd);
 
+    }
+
+    /**
+     * 获取简单入住的app列表
+     *
+     * @return
+     */
+    @RequestMapping(value = "simple/list", produces = "application/json")
+    public Result<List<MerchantSimpleVO>> getMerchantBaseList() {
+        List<MerchantSimpleVO> result = merchantService.getMerchantBaseList();
+        return Results.newSuccessResult(result);
     }
 
 

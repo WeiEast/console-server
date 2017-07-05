@@ -33,12 +33,18 @@ public class ShiroConfiguration {
     }
 
     /**
-     * HashedCredentialsMatcher，这个类是为了对密码进行编码的， 防止密码在数据库里明码保存，当然在登陆认证的时候，
+     * 这个类是为了对密码进行编码的， 防止密码在数据库里明码保存，当然在登陆认证的时候，
      */
-    @Bean(name = "hashedCredentialsMatcher")
-    public ConsoleCredentialsMatcher hashedCredentialsMatcher() {
-        return new ConsoleCredentialsMatcher();
+    @Bean(name = "consoleCredentialsMatcher")
+    public AesCredentialsMatcher consoleCredentialsMatcher() {
+        return new AesCredentialsMatcher();
     }
+
+    @Bean(name = "base64CredentialsMatcher")
+    public Base64CredentialsMatcher base64CredentialsMatcher() {
+        return new Base64CredentialsMatcher();
+    }
+
 
     /**
      * 设置自定义realm
@@ -49,7 +55,7 @@ public class ShiroConfiguration {
     @DependsOn("lifecycleBeanPostProcessor")
     public UserRealm userRealm() {
         UserRealm realm = new UserRealm();
-        realm.setCredentialsMatcher(hashedCredentialsMatcher());
+        realm.setCredentialsMatcher(base64CredentialsMatcher());
         return realm;
     }
 

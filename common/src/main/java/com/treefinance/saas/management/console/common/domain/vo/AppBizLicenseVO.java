@@ -7,8 +7,13 @@ import java.io.Serializable;
  */
 public class AppBizLicenseVO implements Serializable {
 
+    private static final long serialVersionUID = -8509335907100898390L;
+    private String appId;
     private Byte bizType;
     private String bizName;
+    private Integer dailyLimit;
+    private Byte isShowLicense;
+    private Byte isValid;
 
 
     public Byte getBizType() {
@@ -27,5 +32,35 @@ public class AppBizLicenseVO implements Serializable {
         this.bizName = bizName;
     }
 
+    public String getAppId() {
+        return appId;
+    }
 
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public Integer getDailyLimit() {
+        return dailyLimit;
+    }
+
+    public void setDailyLimit(Integer dailyLimit) {
+        this.dailyLimit = dailyLimit;
+    }
+
+    public Byte getIsShowLicense() {
+        return isShowLicense;
+    }
+
+    public void setIsShowLicense(Byte isShowLicense) {
+        this.isShowLicense = isShowLicense;
+    }
+
+    public Byte getIsValid() {
+        return isValid;
+    }
+
+    public void setIsValid(Byte isValid) {
+        this.isValid = isValid;
+    }
 }

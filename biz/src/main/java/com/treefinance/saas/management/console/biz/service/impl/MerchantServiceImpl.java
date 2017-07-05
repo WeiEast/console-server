@@ -11,6 +11,7 @@ import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -207,6 +208,17 @@ public class MerchantServiceImpl implements MerchantService {
         merchantUser.setPassword(CommonUtils.encodeBase64(newPwd));
         merchantUserMapper.updateByPrimaryKeySelective(merchantUser);
         return newPwd;
+    }
+
+    @Override
+    public List<MerchantSimpleVO> getMerchantBaseList() {
+        List<MerchantSimpleVO> merchantSimpleVOList = Lists.newArrayList();
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(null);
+        if (CollectionUtils.isEmpty(merchantBaseList)) {
+            return merchantSimpleVOList;
+        }
+        merchantSimpleVOList = BeanUtils.convertList(merchantBaseList, MerchantSimpleVO.class);
+        return merchantSimpleVOList;
     }
 
     private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {

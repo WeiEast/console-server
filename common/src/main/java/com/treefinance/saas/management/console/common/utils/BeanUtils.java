@@ -13,6 +13,7 @@ import java.util.function.Supplier;
  * Created by luoyihua on 2017/5/10.
  */
 public final class BeanUtils {
+
     private BeanUtils() {
 
     }
@@ -42,6 +43,7 @@ public final class BeanUtils {
 
     /**
      * 对象转化
+     *
      * @param src
      * @param target
      * @param <T>
@@ -50,6 +52,20 @@ public final class BeanUtils {
     public static <T> T convert(Object src, T target) {
         copyProperties(src, target);
         return target;
+    }
+
+    public static <S, T> List<T> convertList(List<S> request, Class<T> cls) {
+        List<T> result = Lists.newArrayList();
+        if (request == null) return result;
+        for (S obj : request) {
+            try {
+                T target = cls.newInstance();
+                result.add(convert(obj, target));
+            } catch (Exception e) {
+                throw new IllegalArgumentException("对象copy失败，请检查相关module", e);
+            }
+        }
+        return result;
     }
 
     public static <T> T checkNull(Supplier<T> t) {

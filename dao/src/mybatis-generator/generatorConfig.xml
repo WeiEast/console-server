@@ -48,10 +48,10 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
-        <!--</table>-->
+        <table tableName="app_biz_license" domainObjectName="AppBizLicense">
+            <property name="useActualColumnNames" value="true"/>
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        </table>
 
         <!--<table tableName="merchant_base" domainObjectName="MerchantBase"-->
                <!--enableSelectPaginationByExample="true"-->
@@ -64,10 +64,10 @@
 
 
 
-        <table tableName="app_biz_type" domainObjectName="AppBizType">
-            <property name="useActualColumnNames" value="true"/>
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        </table>
+        <!--<table tableName="app_biz_type" domainObjectName="AppBizType">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--</table>-->
 
 
 

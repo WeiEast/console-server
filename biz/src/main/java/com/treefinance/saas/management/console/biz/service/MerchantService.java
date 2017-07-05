@@ -1,9 +1,11 @@
 package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,4 +22,6 @@ public interface MerchantService {
     void updateMerchant(MerchantBaseVO merchantBaseVO);
 
     String resetPassWord(Long id);
+
+    List<MerchantSimpleVO> getMerchantBaseList();
 }

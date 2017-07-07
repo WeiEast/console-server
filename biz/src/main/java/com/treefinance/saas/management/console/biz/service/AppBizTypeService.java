@@ -10,4 +10,9 @@ import java.util.List;
 public interface AppBizTypeService {
 
     List<AppBizTypeVO> getBizList();
+
+    List<AppBizTypeVO> getBizListByAppId(String appId);
+
+    List<AppBizTypeVO> getTaskBizTypeList();
+
 }

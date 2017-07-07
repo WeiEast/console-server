@@ -79,7 +79,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BizException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public void handleBizException(ValidationException ex,
+    public void handleBizException(BizException ex,
                                    HttpServletRequest request, HttpServletResponse response) {
         responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.BAD_REQUEST, response);
     }

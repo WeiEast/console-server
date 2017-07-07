@@ -14,7 +14,7 @@ public enum EBizType {
     private String text;
     private String name;
 
-    private EBizType(String text, Byte code, String name) {
+    EBizType(String text, Byte code, String name) {
         this.code = code;
         this.text = text;
         this.name = name;

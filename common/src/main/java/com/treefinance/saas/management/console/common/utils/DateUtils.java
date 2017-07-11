@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.common.utils;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * 时间工具类
@@ -80,6 +82,16 @@ public class DateUtils {
 
     public static Date string2Date(String date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            return simpleDateFormat.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Date ymdString2Date(String date) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             return simpleDateFormat.parse(date);
         } catch (ParseException e) {
@@ -307,6 +319,28 @@ public class DateUtils {
         return year + "-" + DateUtils.getWeekOfYear(date) + "周";
     }
 
+
+    /**
+     * 获取一段时间区间内的所有日期
+     *
+     * @param start
+     * @param end
+     * @return
+     */
+    public static List<Date> getDateLists(Date start, Date end) {
+        List<Date> ret = Lists.newArrayList();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(start);
+        Date tmpDate = calendar.getTime();
+        while (tmpDate.before(end)) {
+            ret.add(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            tmpDate = calendar.getTime();
+        }
+        return ret;
+    }
+
+
     public static void main(String[] args) {
         System.out.println(DateUtils.getWeekOfYear(new Date()));
         System.out.println(DateUtils.getFirstDayOfWeek(new Date()));
@@ -315,7 +349,7 @@ public class DateUtils {
         System.out.println(DateUtils.getLastDayOfMonth(new Date()));
         System.out.println(DateUtils.getWeekStrOfYear(new Date()));
         System.out.println(DateUtils.date2SimpleYm(new Date()));
-
+        System.out.println(DateUtils.getDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-09-09")));
     }
 
 }

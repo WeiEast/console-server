@@ -2,7 +2,6 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
-import com.treefinance.saas.management.console.common.domain.vo.MerchantStatSimpleVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +36,7 @@ public class MerchantStatController {
     }
 
     @RequestMapping(value = "/stataccess/all", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, List<MerchantStatSimpleVO>>> getAll(StatRequest request) {
+    public Result<Map<String, Object>> getAll(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryAllAccessList(request));
     }
 

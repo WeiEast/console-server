@@ -1,8 +1,9 @@
 package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
-import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
+import com.treefinance.saas.management.console.common.domain.vo.ApiStatAccessVO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public interface ApiStatService {
      * @param request
      * @return
      */
-    Map<String, List<ChartStatVO>> queryAllAccessList(StatRequest request);
+    Map<String, Object> queryAllAccessList(StatRequest request);
 
     /**
      * 系统日访问量
@@ -25,7 +26,7 @@ public interface ApiStatService {
      * @param request
      * @return
      */
-    Map<String, List<ChartStatVO>> queryDayAccessList(StatRequest request);
+    Map<String, Object> queryDayAccessList(StatRequest request);
 
     /**
      * api实时访问统计
@@ -34,7 +35,20 @@ public interface ApiStatService {
      * @param type    1:统计访问量;2:统计相应时间;3:统计请求错误
      * @return
      */
-    Map<String, List<ChartStatVO>> queryStatAccessList(StatRequest request, Integer type);
+    Map<String, Object> queryStatAccessList(StatRequest request, Integer type);
 
-    Map<String, Object> queryStatAccessRank(StatRequest request);
+    /**
+     * api实时访问统计
+     *
+     * @param request
+     * @return
+     */
+    List<ApiStatAccessVO> queryStatAccess(StatRequest request);
+
+    /**
+     * api每日访问排名统计
+     *
+     * @return
+     */
+    Map<String, Object> queryStatAccessRank(Date date);
 }

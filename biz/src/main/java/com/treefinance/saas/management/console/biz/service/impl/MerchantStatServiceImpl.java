@@ -1,11 +1,12 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
+import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatDayVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatSimpleVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatVO;
@@ -33,6 +34,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -175,9 +177,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     }
 
     @Override
-    public Map<String, List<MerchantStatSimpleVO>> queryAllAccessList(StatRequest request) {
+    public Map<String, Object> queryAllAccessList(StatRequest request) {
         baseCheck(request);
-        Map<String, List<MerchantStatSimpleVO>> resultMap = Maps.newHashMap();
+        Map<String, Object> wrapMap = Maps.newHashMap();
 
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
@@ -190,82 +192,104 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                     JSON.toJSONString(statRequest), JSON.toJSONString(result));
         }
         if (CollectionUtils.isEmpty(result.getData())) {
-            return resultMap;
+            return wrapMap;
         }
-        //<appId,List<MerchantStatAccessRO>>
-        Map<String, List<MerchantStatSimpleVO>> map = Maps.newHashMap();
+        //遍历获取时间节点list
+        Set<Date> dataTimeSet = Sets.newHashSet();
         result.getData().forEach(ro -> {
+            dataTimeSet.add(ro.getDataTime());
+        });
+        List<Date> dataTimeList = Lists.newArrayList(dataTimeSet);
 
-            MerchantStatSimpleVO simpleVO = new MerchantStatSimpleVO();
-            simpleVO.setAppId(ro.getAppId());
-            simpleVO.setDataTime(ro.getDataTime());
-            simpleVO.setDataValue(ro.getTotalCount());
-
-            List<MerchantStatSimpleVO> simpleList = map.get(ro.getAppId());
-            if (CollectionUtils.isEmpty(simpleList)) {
-                simpleList = Lists.newArrayList();
-                simpleList.add(simpleVO);
-                map.put(ro.getAppId(), simpleList);
+        //<appId,<dataTime,totalCount>>
+        Map<String, Map<Date, Integer>> dataMap = Maps.newHashMap();
+        result.getData().forEach(ro -> {
+            Map<Date, Integer> valueMap = dataMap.get(ro.getAppId());
+            if (valueMap == null || valueMap.isEmpty()) {
+                valueMap = Maps.newHashMap();
+                valueMap.put(ro.getDataTime(), ro.getTotalCount());
+                dataMap.put(ro.getAppId(), valueMap);
             } else {
-
-                simpleList.add(simpleVO);
+                valueMap.put(ro.getDataTime(), ro.getTotalCount());
             }
         });
+        //填充缺少的时间点的totalCount为0
+        this.fillDataTime(dataMap, dataTimeList);
+        //更换map的key为appName
+        Map<String, Map<Date, Integer>> appNameMap = this.changeKey2AppName(dataMap);
 
+        List<String> keysList = Lists.newArrayList(appNameMap.keySet()).stream().sorted((String::compareTo)).collect(Collectors.toList());
+        keysList.add(0, "总任务量");
+        wrapMap.put("keys", keysList);
+        Map<String, List<ChartStatVO>> valuesMap = this.countTotalTask(appNameMap);
+        wrapMap.put("values", valuesMap);
+        return wrapMap;
+    }
+
+    private Map<String, List<ChartStatVO>> countTotalTask(Map<String, Map<Date, Integer>> appNameMap) {
+        Map<String, List<ChartStatVO>> valuesMap = Maps.newHashMap();
+        //计算总任务量的map
+        Map<Date, Integer> totalMap = Maps.newHashMap();
+        for (Map.Entry<String, Map<Date, Integer>> entry : appNameMap.entrySet()) {
+            List<ChartStatVO> voList = Lists.newArrayList();
+            for (Map.Entry<Date, Integer> valueEntry : entry.getValue().entrySet()) {
+                ChartStatVO vo = new ChartStatVO();
+                vo.setDataTime(valueEntry.getKey());
+                vo.setDataValue(valueEntry.getValue());
+                voList.add(vo);
+                if (totalMap.get(valueEntry.getKey()) == null) {
+                    totalMap.put(valueEntry.getKey(), valueEntry.getValue());
+                } else {
+                    int i = totalMap.get(valueEntry.getKey());
+                    totalMap.put(valueEntry.getKey(), i + valueEntry.getValue());
+                }
+            }
+            voList = voList.stream().sorted(((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime()))).collect(Collectors.toList());
+            valuesMap.put(entry.getKey(), voList);
+        }
+        List<ChartStatVO> totalVOList = Lists.newArrayList();
+        for (Map.Entry<Date, Integer> entry : totalMap.entrySet()) {
+            ChartStatVO vo = new ChartStatVO();
+            vo.setDataTime(entry.getKey());
+            vo.setDataValue(entry.getValue());
+            totalVOList.add(vo);
+        }
+        totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+        valuesMap.put("总任务量", totalVOList);
+        return valuesMap;
+    }
+
+    private void fillDataTime(Map<String, Map<Date, Integer>> dataMap, List<Date> dataTimeList) {
+        for (Map.Entry<String, Map<Date, Integer>> entry : dataMap.entrySet()) {
+            Map<Date, Integer> valueMap = entry.getValue();
+            for (Date date : dataTimeList) {
+                if (valueMap.get(date) == null) {
+                    valueMap.put(date, 0);
+                }
+            }
+        }
+
+    }
+
+    private Map<String, Map<Date, Integer>> changeKey2AppName(Map<String, Map<Date, Integer>> dataMap) {
+        Map<String, Map<Date, Integer>> appNameMap = Maps.newHashMap();
         MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(map.keySet()));
+        merchantBaseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(dataMap.keySet()));
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
         //<appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList
                 .stream()
                 .collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
 
-        for (Map.Entry<String, List<MerchantStatSimpleVO>> entry : map.entrySet()) {
+        for (Map.Entry<String, Map<Date, Integer>> entry : dataMap.entrySet()) {
             MerchantBase merchantBase = merchantBaseMap.get(entry.getKey());
             if (merchantBase == null) {
                 logger.error("系统任务量统计中,appId={}在MerchantBase表中未查询到相关记录", entry.getKey());
                 continue;
             }
-            for (MerchantStatSimpleVO simpleVO : entry.getValue()) {
-                simpleVO.setAppName(merchantBase.getAppName());
-            }
-            resultMap.put(merchantBase.getAppName(), entry.getValue());
+            appNameMap.put(merchantBase.getAppName(), entry.getValue());
         }
-
-        this.countTotalTask(resultMap);
-
-        return resultMap;
-    }
-
-    /**
-     * 系统任务量统计,对总任务量的计算
-     *
-     * @param resultMap
-     */
-    private void countTotalTask(Map<String, List<MerchantStatSimpleVO>> resultMap) {
-        //<dataTime,totalCount>
-        Map<Date, Integer> timeMap = Maps.newHashMap();
-        for (Map.Entry<String, List<MerchantStatSimpleVO>> entry : resultMap.entrySet()) {
-            for (MerchantStatSimpleVO simpleVO : entry.getValue()) {
-                Integer total = timeMap.get(simpleVO.getDataTime());
-                if (Optional.fromNullable(total).or(0) == 0) {
-                    total = simpleVO.getDataValue();
-                } else {
-                    total = total + simpleVO.getDataValue();
-                }
-                timeMap.put(simpleVO.getDataTime(), total);
-            }
-        }
-        List<MerchantStatSimpleVO> simpleVOList = Lists.newArrayList();
-        for (Map.Entry<Date, Integer> entry : timeMap.entrySet()) {
-            MerchantStatSimpleVO simpleVO = new MerchantStatSimpleVO();
-            simpleVO.setAppName("总任务量");
-            simpleVO.setDataTime(entry.getKey());
-            simpleVO.setDataValue(entry.getValue());
-            simpleVOList.add(simpleVO);
-        }
-        simpleVOList = simpleVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
-        resultMap.put("总任务量", simpleVOList);
+        return appNameMap;
     }
 
 

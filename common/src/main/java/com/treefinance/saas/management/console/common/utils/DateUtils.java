@@ -187,6 +187,17 @@ public class DateUtils {
         return cal.getTime();
     }
 
+    public static Date getTodayBeginDate(Date date) {
+        int y, m, d;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        y = cal.get(Calendar.YEAR);
+        m = cal.get(Calendar.MONTH);
+        d = cal.get(Calendar.DATE);
+        cal.set(y, m, d, 0, 0, 0);//时、分、秒，设置成0，获取凌晨的时间
+        return cal.getTime();
+    }
+
     public static Date getTomorrowBeginDate() {
         int y, m, d;
         Calendar cal = Calendar.getInstance();
@@ -196,6 +207,18 @@ public class DateUtils {
         cal.set(y, m, d, 0, 0, 0);//时、分、秒，设置成0，获取凌晨的时间
         return cal.getTime();
     }
+
+    public static Date getTomorrowBeginDate(Date date) {
+        int y, m, d;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        y = cal.get(Calendar.YEAR);
+        m = cal.get(Calendar.MONTH);
+        d = cal.get(Calendar.DATE) + 1;
+        cal.set(y, m, d, 0, 0, 0);//时、分、秒，设置成0，获取凌晨的时间
+        return cal.getTime();
+    }
+
 
     public static Integer getTimeStampByStr(String time) {
         return getTimeStampByStr(time, "yyyy-MM-dd HH:mm:ss");

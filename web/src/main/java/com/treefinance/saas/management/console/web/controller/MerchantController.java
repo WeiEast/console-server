@@ -69,5 +69,12 @@ public class MerchantController {
         return Results.newSuccessResult(result);
     }
 
+    @RequestMapping(value = "reset/key/{id}", method = RequestMethod.GET, produces = "application/json")
+    public Result<Boolean> resetKey(@PathVariable Long id) {
+        merchantService.resetAppLicenseKey(id);
+        return Results.newSuccessResult(Boolean.TRUE);
+
+    }
+
 
 }

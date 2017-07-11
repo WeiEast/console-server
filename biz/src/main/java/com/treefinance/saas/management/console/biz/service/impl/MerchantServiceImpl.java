@@ -13,6 +13,7 @@ import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -22,6 +23,7 @@ import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,8 +166,12 @@ public class MerchantServiceImpl implements MerchantService {
     public Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("添加商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
-        String appId = CommonUtils.generateAppId();
-        merchantBaseVO.setAppId(appId);
+        checkAppUnique(merchantBaseVO);
+        String appId = merchantBaseVO.getAppId();
+        if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
+            appId = CommonUtils.generateAppId();
+            merchantBaseVO.setAppId(appId);
+        }
         //生成商户基本信息
         Long merchantId = insertMerchantBase(merchantBaseVO);
         //生成商户用户名密码
@@ -180,6 +186,24 @@ public class MerchantServiceImpl implements MerchantService {
         map.put("merchantId", merchantId);
         map.put("plainTextPassword", plainTextPassword);
         return map;
+    }
+
+    private void checkAppUnique(MerchantBaseVO merchantBaseVO) {
+        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
+        criteria.createCriteria().andAppNameEqualTo(merchantBaseVO.getAppName());
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
+        if (merchantBaseList.size() > 0) {
+            throw new BizException("app名称重复");
+        }
+        if (StringUtils.isNotBlank(merchantBaseVO.getAppId())) {
+            MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
+            criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
+            List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
+            if (merchantBaseList1.size() > 0) {
+                throw new BizException("appId重复");
+            }
+        }
+
     }
 
     @Override
@@ -219,6 +243,18 @@ public class MerchantServiceImpl implements MerchantService {
         }
         merchantSimpleVOList = BeanUtils.convertList(merchantBaseList, MerchantSimpleVO.class);
         return merchantSimpleVOList;
+    }
+
+    @Override
+    public void resetAppLicenseKey(Long id) {
+        MerchantBase merchantBase = merchantBaseMapper.selectByPrimaryKey(id);
+        if (merchantBase == null) {
+            logger.error("根据merchantId{}未查询到相关商户信息", id);
+            return;
+        }
+        String appId = merchantBase.getAppId();
+        appLicenseService.removeAppLicenseByAppId(appId);
+        appLicenseService.generateAppLicenseByAppId(appId);
     }
 
     private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {

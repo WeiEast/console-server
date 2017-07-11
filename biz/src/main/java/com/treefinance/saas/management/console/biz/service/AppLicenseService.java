@@ -98,6 +98,15 @@ public class AppLicenseService {
         return null;
     }
 
+    public Result removeAppLicenseByAppId(String appId) {
+        logger.info("根据appId={}删除秘钥key", appId);
+        String key = APPID_SUFFIX + appId;
+        if (stringRedisTemplate.hasKey(key)) {
+            stringRedisTemplate.opsForValue().getOperations().delete(key);
+        }
+        return null;
+    }
+
     public Result<String> generateAppLicense() {
         String appId = CommonUtils.generateAppId();
         AppLicenseDTO license = Helper.generateLicense(appId);

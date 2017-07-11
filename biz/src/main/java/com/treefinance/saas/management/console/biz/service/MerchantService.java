@@ -24,4 +24,6 @@ public interface MerchantService {
     String resetPassWord(Long id);
 
     List<MerchantSimpleVO> getMerchantBaseList();
+
+    void resetAppLicenseKey(Long id);
 }

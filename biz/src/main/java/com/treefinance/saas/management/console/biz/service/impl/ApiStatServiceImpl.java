@@ -119,6 +119,10 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         });
         List<String> keysList = Lists.newArrayList("总访问量", "2xx量", "4xx量", "5xx量");
+        for (Map.Entry<String, List<ChartStatVO>> entry : resultMap.entrySet()) {
+            List<ChartStatVO> list = entry.getValue().stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            resultMap.put(entry.getKey(), list);
+        }
         wrapMap.put("keys", keysList);
         wrapMap.put("values", resultMap);
         return wrapMap;
@@ -310,6 +314,9 @@ public class ApiStatServiceImpl implements ApiStatService {
                 responseTimeList.add(responseTimeVO);
                 errorList.add(errorVO);
             }
+            totalList = totalList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            responseTimeList = responseTimeList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            errorList = errorList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
             voMap.put("总访问量", totalList);
             voMap.put("平均响应时间", responseTimeList);
             voMap.put("请求错误", errorList);

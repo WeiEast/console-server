@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.common.domain.bo;
+package com.treefinance.saas.management.console.common.domain.dto;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -7,7 +7,7 @@ import java.util.Set;
  * 用户登录信息
  * Created by haojiahong on 2017/6/23.
  */
-public class AuthUserBO implements Serializable {
+public class AuthUserDTO implements Serializable {
 
     /**
      * 登陆用户名

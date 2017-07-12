@@ -2,7 +2,7 @@ package com.treefinance.saas.management.console.biz.common.shiro;
 
 import com.treefinance.saas.management.console.biz.service.ConsoleUserService;
 import com.treefinance.saas.management.console.common.domain.Constants;
-import com.treefinance.saas.management.console.common.domain.bo.AuthUserBO;
+import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
 import com.treefinance.saas.management.console.dao.entity.ConsoleUser;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -47,7 +47,7 @@ public class UserRealm extends AuthorizingRealm {
         if (Boolean.FALSE.equals(user.getIsActive())) {
             throw new LockedAccountException("账户未激活");
         }
-        AuthUserBO authUser = new AuthUserBO();
+        AuthUserDTO authUser = new AuthUserDTO();
         authUser.setLoginName(username);
         authUser.setActive(user.getIsActive());
 

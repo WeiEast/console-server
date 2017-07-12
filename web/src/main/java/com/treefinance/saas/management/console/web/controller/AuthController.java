@@ -2,7 +2,7 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.common.annotations.RequestLimit;
 import com.treefinance.saas.management.console.common.domain.Constants;
-import com.treefinance.saas.management.console.common.domain.bo.AuthUserBO;
+import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
 import com.treefinance.saas.management.console.common.domain.vo.LoginVO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -82,7 +82,7 @@ public class AuthController {
     @RequestMapping(value = "/currentuser", method = {RequestMethod.GET}, produces = "application/json")
     public Result<?> getLoginUser(HttpSession session) {
         try {
-            AuthUserBO authUserBO = (AuthUserBO) session.getAttribute(Constants.USER_KEY);
+            AuthUserDTO authUserBO = (AuthUserDTO) session.getAttribute(Constants.USER_KEY);
             return Results.newSuccessResult(authUserBO);
         } catch (Exception e) {
             logger.error("get currentuser error,", e);

@@ -170,7 +170,7 @@ public class MerchantServiceImpl implements MerchantService {
         logger.info("添加商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
         checkAppUnique(merchantBaseVO);
-        String appId = merchantBaseVO.getAppId();
+        String appId = StringUtils.deleteWhitespace(merchantBaseVO.getAppId());
         if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
             appId = CommonUtils.generateAppId();
             merchantBaseVO.setAppId(appId);
@@ -199,7 +199,7 @@ public class MerchantServiceImpl implements MerchantService {
             throw new BizException("app名称重复");
         }
         if (StringUtils.isNotBlank(merchantBaseVO.getAppId())) {
-            if (StringUtils.trim(merchantBaseVO.getAppId()).length() != 16) {
+            if (StringUtils.deleteWhitespace(merchantBaseVO.getAppId()).length() != 16) {
                 throw new BizException("appId需要为16位");
             }
             MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();

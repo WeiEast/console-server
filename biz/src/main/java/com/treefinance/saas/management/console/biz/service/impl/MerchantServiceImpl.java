@@ -110,6 +110,9 @@ public class MerchantServiceImpl implements MerchantService {
         criteria.setLimit(request.getPageSize());
         criteria.setOrderByClause("CreateTime desc");
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
+        if (CollectionUtils.isEmpty(merchantBaseList)) {
+            return Results.newSuccessPageResult(request, total, merchantBaseList);
+        }
         //<merchantId,MerchantBase>
         Map<Long, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getId, merchantBase -> merchantBase));
         //<appId,merchantBase>
@@ -196,6 +199,9 @@ public class MerchantServiceImpl implements MerchantService {
             throw new BizException("app名称重复");
         }
         if (StringUtils.isNotBlank(merchantBaseVO.getAppId())) {
+            if (StringUtils.trim(merchantBaseVO.getAppId()).length() != 16) {
+                throw new BizException("appId需要为16位");
+            }
             MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
             criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
             List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
@@ -255,6 +261,12 @@ public class MerchantServiceImpl implements MerchantService {
         String appId = merchantBase.getAppId();
         appLicenseService.removeAppLicenseByAppId(appId);
         appLicenseService.generateAppLicenseByAppId(appId);
+    }
+
+    @Override
+    public String autoGenerateAppId() {
+        String appId = CommonUtils.generateAppId();
+        return appId;
     }
 
     private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {

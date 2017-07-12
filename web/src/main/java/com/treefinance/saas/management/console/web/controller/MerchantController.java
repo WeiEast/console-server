@@ -76,5 +76,12 @@ public class MerchantController {
 
     }
 
+    @RequestMapping(value = "generate/appid", method = RequestMethod.GET, produces = "application/json")
+    public Result<String> generateAppId() {
+        String result = merchantService.autoGenerateAppId();
+        return Results.newSuccessResult(result);
+
+    }
+
 
 }

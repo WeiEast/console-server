@@ -26,4 +26,7 @@ public interface MerchantService {
     List<MerchantSimpleVO> getMerchantBaseList();
 
     void resetAppLicenseKey(Long id);
+
+    String autoGenerateAppId();
+
 }

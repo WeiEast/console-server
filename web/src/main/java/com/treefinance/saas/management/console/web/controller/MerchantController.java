@@ -83,5 +83,11 @@ public class MerchantController {
 
     }
 
+    @RequestMapping(value = "generate/pwd/{str}", method = RequestMethod.GET, produces = "application/json")
+    public Result<String> getCipherTextPassword(@PathVariable String str) {
+        String result = merchantService.generateCipherTextPassword(str);
+        return Results.newSuccessResult(result);
+    }
+
 
 }

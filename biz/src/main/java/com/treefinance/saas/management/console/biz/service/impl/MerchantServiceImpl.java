@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
+import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
@@ -52,6 +54,8 @@ public class MerchantServiceImpl implements MerchantService {
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
     private AppLicenseService appLicenseService;
+    @Autowired
+    private ISecurityCryptoService iSecurityCryptoService;
 
 
     @Override
@@ -71,7 +75,7 @@ public class MerchantServiceImpl implements MerchantService {
         if (!CollectionUtils.isEmpty(merchantUserList)) {
             MerchantUser merchantUser = merchantUserList.get(0);
             merchantBaseVO.setLoginName(merchantUser.getLoginName());
-            merchantBaseVO.setPassword(CommonUtils.decodeBase64(merchantUser.getPassword()));
+            merchantBaseVO.setPassword(iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL));
         }
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
@@ -146,7 +150,7 @@ public class MerchantServiceImpl implements MerchantService {
             MerchantUser merchantUser = merchantUserMerchantIdMap.get(merchantBase.getId());
             if (merchantUser != null) {
                 merchantBaseVO.setLoginName(merchantUser.getLoginName());
-                merchantBaseVO.setPassword(CommonUtils.decodeBase64(merchantUser.getPassword()));
+                merchantBaseVO.setPassword(iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL));
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
             if (!CollectionUtils.isEmpty(licenseList)) {
@@ -235,7 +239,7 @@ public class MerchantServiceImpl implements MerchantService {
         merchantUser.setId(merchantUserList.get(0).getId());
         String newPwd = CommonUtils.generatePassword();
         logger.info("重置商户id={}密码 newPwd={}", id, newPwd);
-        merchantUser.setPassword(CommonUtils.encodeBase64(newPwd));
+        merchantUser.setPassword(iSecurityCryptoService.encrypt(newPwd, EncryptionIntensityEnum.NORMAL));
         merchantUserMapper.updateByPrimaryKeySelective(merchantUser);
         return newPwd;
     }
@@ -269,13 +273,19 @@ public class MerchantServiceImpl implements MerchantService {
         return appId;
     }
 
+    @Override
+    public String generateCipherTextPassword(String str) {
+        String text = iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
+        return text;
+    }
+
     private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {
         MerchantUser merchantUser = new MerchantUser();
         merchantUser.setId(UidGenerator.getId());
         merchantUser.setMerchantId(merchantId);
         merchantUser.setLoginName(CommonUtils.generateLoginName(merchantBaseVO.getAppName()));
         String plainTextPassword = CommonUtils.generatePassword();
-        merchantUser.setPassword(CommonUtils.encodeBase64(plainTextPassword));
+        merchantUser.setPassword(iSecurityCryptoService.encrypt(plainTextPassword, EncryptionIntensityEnum.NORMAL));
         merchantUser.setIsActive(Boolean.TRUE);
         merchantUserMapper.insertSelective(merchantUser);
         return plainTextPassword;

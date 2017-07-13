@@ -18,6 +18,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.treefinance.basicservice.security</groupId>
+            <artifactId>security-crypto-facade</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.treefinance.saas.management</groupId>
             <artifactId>console-server-dao</artifactId>
         </dependency>

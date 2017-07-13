@@ -45,6 +45,11 @@ public class ShiroConfiguration {
         return new Base64CredentialsMatcher();
     }
 
+    @Bean(name = "baseServiceCredentialsMatcher")
+    public BaseServiceCredentialsMatcher baseServiceCredentialsMatcher() {
+        return new BaseServiceCredentialsMatcher();
+    }
+
 
     /**
      * 设置自定义realm
@@ -55,7 +60,7 @@ public class ShiroConfiguration {
     @DependsOn("lifecycleBeanPostProcessor")
     public UserRealm userRealm() {
         UserRealm realm = new UserRealm();
-        realm.setCredentialsMatcher(base64CredentialsMatcher());
+        realm.setCredentialsMatcher(baseServiceCredentialsMatcher());
         return realm;
     }
 

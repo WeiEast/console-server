@@ -29,4 +29,5 @@ public interface MerchantService {
 
     String autoGenerateAppId();
 
+    String generateCipherTextPassword(String str);
 }

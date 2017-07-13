@@ -151,9 +151,11 @@ public class AppLicenseService {
             AppLicenseVO appLicenseVO = new AppLicenseVO();
             BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
             MerchantBase merchantBase = merchantBaseMap.get(appLicenseDTO.getAppId());
-            if (merchantBase != null) {
-                appLicenseVO.setAppName(merchantBase.getAppName());
+            if (merchantBase == null) {
+                logger.info("key列表查询中,appId={}在merchant_base表中未找到对应商户信息", appLicenseDTO.getAppId());
+                continue;
             }
+            appLicenseVO.setAppName(merchantBase.getAppName());
             appLicenseVOList.add(appLicenseVO);
         }
 

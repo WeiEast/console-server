@@ -19,9 +19,14 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -95,15 +100,29 @@ public class AuthController {
     }
 
 
-    @RequestMapping(value = "/pwd/encrypt/{str}", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<String> encryptPwd(@PathVariable String str) {
-        String text = iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
+    @RequestMapping(value = "/pwd/encrypt", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<String> encryptPwd(String pwd) {
+        String text = iSecurityCryptoService.encrypt(pwd, EncryptionIntensityEnum.NORMAL);
         return Results.newSuccessResult(text);
     }
 
-    @RequestMapping(value = "/pwd/decrypt/{str}", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<String> decryptPwd(@PathVariable String str) {
-        String text = iSecurityCryptoService.decrypt(str, EncryptionIntensityEnum.NORMAL);
+    @RequestMapping(value = "/pwd/decrypt", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<String> decryptPwd(String pwd) {
+        String text = iSecurityCryptoService.decrypt(pwd, EncryptionIntensityEnum.NORMAL);
         return Results.newSuccessResult(text);
     }
+
+    @RequestMapping(value = "/pwd/batch/encrypt", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<Map<String, String>> batchEncryptPwd(String[] pwd) {
+        Map<String, String> map = iSecurityCryptoService.batchEncrypt(Arrays.asList(pwd), EncryptionIntensityEnum.NORMAL);
+        return Results.newSuccessResult(map);
+    }
+
+    @RequestMapping(value = "/pwd/batch/decrypt", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<Map<String, String>> batchDecryptPwd(String[] pwd) {
+        Map<String, String> map = iSecurityCryptoService.batchDecrypt(Arrays.asList(pwd), EncryptionIntensityEnum.NORMAL);
+        return Results.newSuccessResult(map);
+    }
+
+
 }

@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
+import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.management.console.common.annotations.RequestLimit;
 import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
@@ -16,10 +18,8 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +30,10 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-    
+
+    @Autowired
+    private ISecurityCryptoService iSecurityCryptoService;
+
     @RequestMapping(value = "/logout", method = {RequestMethod.POST}, produces = "application/json")
     public Result<?> logout() {
         Subject subject = SecurityUtils.getSubject();
@@ -89,5 +92,18 @@ public class AuthController {
             return Results.newFailedResult(CommonStateCode.FAILURE, "获取用户失败");
         }
 
+    }
+
+
+    @RequestMapping(value = "/pwd/encrypt/{str}", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<String> encryptPwd(@PathVariable String str) {
+        String text = iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
+        return Results.newSuccessResult(text);
+    }
+
+    @RequestMapping(value = "/pwd/decrypt/{str}", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<String> decryptPwd(@PathVariable String str) {
+        String text = iSecurityCryptoService.decrypt(str, EncryptionIntensityEnum.NORMAL);
+        return Results.newSuccessResult(text);
     }
 }

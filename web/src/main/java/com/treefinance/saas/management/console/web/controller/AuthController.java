@@ -19,10 +19,7 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Arrays;
@@ -108,7 +105,8 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/pwd/decrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<String> decryptPwd(String pwd, String key) {
+    public Result<String> decryptPwd(@RequestParam("pwd") String pwd,
+                                     @RequestParam("key") String key) {
         if (!PWD_KEY.equals(key)) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
         }
@@ -123,7 +121,8 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/pwd/batch/decrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, String>> batchDecryptPwd(String[] pwd, String key) {
+    public Result<Map<String, String>> batchDecryptPwd(@RequestParam("pwd") String[] pwd,
+                                                       @RequestParam("key") String key) {
         if (!PWD_KEY.equals(key)) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
         }

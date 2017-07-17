@@ -6,10 +6,13 @@ import com.treefinance.saas.management.console.common.annotations.RequestLimit;
 import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
 import com.treefinance.saas.management.console.common.domain.vo.LoginVO;
+import com.treefinance.saas.management.console.common.domain.vo.PwdCryptVO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.LockedAccountException;
@@ -19,10 +22,12 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -98,35 +103,41 @@ public class AuthController {
     }
 
 
-    @RequestMapping(value = "/pwd/encrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<String> encryptPwd(String pwd) {
-        String text = iSecurityCryptoService.encrypt(pwd, EncryptionIntensityEnum.NORMAL);
-        return Results.newSuccessResult(text);
-    }
-
-    @RequestMapping(value = "/pwd/decrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<String> decryptPwd(@RequestParam("pwd") String pwd,
-                                     @RequestParam("key") String key) {
-        if (!PWD_KEY.equals(key)) {
+    @RequestMapping(value = "/pwd/encrypt", method = {RequestMethod.POST}, produces = "application/json")
+    public Result<String> encryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+        if (pwdCryptVO == null || StringUtils.isBlank(pwdCryptVO.getPwd())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
         }
-        String text = iSecurityCryptoService.decrypt(pwd, EncryptionIntensityEnum.NORMAL);
+        String text = iSecurityCryptoService.encrypt(pwdCryptVO.getPwd(), EncryptionIntensityEnum.NORMAL);
         return Results.newSuccessResult(text);
     }
 
-    @RequestMapping(value = "/pwd/batch/encrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, String>> batchEncryptPwd(String[] pwd) {
-        Map<String, String> map = iSecurityCryptoService.batchEncrypt(Arrays.asList(pwd), EncryptionIntensityEnum.NORMAL);
+    @RequestMapping(value = "/pwd/decrypt", method = {RequestMethod.POST}, produces = "application/json")
+    public Result<String> decryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+        if (pwdCryptVO == null || StringUtils.isBlank(pwdCryptVO.getPwd())
+                || StringUtils.isBlank(pwdCryptVO.getKey()) || !PWD_KEY.equals(pwdCryptVO.getKey())) {
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
+        }
+        String text = iSecurityCryptoService.decrypt(pwdCryptVO.getPwd(), EncryptionIntensityEnum.NORMAL);
+        return Results.newSuccessResult(text);
+    }
+
+    @RequestMapping(value = "/pwd/batch/encrypt", method = {RequestMethod.POST}, produces = "application/json")
+    public Result<Map<String, String>> batchEncryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+        if (pwdCryptVO == null || CollectionUtils.isEmpty(pwdCryptVO.getPwds())) {
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
+        }
+        Map<String, String> map = iSecurityCryptoService.batchEncrypt(pwdCryptVO.getPwds(), EncryptionIntensityEnum.NORMAL);
         return Results.newSuccessResult(map);
     }
 
-    @RequestMapping(value = "/pwd/batch/decrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, String>> batchDecryptPwd(@RequestParam("pwd") String[] pwd,
-                                                       @RequestParam("key") String key) {
-        if (!PWD_KEY.equals(key)) {
+    @RequestMapping(value = "/pwd/batch/decrypt", method = {RequestMethod.POST}, produces = "application/json")
+    public Result<Map<String, String>> batchDecryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+        if (pwdCryptVO == null || CollectionUtils.isEmpty(pwdCryptVO.getPwds())
+                || StringUtils.isBlank(pwdCryptVO.getKey()) || !PWD_KEY.equals(pwdCryptVO.getKey())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
         }
-        Map<String, String> map = iSecurityCryptoService.batchDecrypt(Arrays.asList(pwd), EncryptionIntensityEnum.NORMAL);
+        Map<String, String> map = iSecurityCryptoService.batchDecrypt(pwdCryptVO.getPwds(), EncryptionIntensityEnum.NORMAL);
         return Results.newSuccessResult(map);
     }
 

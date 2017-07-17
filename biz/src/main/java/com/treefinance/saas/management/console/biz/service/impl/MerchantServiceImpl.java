@@ -25,7 +25,7 @@ import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
-import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,7 +290,7 @@ public class MerchantServiceImpl implements MerchantService {
         long count = merchantUserMapper.countByExample(criteria);
         if (count > 0) {
             logger.info("创建商户时,登录名loginName={}的商户已经存在");
-            loginName = loginName + RandomUtils.nextInt(1, 9);
+            loginName = loginName + RandomStringUtils.randomNumeric(4);
         }
         merchantUser.setLoginName(loginName);
         String plainTextPassword = CommonUtils.generatePassword();
@@ -321,4 +321,5 @@ public class MerchantServiceImpl implements MerchantService {
         merchantBaseMapper.insertSelective(merchantBase);
         return merchantBase.getId();
     }
+
 }

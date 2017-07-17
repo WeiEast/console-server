@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private static final String PWD_KEY = "console-server";
 
     @Autowired
     private ISecurityCryptoService iSecurityCryptoService;
@@ -107,7 +108,10 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/pwd/decrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<String> decryptPwd(String pwd) {
+    public Result<String> decryptPwd(String pwd, String key) {
+        if (!PWD_KEY.equals(key)) {
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
+        }
         String text = iSecurityCryptoService.decrypt(pwd, EncryptionIntensityEnum.NORMAL);
         return Results.newSuccessResult(text);
     }
@@ -119,7 +123,10 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/pwd/batch/decrypt", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, String>> batchDecryptPwd(String[] pwd) {
+    public Result<Map<String, String>> batchDecryptPwd(String[] pwd, String key) {
+        if (!PWD_KEY.equals(key)) {
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
+        }
         Map<String, String> map = iSecurityCryptoService.batchDecrypt(Arrays.asList(pwd), EncryptionIntensityEnum.NORMAL);
         return Results.newSuccessResult(map);
     }

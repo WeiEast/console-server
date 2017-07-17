@@ -134,19 +134,12 @@ public class AppLicenseService {
             AppLicenseDTO appLicenseDTO = JSON.parseObject(result, AppLicenseDTO.class);
             appLicenseDTOList.add(appLicenseDTO);
         }
-        final long total = appLicenseDTOList.size();
-        int start = request.getOffset();
-        int end = request.getOffset() + request.getPageSize();
-        if (end > total) {
-            end = (int) total;
-        }
-        Collections.sort(appLicenseDTOList, (o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime()));
-        appLicenseDTOList = appLicenseDTOList.subList(start, end);
         List<String> appIdList = appLicenseDTOList.stream().map(AppLicenseDTO::getAppId).collect(Collectors.toList());
         MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
         merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
+
         for (AppLicenseDTO appLicenseDTO : appLicenseDTOList) {
             AppLicenseVO appLicenseVO = new AppLicenseVO();
             BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
@@ -159,6 +152,15 @@ public class AppLicenseService {
             appLicenseVOList.add(appLicenseVO);
         }
 
+
+        final long total = appLicenseVOList.size();
+        int start = request.getOffset();
+        int end = request.getOffset() + request.getPageSize();
+        if (end > total) {
+            end = (int) total;
+        }
+        Collections.sort(appLicenseVOList, (o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime()));
+        appLicenseVOList = appLicenseVOList.subList(start, end);
         return Results.newSuccessPageResult(request, total, appLicenseVOList);
 
     }

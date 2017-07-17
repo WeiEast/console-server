@@ -130,7 +130,7 @@ public class MerchantServiceImpl implements MerchantService {
         Map<Long, MerchantUser> merchantUserMerchantIdMap = merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, merchantUser -> merchantUser));
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(merchantBaseAppIdMap.keySet()));
+        appBizLicenseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(merchantBaseAppIdMap.keySet())).andIsValidEqualTo((byte) 1);
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
 
         //<appId,List<appBizLicense>>

@@ -173,7 +173,15 @@ public class MerchantServiceImpl implements MerchantService {
     @Transactional
     public Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("添加商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
-        Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
+        if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
+            throw new BizException("appId不能为空!");
+        }
+        if (StringUtils.isBlank(merchantBaseVO.getAppName())) {
+            throw new BizException("appName不能为空!");
+        }
+        if (StringUtils.deleteWhitespace(merchantBaseVO.getAppId()).length() != 16) {
+            throw new BizException("appId需要为16位");
+        }
         checkAppUnique(merchantBaseVO);
         String appId = StringUtils.deleteWhitespace(merchantBaseVO.getAppId());
         if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
@@ -203,16 +211,11 @@ public class MerchantServiceImpl implements MerchantService {
         if (merchantBaseList.size() > 0) {
             throw new BizException("app名称重复");
         }
-        if (StringUtils.isNotBlank(merchantBaseVO.getAppId())) {
-            if (StringUtils.deleteWhitespace(merchantBaseVO.getAppId()).length() != 16) {
-                throw new BizException("appId需要为16位");
-            }
-            MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
-            criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
-            List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
-            if (merchantBaseList1.size() > 0) {
-                throw new BizException("appId重复");
-            }
+        MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
+        criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
+        List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
+        if (merchantBaseList1.size() > 0) {
+            throw new BizException("appId重复");
         }
 
     }

@@ -13,4 +13,7 @@ public interface AppBizLicenseService {
     List<AppBizLicenseVO> selectBizLicenseByAppIdBizType(AppBizLicenseRequest request);
 
     Boolean updateAppBizLicense(AppBizLicenseVO request);
+
+    List<AppBizLicenseVO> selectQuotaByAppIdBizType(AppBizLicenseRequest request);
+
 }

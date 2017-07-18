@@ -177,7 +177,7 @@ public class MerchantServiceImpl implements MerchantService {
             throw new BizException("appId不能为空!");
         }
         if (StringUtils.isBlank(merchantBaseVO.getAppName())) {
-            throw new BizException("appName不能为空!");
+            throw new BizException("app名称不能为空!");
         }
         if (StringUtils.deleteWhitespace(merchantBaseVO.getAppId()).length() != 16) {
             throw new BizException("appId需要为16位");

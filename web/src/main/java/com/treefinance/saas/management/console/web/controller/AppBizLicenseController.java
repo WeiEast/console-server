@@ -30,12 +30,18 @@ public class AppBizLicenseController {
         return Results.newSuccessResult(result);
     }
 
+    @RequestMapping(value = "/quota/select", produces = "application/json", method = RequestMethod.POST)
+    public Result<List<AppBizLicenseVO>> selectQuotaByAppIdBizType(@RequestBody AppBizLicenseRequest request) {
+
+        List<AppBizLicenseVO> result = appBizLicenseService.selectQuotaByAppIdBizType(request);
+        return Results.newSuccessResult(result);
+    }
+
     @RequestMapping(value = "update", produces = "application/json", method = RequestMethod.POST)
     public Result<Boolean> updateAppBizLicense(@RequestBody AppBizLicenseVO request) {
         Boolean result = appBizLicenseService.updateAppBizLicense(request);
         return Results.newSuccessResult(result);
     }
-
 
 
 }

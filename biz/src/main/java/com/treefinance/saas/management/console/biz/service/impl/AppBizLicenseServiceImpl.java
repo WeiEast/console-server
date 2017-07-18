@@ -12,6 +12,8 @@ import com.treefinance.saas.management.console.dao.entity.AppBizType;
 import com.treefinance.saas.management.console.dao.entity.AppBizTypeCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -26,6 +28,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class AppBizLicenseServiceImpl implements AppBizLicenseService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AppBizLicenseServiceImpl.class);
+
 
     @Autowired
     private AppBizLicenseMapper appBizLicenseMapper;
@@ -58,7 +63,6 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
                 appBizLicenseVO.setBizType(appBizType.getBizType());
                 appBizLicenseVO.setBizName(appBizType.getBizName());
                 appBizLicenseVO.setAppId(request.getAppId());
-                appBizLicenseVO.setDailyLimit(0);
                 appBizLicenseVO.setIsShowLicense((byte) 0);
                 appBizLicenseVO.setIsValid((byte) 0);
             } else {
@@ -106,5 +110,40 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
         }
         return Boolean.TRUE;
+    }
+
+    @Override
+    public List<AppBizLicenseVO> selectQuotaByAppIdBizType(AppBizLicenseRequest request) {
+        Assert.notNull(request.getAppId(), "appId不能为空!");
+        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
+        AppBizLicenseCriteria.Criteria criteria = appBizLicenseCriteria.createCriteria();
+        criteria.andAppIdEqualTo(request.getAppId()).andIsValidEqualTo((byte) 1);
+        if (request.getBizType() != null) {
+            criteria.andBizTypeEqualTo(request.getBizType());
+        }
+        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        AppBizTypeCriteria appBizTypeCriteria = new AppBizTypeCriteria();
+        AppBizTypeCriteria.Criteria criteria1 = appBizTypeCriteria.createCriteria();
+        if (request.getBizType() != null) {
+            criteria1.andBizTypeEqualTo(request.getBizType());
+        }
+        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(appBizTypeCriteria);
+        Map<Byte, AppBizType> appBizTypeMap = appBizTypeList.stream().collect(Collectors.toMap(AppBizType::getBizType, appBizType1 -> appBizType1));
+        List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
+        for (AppBizLicense appBizLicense : appBizLicenseList) {
+            AppBizType appBizType = appBizTypeMap.get(appBizLicense.getBizType());
+            if (appBizType == null) {
+                logger.info("appBizLicense中bizType={}的服务权限类型在app_biz_type中未配置", appBizLicense.getBizType());
+                continue;
+            }
+            AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
+            appBizLicenseVO.setBizType(appBizType.getBizType());
+            appBizLicenseVO.setBizName(appBizType.getBizName());
+            appBizLicenseVO.setAppId(request.getAppId());
+            appBizLicenseVO.setDailyLimit(appBizLicense.getDailyLimit() == null ? 0 : appBizLicense.getDailyLimit());
+            appBizLicenseVOList.add(appBizLicenseVO);
+        }
+        return appBizLicenseVOList;
+
     }
 }

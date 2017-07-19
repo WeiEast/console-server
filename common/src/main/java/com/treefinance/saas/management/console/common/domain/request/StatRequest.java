@@ -11,6 +11,11 @@ import java.util.Date;
 public class StatRequest extends PageRequest {
 
     /**
+     * 0-自选日期，1-过去1天，2-过去3天，3-过去7天，4-过去30天
+     */
+    private Integer dateType;
+
+    /**
      * 自选开始日期(yyyy-MM-dd)
      */
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -38,6 +43,14 @@ public class StatRequest extends PageRequest {
      * 数据类型：0-合计，1:银行，2：电商，3:邮箱，4:运营商
      */
     private Byte bizType;
+
+    public Integer getDateType() {
+        return dateType;
+    }
+
+    public void setDateType(Integer dateType) {
+        this.dateType = dateType;
+    }
 
     public String getAppId() {
         return appId;

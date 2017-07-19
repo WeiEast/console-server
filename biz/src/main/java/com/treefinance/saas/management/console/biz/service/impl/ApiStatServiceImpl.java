@@ -49,8 +49,8 @@ public class ApiStatServiceImpl implements ApiStatService {
     public Map<String, Object> queryAllAccessList(StatRequest request) {
         baseCheck(request);
         ApiStatBaseRequest statRequest = new ApiStatBaseRequest();
-        statRequest.setStartDate(request.getStartDate());
-        statRequest.setEndDate(request.getEndDate());
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
 
         MonitorResult<List<ApiBaseStatRO>> result = apiStatAccessFacade.queryTotalAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -132,8 +132,8 @@ public class ApiStatServiceImpl implements ApiStatService {
     public Map<String, Object> queryDayAccessList(StatRequest request) {
         baseCheck(request);
         ApiStatBaseRequest statRequest = new ApiStatBaseRequest();
-        statRequest.setStartDate(request.getStartDate());
-        statRequest.setEndDate(request.getEndDate());
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
 
         MonitorResult<List<ApiStatDayAccessRO>> result = apiStatAccessFacade.queryDayAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -213,8 +213,8 @@ public class ApiStatServiceImpl implements ApiStatService {
     public Map<String, Object> queryStatAccessList(StatRequest request, Integer type) {
         baseCheck(request);
         ApiStatBaseRequest statRequest = new ApiStatBaseRequest();
-        statRequest.setStartDate(request.getStartDate());
-        statRequest.setEndDate(request.getEndDate());
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
 
         MonitorResult<List<ApiStatAccessRO>> result = apiStatAccessFacade.queryStatAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -263,8 +263,8 @@ public class ApiStatServiceImpl implements ApiStatService {
     public List<ApiStatAccessVO> queryStatAccess(StatRequest request) {
         baseCheck(request);
         ApiStatBaseRequest statRequest = new ApiStatBaseRequest();
-        statRequest.setStartDate(request.getStartDate());
-        statRequest.setEndDate(request.getEndDate());
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
 
         MonitorResult<List<ApiStatAccessRO>> result = apiStatAccessFacade.queryStatAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -402,11 +402,55 @@ public class ApiStatServiceImpl implements ApiStatService {
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        if (request.getStartDate() == null || request.getEndDate() == null) {
-            throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
         }
-        if (request.getStartDate().after(request.getEndDate())) {
-            throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
         }
+    }
+
+    /**
+     * 获取开始时间
+     *
+     * @param request
+     * @return
+     */
+    protected Date getStartDate(StatRequest request) {
+        // 0-自选日期，1-过去1天，2-过去3天，3-过去7天，4-过去30天;
+        Integer dateType = request.getDateType();
+        switch (dateType) {
+            case 0:
+                return request.getStartDate();
+            case 1:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24);
+            case 2:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 3);
+            case 3:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 7);
+            case 4:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 30);
+        }
+        return null;
+    }
+
+    /**
+     * 获取结束时间
+     *
+     * @param request
+     * @return
+     */
+    protected Date getEndDate(StatRequest request) {
+        Integer dateType = request.getDateType();
+        switch (dateType) {
+            case 0:
+                return org.apache.commons.lang.time.DateUtils.addSeconds(request.getEndDate(), 24 * 60 * 60 - 1);
+        }
+        return new Date();
     }
 }

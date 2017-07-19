@@ -8,7 +8,6 @@ import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatDayVO;
-import com.treefinance.saas.management.console.common.domain.vo.MerchantStatSimpleVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -56,8 +55,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         checkParam(request);
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setAppId(request.getAppId());
-        statRequest.setStartDate(request.getStartDate());
-        statRequest.setEndDate(request.getEndDate());
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
         statRequest.setPageNumber(request.getPageNumber());
         statRequest.setPageSize(request.getPageSize());
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
@@ -96,8 +95,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private Map<String, MerchantStatDayAccessRO> queryTotalDayAccessList(StatRequest request) {
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setAppId(request.getAppId());
-        statRequest.setStartDate(request.getStartDate());
-        statRequest.setEndDate(request.getEndDate());
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
         statRequest.setDataType(EBizType4Monitor.TOTAL.getMonitorCode());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryDayAccessListNoPage(statRequest);
@@ -183,8 +182,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
-        statRequest.setStartDate(request.getStartDate());
-        statRequest.setEndDate(request.getEndDate());
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -354,11 +353,55 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (bizType < -2 || bizType > 4) {
             throw new IllegalArgumentException("请求参数bizType非法！");
         }
-        if (request.getStartDate() == null || request.getEndDate() == null) {
-            throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
         }
-        if (request.getStartDate().after(request.getEndDate())) {
-            throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
         }
+    }
+
+    /**
+     * 获取开始时间
+     *
+     * @param request
+     * @return
+     */
+    protected Date getStartDate(StatRequest request) {
+        // 0-自选日期，1-过去1天，2-过去3天，3-过去7天，4-过去30天;
+        Integer dateType = request.getDateType();
+        switch (dateType) {
+            case 0:
+                return request.getStartDate();
+            case 1:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24);
+            case 2:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 3);
+            case 3:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 7);
+            case 4:
+                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 30);
+        }
+        return null;
+    }
+
+    /**
+     * 获取结束时间
+     *
+     * @param request
+     * @return
+     */
+    protected Date getEndDate(StatRequest request) {
+        Integer dateType = request.getDateType();
+        switch (dateType) {
+            case 0:
+                return org.apache.commons.lang.time.DateUtils.addSeconds(request.getEndDate(), 24 * 60 * 60 - 1);
+        }
+        return new Date();
     }
 }

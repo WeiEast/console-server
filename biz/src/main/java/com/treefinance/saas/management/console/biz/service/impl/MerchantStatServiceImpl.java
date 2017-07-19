@@ -71,9 +71,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         result.getData().forEach(ro -> {
             MerchantStatDayVO merchantStatDayVO = new MerchantStatDayVO();
             merchantStatDayVO.setDateStr(DateUtils.date2Ymd(ro.getDataTime()));
-            merchantStatDayVO.setTotalCount(ro.getTotalCount());
+            merchantStatDayVO.setTotalCount(ro.getSuccessCount());
             merchantStatDayVO.setDailyLimit(ro.getDailyLimit());
-            BigDecimal totalCountDecimal = new BigDecimal(ro.getTotalCount());
+            BigDecimal totalCountDecimal = new BigDecimal(ro.getSuccessCount());
             BigDecimal dailyLimitDecimal = new BigDecimal(ro.getDailyLimit());
             if (BigDecimal.ZERO.compareTo(dailyLimitDecimal) != 0) {
                 merchantStatDayVO.setDailyLimitRate(totalCountDecimal.divide(dailyLimitDecimal, 2, BigDecimal.ROUND_HALF_UP));
@@ -303,7 +303,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             int useTotalCount = 0, dailyLimit = 0;
             List<MerchantStatDayAccessRO> list = entry.getValue();
             for (MerchantStatDayAccessRO ro : list) {
-                useTotalCount = useTotalCount + ro.getTotalCount();
+                useTotalCount = useTotalCount + ro.getSuccessCount();
                 dailyLimit = dailyLimit + ro.getDailyLimit();
             }
             merchantStatVO.setDateStr(entry.getKey());

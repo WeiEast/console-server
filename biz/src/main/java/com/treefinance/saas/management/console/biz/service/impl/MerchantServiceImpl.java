@@ -213,7 +213,16 @@ public class MerchantServiceImpl implements MerchantService {
             throw new BizException("app名称不能为空!");
         }
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
-        checkAppNameUnique(merchantBaseVO);
+        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
+        criteria.createCriteria().andIdEqualTo(merchantBaseVO.getId());
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
+        if (CollectionUtils.isEmpty(merchantBaseList)) {
+            logger.info("更新商户基本信息传入merchantId={}非法!", merchantBaseVO.getId());
+            throw new BizException("id非法!");
+        }
+        if (!merchantBaseList.get(0).getAppName().equals(merchantBaseVO.getAppName())) {
+            checkAppNameUnique(merchantBaseVO);
+        }
         MerchantBase merchantBase = new MerchantBase();
         BeanUtils.copyProperties(merchantBaseVO, merchantBase);
         merchantBaseMapper.updateByPrimaryKeySelective(merchantBase);

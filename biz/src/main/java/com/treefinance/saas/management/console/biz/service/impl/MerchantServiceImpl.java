@@ -249,7 +249,9 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public List<MerchantSimpleVO> getMerchantBaseList() {
         List<MerchantSimpleVO> merchantSimpleVOList = Lists.newArrayList();
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(null);
+        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
+        criteria.setOrderByClause("AppName asc");
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return merchantSimpleVOList;
         }

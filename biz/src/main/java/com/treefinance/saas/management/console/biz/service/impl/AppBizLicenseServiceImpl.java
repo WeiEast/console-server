@@ -5,6 +5,7 @@ import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
 import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
@@ -91,7 +92,12 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicense.setBizType(request.getBizType());
             appBizLicense.setIsShowLicense(request.getIsShowLicense() == null ? 0 : request.getIsShowLicense());
             appBizLicense.setIsValid(request.getIsValid() == null ? 0 : request.getIsValid());
-            appBizLicense.setDailyLimit(request.getDailyLimit() == null ? 0 : request.getDailyLimit());
+            if (request.getIsValid() != null && request.getIsValid() == (byte) 1) {
+                appBizLicense.setDailyLimit(100000);
+            }
+            if (request.getIsValid() != null && request.getIsValid() == (byte) 0) {
+                appBizLicense.setDailyLimit(0);
+            }
             appBizLicenseMapper.insertSelective(appBizLicense);
         } else {
             AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
@@ -102,9 +108,12 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             }
             if (request.getIsValid() != null) {
                 appBizLicense.setIsValid(request.getIsValid());
-            }
-            if (request.getDailyLimit() != null) {
-                appBizLicense.setDailyLimit(request.getDailyLimit());
+                if (request.getIsValid() == (byte) 1) {
+                    appBizLicense.setDailyLimit(100000);
+                }
+                if (request.getIsValid() == (byte) 0) {
+                    appBizLicense.setDailyLimit(0);
+                }
             }
             appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
 
@@ -145,5 +154,28 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         }
         return appBizLicenseVOList;
 
+    }
+
+    @Override
+    public Boolean updateQuota(AppBizLicenseVO request) {
+        Assert.notNull(request.getAppId(), "appId不能为空");
+        Assert.notNull(request.getBizType(), "bizType不能为空");
+        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
+        appBizLicenseCriteria.createCriteria()
+                .andAppIdEqualTo(request.getAppId())
+                .andBizTypeEqualTo(request.getBizType())
+                .andIsValidEqualTo((byte) 1);
+
+        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        if (CollectionUtils.isEmpty(appBizLicenseList)) {
+            logger.info("更新商户配额时,商户appId={}的服务权限bizType={}未开通", request.getAppId(), request.getBizType());
+            throw new BizException("商户此服务权限未开通!");
+        }
+        AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
+        AppBizLicense appBizLicense = new AppBizLicense();
+        appBizLicense.setId(srcAppBizLicense.getId());
+        appBizLicense.setDailyLimit(request.getDailyLimit());
+        appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
+        return Boolean.TRUE;
     }
 }

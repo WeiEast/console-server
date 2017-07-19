@@ -307,6 +307,9 @@ public class MerchantServiceImpl implements MerchantService {
             appBizLicense.setId(UidGenerator.getId());
             appBizLicense.setAppId(appId);
             appBizLicense.setBizType(appBizLicenseVO.getBizType());
+            appBizLicense.setIsValid((byte) 1);
+            appBizLicense.setIsShowLicense((byte) 1);
+            appBizLicense.setDailyLimit(100000);
             appBizLicenseMapper.insertSelective(appBizLicense);
         }
     }

@@ -16,4 +16,5 @@ public interface AppBizLicenseService {
 
     List<AppBizLicenseVO> selectQuotaByAppIdBizType(AppBizLicenseRequest request);
 
+    Boolean updateQuota(AppBizLicenseVO request);
 }

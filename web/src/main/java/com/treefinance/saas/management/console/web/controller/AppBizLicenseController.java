@@ -43,5 +43,11 @@ public class AppBizLicenseController {
         return Results.newSuccessResult(result);
     }
 
+    @RequestMapping(value = "/quota/update", produces = "application/json", method = RequestMethod.POST)
+    public Result<Boolean> updateQuota(@RequestBody AppBizLicenseVO request) {
+        Boolean result = appBizLicenseService.updateQuota(request);
+        return Results.newSuccessResult(result);
+    }
+
 
 }

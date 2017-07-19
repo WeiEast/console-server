@@ -324,6 +324,9 @@ public class MerchantServiceImpl implements MerchantService {
         merchantBase.setContactPerson(merchantBaseVO.getContactPerson());
         merchantBase.setContactValue(merchantBaseVO.getContactValue());
         merchantBase.setCompany(merchantBaseVO.getCompany());
+        merchantBase.setChName(merchantBaseVO.getChName());
+        merchantBase.setBussiness(merchantBaseVO.getBussiness());
+        merchantBase.setBussiness2(merchantBaseVO.getBussiness2());
         merchantBaseMapper.insertSelective(merchantBase);
         return merchantBase.getId();
     }

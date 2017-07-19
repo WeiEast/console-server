@@ -18,6 +18,9 @@ public class MerchantBaseVO implements Serializable {
     private String loginName;
     private String password;
     private String company;
+    private String chName;
+    private String bussiness;
+    private String bussiness2;
     private Date lastUpdateTime;
     private List<AppBizLicenseVO> appBizLicenseVOList;
     private AppLicenseVO appLicenseVO;
@@ -108,5 +111,29 @@ public class MerchantBaseVO implements Serializable {
 
     public void setLastUpdateTime(Date lastUpdateTime) {
         this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public String getChName() {
+        return chName;
+    }
+
+    public void setChName(String chName) {
+        this.chName = chName;
+    }
+
+    public String getBussiness() {
+        return bussiness;
+    }
+
+    public void setBussiness(String bussiness) {
+        this.bussiness = bussiness;
+    }
+
+    public String getBussiness2() {
+        return bussiness2;
+    }
+
+    public void setBussiness2(String bussiness2) {
+        this.bussiness2 = bussiness2;
     }
 }

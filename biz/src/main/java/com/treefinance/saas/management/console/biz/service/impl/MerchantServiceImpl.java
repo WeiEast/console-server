@@ -182,7 +182,8 @@ public class MerchantServiceImpl implements MerchantService {
         if (StringUtils.deleteWhitespace(merchantBaseVO.getAppId()).length() != 16) {
             throw new BizException("appId需要为16位");
         }
-        checkAppUnique(merchantBaseVO);
+        checkAppNameUnique(merchantBaseVO);
+        checkAppIdUnique(merchantBaseVO);
         String appId = StringUtils.deleteWhitespace(merchantBaseVO.getAppId());
         if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
             appId = CommonUtils.generateAppId();
@@ -204,27 +205,15 @@ public class MerchantServiceImpl implements MerchantService {
         return map;
     }
 
-    private void checkAppUnique(MerchantBaseVO merchantBaseVO) {
-        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.createCriteria().andAppNameEqualTo(merchantBaseVO.getAppName());
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
-        if (merchantBaseList.size() > 0) {
-            throw new BizException("app名称重复");
-        }
-        MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
-        criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
-        List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
-        if (merchantBaseList1.size() > 0) {
-            throw new BizException("appId重复");
-        }
-
-    }
 
     @Override
     public void updateMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("更新商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
-        Assert.notNull(merchantBaseVO.getAppName(), "app名称不能为空!");
+        if (StringUtils.isBlank(merchantBaseVO.getAppName())) {
+            throw new BizException("app名称不能为空!");
+        }
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
+        checkAppNameUnique(merchantBaseVO);
         MerchantBase merchantBase = new MerchantBase();
         BeanUtils.copyProperties(merchantBaseVO, merchantBase);
         merchantBaseMapper.updateByPrimaryKeySelective(merchantBase);
@@ -323,6 +312,24 @@ public class MerchantServiceImpl implements MerchantService {
         merchantBase.setCompany(merchantBaseVO.getCompany());
         merchantBaseMapper.insertSelective(merchantBase);
         return merchantBase.getId();
+    }
+
+    private void checkAppNameUnique(MerchantBaseVO merchantBaseVO) {
+        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
+        criteria.createCriteria().andAppNameEqualTo(merchantBaseVO.getAppName());
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
+        if (merchantBaseList.size() > 0) {
+            throw new BizException("app名称重复");
+        }
+    }
+
+    private void checkAppIdUnique(MerchantBaseVO merchantBaseVO) {
+        MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
+        criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
+        List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
+        if (merchantBaseList1.size() > 0) {
+            throw new BizException("appId重复");
+        }
     }
 
 }

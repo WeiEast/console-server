@@ -318,6 +318,16 @@ public class DateUtils {
         return (int) (c.getTimeInMillis() / 1000);
     }
 
+    public static Long date2LongTimeStamp(Date date) {
+        Calendar c = Calendar.getInstance();
+        try {
+            c.setTime(date);
+        } catch (Exception e) {
+            logger.error("转化日期出错", e);
+        }
+        return c.getTimeInMillis() / 1000;
+    }
+
 
     /**
      * 获取当前日期在当年中的周数

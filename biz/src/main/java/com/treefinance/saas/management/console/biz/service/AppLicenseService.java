@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.datatrees.toolkits.util.crypto.AES;
 import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
@@ -40,11 +41,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Jerry
@@ -121,50 +119,41 @@ public class AppLicenseService {
 
     public Result<Map<String, Object>> getAppLicenseList(PageRequest request) {
         List<AppLicenseVO> appLicenseVOList = Lists.newArrayList();
-        String key = APPID_SUFFIX + "*";
-        Set<String> keySet = stringRedisTemplate.keys(key);
-        if (CollectionUtils.isEmpty(keySet)) {
-            return Results.newSuccessPageResult(request, 0L, appLicenseVOList);
+        long total = merchantBaseMapper.countByExample(null);
+        if (Optional.fromNullable(total).or(Long.valueOf(0)) <= 0) {
+            return Results.newSuccessPageResult(request, total, appLicenseVOList);
         }
-        List<String> resultStrList = stringRedisTemplate.opsForValue().multiGet(keySet);
-        if (CollectionUtils.isEmpty(resultStrList)) {
-            return Results.newSuccessPageResult(request, 0L, appLicenseVOList);
+        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
+        criteria.setOffset(request.getOffset());
+        criteria.setLimit(request.getPageSize());
+        criteria.setOrderByClause("CreateTime desc");
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
+        if (CollectionUtils.isEmpty(merchantBaseList)) {
+            return Results.newSuccessPageResult(request, total, appLicenseVOList);
         }
-        List<AppLicenseDTO> appLicenseDTOList = Lists.newArrayList();
-        for (String result : resultStrList) {
-            AppLicenseDTO appLicenseDTO = JSON.parseObject(result, AppLicenseDTO.class);
-            appLicenseDTOList.add(appLicenseDTO);
-        }
-        List<String> appIdList = appLicenseDTOList.stream().map(AppLicenseDTO::getAppId).collect(Collectors.toList());
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
-        Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
-
-        for (AppLicenseDTO appLicenseDTO : appLicenseDTOList) {
+        for (MerchantBase merchantBase : merchantBaseList) {
+            String key = APPID_SUFFIX + merchantBase.getAppId();
+            String result = stringRedisTemplate.opsForValue().get(key);
             AppLicenseVO appLicenseVO = new AppLicenseVO();
-            BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
-            MerchantBase merchantBase = merchantBaseMap.get(appLicenseDTO.getAppId());
-            if (merchantBase == null) {
-                logger.info("key列表查询中,appId={}在merchant_base表中未找到对应商户信息", appLicenseDTO.getAppId());
-                continue;
+            if (result != null) {
+                AppLicenseDTO appLicenseDTO = JSON.parseObject(result, AppLicenseDTO.class);
+                appLicenseVO.setAppId(merchantBase.getAppId());
+                appLicenseVO.setAppName(merchantBase.getAppName());
+                appLicenseVO.setCreateTime(merchantBase.getCreateTime());
+                BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
+            } else {
+                appLicenseVO.setAppId(merchantBase.getAppId());
+                appLicenseVO.setAppName(merchantBase.getAppName());
+                appLicenseVO.setCreateTime(merchantBase.getCreateTime());
+                appLicenseVO.setSdkPublicKey("");
+                appLicenseVO.setSdkPrivateKey("");
+                appLicenseVO.setDataSecretKey("");
+                appLicenseVO.setServerPrivateKey("");
+                appLicenseVO.setServerPublicKey("");
             }
-            if (appLicenseVO.getCreateTime() == null) {
-                appLicenseVO.setCreateTime(Long.valueOf(DateUtils.date2TimeStamp(merchantBase.getCreateTime())));
-            }
-            appLicenseVO.setAppName(merchantBase.getAppName());
             appLicenseVOList.add(appLicenseVO);
-        }
 
-
-        final long total = appLicenseVOList.size();
-        int start = request.getOffset();
-        int end = request.getOffset() + request.getPageSize();
-        if (end > total) {
-            end = (int) total;
         }
-        Collections.sort(appLicenseVOList, (o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime()));
-        appLicenseVOList = appLicenseVOList.subList(start, end);
         return Results.newSuccessPageResult(request, total, appLicenseVOList);
 
     }

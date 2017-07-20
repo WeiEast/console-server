@@ -49,7 +49,9 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         }
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
         //<bizType,AppBizLicense>
-        Map<Byte, AppBizLicense> appBizLicenseMap = appBizLicenseList.stream().collect(Collectors.toMap(AppBizLicense::getBizType, appBizLicense -> appBizLicense));
+        Map<Byte, AppBizLicense> appBizLicenseMap = appBizLicenseList
+                .stream()
+                .collect(Collectors.toMap(AppBizLicense::getBizType, appBizLicense -> appBizLicense, (key1, key2) -> key1));
         AppBizTypeCriteria appBizTypeCriteria = new AppBizTypeCriteria();
         AppBizTypeCriteria.Criteria criteria1 = appBizTypeCriteria.createCriteria();
         if (request.getBizType() != null) {

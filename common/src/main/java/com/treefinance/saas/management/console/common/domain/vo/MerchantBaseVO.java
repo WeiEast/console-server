@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class MerchantBaseVO implements Serializable {
 
+    private static final long serialVersionUID = 4923879171959418449L;
     private Long id;
     private String appId;
     private String appName;

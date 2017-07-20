@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
+import java.util.Date;
+
 /**
  * Created by haojiahong on 2017/6/22.
  */
@@ -12,7 +14,7 @@ public class AppLicenseVO {
     private String serverPublicKey;
     private String serverPrivateKey;
     private String dataSecretKey;
-    private Long createTime;
+    private Date createTime;
 
     public String getAppId() {
         return appId;
@@ -70,11 +72,11 @@ public class AppLicenseVO {
         this.appName = appName;
     }
 
-    public Long getCreateTime() {
+    public Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Long createTime) {
+    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 }

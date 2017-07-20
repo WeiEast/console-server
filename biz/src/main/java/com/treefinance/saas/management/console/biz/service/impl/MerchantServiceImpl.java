@@ -76,7 +76,14 @@ public class MerchantServiceImpl implements MerchantService {
         if (!CollectionUtils.isEmpty(merchantUserList)) {
             MerchantUser merchantUser = merchantUserList.get(0);
             merchantBaseVO.setLoginName(merchantUser.getLoginName());
-            merchantBaseVO.setPassword(iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL));
+            String text;
+            try {
+                text = iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL);
+            } catch (Exception e) {
+                logger.error("merchantId={}的密文解析有误", id, e);
+                text = "密码失效,请重置!";
+            }
+            merchantBaseVO.setPassword(text);
         }
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
@@ -151,7 +158,14 @@ public class MerchantServiceImpl implements MerchantService {
             MerchantUser merchantUser = merchantUserMerchantIdMap.get(merchantBase.getId());
             if (merchantUser != null) {
                 merchantBaseVO.setLoginName(merchantUser.getLoginName());
-                merchantBaseVO.setPassword(iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL));
+                String text;
+                try {
+                    text = iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL);
+                } catch (Exception e) {
+                    logger.error("merchantId={}的密文解析有误", merchantBase.getId(), e);
+                    text = "密码失效,请重置!";
+                }
+                merchantBaseVO.setPassword(text);
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
             if (!CollectionUtils.isEmpty(licenseList)) {

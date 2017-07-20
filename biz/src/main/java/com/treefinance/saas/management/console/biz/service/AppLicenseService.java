@@ -29,6 +29,7 @@ import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
+import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
 import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
@@ -147,6 +148,9 @@ public class AppLicenseService {
             if (merchantBase == null) {
                 logger.info("key列表查询中,appId={}在merchant_base表中未找到对应商户信息", appLicenseDTO.getAppId());
                 continue;
+            }
+            if (appLicenseVO.getCreateTime() == null) {
+                appLicenseVO.setCreateTime(Long.valueOf(DateUtils.date2TimeStamp(merchantBase.getCreateTime())));
             }
             appLicenseVO.setAppName(merchantBase.getAppName());
             appLicenseVOList.add(appLicenseVO);

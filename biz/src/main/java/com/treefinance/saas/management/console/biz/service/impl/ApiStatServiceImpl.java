@@ -362,7 +362,11 @@ public class ApiStatServiceImpl implements ApiStatService {
         });
 
         resultMap.put("keys", Lists.newArrayList(dataMap.keySet()));
-        resultMap.put("values", Lists.newArrayList(dataMap.values()));
+        List<PieChartStatVO> values = Lists.newArrayList(dataMap.values())
+                .stream()
+                .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
+                .collect(Collectors.toList());
+        resultMap.put("values", values);
         return resultMap;
     }
 

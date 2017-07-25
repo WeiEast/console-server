@@ -71,7 +71,7 @@
             <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->
 
-        <table tableName="app_callback_biz" domainObjectName="AppCallbackBiz"
+        <table tableName="console_traffic_limit_config" domainObjectName="ConsoleTrafficLimitConfig"
                enableSelectPaginationByExample="true"
                enableBatchInsert="true"
                enableBatchUpdateByPrimaryKey="true"

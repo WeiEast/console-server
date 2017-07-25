@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Created by haojiahong on 2017/6/21.
@@ -12,6 +13,7 @@ public class AppBizLicenseVO implements Serializable {
     private Byte bizType;
     private String bizName;
     private Integer dailyLimit;
+    private BigDecimal trafficLimit;
     private Byte isShowLicense;
     private Byte isValid;
 
@@ -62,5 +64,13 @@ public class AppBizLicenseVO implements Serializable {
 
     public void setIsValid(Byte isValid) {
         this.isValid = isValid;
+    }
+
+    public BigDecimal getTrafficLimit() {
+        return trafficLimit;
+    }
+
+    public void setTrafficLimit(BigDecimal trafficLimit) {
+        this.trafficLimit = trafficLimit;
     }
 }

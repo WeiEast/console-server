@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -158,6 +159,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
     }
 
+
     @Override
     public Boolean updateQuota(AppBizLicenseVO request) {
         Assert.notNull(request.getAppId(), "appId不能为空");
@@ -177,6 +179,67 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         AppBizLicense appBizLicense = new AppBizLicense();
         appBizLicense.setId(srcAppBizLicense.getId());
         appBizLicense.setDailyLimit(request.getDailyLimit());
+        appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public List<AppBizLicenseVO> selectTrafficByAppIdBizType(AppBizLicenseRequest request) {
+        Assert.notNull(request.getAppId(), "appId不能为空!");
+        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
+        AppBizLicenseCriteria.Criteria criteria = appBizLicenseCriteria.createCriteria();
+        criteria.andAppIdEqualTo(request.getAppId()).andIsValidEqualTo((byte) 1);
+        if (request.getBizType() != null) {
+            criteria.andBizTypeEqualTo(request.getBizType());
+        }
+        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        AppBizTypeCriteria appBizTypeCriteria = new AppBizTypeCriteria();
+        AppBizTypeCriteria.Criteria criteria1 = appBizTypeCriteria.createCriteria();
+        if (request.getBizType() != null) {
+            criteria1.andBizTypeEqualTo(request.getBizType());
+        }
+        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(appBizTypeCriteria);
+        Map<Byte, AppBizType> appBizTypeMap = appBizTypeList.stream().collect(Collectors.toMap(AppBizType::getBizType, appBizType1 -> appBizType1));
+        List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
+        for (AppBizLicense appBizLicense : appBizLicenseList) {
+            AppBizType appBizType = appBizTypeMap.get(appBizLicense.getBizType());
+            if (appBizType == null) {
+                logger.info("appBizLicense中bizType={}的服务权限类型在app_biz_type中未配置", appBizLicense.getBizType());
+                continue;
+            }
+            AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
+            appBizLicenseVO.setBizType(appBizType.getBizType());
+            appBizLicenseVO.setBizName(appBizType.getBizName());
+            appBizLicenseVO.setAppId(request.getAppId());
+            appBizLicenseVO.setTrafficLimit(appBizLicense.getTrafficLimit());
+            appBizLicenseVOList.add(appBizLicenseVO);
+        }
+        return appBizLicenseVOList;
+    }
+
+    @Override
+    public Boolean updateTraffic(AppBizLicenseVO request) {
+        Assert.notNull(request.getAppId(), "appId不能为空");
+        Assert.notNull(request.getBizType(), "bizType不能为空");
+        Assert.notNull(request.getTrafficLimit(), "trafficLimit不能为空");
+        if (request.getTrafficLimit().compareTo(new BigDecimal(100)) > 0 || request.getTrafficLimit().compareTo(new BigDecimal(0)) < 0) {
+            throw new BizException("流量百分比设置有误!");
+        }
+        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
+        appBizLicenseCriteria.createCriteria()
+                .andAppIdEqualTo(request.getAppId())
+                .andBizTypeEqualTo(request.getBizType())
+                .andIsValidEqualTo((byte) 1);
+
+        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        if (CollectionUtils.isEmpty(appBizLicenseList)) {
+            logger.info("更新商户流量限制时,商户appId={}的服务权限bizType={}未开通", request.getAppId(), request.getBizType());
+            throw new BizException("商户此服务权限未开通!");
+        }
+        AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
+        AppBizLicense appBizLicense = new AppBizLicense();
+        appBizLicense.setId(srcAppBizLicense.getId());
+        appBizLicense.setTrafficLimit(request.getTrafficLimit());
         appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
         return Boolean.TRUE;
     }

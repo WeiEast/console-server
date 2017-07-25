@@ -23,6 +23,7 @@ import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
+import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
@@ -30,7 +31,6 @@ import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
 import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
@@ -54,6 +54,8 @@ public class AppLicenseService {
     private static final Logger logger = LoggerFactory.getLogger(AppLicenseService.class);
 
     private final static String APPID_SUFFIX = "saas_gateway_app_license:";
+
+    private final static String CALLBACK_SUFFIX = "saas_gateway_callback_license:";
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -158,6 +160,47 @@ public class AppLicenseService {
 
     }
 
+    /**
+     * 根据call_back的id生成"其他"通知类型时的DataSecretKey
+     */
+    public Result<Integer> generateCallbackLicense(Integer id) {
+        CallbackLicenseDTO licenseDTO = this.selectCallbackLicenseById(id);
+        if (licenseDTO != null) {
+            logger.info("根据Id={}查询回调的DataSecretKey已经存在 result={}", id, JSON.toJSONString(licenseDTO));
+            return new Result<>();
+        }
+        CallbackLicenseDTO license = Helper.generateCallbackLicense(id);
+        String key = CALLBACK_SUFFIX + id;
+        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
+        Result<Integer> result = new Result<>();
+        result.setData(id);
+        logger.info("generateCallbackLicense : key={}, license={}", key, JSON.toJSONString(license));
+        return result;
+    }
+
+    /**
+     * 根据传入的Id查找对应的callback DataSecretKey
+     */
+    public CallbackLicenseDTO selectCallbackLicenseById(Integer id) {
+        logger.info("根据Id={}查询回调的DataSecretKey", id);
+        String key = CALLBACK_SUFFIX + id;
+        CallbackLicenseDTO result = null;
+        if (stringRedisTemplate.hasKey(key)) {
+            result = JSON.parseObject(stringRedisTemplate.opsForValue().get(key), CallbackLicenseDTO.class);
+        }
+        logger.info("根据Id={}查询回调的DataSecretKey结果为result={}", id, JSON.toJSONString(result));
+        return result;
+    }
+
+    public Result removeCallbackLicenseById(Integer id) {
+        logger.info("根据Id={}删除回调的DataSecretKey", id);
+        String key = CALLBACK_SUFFIX + id;
+        if (stringRedisTemplate.hasKey(key)) {
+            stringRedisTemplate.opsForValue().getOperations().delete(key);
+        }
+        return null;
+    }
+
 
     /**
      * 辅助工具类
@@ -184,6 +227,14 @@ public class AppLicenseService {
             String data = AES.generateKeyString();
             license.setDataSecretKey(data);
             return license;
+        }
+
+        public static CallbackLicenseDTO generateCallbackLicense(Integer id) {
+            CallbackLicenseDTO licenseDTO = new CallbackLicenseDTO();
+            licenseDTO.setCallBackConfigId(id);
+            licenseDTO.setDataSecretKey(AES.generateKeyString());
+            licenseDTO.setCreateTime(System.currentTimeMillis() / 1000);
+            return licenseDTO;
         }
     }
 }

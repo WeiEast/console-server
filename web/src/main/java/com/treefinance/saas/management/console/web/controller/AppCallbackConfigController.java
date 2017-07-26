@@ -3,6 +3,7 @@ package com.treefinance.saas.management.console.web.controller;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppCallbackUrlVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -57,6 +58,13 @@ public class AppCallbackConfigController {
     @RequestMapping(value = "biz/list", produces = "application/json", method = RequestMethod.GET)
     public Result<List<AppBizTypeVO>> getCallbackBizList() {
         List<AppBizTypeVO> result = appCallbackConfigService.getCallbackBizList();
+        return Results.newSuccessResult(result);
+    }
+
+
+    @RequestMapping(value = "url/validate", produces = "application/json", method = RequestMethod.POST)
+    public Result<Boolean> testUrl(@RequestBody AppCallbackUrlVO vo) {
+        Boolean result = appCallbackConfigService.testUrl(vo.getUrl());
         return Results.newSuccessResult(result);
     }
 

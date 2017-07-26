@@ -46,7 +46,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         List<AppBizTypeVO> appBizTypeVOList = Lists.newArrayList();
 
         AppBizLicenseCriteria criteria = new AppBizLicenseCriteria();
-        criteria.createCriteria().andAppIdEqualTo(appId);
+        criteria.createCriteria().andAppIdEqualTo(appId).andIsValidEqualTo((byte) 1);
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(criteria);
         if (CollectionUtils.isEmpty(appBizLicenseList)) {
             return appBizTypeVOList;
@@ -64,13 +64,14 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
                 .stream()
                 .collect(Collectors.toMap(AppBizType::getBizType, appBizType -> appBizType));
 
-        appBizLicenseList.forEach(o -> {
+        for (AppBizLicense o : appBizLicenseList) {
             AppBizType appBizType = appBizTypeMap.get(o.getBizType());
             AppBizTypeVO appBizTypeVO = new AppBizTypeVO();
             appBizTypeVO.setBizType(appBizType.getBizType());
             appBizTypeVO.setBizName(appBizType.getBizName());
             appBizTypeVOList.add(appBizTypeVO);
-        });
+        }
+        appBizTypeVOList = appBizTypeVOList.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
         return appBizTypeVOList;
     }
 

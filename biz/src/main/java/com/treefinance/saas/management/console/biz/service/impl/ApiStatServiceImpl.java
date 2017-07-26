@@ -25,10 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -361,13 +358,27 @@ public class ApiStatServiceImpl implements ApiStatService {
             }
         });
 
-        resultMap.put("keys", Lists.newArrayList(dataMap.keySet()));
-        List<PieChartStatVO> values = Lists.newArrayList(dataMap.values())
-                .stream()
-                .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
-                .collect(Collectors.toList());
-        resultMap.put("values", values);
+        Map<String, PieChartStatVO> resultDataMap = sortMapByValue(dataMap);
+
+        resultMap.put("keys", Lists.newArrayList(resultDataMap.keySet()));
+        resultMap.put("values", Lists.newArrayList(resultDataMap.values()));
         return resultMap;
+    }
+
+    private Map<String, PieChartStatVO> sortMapByValue(Map<String, PieChartStatVO> dataMap) {
+        Map<String, PieChartStatVO> sortedMap = new LinkedHashMap<>();
+        if (dataMap == null || dataMap.isEmpty()) {
+            return sortedMap;
+        }
+        List<Map.Entry<String, PieChartStatVO>> entryList = new ArrayList<Map.Entry<String, PieChartStatVO>>(dataMap.entrySet());
+        Collections.sort(entryList, (o1, o2) -> o2.getValue().getValue().compareTo(o1.getValue().getValue()));
+        Iterator<Map.Entry<String, PieChartStatVO>> iter = entryList.iterator();
+        Map.Entry<String, PieChartStatVO> tmpEntry = null;
+        while (iter.hasNext()) {
+            tmpEntry = iter.next();
+            sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
+        }
+        return sortedMap;
     }
 
     private void fillDataTimeMap(Map<String, Map<Date, Integer>> map, List<Date> dateList) {

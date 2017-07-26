@@ -189,12 +189,6 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             throw new BizException("业务类型不能为空");
         }
 
-        AppCallbackConfigCriteria configCriteria = new AppCallbackConfigCriteria();
-        configCriteria.createCriteria().andAppIdEqualTo(appCallbackConfigVO.getAppId());
-        List<AppCallbackConfig> configList = appCallbackConfigMapper.selectByExample(configCriteria);
-        if (!CollectionUtils.isEmpty(configList)) {
-            throw new BizException("此商户已经配置回调,请返回修改!");
-        }
         AppCallbackConfig appCallbackConfig = new AppCallbackConfig();
         BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);
         appCallbackConfig.setVersion((byte) 1);
@@ -233,6 +227,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         appCallbackConfigMapper.updateByPrimaryKeySelective(appCallbackConfig);
         if (appCallbackConfig.getReceiver() == 1) {
             appLicenseService.generateCallbackLicense(appCallbackConfig.getId());
+        } else if (appCallbackConfig.getReceiver() == 0) {
+            appLicenseService.removeCallbackLicenseById(appCallbackConfig.getId());
         }
         if (!CollectionUtils.isEmpty(appCallbackConfigVO.getBizTypes())) {
             AppCallbackBizCriteria relaCriteria = new AppCallbackBizCriteria();

@@ -16,11 +16,11 @@ public class AppCallbackConfigVO implements Serializable {
 
     private String appName;//app名称
 
-    private Byte receiver;
-
-    private String receiverName;//通知方
+    private String receiver;
 
     private Byte version;
+
+    private Byte isNewKey;
 
     private String url;//回调地址
 
@@ -66,22 +66,6 @@ public class AppCallbackConfigVO implements Serializable {
 
     public void setAppName(String appName) {
         this.appName = appName;
-    }
-
-    public Byte getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(Byte receiver) {
-        this.receiver = receiver;
-    }
-
-    public String getReceiverName() {
-        return receiverName;
-    }
-
-    public void setReceiverName(String receiverName) {
-        this.receiverName = receiverName;
     }
 
     public Byte getVersion() {
@@ -178,6 +162,22 @@ public class AppCallbackConfigVO implements Serializable {
 
     public void setBizTypes(List<AppCallbackBizVO> bizTypes) {
         this.bizTypes = bizTypes;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    public Byte getIsNewKey() {
+        return isNewKey;
+    }
+
+    public void setIsNewKey(Byte isNewKey) {
+        this.isNewKey = isNewKey;
     }
 }
 

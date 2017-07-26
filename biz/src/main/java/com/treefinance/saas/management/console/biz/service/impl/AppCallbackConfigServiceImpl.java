@@ -106,7 +106,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 }
 
             }
-            relaVOs.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
+            relaVOs = relaVOs.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
             vo.setBizTypes(relaVOs);
             if (config.getIsNewKey() == 0) {
                 AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(config.getAppId());

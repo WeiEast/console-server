@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.management.console.common.CallbackSecureHandler;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * Created by yh-treefinance on 2017/7/18.
@@ -44,4 +48,18 @@ public class DataController {
             return Results.newFailedResult(e.getMessage(), CommonStateCode.FAILURE);
         }
     }
+
+    @RequestMapping(value = "/rsa/decrypt", produces = "application/json", method = RequestMethod.POST)
+    public Result<Object> decryptRSAData(@RequestParam("data") String data,
+                                         @RequestParam("key") String key) {
+        try {
+            data = URLDecoder.decode(data, "utf-8");
+            data = callbackSecureHandler.decrypt(data, key);
+            return Results.newSuccessResult(JSON.parse(data));
+        } catch (Exception e) {
+            logger.error("downloadData failed", e);
+            return Results.newFailedResult(e.getMessage(), CommonStateCode.FAILURE);
+        }
+    }
+
 }

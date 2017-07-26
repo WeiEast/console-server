@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
+import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -8,6 +9,7 @@ import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,6 +52,12 @@ public class AppCallbackConfigController {
         appCallbackConfigService.deleteAppCallbackConfigById(id);
         return Results.newSuccessResult(true);
 
+    }
+
+    @RequestMapping(value = "biz/list", produces = "application/json", method = RequestMethod.GET)
+    public Result<List<AppBizTypeVO>> getCallbackBizList() {
+        List<AppBizTypeVO> result = appCallbackConfigService.getCallbackBizList();
+        return Results.newSuccessResult(result);
     }
 
 

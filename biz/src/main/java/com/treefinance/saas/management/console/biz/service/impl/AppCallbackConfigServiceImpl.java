@@ -8,6 +8,7 @@ import com.treefinance.saas.management.console.biz.service.AppCallbackConfigServ
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
+import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
@@ -16,6 +17,7 @@ import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.dao.entity.*;
+import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackBizMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
@@ -49,6 +51,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     private AppLicenseService appLicenseService;
     @Autowired
     private AppCallbackBizMapper appCallbackBizMapper;
+    @Autowired
+    private AppBizTypeMapper appBizTypeMapper;
 
 
     @Override
@@ -87,7 +91,6 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             } else {
                 vo.setAppName(base.getAppName());
             }
-            vo.setReceiverName(wrapReceiverName(config.getReceiver()));
             vo.setNotifyModelName(wrapNotifyModelName(config.getNotifyModel()));
 
             List<AppCallbackBiz> relas = relaMap.get(config.getId());
@@ -102,7 +105,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
             }
             vo.setBizTypes(relaVOs);
-            if (config.getReceiver() == 0) {
+            if (config.getIsNewKey() == 0) {
                 AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(config.getAppId());
                 if (appLicenseDTO == null) {
                     logger.error("appId={}未查询到对应的appLicenseKey", config.getAppId());
@@ -155,9 +158,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             }
         }
         vo.setBizTypes(relaVOList);
-        vo.setReceiverName(wrapReceiverName(config.getReceiver()));
         vo.setNotifyModelName(wrapNotifyModelName(config.getNotifyModel()));
-        if (config.getReceiver() == 0) {
+        if (config.getIsNewKey() == 0) {
             AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(config.getAppId());
             if (appLicenseDTO == null) {
                 logger.error("appId={}未查询到对应的appLicenseKey", config.getAppId());
@@ -193,7 +195,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);
         appCallbackConfig.setVersion((byte) 1);
         appCallbackConfigMapper.insertSelective(appCallbackConfig);
-        if (appCallbackConfigVO.getReceiver() == 1) {
+        if (Optional.fromNullable(appCallbackConfigVO.getIsNewKey()).or((byte) 0) == 1) {
             appLicenseService.generateCallbackLicense(appCallbackConfig.getId());
         }
         List<Byte> bizTypeList = appCallbackConfigVO.getBizTypes().stream().map(AppCallbackBizVO::getBizType).collect(Collectors.toList());
@@ -225,9 +227,10 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         AppCallbackConfig appCallbackConfig = new AppCallbackConfig();
         BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);
         appCallbackConfigMapper.updateByPrimaryKeySelective(appCallbackConfig);
-        if (appCallbackConfig.getReceiver() == 1) {
+        byte isNewKey = Optional.fromNullable(appCallbackConfig.getIsNewKey()).or((byte) 0);
+        if (isNewKey == 1) {
             appLicenseService.generateCallbackLicense(appCallbackConfig.getId());
-        } else if (appCallbackConfig.getReceiver() == 0) {
+        } else if (isNewKey == 0) {
             appLicenseService.removeCallbackLicenseById(appCallbackConfig.getId());
         }
         if (!CollectionUtils.isEmpty(appCallbackConfigVO.getBizTypes())) {
@@ -263,22 +266,31 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         appCallbackBizMapper.deleteByExample(relaCriteria);
     }
 
+    @Override
+    public List<AppBizTypeVO> getCallbackBizList() {
+        List<AppBizTypeVO> appBizTypeVOList = Lists.newArrayList();
+        AppBizTypeCriteria criteria = new AppBizTypeCriteria();
+        criteria.setOrderByClause("bizType asc");
+        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(criteria);
+        if (CollectionUtils.isEmpty(appBizTypeList)) {
+            return appBizTypeVOList;
+        }
+        appBizTypeVOList = com.treefinance.saas.management.console.common.utils.BeanUtils.convertList(appBizTypeList, AppBizTypeVO.class);
+
+        //在回调中需要增加一个全部类型
+        AppBizTypeVO allVO = new AppBizTypeVO();
+        allVO.setBizType((byte) 0);
+        allVO.setBizName("全部");
+        appBizTypeVOList.add(0, allVO);
+        return appBizTypeVOList;
+    }
+
     private String wrapNotifyModelName(Byte notifyModel) {
         if (notifyModel == 0) {
             return "URL";
         }
         if (notifyModel == 1) {
             return "数据";
-        }
-        return "未定义";
-    }
-
-    private String wrapReceiverName(Byte receiver) {
-        if (receiver == 0) {
-            return "商户";
-        }
-        if (receiver == 1) {
-            return "其他";
         }
         return "未定义";
     }

@@ -16,12 +16,14 @@ import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackBizMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -104,6 +106,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 }
 
             }
+            relaVOs.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
             vo.setBizTypes(relaVOs);
             if (config.getIsNewKey() == 0) {
                 AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(config.getAppId());
@@ -285,6 +288,22 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         return appBizTypeVOList;
     }
 
+    @Override
+    public Boolean testUrl(String url) {
+        UrlValidator urlValidator = new UrlValidator();
+        boolean flag = urlValidator.isValid(url);
+        if (flag) {
+            try {
+                HttpClientUtils.doOptions(url);
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private String wrapNotifyModelName(Byte notifyModel) {
         if (notifyModel == 0) {
             return "URL";
@@ -302,4 +321,5 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             return EBizType.getName(bizType);
         }
     }
+
 }

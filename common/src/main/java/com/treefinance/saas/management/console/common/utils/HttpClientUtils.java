@@ -15,6 +15,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -227,6 +228,37 @@ public class HttpClientUtils {
             closeResponse(response);
         }
         return httpStr;
+    }
+
+    public static String doOptions(String url) {
+        long start = System.currentTimeMillis();
+
+        String result = null;
+        CloseableHttpClient httpclient = getClient();
+        CloseableHttpResponse response = null;
+        int statusCode = 0;
+        try {
+            HttpOptions httpOptions = new HttpOptions(url);
+            httpOptions.setConfig(getConfig());
+            response = httpclient.execute(httpOptions);
+            statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode < 200 || statusCode >= 400) {
+                throw new RequestFailedException("request url=" + url + " failed , statusCode = " + statusCode);
+            }
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                result = IOUtils.toString(instream, "UTF-8");
+            }
+        } catch (IOException e) {
+            throw new RequestFailedException("request url=" + url + " failed , statusCode = " + statusCode, e);
+        } finally {
+            if (logger.isInfoEnabled()) {
+                logger.info(" doOptions completed: url={}, statusCode={} , cost {} ms ", url, statusCode, (System.currentTimeMillis() - start));
+            }
+            closeResponse(response);
+        }
+        return result;
     }
 
     /**

@@ -59,5 +59,11 @@ public interface AppCallbackConfigService {
      */
     List<AppBizTypeVO> getCallbackBizList();
 
-
+    /**
+     * 验证url是否能够通过
+     *
+     * @param url
+     * @return
+     */
+    Boolean testUrl(String url);
 }

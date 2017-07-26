@@ -176,6 +176,7 @@ public class MerchantServiceImpl implements MerchantService {
                     appBizLicenseVO.setBizName(EBizType.getName(appBizLicense.getBizType()));
                     appBizLicenseVOList.add(appBizLicenseVO);
                 }
+                appBizLicenseVOList.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
                 merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);
             }
             merchantBaseVOList.add(merchantBaseVO);

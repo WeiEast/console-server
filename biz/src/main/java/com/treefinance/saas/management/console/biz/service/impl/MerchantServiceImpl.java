@@ -166,6 +166,7 @@ public class MerchantServiceImpl implements MerchantService {
                     text = "密码失效,请重置!";
                 }
                 merchantBaseVO.setPassword(text);
+                merchantBaseVO.setIsTest(merchantUser.getIsTest());
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
             if (!CollectionUtils.isEmpty(licenseList)) {
@@ -222,6 +223,7 @@ public class MerchantServiceImpl implements MerchantService {
 
 
     @Override
+    @Transactional
     public void updateMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("更新商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         if (StringUtils.isBlank(merchantBaseVO.getAppName())) {
@@ -241,6 +243,12 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantBase merchantBase = new MerchantBase();
         BeanUtils.copyProperties(merchantBaseVO, merchantBase);
         merchantBaseMapper.updateByPrimaryKeySelective(merchantBase);
+
+        MerchantUserCriteria userCriteria = new MerchantUserCriteria();
+        userCriteria.createCriteria().andMerchantIdEqualTo(merchantBase.getId());
+        MerchantUser merchantUser = new MerchantUser();
+        merchantUser.setIsTest(merchantBaseVO.getIsTest());
+        merchantUserMapper.updateByExampleSelective(merchantUser, userCriteria);
 
     }
 
@@ -265,7 +273,7 @@ public class MerchantServiceImpl implements MerchantService {
     public List<MerchantSimpleVO> getMerchantBaseList() {
         List<MerchantSimpleVO> merchantSimpleVOList = Lists.newArrayList();
         MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.setOrderByClause("AppName asc");
+        criteria.setOrderByClause("convert(AppName using gbk) asc");
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return merchantSimpleVOList;
@@ -314,6 +322,7 @@ public class MerchantServiceImpl implements MerchantService {
         String plainTextPassword = CommonUtils.generatePassword();
         merchantUser.setPassword(iSecurityCryptoService.encrypt(plainTextPassword, EncryptionIntensityEnum.NORMAL));
         merchantUser.setIsActive(Boolean.TRUE);
+        merchantUser.setIsTest(merchantBaseVO.getIsTest());
         merchantUserMapper.insertSelective(merchantUser);
         return plainTextPassword;
     }

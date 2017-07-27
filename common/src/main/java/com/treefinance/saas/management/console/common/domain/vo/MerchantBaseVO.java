@@ -23,6 +23,7 @@ public class MerchantBaseVO implements Serializable {
     private String bussiness;
     private String bussiness2;
     private Date lastUpdateTime;
+    private Boolean isTest;//是否是测试账户.0:正式账户;1:测试账户
     private List<AppBizLicenseVO> appBizLicenseVOList;
     private AppLicenseVO appLicenseVO;
 
@@ -137,4 +138,13 @@ public class MerchantBaseVO implements Serializable {
     public void setBussiness2(String bussiness2) {
         this.bussiness2 = bussiness2;
     }
+
+    public Boolean getIsTest() {
+        return isTest;
+    }
+
+    public void setIsTest(Boolean isTest) {
+        this.isTest = isTest;
+    }
+
 }

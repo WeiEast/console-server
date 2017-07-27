@@ -62,14 +62,14 @@
             <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-        <table tableName="app_callback_config" domainObjectName="AppCallbackConfig"
-               enableSelectPaginationByExample="true"
-               enableBatchInsert="true"
-               enableBatchUpdateByPrimaryKey="true"
-               enableBatchUpdateByPrimaryKeySelective="true">
-            <property name="useActualColumnNames" value="true"/>
-            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
-        </table>
+        <!--<table tableName="app_callback_config" domainObjectName="AppCallbackConfig"-->
+               <!--enableSelectPaginationByExample="true"-->
+               <!--enableBatchInsert="true"-->
+               <!--enableBatchUpdateByPrimaryKey="true"-->
+               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
 
 
 
@@ -84,10 +84,10 @@
 
 
 
-        <!--<table tableName="merchant_user" domainObjectName="MerchantUser">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
-        <!--</table>-->
+        <table tableName="merchant_user" domainObjectName="MerchantUser">
+            <property name="useActualColumnNames" value="true"/>
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        </table>
 
         <!--<table tableName="console_user" domainObjectName="ConsoleUser">-->
             <!--<property name="useActualColumnNames" value="true"/>-->

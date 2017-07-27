@@ -265,7 +265,7 @@ public class MerchantServiceImpl implements MerchantService {
     public List<MerchantSimpleVO> getMerchantBaseList() {
         List<MerchantSimpleVO> merchantSimpleVOList = Lists.newArrayList();
         MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.setOrderByClause("AppName asc");
+        criteria.setOrderByClause("convert(AppName using gbk) asc");
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return merchantSimpleVOList;

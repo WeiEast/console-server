@@ -84,6 +84,7 @@ public class MerchantServiceImpl implements MerchantService {
                 text = "密码失效,请重置!";
             }
             merchantBaseVO.setPassword(text);
+            merchantBaseVO.setIsTest(merchantUser.getIsTest());
         }
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();

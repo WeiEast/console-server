@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
+import com.treefinance.saas.management.console.common.domain.vo.ChartStatRateVO;
 import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatDayVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatVO;
@@ -223,6 +224,193 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<String, List<ChartStatVO>> valuesMap = this.countTotalTask(appNameMap);
         wrapMap.put("values", valuesMap);
         return wrapMap;
+    }
+
+    @Override
+    public Map<String, Object> queryAccessNumberList(StatRequest request) {
+        baseCheck(request);
+        Map<String, Object> wrapMap = Maps.newHashMap();
+
+        MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
+        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
+
+        MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
+        if (logger.isDebugEnabled()) {
+            logger.debug("merchantStatAccessFacade.queryAllAccessList() : statRequest={},result={}",
+                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+        }
+        if (CollectionUtils.isEmpty(result.getData())) {
+            return wrapMap;
+        }
+        //<key,<data,keyCount>>
+        Map<String, Map<Date, Integer>> dataMap = Maps.newLinkedHashMap();
+        Map<Date, Integer> valueTotalMap = Maps.newHashMap();
+        Map<Date, Integer> valueSuccessMap = Maps.newHashMap();
+        Map<Date, Integer> valueFailMap = Maps.newHashMap();
+        Map<Date, Integer> valueCancelMap = Maps.newHashMap();
+
+        result.getData().forEach(ro -> {
+            if (valueTotalMap.get(ro.getDataTime()) == null) {
+                valueTotalMap.put(ro.getDataTime(), ro.getTotalCount());
+            } else {
+                Integer newValue = valueTotalMap.get(ro.getDataTime()) + ro.getTotalCount();
+                valueTotalMap.put(ro.getDataTime(), newValue);
+            }
+
+            if (valueSuccessMap.get(ro.getDataTime()) == null) {
+                valueSuccessMap.put(ro.getDataTime(), ro.getSuccessCount());
+            } else {
+                Integer newValue = valueSuccessMap.get(ro.getDataTime()) + ro.getSuccessCount();
+                valueSuccessMap.put(ro.getDataTime(), newValue);
+            }
+
+            if (valueFailMap.get(ro.getDataTime()) == null) {
+                valueFailMap.put(ro.getDataTime(), ro.getFailCount());
+            } else {
+                Integer newValue = valueFailMap.get(ro.getDataTime()) + ro.getFailCount();
+                valueFailMap.put(ro.getDataTime(), newValue);
+            }
+
+            if (valueCancelMap.get(ro.getDataTime()) == null) {
+                valueCancelMap.put(ro.getDataTime(), ro.getCancelCount());
+            } else {
+                Integer newValue = valueCancelMap.get(ro.getDataTime()) + ro.getCancelCount();
+                valueCancelMap.put(ro.getDataTime(), newValue);
+            }
+        });
+
+        dataMap.put("总数", valueTotalMap);
+        dataMap.put("成功数", valueSuccessMap);
+        dataMap.put("失败数", valueFailMap);
+        dataMap.put("取消数", valueCancelMap);
+        List<String> keysList = Lists.newArrayList(dataMap.keySet());
+        wrapMap.put("keys", keysList);
+        Map<String, List<ChartStatVO>> valuesMap = this.wrapNumberTaskChart(dataMap);
+        wrapMap.put("values", valuesMap);
+        return wrapMap;
+    }
+
+    private Map<String, List<ChartStatVO>> wrapNumberTaskChart(Map<String, Map<Date, Integer>> dataMap) {
+        Map<String, List<ChartStatVO>> valuesMap = Maps.newHashMap();
+        for (Map.Entry<String, Map<Date, Integer>> dataEntry : dataMap.entrySet()) {
+            List<ChartStatVO> voList = Lists.newArrayList();
+            for (Map.Entry<Date, Integer> entry : dataEntry.getValue().entrySet()) {
+                ChartStatVO vo = new ChartStatVO();
+                vo.setDataTime(entry.getKey());
+                vo.setDataValue(entry.getValue());
+                voList.add(vo);
+            }
+            voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            valuesMap.put(dataEntry.getKey(), voList);
+        }
+        return valuesMap;
+    }
+
+    @Override
+    public Map<String, Object> queryAccessRateList(StatRequest request) {
+        baseCheck(request);
+        Map<String, Object> wrapMap = Maps.newHashMap();
+
+        MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
+        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
+
+        MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
+        if (logger.isDebugEnabled()) {
+            logger.debug("merchantStatAccessFacade.queryAllAccessList() : statRequest={},result={}",
+                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+        }
+        if (CollectionUtils.isEmpty(result.getData())) {
+            return wrapMap;
+        }
+        //<key,<data,keyRate>>
+        Map<String, Map<Date, BigDecimal>> dataMap = Maps.newLinkedHashMap();
+        Map<Date, Integer> valueTotalMap = Maps.newHashMap();
+        Map<Date, Integer> valueSuccessMap = Maps.newHashMap();
+        Map<Date, Integer> valueFailMap = Maps.newHashMap();
+        Map<Date, Integer> valueCancelMap = Maps.newHashMap();
+
+        result.getData().forEach(ro -> {
+            if (valueTotalMap.get(ro.getDataTime()) == null) {
+                valueTotalMap.put(ro.getDataTime(), ro.getTotalCount());
+            } else {
+                Integer newValue = valueTotalMap.get(ro.getDataTime()) + ro.getTotalCount();
+                valueTotalMap.put(ro.getDataTime(), newValue);
+            }
+
+            if (valueSuccessMap.get(ro.getDataTime()) == null) {
+                valueSuccessMap.put(ro.getDataTime(), ro.getSuccessCount());
+            } else {
+                Integer newValue = valueSuccessMap.get(ro.getDataTime()) + ro.getSuccessCount();
+                valueSuccessMap.put(ro.getDataTime(), newValue);
+            }
+
+            if (valueFailMap.get(ro.getDataTime()) == null) {
+                valueFailMap.put(ro.getDataTime(), ro.getFailCount());
+            } else {
+                Integer newValue = valueFailMap.get(ro.getDataTime()) + ro.getFailCount();
+                valueFailMap.put(ro.getDataTime(), newValue);
+            }
+
+            if (valueCancelMap.get(ro.getDataTime()) == null) {
+                valueCancelMap.put(ro.getDataTime(), ro.getCancelCount());
+            } else {
+                Integer newValue = valueCancelMap.get(ro.getDataTime()) + ro.getCancelCount();
+                valueCancelMap.put(ro.getDataTime(), newValue);
+            }
+        });
+
+        dataMap = this.countRateTask(valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
+        List<String> keysList = Lists.newArrayList(dataMap.keySet());
+        wrapMap.put("keys", keysList);
+        Map<String, List<ChartStatRateVO>> valuesMap = this.wrapRateTaskChart(dataMap);
+        wrapMap.put("values", valuesMap);
+        return wrapMap;
+    }
+
+    private Map<String, List<ChartStatRateVO>> wrapRateTaskChart(Map<String, Map<Date, BigDecimal>> dataMap) {
+        Map<String, List<ChartStatRateVO>> valuesMap = Maps.newHashMap();
+        for (Map.Entry<String, Map<Date, BigDecimal>> dataEntry : dataMap.entrySet()) {
+            List<ChartStatRateVO> voList = Lists.newArrayList();
+            for (Map.Entry<Date, BigDecimal> entry : dataEntry.getValue().entrySet()) {
+                ChartStatRateVO vo = new ChartStatRateVO();
+                vo.setDataTime(entry.getKey());
+                vo.setDataValue(entry.getValue());
+                voList.add(vo);
+            }
+            voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            valuesMap.put(dataEntry.getKey(), voList);
+        }
+        return valuesMap;
+    }
+
+    private Map<String, Map<Date, BigDecimal>> countRateTask(Map<Date, Integer> valueTotalMap,
+                                                             Map<Date, Integer> valueSuccessMap,
+                                                             Map<Date, Integer> valueFailMap,
+                                                             Map<Date, Integer> valueCancelMap) {
+        Map<String, Map<Date, BigDecimal>> valuesMap = Maps.newLinkedHashMap();
+        Map<Date, BigDecimal> successRateMap = Maps.newHashMap();
+        Map<Date, BigDecimal> failRateMap = Maps.newHashMap();
+        Map<Date, BigDecimal> cancelRateMap = Maps.newHashMap();
+        for (Map.Entry<Date, Integer> entry : valueTotalMap.entrySet()) {
+            Integer total = entry.getValue();
+            Integer success = valueSuccessMap.get(entry.getKey());
+            Integer fail = valueFailMap.get(entry.getKey());
+            Integer cancel = valueCancelMap.get(entry.getKey());
+            BigDecimal successRate = BigDecimal.valueOf(success * 100).divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal failRate = BigDecimal.valueOf(fail * 100).divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal cancelRate = BigDecimal.valueOf(cancel * 100).divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
+            successRateMap.put(entry.getKey(), successRate);
+            failRateMap.put(entry.getKey(), failRate);
+            cancelRateMap.put(entry.getKey(), cancelRate);
+        }
+        valuesMap.put("成功率", successRateMap);
+        valuesMap.put("失败率", failRateMap);
+        valuesMap.put("取消率", cancelRateMap);
+        return valuesMap;
     }
 
     private Map<String, List<ChartStatVO>> countTotalTask(Map<String, Map<Date, Integer>> appNameMap) {

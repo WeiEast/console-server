@@ -17,4 +17,8 @@ public interface MerchantStatService {
     Result<Map<String, Object>> queryMonthAccessList(StatRequest request);
 
     Map<String, Object> queryAllAccessList(StatRequest request);
+
+    Map<String, Object> queryAccessNumberList(StatRequest request);
+
+    Map<String, Object> queryAccessRateList(StatRequest request);
 }

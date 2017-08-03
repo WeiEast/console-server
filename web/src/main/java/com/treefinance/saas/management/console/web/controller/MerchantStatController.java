@@ -40,7 +40,15 @@ public class MerchantStatController {
         return Results.newSuccessResult(merchantStatService.queryAllAccessList(request));
     }
 
+    @RequestMapping(value = "/stataccess/number", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<Map<String, Object>> getNumber(StatRequest request) {
+        return Results.newSuccessResult(merchantStatService.queryAccessNumberList(request));
+    }
 
+    @RequestMapping(value = "/stataccess/rate", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<Map<String, Object>> getRate(StatRequest request) {
+        return Results.newSuccessResult(merchantStatService.queryAccessRateList(request));
+    }
 
 
 }

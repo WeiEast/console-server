@@ -51,5 +51,16 @@ public class AppBizTypeController {
         return Results.newSuccessResult(result);
     }
 
+    /**
+     * 系统总访问量监控所用下拉
+     *
+     * @return
+     */
+    @RequestMapping(value = "task/access/list", produces = "application/json", method = RequestMethod.GET)
+    public Result<List<AppBizTypeVO>> getMerchantBaseAccessList() {
+        List<AppBizTypeVO> result = appBizTypeService.getAccessTaskBizTypeList();
+        return Results.newSuccessResult(result);
+    }
+
 
 }

@@ -15,4 +15,7 @@ public interface AppBizTypeService {
 
     List<AppBizTypeVO> getTaskBizTypeList();
 
+    List<AppBizTypeVO> getAccessTaskBizTypeList();
+
+
 }

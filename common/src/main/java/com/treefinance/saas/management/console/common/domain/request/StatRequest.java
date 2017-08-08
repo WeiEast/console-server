@@ -33,14 +33,14 @@ public class StatRequest extends PageRequest {
     private Integer collationType;
 
     /**
-     * 统计类型：默认0-全部，1-总数，2-成功，3-失败，4-取消
+     * 商户任务总览:1-成功率;2-失败率;3-取消率
      */
     private Integer statType;
 
     private String appId;
 
     /**
-     * 数据类型：0-合计，1:银行，2：电商，3:邮箱，4:运营商
+     * 数据类型：-1-合计，-2:银行，2：电商，1:邮箱，3:运营商 EBizType4Monitor.class
      */
     private Byte bizType;
 

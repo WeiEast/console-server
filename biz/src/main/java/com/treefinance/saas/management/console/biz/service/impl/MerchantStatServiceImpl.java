@@ -6,10 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
-import com.treefinance.saas.management.console.common.domain.vo.ChartStatRateVO;
-import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
-import com.treefinance.saas.management.console.common.domain.vo.MerchantStatDayVO;
-import com.treefinance.saas.management.console.common.domain.vo.MerchantStatVO;
+import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -369,6 +366,74 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<String, List<ChartStatRateVO>> valuesMap = this.wrapRateTaskChart(dataMap);
         wrapMap.put("values", valuesMap);
         return wrapMap;
+    }
+
+    @Override
+    public Map<String, Map<String, MerchantStatOverviewVO>> queryOverviewAccessList(StatRequest request) {
+        baseCheck(request);
+        Integer statType = request.getStatType();
+        if (statType == null) {
+            throw new IllegalArgumentException("请求参数statType不能为空！");
+        }
+        if (statType < 1 || statType > 3) {
+            throw new IllegalArgumentException("请求参数statType非法！");
+        }
+        MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+
+        MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryAllDayAccessListNoPage(statRequest);
+        if (logger.isDebugEnabled()) {
+            logger.debug("merchantStatAccessFacade.queryDayAccessListNoPage() : statRequest={},result={}",
+                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+        }
+        if (result == null || CollectionUtils.isEmpty(result.getData())) {
+            logger.info("result of merchantStatAccessFacade.queryDayAccessListNoPage() is empty : request={}, result={}", statRequest, JSON.toJSONString(result));
+            return Maps.newHashMap();
+        }
+        List<MerchantStatOverviewVO> overviewVOList = Lists.newArrayList();
+        result.getData().forEach(ro -> {
+            MerchantStatOverviewVO vo = new MerchantStatOverviewVO();
+            vo.setAppId(ro.getAppId());
+            vo.setDateStr(DateUtils.date2Md(ro.getDataTime()));
+            vo.setDate(ro.getDataTime());
+            vo.setTotalCount(ro.getTotalCount());
+            if (statType == 1) {
+                vo.setRate(ro.getSuccessRate());
+            } else if (statType == 2) {
+                vo.setRate(ro.getFailRate());
+            } else {
+                BigDecimal cancelRate = BigDecimal.valueOf(ro.getCancelCount())
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
+                vo.setRate(cancelRate);
+            }
+            overviewVOList.add(vo);
+        });
+        List<String> appIdList = overviewVOList.stream().map(MerchantStatOverviewVO::getAppId).collect(Collectors.toList());
+        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
+        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
+        overviewVOList.forEach(ov -> {
+            MerchantBase merchantBase = merchantBaseMap.get(ov.getAppId());
+            if (merchantBase != null) {
+                ov.setAppName(merchantBase.getAppName());
+            }
+        });
+
+        Map<String, List<MerchantStatOverviewVO>> ovMap = overviewVOList.stream()
+                .filter(ov -> StringUtils.isNotBlank(ov.getAppName()))
+                .collect(Collectors.groupingBy(MerchantStatOverviewVO::getAppName));
+
+        Map<String, Map<String, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
+        for (Map.Entry<String, List<MerchantStatOverviewVO>> entry : ovMap.entrySet()) {
+            List<MerchantStatOverviewVO> list = entry.getValue();
+            Map<String, MerchantStatOverviewVO> tempMap = list.stream().collect(Collectors.toMap(MerchantStatOverviewVO::getDateStr, vo -> vo));
+            resultMap.put(entry.getKey(), tempMap);
+        }
+        return resultMap;
     }
 
     private Map<String, List<ChartStatRateVO>> wrapRateTaskChart(Map<String, Map<Date, BigDecimal>> dataMap) {

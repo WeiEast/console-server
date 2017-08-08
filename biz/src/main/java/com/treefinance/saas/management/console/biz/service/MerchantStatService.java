@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewVO;
 import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.Map;
@@ -21,4 +22,7 @@ public interface MerchantStatService {
     Map<String, Object> queryAccessNumberList(StatRequest request);
 
     Map<String, Object> queryAccessRateList(StatRequest request);
+
+    Map<String, Map<String, MerchantStatOverviewVO>> queryOverviewAccessList(StatRequest request);
+
 }

@@ -7,6 +7,8 @@ import java.math.BigDecimal;
  */
 public class MerchantStatDayVO extends MerchantStatVO {
 
+    private static final long serialVersionUID = 6733383226678787694L;
+
     public BigDecimal getUseOnTotalLimitRate() {
         return useOnTotalLimitRate;
     }

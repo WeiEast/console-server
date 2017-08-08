@@ -25,6 +25,9 @@ public class CommonUtils {
         String result = DA_SHU;
         try {
             result = PinyinHelper.convertToPinyinString(appName, "", PinyinFormat.WITHOUT_TONE);
+            if (result.length() > 15) {
+                result = PinyinHelper.getShortPinyin(appName);
+            }
         } catch (Exception ignoreException) {
             logger.error("生成商户登录名出错,{}", ignoreException);
         }

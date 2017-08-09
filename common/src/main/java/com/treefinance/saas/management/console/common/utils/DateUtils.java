@@ -375,14 +375,14 @@ public class DateUtils {
 
 
     public static void main(String[] args) {
-        System.out.println(DateUtils.getWeekOfYear(new Date()));
-        System.out.println(DateUtils.getFirstDayOfWeek(new Date()));
-        System.out.println(DateUtils.getLastDayOfWeek(new Date()));
-        System.out.println(DateUtils.getFirstDayOfMonth(new Date()));
-        System.out.println(DateUtils.getLastDayOfMonth(new Date()));
-        System.out.println(DateUtils.getWeekStrOfYear(new Date()));
-        System.out.println(DateUtils.date2SimpleYm(new Date()));
-        System.out.println(DateUtils.getDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-09-09")));
+//        System.out.println(DateUtils.getWeekOfYear(new Date()));
+//        System.out.println(DateUtils.getFirstDayOfWeek(new Date()));
+//        System.out.println(DateUtils.getLastDayOfWeek(new Date()));
+//        System.out.println(DateUtils.getFirstDayOfMonth(new Date()));
+//        System.out.println(DateUtils.getLastDayOfMonth(new Date()));
+//        System.out.println(DateUtils.getWeekStrOfYear(new Date()));
+//        System.out.println(DateUtils.date2SimpleYm(new Date()));
+        System.out.println(DateUtils.getDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
     }
 
 }

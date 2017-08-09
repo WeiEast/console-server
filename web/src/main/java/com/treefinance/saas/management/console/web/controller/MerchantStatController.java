@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewTimeVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,7 +54,7 @@ public class MerchantStatController {
     }
 
     @RequestMapping(value = "/stataccess/all/overview", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, Map<String, MerchantStatOverviewVO>>> getOverview(StatRequest request) {
+    public Result<List<MerchantStatOverviewTimeVO>> getOverview(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryOverviewAccessList(request));
     }
 

@@ -369,7 +369,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     }
 
     @Override
-    public Map<String, Map<String, MerchantStatOverviewVO>> queryOverviewAccessList(StatRequest request) {
+    public List<MerchantStatOverviewTimeVO> queryOverviewAccessList(StatRequest request) {
         baseCheck(request);
         Integer statType = request.getStatType();
         if (statType == null) {
@@ -390,7 +390,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         }
         if (result == null || CollectionUtils.isEmpty(result.getData())) {
             logger.info("result of merchantStatAccessFacade.queryDayAccessListNoPage() is empty : request={}, result={}", statRequest, JSON.toJSONString(result));
-            return Maps.newHashMap();
+            return Lists.newArrayList();
+        }
+        List<Date> dateList = DateUtils.getDateLists(this.getStartDate(request), this.getEndDate(request));
+        dateList = dateList.stream().sorted(Date::compareTo).collect(Collectors.toList());
+        if (dateList.size() != 7) {
+            throw new IllegalArgumentException("请求参数startDate,endDate非法!");
         }
         List<MerchantStatOverviewVO> overviewVOList = Lists.newArrayList();
         result.getData().forEach(ro -> {
@@ -427,13 +432,39 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 .filter(ov -> StringUtils.isNotBlank(ov.getAppName()))
                 .collect(Collectors.groupingBy(MerchantStatOverviewVO::getAppName));
 
-        Map<String, Map<String, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
+        Map<String, Map<Date, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
         for (Map.Entry<String, List<MerchantStatOverviewVO>> entry : ovMap.entrySet()) {
             List<MerchantStatOverviewVO> list = entry.getValue();
-            Map<String, MerchantStatOverviewVO> tempMap = list.stream().collect(Collectors.toMap(MerchantStatOverviewVO::getDateStr, vo -> vo));
+            Map<Date, MerchantStatOverviewVO> tempMap = list.stream().collect(Collectors.toMap(MerchantStatOverviewVO::getDate, vo -> vo));
             resultMap.put(entry.getKey(), tempMap);
         }
-        return resultMap;
+        List<MerchantStatOverviewTimeVO> timeOverViewList = Lists.newArrayList();
+        for (Map.Entry<String, Map<Date, MerchantStatOverviewVO>> entry : resultMap.entrySet()) {
+            MerchantStatOverviewTimeVO timeVO = new MerchantStatOverviewTimeVO();
+            timeVO.setAppName(entry.getKey());
+            MerchantStatOverviewVO vo1 = entry.getValue().get(dateList.get(0));
+            timeVO.setTime1Val(vo1 == null ? "0/NA" : new StringBuilder().append(vo1.getTotalCount()).append("/").append(vo1.getRate()).append("%").toString());
+            MerchantStatOverviewVO vo2 = entry.getValue().get(dateList.get(1));
+            timeVO.setTime2Val(vo2 == null ? "0/NA" : new StringBuilder().append(vo2.getTotalCount()).append("/").append(vo2.getRate()).append("%").toString());
+
+            MerchantStatOverviewVO vo3 = entry.getValue().get(dateList.get(2));
+            timeVO.setTime3Val(vo3 == null ? "0/NA" : new StringBuilder().append(vo3.getTotalCount()).append("/").append(vo3.getRate()).append("%").toString());
+
+            MerchantStatOverviewVO vo4 = entry.getValue().get(dateList.get(3));
+            timeVO.setTime4Val(vo4 == null ? "0/NA" : new StringBuilder().append(vo4.getTotalCount()).append("/").append(vo4.getRate()).append("%").toString());
+
+            MerchantStatOverviewVO vo5 = entry.getValue().get(dateList.get(4));
+            timeVO.setTime5Val(vo5 == null ? "0/NA" : new StringBuilder().append(vo5.getTotalCount()).append("/").append(vo5.getRate()).append("%").toString());
+
+            MerchantStatOverviewVO vo6 = entry.getValue().get(dateList.get(5));
+            timeVO.setTime6Val(vo6 == null ? "0/NA" : new StringBuilder().append(vo6.getTotalCount()).append("/").append(vo6.getRate()).append("%").toString());
+            MerchantStatOverviewVO vo7 = entry.getValue().get(dateList.get(6));
+            timeVO.setTime7Val(vo7 == null ? "0/NA" : new StringBuilder().append(vo7.getTotalCount()).append("/").append(vo7.getRate()).append("%").toString());
+
+            timeOverViewList.add(timeVO);
+        }
+
+        return timeOverViewList;
     }
 
     private Map<String, List<ChartStatRateVO>> wrapRateTaskChart(Map<String, Map<Date, BigDecimal>> dataMap) {

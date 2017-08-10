@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Map;
 
 /**
  * Created by yh-treefinance on 2017/7/18.
@@ -57,9 +58,22 @@ public class DataController {
             data = callbackSecureHandler.decrypt(data, key);
             return Results.newSuccessResult(JSON.parse(data));
         } catch (Exception e) {
-            logger.error("downloadData failed", e);
+            logger.error("decryptRSAData failed", e);
             return Results.newFailedResult(e.getMessage(), CommonStateCode.FAILURE);
         }
     }
+
+    @RequestMapping(value = "/rsa/encrypt", produces = "application/json", method = RequestMethod.POST)
+    public Result<Object> encryptRSAData(@RequestParam("data") String data,
+                                         @RequestParam("key") String key) {
+        try {
+            data = callbackSecureHandler.encrypt(data, key);
+            return Results.newSuccessResult(URLEncoder.encode(data,"utf-8"));
+        } catch (Exception e) {
+            logger.error("encryptRSAData failed", e);
+            return Results.newFailedResult(e.getMessage(), CommonStateCode.FAILURE);
+        }
+    }
+
 
 }

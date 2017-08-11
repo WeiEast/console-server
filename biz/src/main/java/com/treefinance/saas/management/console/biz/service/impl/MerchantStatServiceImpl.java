@@ -405,9 +405,15 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             vo.setDate(ro.getDataTime());
             vo.setTotalCount(ro.getTotalCount());
             if (statType == 1) {
-                vo.setRate(ro.getSuccessRate());
+                BigDecimal successRate = BigDecimal.valueOf(ro.getSuccessCount())
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
+                vo.setRate(successRate);
             } else if (statType == 2) {
-                vo.setRate(ro.getFailRate());
+                BigDecimal failRate = BigDecimal.valueOf(ro.getFailCount())
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
+                vo.setRate(failRate);
             } else {
                 BigDecimal cancelRate = BigDecimal.valueOf(ro.getCancelCount())
                         .multiply(BigDecimal.valueOf(100))
@@ -503,7 +509,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             failRateMap.put(entry.getKey(), failRate);
             cancelRateMap.put(entry.getKey(), cancelRate);
         }
-        valuesMap.put("成功率", successRateMap);
+        valuesMap.put("转化率", successRateMap);
         valuesMap.put("失败率", failRateMap);
         valuesMap.put("取消率", cancelRateMap);
         return valuesMap;

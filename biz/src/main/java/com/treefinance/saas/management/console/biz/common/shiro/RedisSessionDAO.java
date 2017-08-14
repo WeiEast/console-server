@@ -21,8 +21,10 @@ import java.util.concurrent.TimeUnit;
 public class RedisSessionDAO extends EnterpriseCacheSessionDAO {
     private static Logger logger = LoggerFactory.getLogger(RedisSessionDAO.class);
 
-    /** session 在redis过期时间是30分钟30*60 */
-    private static int expireTime = 1800;
+    /**
+     * session 在redis过期时间是12小时12*60*60
+     */
+    private static int expireTime = 12 * 60 * 60;
 
     private static String prefix = "console-shiro-session:";
 

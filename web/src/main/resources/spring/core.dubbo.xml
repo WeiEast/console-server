@@ -26,6 +26,9 @@
     <dubbo:reference id="iSecurityCryptoService"
                      interface="com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService"/>
 
+    <dubbo:reference id="operatorFacade" interface="com.treefinance.saas.monitor.facade.service.OperatorFacade"
+                     version="1.0.0"/>
+
 
 </beans>
 

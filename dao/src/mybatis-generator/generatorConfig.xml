@@ -48,10 +48,10 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="app_biz_license" domainObjectName="AppBizLicense">
-            <property name="useActualColumnNames" value="true"/>
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        </table>
+        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--</table>-->
 
         <!--<table tableName="merchant_base" domainObjectName="MerchantBase"-->
                <!--enableSelectPaginationByExample="true"-->
@@ -84,10 +84,10 @@
 
 
 
-        <table tableName="merchant_user" domainObjectName="MerchantUser">
-            <property name="useActualColumnNames" value="true"/>
+        <!--<table tableName="merchant_user" domainObjectName="MerchantUser">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
             <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        </table>
+        <!--</table>-->
 
         <!--<table tableName="console_user" domainObjectName="ConsoleUser">-->
             <!--<property name="useActualColumnNames" value="true"/>-->
@@ -100,13 +100,21 @@
         <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->
 
-        <!--<table tableName="task" domainObjectName="Task">-->
-        <!--<property name="useActualColumnNames" value="true"/>-->
-        <!--</table>-->
-        <!--
-            <table tableName="task_log" domainObjectName="TaskLog">
-              <property name="useActualColumnNames" value="true"/>
-            </table>-->
+        <table tableName="task" domainObjectName="Task"
+               enableSelectPaginationByExample="true"
+               enableBatchInsert="true"
+               enableBatchUpdateByPrimaryKey="true"
+               enableBatchUpdateByPrimaryKeySelective="true">
+        <property name="useActualColumnNames" value="true"/>
+        </table>
+
+        <table tableName="task_log" domainObjectName="TaskLog"
+               enableSelectPaginationByExample="true"
+               enableBatchInsert="true"
+               enableBatchUpdateByPrimaryKey="true"
+               enableBatchUpdateByPrimaryKeySelective="true">
+            <property name="useActualColumnNames" value="true"/>
+        </table>
 
         <!--<table tableName="task_sub_log" domainObjectName="TaskSubLog">-->
         <!--<property name="useActualColumnNames" value="true"/>-->

@@ -7,12 +7,14 @@ import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEn
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
 import com.treefinance.saas.management.console.biz.service.TaskService;
+import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.management.console.dao.mapper.TaskCallbackLogMapper;
 import com.treefinance.saas.management.console.dao.mapper.TaskLogMapper;
 import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
@@ -49,6 +51,8 @@ public class TaskServiceImpl implements TaskService {
     private OperatorFacade operatorFacade;
     @Autowired
     private TaskLogMapper taskLogMapper;
+    @Autowired
+    private TaskCallbackLogMapper taskCallbackLogMapper;
 
     @Override
     public Result<Map<String, Object>> findByExample(TaskRequest taskRequest) {
@@ -91,6 +95,9 @@ public class TaskServiceImpl implements TaskService {
         if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
             operatorROMap = getOperatorMap(taskList);
         }
+        //<taskId,TaskCallbackLog>
+        Map<Long, TaskCallbackLogDTO> taskCallbackLogMap = getTaskCallbackLogMap(taskList);
+
         for (Task task : taskList) {
             TaskVO vo = new TaskVO();
             vo.setUniqueId(task.getUniqueId());
@@ -112,6 +119,22 @@ public class TaskServiceImpl implements TaskService {
             result.add(vo);
         }
         return Results.newSuccessPageResult(taskRequest, count, result);
+    }
+
+    private Map<Long, TaskCallbackLogDTO> getTaskCallbackLogMap(List<Task> taskList) {
+        Map<Long, TaskCallbackLogDTO> result = Maps.newHashMap();
+        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
+        Map<Long, Task> taskMap = taskList.stream().collect(Collectors.toMap(Task::getId, t -> t));
+
+        TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
+        taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
+        List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectByExample(taskCallbackLogCriteria);
+        if (CollectionUtils.isEmpty(taskCallbackLogList)) {
+            return result;
+        }
+
+
+        return null;
     }
 
     @Override

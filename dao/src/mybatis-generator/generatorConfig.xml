@@ -100,7 +100,7 @@
         <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->
 
-        <table tableName="task" domainObjectName="Task"
+        <table tableName="task_callback_log" domainObjectName="TaskCallbackLog"
                enableSelectPaginationByExample="true"
                enableBatchInsert="true"
                enableBatchUpdateByPrimaryKey="true"
@@ -108,13 +108,13 @@
         <property name="useActualColumnNames" value="true"/>
         </table>
 
-        <table tableName="task_log" domainObjectName="TaskLog"
-               enableSelectPaginationByExample="true"
-               enableBatchInsert="true"
-               enableBatchUpdateByPrimaryKey="true"
-               enableBatchUpdateByPrimaryKeySelective="true">
-            <property name="useActualColumnNames" value="true"/>
-        </table>
+        <!--<table tableName="task_log" domainObjectName="TaskLog"-->
+               <!--enableSelectPaginationByExample="true"-->
+               <!--enableBatchInsert="true"-->
+               <!--enableBatchUpdateByPrimaryKey="true"-->
+               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--</table>-->
 
         <!--<table tableName="task_sub_log" domainObjectName="TaskSubLog">-->
         <!--<property name="useActualColumnNames" value="true"/>-->

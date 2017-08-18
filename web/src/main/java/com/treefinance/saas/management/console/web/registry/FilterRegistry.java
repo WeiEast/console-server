@@ -16,7 +16,6 @@
 
 package com.treefinance.saas.management.console.web.registry;
 
-import com.treefinance.saas.management.console.web.filter.WebContextFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,14 +44,5 @@ public class FilterRegistry {
         return bean;
     }
 
-//  @Bean
-//  public FilterRegistrationBean webContextFilter() {
-//    FilterRegistrationBean registration = new FilterRegistrationBean();
-//    registration.setFilter(new WebContextFilter());
-//    registration.setName("webContextFilter");
-//    registration.addUrlPatterns("/*");
-//    registration.setOrder(1);
-//    return registration;
-//  }
 
 }

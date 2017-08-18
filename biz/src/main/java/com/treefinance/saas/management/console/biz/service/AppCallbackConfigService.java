@@ -69,12 +69,4 @@ public interface AppCallbackConfigService {
      */
     Boolean testUrl(String url);
 
-    /**
-     * 根据业务服务类型和appId查询回调配置
-     *
-     * @param appId
-     * @param bizTypeEnum
-     * @return
-     */
-//    List<AppCallbackConfig> getByAppIdAndBizType(String appId, EBizType bizTypeEnum);
 }

@@ -24,7 +24,7 @@ import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.web.auth.LoginManager;
-import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
+import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
 import com.treefinance.saas.management.console.web.context.WebContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;

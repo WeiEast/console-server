@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.treefinance.saas.management.console.web.auth.exception;
+package com.treefinance.saas.management.console.common.exceptions;
 
 /**
  * @author Jerry
- * @since 20:04 25/04/2017
+ * @since 15:30 26/04/2017
  */
-public class ResponseEncryptException extends CryptoException {
+public class CryptorException extends RuntimeException {
 
-  public ResponseEncryptException(String message) {
+  public CryptorException(String message) {
     super(message);
   }
 
-  public ResponseEncryptException(String message, Throwable cause) {
+  public CryptorException(String message, Throwable cause) {
     super(message, cause);
   }
 }

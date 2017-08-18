@@ -10,7 +10,7 @@ import com.treefinance.saas.management.console.common.domain.vo.PwdCryptVO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
-import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
+import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;

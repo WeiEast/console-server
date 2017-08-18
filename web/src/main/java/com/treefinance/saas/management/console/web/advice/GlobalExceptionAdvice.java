@@ -24,7 +24,7 @@ import com.treefinance.saas.management.console.common.exceptions.UnknownExceptio
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.result.StateCode;
-import com.treefinance.saas.management.console.web.auth.exception.ForbiddenException;
+import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

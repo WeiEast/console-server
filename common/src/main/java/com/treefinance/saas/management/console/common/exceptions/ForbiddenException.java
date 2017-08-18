@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 
-package com.treefinance.saas.management.console.web.auth.exception;
+package com.treefinance.saas.management.console.common.exceptions;
+
+import com.treefinance.saas.management.console.common.exceptions.CryptoException;
 
 /**
  * @author Jerry
- * @since 15:28 26/04/2017
+ * @since 19:24 25/04/2017
  */
-public class CryptoException extends Exception {
+public class ForbiddenException extends CryptoException {
 
-  public CryptoException(String message) {
+  public int getMark() {
+    return mark;
+  }
+
+  public void setMark(int mark) {
+    this.mark = mark;
+  }
+
+  private int mark;
+
+  public ForbiddenException(String message) {
     super(message);
   }
 
-  public CryptoException(String message, Throwable cause) {
-    super(message, cause);
+  public ForbiddenException(String message, int mark) {
+    super(message);
+    this.mark = mark;
   }
+
 }

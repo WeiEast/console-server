@@ -1,22 +1,27 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.datatrees.toolkits.util.Base64Codec;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
+import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
+import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.TaskService;
+import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
+import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.management.console.dao.mapper.TaskCallbackLogMapper;
-import com.treefinance.saas.management.console.dao.mapper.TaskLogMapper;
-import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
+import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.OperatorRO;
 import com.treefinance.saas.monitor.facade.service.OperatorFacade;
@@ -29,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,6 +59,12 @@ public class TaskServiceImpl implements TaskService {
     private TaskLogMapper taskLogMapper;
     @Autowired
     private TaskCallbackLogMapper taskCallbackLogMapper;
+    @Autowired
+    private AppCallbackConfigMapper appCallbackConfigMapper;
+    @Autowired
+    private AppLicenseService appLicenseService;
+    @Autowired
+    private CallbackSecureHandler callbackSecureHandler;
 
     @Override
     public Result<Map<String, Object>> findByExample(TaskRequest taskRequest) {
@@ -116,6 +128,11 @@ public class TaskServiceImpl implements TaskService {
                     vo.setOperatorName(operatorRO.getOperatorName());
                 }
             }
+            TaskCallbackLogDTO taskCallbackLogDTO = taskCallbackLogMap.get(task.getId());
+            if (taskCallbackLogDTO != null) {
+                vo.setCallbackRequest(taskCallbackLogDTO.getPlainRequestParam());
+                vo.setCallbackResponse(taskCallbackLogDTO.getResponseData());
+            }
             result.add(vo);
         }
         return Results.newSuccessPageResult(taskRequest, count, result);
@@ -132,9 +149,86 @@ public class TaskServiceImpl implements TaskService {
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
         }
+        List<Integer> configIdList = taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).collect(Collectors.toList());
+        AppCallbackConfigCriteria appCallbackConfigCriteria = new AppCallbackConfigCriteria();
+        appCallbackConfigCriteria.createCriteria().andIdIn(configIdList);
+        List<AppCallbackConfig> appCallbackConfigList = appCallbackConfigMapper.selectByExample(appCallbackConfigCriteria);
+        //<configId,AppCallbackConfig>
+        Map<Integer, AppCallbackConfig> appCallbackConfigMap = appCallbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, t -> t));
 
+        for (TaskCallbackLog log : taskCallbackLogList) {
+            Task task = taskMap.get(log.getTaskId());
+            if (task == null) {
+                logger.error("解密回调参数时,在任务回调记录表中未找到对应的任务信息 taskId={}", log.getTaskId());
+                continue;
+            }
+            AppCallbackConfig appCallbackConfig = appCallbackConfigMap.get(log.getConfigId().intValue());
+            if (appCallbackConfig == null) {
+                logger.error("解密回调参数时,任务回调记录表中未找到对应的商户回调配置信息 configId={}", log.getConfigId());
+                continue;
+            }
+            Long taskId = task.getId();
+            Byte bizType = task.getBizType();
+            String appId = task.getAppId();
+            Byte isNewKey = appCallbackConfig.getIsNewKey();
+            String aesDataKey = "";
+            AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
+            if (Byte.valueOf("0").equals(isNewKey)) {
+                if (appLicenseDTO == null) {
+                    logger.error("解密回调参数时,未找到对应的appLicenseDTO appId={}", appId);
+                    continue;
+                }
+                aesDataKey = appLicenseDTO.getDataSecretKey();
+            } else if (Byte.valueOf("1").equals(isNewKey)) {
+                CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(log.getConfigId().intValue());
+                if (callbackLicenseDTO == null) {
+                    logger.error("解密回调参数时,未找到对应的callbackLicenseDTO configId={}", log.getConfigId());
+                    continue;
+                }
+                aesDataKey = callbackLicenseDTO.getDataSecretKey();
+            }
+            String plainParams;
+            byte version = appCallbackConfig.getVersion();
+            if (version > 0) {
+                // 默认使用AES方式
+                plainParams = decryptByAES(log.getRequestParam(), aesDataKey);
+            } else {
+                plainParams = decryptByRSA(log.getRequestParam(), appLicenseDTO);
+            }
+            TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
+            BeanUtils.convert(log, logDTO);
+            logDTO.setPlainRequestParam(plainParams);
+            //网关支持:一个任务,回调多方,这里现将日志打印出来
+            if (result.get(taskId) != null) {
+                logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)), logDTO);
+                continue;
+            }
+            result.put(taskId, logDTO);
+        }
+        return result;
+    }
 
-        return null;
+    private String decryptByAES(String data, String dataKey) {
+        try {
+            byte[] newData = Base64Codec.decode(data);
+            String decryData = AESSecureUtils.decrypt(dataKey, newData);
+            return decryData;
+        } catch (Exception e) {
+            throw new BizException("decryptByAES exception", e);
+        }
+    }
+
+    private String decryptByRSA(String data, AppLicenseDTO appLicense) {
+        String params;
+        String rsaPublicKey = appLicense.getServerPublicKey();
+        // 兼容老版本，使用RSA
+        try {
+            params = callbackSecureHandler.decrypt(data, rsaPublicKey);
+            params = URLEncoder.encode(params, "utf-8");
+        } catch (Exception e) {
+            throw new BizException("decryptByRSA exception", e);
+        }
+        return params;
     }
 
     @Override

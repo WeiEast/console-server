@@ -496,7 +496,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         } else {
             throw new BizException("statType参数有误");
         }
-        if (EBizType4Monitor.TOTAL.getMonitorCode().equals(request.getBizType())) {
+        if (EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
             criteria.andBizTypeIn(Lists.newArrayList((byte) 1, (byte) 2, (byte) 3));
         } else {
             criteria.andBizTypeEqualTo(request.getBizType());
@@ -539,7 +539,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<TaskDetailVO> resultList = Lists.newArrayList();
 
         for (Task task : taskList) {
-            WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
             TaskDetailVO vo = new TaskDetailVO();
             vo.setId(task.getId());
             vo.setAppId(task.getAppId());
@@ -548,7 +547,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             vo.setBizTypeName(EBizType4Monitor.getMainName(task.getBizType()));
             List<TaskLog> taskLogs = taskLogsMap.get(task.getId());
             if (!CollectionUtils.isEmpty(taskLogs)) {
-                Optional<TaskLog> optional = taskLogs.stream().filter(o -> o.getCode().equals(task.getErrorCode())).findFirst();
+                Optional<TaskLog> optional = taskLogs.stream().filter(o -> StringUtils.isNotBlank(o.getCode())
+                        && StringUtils.isNotBlank(task.getErrorCode())
+                        && o.getCode().equals(task.getErrorCode())).findFirst();
                 if (optional.isPresent()) {
                     TaskLog taskLog = optional.get();
                     vo.setMsg(taskLog.getMsg());
@@ -556,6 +557,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 }
             }
             vo.setOccurTime(task.getCreateTime());
+            WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
             if (websiteRO != null) {
                 vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
             }

@@ -36,6 +36,15 @@ public enum EBizType4Monitor {
         return (byte) -1;
     }
 
+    public static String getMainName(Byte code) {
+        for (EBizType4Monitor item : EBizType4Monitor.values()) {
+            if (code.equals(item.getCode())) {
+                return item.getName();
+            }
+        }
+        return "";
+    }
+
     public Byte getCode() {
         return code;
     }

@@ -1,9 +1,9 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
+import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewTimeVO;
-import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +56,11 @@ public class MerchantStatController {
     @RequestMapping(value = "/stataccess/all/overview", method = {RequestMethod.GET}, produces = "application/json")
     public Result<List<MerchantStatOverviewTimeVO>> getOverview(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryOverviewAccessList(request));
+    }
+
+    @RequestMapping(value = "/stataccess/all/overview/detail", method = {RequestMethod.GET}, produces = "application/json")
+    public Object getOverviewDetail(StatDayRequest request) {
+        return merchantStatService.queryOverviewDetailAccessList(request);
     }
 
 

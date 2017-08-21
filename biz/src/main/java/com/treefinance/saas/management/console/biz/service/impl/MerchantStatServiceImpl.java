@@ -5,20 +5,25 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
+import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
-import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
+import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.management.console.dao.mapper.TaskLogMapper;
+import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
+import com.treefinance.saas.monitor.facade.domain.ro.WebsiteRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessRO;
+import com.treefinance.saas.monitor.facade.service.WebsiteFacade;
 import com.treefinance.saas.monitor.facade.service.stat.MerchantStatAccessFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -28,10 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +48,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private MerchantStatAccessFacade merchantStatAccessFacade;
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
+    @Autowired
+    private TaskMapper taskMapper;
+    @Autowired
+    private WebsiteFacade websiteFacade;
+    @Autowired
+    private TaskLogMapper taskLogMapper;
 
 
     @Override
@@ -471,6 +479,89 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         }
 
         return timeOverViewList;
+    }
+
+    @Override
+    public Result<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
+        if (StringUtils.isBlank(request.getAppId()) || request.getDate() == null
+                || request.getStatType() == null || request.getBizType() == null) {
+            throw new BizException("appId,date,statType,bizType不能为空");
+        }
+        TaskCriteria taskCriteria = new TaskCriteria();
+        TaskCriteria.Criteria criteria = taskCriteria.createCriteria().andAppIdEqualTo(request.getAppId());
+        if (request.getStatType() == 2) {
+            criteria.andStatusEqualTo((byte) 3);//失败的任务
+        } else if (request.getStatType() == 3) {
+            criteria.andStatusEqualTo((byte) 1);//取消的任务
+        } else {
+            throw new BizException("statType参数有误");
+        }
+        if (EBizType4Monitor.TOTAL.getMonitorCode().equals(request.getBizType())) {
+            criteria.andBizTypeIn(Lists.newArrayList((byte) 1, (byte) 2, (byte) 3));
+        } else {
+            criteria.andBizTypeEqualTo(request.getBizType());
+        }
+        if (request.getDate() != null) {
+            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
+        }
+        if (request.getStartTime() != null && request.getEndTime() != null) {
+            criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+        }
+        long total = taskMapper.countByExample(taskCriteria);
+        if (total <= 0) {
+            return Results.newSuccessPageResult(request, total, Lists.newArrayList());
+        }
+        taskCriteria.setOffset(request.getOffset());
+        taskCriteria.setLimit(request.getPageSize());
+        taskCriteria.setOrderByClause("createTime desc");
+        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
+
+        Map<String, WebsiteRO> websiteROMap = Maps.newHashMap();
+        List<String> websiteNameList = taskList.stream().map(Task::getWebSite).collect(Collectors.toList());
+        MonitorResult<List<WebsiteRO>> rpcResult = websiteFacade.queryWebsiteDetailByWebsiteName(websiteNameList);
+        if (logger.isDebugEnabled()) {
+            logger.debug("websiteFacade.queryWebsiteDetailByWebsiteName() : request={},result={}",
+                    JSON.toJSONString(websiteNameList), JSON.toJSONString(rpcResult));
+        }
+        if (rpcResult != null && !CollectionUtils.isEmpty(rpcResult.getData())) {
+            logger.info("result of queryWebsiteDetailByWebsiteName() is empty : request={}, result={}", JSON.toJSONString(websiteNameList), JSON.toJSONString(rpcResult));
+            websiteROMap = rpcResult.getData().stream()
+                    .collect(Collectors.toMap(WebsiteRO::getWebsiteName, websiteRO -> websiteRO, (key1, key2) -> key1));
+        }
+
+        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
+
+        TaskLogCriteria logCriteria = new TaskLogCriteria();
+        logCriteria.createCriteria().andTaskIdIn(taskIdList);
+        List<TaskLog> taskLogList = taskLogMapper.selectByExample(logCriteria);
+        Map<Long, List<TaskLog>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLog::getTaskId));
+
+        List<TaskDetailVO> resultList = Lists.newArrayList();
+
+        for (Task task : taskList) {
+            WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
+            TaskDetailVO vo = new TaskDetailVO();
+            vo.setId(task.getId());
+            vo.setAppId(task.getAppId());
+            vo.setUniqueId(task.getUniqueId());
+            vo.setBizType(task.getBizType());
+            vo.setBizTypeName(EBizType4Monitor.getMainName(task.getBizType()));
+            List<TaskLog> taskLogs = taskLogsMap.get(task.getId());
+            if (!CollectionUtils.isEmpty(taskLogs)) {
+                Optional<TaskLog> optional = taskLogs.stream().filter(o -> o.getCode().equals(task.getErrorCode())).findFirst();
+                if (optional.isPresent()) {
+                    TaskLog taskLog = optional.get();
+                    vo.setMsg(taskLog.getMsg());
+                    vo.setErrorMsg(taskLog.getErrorMsg());
+                }
+            }
+            vo.setOccurTime(task.getCreateTime());
+            if (websiteRO != null) {
+                vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
+            }
+            resultList.add(vo);
+        }
+        return Results.newSuccessPageResult(request, total, resultList);
     }
 
     private Map<String, List<ChartStatRateVO>> wrapRateTaskChart(Map<String, Map<Date, BigDecimal>> dataMap) {

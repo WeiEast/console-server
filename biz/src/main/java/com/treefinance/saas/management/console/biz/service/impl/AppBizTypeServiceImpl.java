@@ -122,4 +122,28 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
 
         return appBizTypeVOList;
     }
+
+    @Override
+    public List<AppBizTypeVO> getAccessTaskDetailBizTypeList() {
+        List<AppBizTypeVO> appBizTypeVOList = Lists.newArrayList();
+        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(null);
+        if (CollectionUtils.isEmpty(appBizTypeList)) {
+            return appBizTypeVOList;
+        }
+        //添加一个系统总访问量监控
+        AppBizTypeVO appBizTypeVO = new AppBizTypeVO();
+        appBizTypeVO.setBizType(EBizType4Monitor.TOTAL.getCode());
+        appBizTypeVO.setBizName("合计");
+        appBizTypeVOList.add(appBizTypeVO);
+
+        appBizTypeList.forEach(o -> {
+            AppBizTypeVO vo = new AppBizTypeVO();
+            vo.setBizType(o.getBizType());
+            vo.setBizName(o.getBizName());
+            appBizTypeVOList.add(vo);
+        });
+
+
+        return appBizTypeVOList;
+    }
 }

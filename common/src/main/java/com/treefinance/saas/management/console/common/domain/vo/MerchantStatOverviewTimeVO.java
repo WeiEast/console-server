@@ -9,6 +9,8 @@ public class MerchantStatOverviewTimeVO implements Serializable {
 
     private static final long serialVersionUID = 7652484326151285712L;
 
+    private String appId;
+
     private String appName;
 
     private String time1Val;
@@ -24,6 +26,14 @@ public class MerchantStatOverviewTimeVO implements Serializable {
     private String time6Val;
 
     private String time7Val;
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
 
     public String getAppName() {
         return appName;

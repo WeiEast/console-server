@@ -435,16 +435,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
-        overviewVOList.forEach(ov -> {
-            MerchantBase merchantBase = merchantBaseMap.get(ov.getAppId());
-            if (merchantBase != null) {
-                ov.setAppName(merchantBase.getAppName());
-            }
-        });
 
         Map<String, List<MerchantStatOverviewVO>> ovMap = overviewVOList.stream()
-                .filter(ov -> StringUtils.isNotBlank(ov.getAppName()))
-                .collect(Collectors.groupingBy(MerchantStatOverviewVO::getAppName));
+                .filter(ov -> StringUtils.isNotBlank(ov.getAppId()))
+                .collect(Collectors.groupingBy(MerchantStatOverviewVO::getAppId));
 
         Map<String, Map<Date, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
         for (Map.Entry<String, List<MerchantStatOverviewVO>> entry : ovMap.entrySet()) {
@@ -455,7 +449,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<MerchantStatOverviewTimeVO> timeOverViewList = Lists.newArrayList();
         for (Map.Entry<String, Map<Date, MerchantStatOverviewVO>> entry : resultMap.entrySet()) {
             MerchantStatOverviewTimeVO timeVO = new MerchantStatOverviewTimeVO();
-            timeVO.setAppName(entry.getKey());
+            timeVO.setAppId(entry.getKey());
+            MerchantBase merchantBase = merchantBaseMap.get(entry.getKey());
+            if (merchantBase != null) {
+                timeVO.setAppName(merchantBase.getAppName());
+            }
             MerchantStatOverviewVO vo1 = entry.getValue().get(dateList.get(0));
             timeVO.setTime1Val(vo1 == null ? "0 | NA" : new StringBuilder().append(vo1.getTotalCount()).append(" | ").append(vo1.getRate()).append("%").toString());
             MerchantStatOverviewVO vo2 = entry.getValue().get(dateList.get(1));

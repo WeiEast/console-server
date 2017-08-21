@@ -62,5 +62,16 @@ public class AppBizTypeController {
         return Results.newSuccessResult(result);
     }
 
+    /**
+     * 商户任务总览详情页中的下拉
+     *
+     * @return
+     */
+    @RequestMapping(value = "task/access/detail/list", produces = "application/json", method = RequestMethod.GET)
+    public Result<List<AppBizTypeVO>> getMerchantBaseDetailAccessList() {
+        List<AppBizTypeVO> result = appBizTypeService.getAccessTaskDetailBizTypeList();
+        return Results.newSuccessResult(result);
+    }
+
 
 }

@@ -574,8 +574,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     public Map<String, Object> queryTaskStepStatInfo(StatRequest request) {
         baseCheck(request);
         SaasErrorStepDayStatRequest statRequest = new SaasErrorStepDayStatRequest();
-        statRequest.setStartDate(this.getStartDate(request));
-        statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setStartDate(this.getDayStartDate(request));
+        statRequest.setEndDate(this.getDayEndDate(request));
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
         MonitorResult<List<SaasErrorStepDayStatRO>> result = merchantStatAccessFacade.querySaasErrorStepDayStatListNoPage(statRequest);
         if (logger.isDebugEnabled()) {
@@ -597,12 +597,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             statDTOList.add(dto);
         }
 
-        List<Date> dateList = DateUtils.getDateLists(this.getStartDate(request), this.getEndDate(request));
+        List<String> dateList = DateUtils.getDayStrDateLists(this.getDayStartDate(request), this.getDayEndDate(request));
         //<dataTime,List<SaasErrorStepDayStatDTO>>
-        Map<Date, List<SaasErrorStepDayStatDTO>> statDateMap = statDTOList.stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
+        Map<String, List<SaasErrorStepDayStatDTO>> statDateMap = statDTOList.stream().collect(Collectors.groupingBy(o -> DateUtils.date2Ymd(o.getDataTime())));
         //<dataTime,failTotalCount>
-        Map<Date, Integer> failTotalCountMap = Maps.newHashMap();
-        for (Date dataTime : dateList) {
+        Map<String, Integer> failTotalCountMap = Maps.newHashMap();
+        for (String dataTime : dateList) {
             int failTotalCount = 0;
             List<SaasErrorStepDayStatDTO> dtoList = statDateMap.get(dataTime);
             if (CollectionUtils.isEmpty(dtoList)) {
@@ -623,10 +623,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         for (Map.Entry<String, List<SaasErrorStepDayStatDTO>> entry : statTextMap.entrySet()) {
             List<ChartStatRateVO> voList = Lists.newArrayList();
             String key = entry.getKey();
-            Map<Date, List<SaasErrorStepDayStatDTO>> timeMap = entry.getValue().stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
-            for (Map.Entry<Date, List<SaasErrorStepDayStatDTO>> timeEntry : timeMap.entrySet()) {
+            Map<String, List<SaasErrorStepDayStatDTO>> timeMap = entry.getValue().stream().collect(Collectors.groupingBy(o -> DateUtils.date2Ymd(o.getDataTime())));
+            for (Map.Entry<String, List<SaasErrorStepDayStatDTO>> timeEntry : timeMap.entrySet()) {
                 ChartStatRateVO vo = new ChartStatRateVO();
-                Date dataTime = timeEntry.getKey();
+                String dataTime = timeEntry.getKey();
                 int totalCount = failTotalCountMap.get(dataTime);
                 int rateCount = 0;
                 for (SaasErrorStepDayStatDTO dto : timeEntry.getValue()) {
@@ -636,10 +636,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 BigDecimal rate = BigDecimal.valueOf(rateCount, 2)
                         .multiply(BigDecimal.valueOf(100))
                         .divide(BigDecimal.valueOf(totalCount, 2), 2);
-                vo.setDataTime(dataTime);
+                vo.setDataTime(DateUtils.ymdString2Date(dataTime));
                 vo.setDataValue(rate);
                 voList.add(vo);
             }
+            voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
             rateMap.put(key, voList);
         }
         Map<String, Object> resultMap = Maps.newHashMap();
@@ -855,6 +856,24 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return null;
     }
 
+    protected Date getDayStartDate(StatRequest request) {
+        // 0-自选日期，1-过去1天，2-过去3天，3-过去7天，4-过去30天;
+        Integer dateType = request.getDateType();
+        switch (dateType) {
+            case 0:
+                return DateUtils.getTodayBeginDate(request.getStartDate());
+            case 1:
+                return org.apache.commons.lang.time.DateUtils.addDays(DateUtils.getTodayBeginDate(), -1);
+            case 2:
+                return org.apache.commons.lang.time.DateUtils.addDays(DateUtils.getTodayBeginDate(), -3);
+            case 3:
+                return org.apache.commons.lang.time.DateUtils.addDays(DateUtils.getTodayBeginDate(), -7);
+            case 4:
+                return org.apache.commons.lang.time.DateUtils.addDays(DateUtils.getTodayBeginDate(), -30);
+        }
+        return null;
+    }
+
     /**
      * 获取结束时间
      *
@@ -869,4 +888,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         }
         return new Date();
     }
+
+    protected Date getDayEndDate(StatRequest request) {
+        Integer dateType = request.getDateType();
+        switch (dateType) {
+            case 0:
+                return DateUtils.getTodayBeginDate(request.getEndDate());
+        }
+        return DateUtils.getTodayBeginDate(new Date());
+    }
+
 }

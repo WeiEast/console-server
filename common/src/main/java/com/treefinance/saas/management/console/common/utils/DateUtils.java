@@ -354,7 +354,7 @@ public class DateUtils {
 
 
     /**
-     * 获取一段时间区间内的所有日期
+     * 获取一段时间区间内的所有日期,精确到时分秒
      *
      * @param start
      * @param end
@@ -373,6 +373,49 @@ public class DateUtils {
         return ret;
     }
 
+    public static List<Date> getDayDateLists(Date start, Date end) {
+        List<Date> ret = Lists.newArrayList();
+        int y, m, d;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(start);
+        y = calendar.get(Calendar.YEAR);
+        m = calendar.get(Calendar.MONTH);
+        d = calendar.get(Calendar.DATE) + 1;
+        calendar.set(y, m, d, 0, 0, 0);//时、分、秒，设置成0，获取凌晨的时间
+        Date tmpDate = calendar.getTime();
+        while (tmpDate.before(end)) {
+            ret.add(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            tmpDate = calendar.getTime();
+        }
+        return ret;
+    }
+
+    /**
+     * 取时间区间内的天(左开右闭)
+     *
+     * @param start
+     * @param end
+     * @return
+     */
+    public static List<String> getDayStrDateLists(Date start, Date end) {
+        List<String> ret = Lists.newArrayList();
+        int y, m, d;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(start);
+        y = calendar.get(Calendar.YEAR);
+        m = calendar.get(Calendar.MONTH);
+        d = calendar.get(Calendar.DATE);
+        calendar.set(y, m, d, 0, 0, 0);//时、分、秒，设置成0，获取凌晨的时间
+        Date tmpDate = calendar.getTime();
+        while (tmpDate.before(end) || tmpDate.equals(end)) {
+            ret.add(DateUtils.date2Ymd(calendar.getTime()));
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            tmpDate = calendar.getTime();
+        }
+        return ret;
+    }
+
 
     public static void main(String[] args) {
 //        System.out.println(DateUtils.getWeekOfYear(new Date()));
@@ -382,7 +425,7 @@ public class DateUtils {
 //        System.out.println(DateUtils.getLastDayOfMonth(new Date()));
 //        System.out.println(DateUtils.getWeekStrOfYear(new Date()));
 //        System.out.println(DateUtils.date2SimpleYm(new Date()));
-        System.out.println(DateUtils.getDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
+        System.out.println(DateUtils.getDayStrDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
     }
 
 }

@@ -550,9 +550,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             vo.setBizTypeName(EBizType4Monitor.getMainName(task.getBizType()));
             List<TaskLog> taskLogs = taskLogsMap.get(task.getId());
             if (!CollectionUtils.isEmpty(taskLogs)) {
-                Optional<TaskLog> optional = taskLogs.stream().filter(o -> StringUtils.isNotBlank(o.getCode())
-                        && StringUtils.isNotBlank(task.getErrorCode())
-                        && o.getCode().equals(task.getErrorCode())).findFirst();
+                Optional<TaskLog> optional = taskLogs.stream().filter(o -> StringUtils.isNotBlank(o.getStepCode())
+                        && StringUtils.isNotBlank(task.getStepCode())
+                        && o.getStepCode().equals(task.getStepCode()))
+                        .sorted(((o1, o2) -> o2.getLastUpdateTime().compareTo(o1.getLastUpdateTime()))).findFirst();
                 if (optional.isPresent()) {
                     TaskLog taskLog = optional.get();
                     vo.setMsg(taskLog.getMsg());

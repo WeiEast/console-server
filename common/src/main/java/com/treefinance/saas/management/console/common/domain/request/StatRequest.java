@@ -34,6 +34,7 @@ public class StatRequest extends PageRequest {
 
     /**
      * 商户任务总览:1-成功率;2-失败率;3-取消率
+     * 任务失败取消环节统计:1-失败率;2-取消率
      */
     private Integer statType;
 

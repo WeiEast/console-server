@@ -63,5 +63,9 @@ public class MerchantStatController {
         return merchantStatService.queryOverviewDetailAccessList(request);
     }
 
+    @RequestMapping(value = "/stataccess/taskstep/fail", method = RequestMethod.GET, produces = "application/json")
+    public Result<Map<String, Object>> getTaskStepFailInfo(StatRequest request) {
+        return Results.newSuccessResult(merchantStatService.queryTaskStepStatInfo(request));
+    }
 
 }

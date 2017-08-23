@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.treefinance.saas.gateway.servicefacade.enums.TaskStepEnum;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
+import com.treefinance.saas.management.console.common.domain.dto.SaasErrorStepDayStatDTO;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
@@ -12,6 +14,7 @@ import com.treefinance.saas.management.console.common.enumeration.EBizType4Monit
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
@@ -19,10 +22,12 @@ import com.treefinance.saas.management.console.dao.mapper.TaskLogMapper;
 import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
+import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.WebsiteRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessRO;
+import com.treefinance.saas.monitor.facade.domain.ro.stat.SaasErrorStepDayStatRO;
 import com.treefinance.saas.monitor.facade.service.WebsiteFacade;
 import com.treefinance.saas.monitor.facade.service.stat.MerchantStatAccessFacade;
 import org.apache.commons.lang3.StringUtils;
@@ -562,6 +567,84 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             resultList.add(vo);
         }
         return Results.newSuccessPageResult(request, total, resultList);
+    }
+
+    @Override
+    public Map<String, Object> queryTaskStepStatInfo(StatRequest request) {
+        baseCheck(request);
+        SaasErrorStepDayStatRequest statRequest = new SaasErrorStepDayStatRequest();
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        MonitorResult<List<SaasErrorStepDayStatRO>> result = merchantStatAccessFacade.querySaasErrorStepDayStatListNoPage(statRequest);
+        if (logger.isDebugEnabled()) {
+            logger.debug("merchantStatAccessFacade.querySaasErrorDayStatListNoPage() : statRequest={},result={}",
+                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+        }
+        if (result == null || CollectionUtils.isEmpty(result.getData())) {
+            logger.info("result of merchantStatAccessFacade.Results.newSuccessResult(() is empty : request={}, result={}", statRequest, JSON.toJSONString(result));
+            return Maps.newHashMap();
+        }
+        List<SaasErrorStepDayStatRO> statROList = result.getData();
+        List<SaasErrorStepDayStatDTO> statDTOList = Lists.newArrayList();
+        for (SaasErrorStepDayStatRO ro : statROList) {
+            SaasErrorStepDayStatDTO dto = new SaasErrorStepDayStatDTO();
+            BeanUtils.convert(ro, dto);
+            dto.setStepCode(ro.getErrorStepCode());
+            dto.setStageCode(TaskStepEnum.getStageCodeByStepCode(ro.getErrorStepCode()));
+            dto.setStageText(TaskStepEnum.getStageTextByStepCode(ro.getErrorStepCode()));
+            statDTOList.add(dto);
+        }
+
+        List<Date> dateList = DateUtils.getDateLists(this.getStartDate(request), this.getEndDate(request));
+        //<dataTime,List<SaasErrorStepDayStatDTO>>
+        Map<Date, List<SaasErrorStepDayStatDTO>> statDateMap = statDTOList.stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
+        //<dataTime,failTotalCount>
+        Map<Date, Integer> failTotalCountMap = Maps.newHashMap();
+        for (Date dataTime : dateList) {
+            int failTotalCount = 0;
+            List<SaasErrorStepDayStatDTO> dtoList = statDateMap.get(dataTime);
+            if (CollectionUtils.isEmpty(dtoList)) {
+                failTotalCountMap.put(dataTime, failTotalCount);
+                continue;
+            }
+            for (SaasErrorStepDayStatDTO dto : dtoList) {
+                failTotalCount = failTotalCount + dto.getFailCount();
+            }
+            failTotalCountMap.put(dataTime, failTotalCount);
+
+        }
+        //<majorText,List<SaasErrorStepDayStatDTO>>
+        Map<String, List<SaasErrorStepDayStatDTO>> statTextMap = statDTOList.stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getStageText));
+        List<String> keyList = Lists.newArrayList(statTextMap.keySet());
+
+        Map<String, List<ChartStatRateVO>> rateMap = Maps.newHashMap();
+        for (Map.Entry<String, List<SaasErrorStepDayStatDTO>> entry : statTextMap.entrySet()) {
+            List<ChartStatRateVO> voList = Lists.newArrayList();
+            String key = entry.getKey();
+            Map<Date, List<SaasErrorStepDayStatDTO>> timeMap = entry.getValue().stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
+            for (Map.Entry<Date, List<SaasErrorStepDayStatDTO>> timeEntry : timeMap.entrySet()) {
+                ChartStatRateVO vo = new ChartStatRateVO();
+                Date dataTime = timeEntry.getKey();
+                int totalCount = failTotalCountMap.get(dataTime);
+                int rateCount = 0;
+                for (SaasErrorStepDayStatDTO dto : timeEntry.getValue()) {
+                    rateCount = rateCount + dto.getFailCount();
+
+                }
+                BigDecimal rate = BigDecimal.valueOf(rateCount, 2)
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(totalCount, 2), 2);
+                vo.setDataTime(dataTime);
+                vo.setDataValue(rate);
+                voList.add(vo);
+            }
+            rateMap.put(key, voList);
+        }
+        Map<String, Object> resultMap = Maps.newHashMap();
+        resultMap.put("keys", keyList);
+        resultMap.put("values", rateMap);
+        return resultMap;
     }
 
     private Map<String, List<ChartStatRateVO>> wrapRateTaskChart(Map<String, Map<Date, BigDecimal>> dataMap) {

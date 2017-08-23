@@ -40,4 +40,12 @@ public interface MerchantStatService {
      * @return
      */
     Result<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request);
+
+    /**
+     * 任务失败取消环节统计表
+     *
+     * @param request
+     * @return
+     */
+    Map<String, Object> queryTaskStepStatInfo(StatRequest request);
 }

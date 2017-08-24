@@ -601,6 +601,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             return Maps.newHashMap();
         }
         List<SaasErrorStepDayStatRO> statROList = result.getData();
+        Set<Date> dateSet = Sets.newHashSet();
+        for (SaasErrorStepDayStatRO ro : statROList) {
+            dateSet.add(ro.getDataTime());
+        }
+
         List<SaasErrorStepDayStatDTO> statDTOList = Lists.newArrayList();
         for (SaasErrorStepDayStatRO ro : statROList) {
             SaasErrorStepDayStatDTO dto = new SaasErrorStepDayStatDTO();
@@ -611,20 +616,19 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             statDTOList.add(dto);
         }
 
-        List<String> dateList = DateUtils.getDayStrDateLists(this.getDayStartDate(request), this.getDayEndDate(request));
+        List<Date> dateList = Lists.newArrayList(dateSet);
         //<dataTime,List<SaasErrorStepDayStatDTO>>
-        Map<String, List<SaasErrorStepDayStatDTO>> statDateMap = statDTOList.stream().collect(Collectors.groupingBy(o -> DateUtils.date2Ymd(o.getDataTime())));
+        Map<Date, List<SaasErrorStepDayStatDTO>> statDateMap = statDTOList.stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
         //<dataTime,failTotalCount>
-        Map<String, Integer> failTotalCountMap = Maps.newHashMap();
-        for (String dataTime : dateList) {
+        Map<Date, Integer> failTotalCountMap = Maps.newHashMap();
+        for (Date dataTime : dateList) {
             int failTotalCount = 0;
             List<SaasErrorStepDayStatDTO> dtoList = statDateMap.get(dataTime);
-            if (CollectionUtils.isEmpty(dtoList)) {
+            if (!CollectionUtils.isEmpty(dtoList)) {
+                for (SaasErrorStepDayStatDTO dto : dtoList) {
+                    failTotalCount = failTotalCount + dto.getFailCount();
+                }
                 failTotalCountMap.put(dataTime, failTotalCount);
-                continue;
-            }
-            for (SaasErrorStepDayStatDTO dto : dtoList) {
-                failTotalCount = failTotalCount + dto.getFailCount();
             }
             failTotalCountMap.put(dataTime, failTotalCount);
 
@@ -633,24 +637,24 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<String, List<SaasErrorStepDayStatDTO>> statTextMap = statDTOList.stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getStageText));
         List<String> keyList = Lists.newArrayList(statTextMap.keySet());
 
-        Map<String, List<ChartStatRateVO>> rateMap = Maps.newHashMap();
+        Map<String, List<ChartStatDayRateVO>> rateMap = Maps.newHashMap();
         for (Map.Entry<String, List<SaasErrorStepDayStatDTO>> entry : statTextMap.entrySet()) {
-            List<ChartStatRateVO> voList = Lists.newArrayList();
+            List<ChartStatDayRateVO> voList = Lists.newArrayList();
             String key = entry.getKey();
-            Map<String, List<SaasErrorStepDayStatDTO>> timeMap = entry.getValue().stream().collect(Collectors.groupingBy(o -> DateUtils.date2Ymd(o.getDataTime())));
-            for (Map.Entry<String, List<SaasErrorStepDayStatDTO>> timeEntry : timeMap.entrySet()) {
-                ChartStatRateVO vo = new ChartStatRateVO();
-                String dataTime = timeEntry.getKey();
+            Map<Date, List<SaasErrorStepDayStatDTO>> timeMap = entry.getValue().stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
+            for (Date dataTime : dateList) {
+                ChartStatDayRateVO vo = new ChartStatDayRateVO();
+                List<SaasErrorStepDayStatDTO> list = timeMap.get(dataTime);
                 int totalCount = failTotalCountMap.get(dataTime);
                 int rateCount = 0;
-                for (SaasErrorStepDayStatDTO dto : timeEntry.getValue()) {
+                for (SaasErrorStepDayStatDTO dto : list) {
                     rateCount = rateCount + dto.getFailCount();
 
                 }
                 BigDecimal rate = BigDecimal.valueOf(rateCount, 2)
                         .multiply(BigDecimal.valueOf(100))
                         .divide(BigDecimal.valueOf(totalCount, 2), 2);
-                vo.setDataTime(DateUtils.ymdString2Date(dataTime));
+                vo.setDataTime(DateUtils.date2Ymd(dataTime));
                 vo.setDataValue(rate);
                 voList.add(vo);
             }
@@ -911,5 +915,4 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         }
         return DateUtils.getTodayBeginDate(new Date());
     }
-
 }

@@ -644,7 +644,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             Map<Date, List<SaasErrorStepDayStatDTO>> timeMap = entry.getValue().stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
             for (Date dataTime : dateList) {
                 ChartStatRateVO vo = new ChartStatRateVO();
-                List<SaasErrorStepDayStatDTO> list = timeMap.get(dataTime);
+                List<SaasErrorStepDayStatDTO> list = Lists.newArrayList();
+                if (!CollectionUtils.isEmpty(timeMap.get(dataTime))) {
+                    list = timeMap.get(dataTime);
+                }
+
                 int totalCount = failTotalCountMap.get(dataTime);
                 int rateCount = 0;
                 for (SaasErrorStepDayStatDTO dto : list) {

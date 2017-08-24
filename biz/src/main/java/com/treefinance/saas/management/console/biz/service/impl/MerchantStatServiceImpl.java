@@ -658,7 +658,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 }
                 BigDecimal rate = BigDecimal.valueOf(rateCount, 2)
                         .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(totalCount, 2), BigDecimal.ROUND_HALF_UP, 2);
+                        .divide(BigDecimal.valueOf(totalCount, 2), 2, BigDecimal.ROUND_HALF_UP);
                 vo.setDataTime(dataTime);
                 vo.setDataValue(rate);
                 voList.add(vo);

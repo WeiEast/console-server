@@ -38,7 +38,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -550,12 +553,21 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             vo.setBizTypeName(EBizType4Monitor.getMainName(task.getBizType()));
             List<TaskLog> taskLogs = taskLogsMap.get(task.getId());
             if (!CollectionUtils.isEmpty(taskLogs)) {
-                Optional<TaskLog> optional = taskLogs.stream().filter(o -> StringUtils.isNotBlank(o.getStepCode())
-                        && StringUtils.isNotBlank(task.getStepCode())
-                        && o.getStepCode().equals(task.getStepCode()))
-                        .sorted(((o1, o2) -> o2.getLastUpdateTime().compareTo(o1.getLastUpdateTime()))).findFirst();
-                if (optional.isPresent()) {
-                    TaskLog taskLog = optional.get();
+                taskLogs = taskLogs.stream()
+                        .sorted((o1, o2) -> o2.getId().compareTo(o1.getId()))
+                        .collect(Collectors.toList());
+
+                TaskLog taskLog = null;
+                if (request.getStatType() == 2) {//取消,取消任务会在log表中插入一条取消环节为取消的日志记录,而这条记录没有实际意义.
+                    taskLog = taskLogs.stream().filter(taskLog1 -> !taskLog1.getMsg().contains("回调通知")).collect(Collectors.toList()).get(1);
+                }
+                if (request.getStatType() == 1) {//失败,某些任务中会有"回调通知成功"环节,此环节没有实际意义,需剔除.
+                    taskLog = taskLogs.stream().filter(taskLog1 -> !taskLog1.getMsg().equals("回调通知成功")).collect(Collectors.toList()).get(0);
+                }
+                if (taskLog == null) {
+                    logger.error("查询任务taskId={},状态status={}时,在task_log表中未查询到对应的状态日志记录", task.getId(), task.getStatus());
+                }
+                if (taskLog != null) {
                     vo.setMsg(taskLog.getMsg());
                     vo.setErrorMsg(taskLog.getErrorMsg());
                 }

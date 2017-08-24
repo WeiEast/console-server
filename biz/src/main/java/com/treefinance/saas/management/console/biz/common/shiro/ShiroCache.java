@@ -22,7 +22,7 @@ public class ShiroCache<K, V> implements Cache<K, V> {
     private static final String REDIS_SHIRO_CACHE = "console-shiro-cache:";
     private String cacheKey;
     private RedisTemplate<K, V> redisTemplate;
-    private long globExpire = 30;
+    private long globExpire = 60 * 12;
 
     @SuppressWarnings("rawtypes")
     public ShiroCache(String name, RedisTemplate client) {

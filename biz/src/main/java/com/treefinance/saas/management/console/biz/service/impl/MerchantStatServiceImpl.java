@@ -571,6 +571,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                     vo.setMsg(taskLog.getMsg());
                     vo.setErrorMsg(taskLog.getErrorMsg());
                 }
+            } else {
+                logger.error("查询任务taskId={},状态status={}时,在task_log表中未查询到对应的状态日志记录", task.getId(), task.getStatus());
             }
             vo.setOccurTime(task.getCreateTime());
             WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());

@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.treefinance.saas.management.console.biz.service.ApiStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.ApiStatAccessVO;
+import com.treefinance.saas.management.console.common.domain.vo.ChartStatDayVO;
 import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.management.console.common.domain.vo.PieChartStatVO;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
@@ -168,13 +169,13 @@ public class ApiStatServiceImpl implements ApiStatService {
         keysList.add(0, "总访问量");
         warpMap.put("keys", keysList);
         //计算总访问量
-        Map<String, List<ChartStatVO>> valuesMap = this.countTotalTask(appNameMap);
+        Map<String, List<ChartStatDayVO>> valuesMap = this.countTotalTask(appNameMap);
         warpMap.put("values", valuesMap);
         return warpMap;
     }
 
-    private Map<String, List<ChartStatVO>> countTotalTask(Map<String, Map<Date, Integer>> appNameMap) {
-        Map<String, List<ChartStatVO>> valuesMap = Maps.newHashMap();
+    private Map<String, List<ChartStatDayVO>> countTotalTask(Map<String, Map<Date, Integer>> appNameMap) {
+        Map<String, List<ChartStatDayVO>> valuesMap = Maps.newHashMap();
         //计算总任务量的map
         Map<Date, Integer> totalMap = Maps.newHashMap();
         for (Map.Entry<String, Map<Date, Integer>> entry : appNameMap.entrySet()) {
@@ -192,7 +193,8 @@ public class ApiStatServiceImpl implements ApiStatService {
                 }
             }
             voList = voList.stream().sorted(((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime()))).collect(Collectors.toList());
-            valuesMap.put(entry.getKey(), voList);
+            List<ChartStatDayVO> result = changeDate2DateStr(voList);
+            valuesMap.put(entry.getKey(), result);
         }
         List<ChartStatVO> totalVOList = Lists.newArrayList();
         for (Map.Entry<Date, Integer> entry : totalMap.entrySet()) {
@@ -202,8 +204,20 @@ public class ApiStatServiceImpl implements ApiStatService {
             totalVOList.add(vo);
         }
         totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
-        valuesMap.put("总访问量", totalVOList);
+        List<ChartStatDayVO> result = changeDate2DateStr(totalVOList);
+        valuesMap.put("总访问量", result);
         return valuesMap;
+    }
+
+    private List<ChartStatDayVO> changeDate2DateStr(List<ChartStatVO> voList) {
+        List<ChartStatDayVO> result = Lists.newArrayList();
+        voList.forEach(vo -> {
+            ChartStatDayVO newVO = new ChartStatDayVO();
+            newVO.setDataTime(DateUtils.date2Ymd(vo.getDataTime()));
+            newVO.setDataValue(vo.getDataValue());
+            result.add(newVO);
+        });
+        return result;
     }
 
     @Override

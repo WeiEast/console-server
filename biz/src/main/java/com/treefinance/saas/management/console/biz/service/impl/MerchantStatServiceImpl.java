@@ -639,11 +639,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         Map<String, List<ChartStatDayRateVO>> rateMap = Maps.newHashMap();
         for (Map.Entry<String, List<SaasErrorStepDayStatDTO>> entry : statTextMap.entrySet()) {
-            List<ChartStatDayRateVO> voList = Lists.newArrayList();
+            List<ChartStatRateVO> voList = Lists.newArrayList();
             String key = entry.getKey();
             Map<Date, List<SaasErrorStepDayStatDTO>> timeMap = entry.getValue().stream().collect(Collectors.groupingBy(SaasErrorStepDayStatDTO::getDataTime));
             for (Date dataTime : dateList) {
-                ChartStatDayRateVO vo = new ChartStatDayRateVO();
+                ChartStatRateVO vo = new ChartStatRateVO();
                 List<SaasErrorStepDayStatDTO> list = timeMap.get(dataTime);
                 int totalCount = failTotalCountMap.get(dataTime);
                 int rateCount = 0;
@@ -654,12 +654,19 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 BigDecimal rate = BigDecimal.valueOf(rateCount, 2)
                         .multiply(BigDecimal.valueOf(100))
                         .divide(BigDecimal.valueOf(totalCount, 2), 2);
-                vo.setDataTime(DateUtils.date2Ymd(dataTime));
+                vo.setDataTime(dataTime);
                 vo.setDataValue(rate);
                 voList.add(vo);
             }
             voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
-            rateMap.put(key, voList);
+            List<ChartStatDayRateVO> newVoList = Lists.newArrayList();
+            for (ChartStatRateVO vo : voList) {
+                ChartStatDayRateVO newVo = new ChartStatDayRateVO();
+                newVo.setDataTime(DateUtils.date2Ymd(vo.getDataTime()));
+                newVo.setDataValue(vo.getDataValue());
+                newVoList.add(newVo);
+            }
+            rateMap.put(key, newVoList);
         }
         Map<String, Object> resultMap = Maps.newHashMap();
         resultMap.put("keys", keyList);

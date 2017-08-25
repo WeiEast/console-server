@@ -168,36 +168,10 @@ public class TaskServiceImpl implements TaskService {
                 continue;
             }
             Long taskId = task.getId();
-            Byte bizType = task.getBizType();
-            String appId = task.getAppId();
-            Byte isNewKey = appCallbackConfig.getIsNewKey();
-            String aesDataKey = "";
-            AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
-            if (Byte.valueOf("0").equals(isNewKey)) {
-                if (appLicenseDTO == null) {
-                    logger.error("解密回调参数时,未找到对应的appLicenseDTO appId={}", appId);
-                    continue;
-                }
-                aesDataKey = appLicenseDTO.getDataSecretKey();
-            } else if (Byte.valueOf("1").equals(isNewKey)) {
-                CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(log.getConfigId().intValue());
-                if (callbackLicenseDTO == null) {
-                    logger.error("解密回调参数时,未找到对应的callbackLicenseDTO configId={}", log.getConfigId());
-                    continue;
-                }
-                aesDataKey = callbackLicenseDTO.getDataSecretKey();
-            }
-            String plainParams;
-            byte version = appCallbackConfig.getVersion();
-            if (version > 0) {
-                // 默认使用AES方式
-                plainParams = decryptByAES(log.getRequestParam(), aesDataKey);
-            } else {
-                plainParams = decryptByRSA(log.getRequestParam(), appLicenseDTO);
-            }
+//            String plainParams = getPlainParamsCallbackLog(task, appCallbackConfig, log);
             TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
             BeanUtils.convert(log, logDTO);
-            logDTO.setPlainRequestParam(plainParams);
+            logDTO.setPlainRequestParam(log.getRequestParam());
             //网关支持:一个任务,回调多方,这里现将日志打印出来
             if (result.get(taskId) != null) {
                 logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)), logDTO);
@@ -206,6 +180,36 @@ public class TaskServiceImpl implements TaskService {
             result.put(taskId, logDTO);
         }
         return result;
+    }
+
+    private String getPlainParamsCallbackLog(Task task, AppCallbackConfig appCallbackConfig, TaskCallbackLog log) {
+        String appId = task.getAppId();
+        Byte isNewKey = appCallbackConfig.getIsNewKey();
+        String aesDataKey = "";
+        AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
+        if (Byte.valueOf("0").equals(isNewKey)) {
+            if (appLicenseDTO == null) {
+                logger.error("解密回调参数时,未找到对应的appLicenseDTO appId={}", appId);
+                return null;
+            }
+            aesDataKey = appLicenseDTO.getDataSecretKey();
+        } else if (Byte.valueOf("1").equals(isNewKey)) {
+            CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(log.getConfigId().intValue());
+            if (callbackLicenseDTO == null) {
+                logger.error("解密回调参数时,未找到对应的callbackLicenseDTO configId={}", log.getConfigId());
+                return null;
+            }
+            aesDataKey = callbackLicenseDTO.getDataSecretKey();
+        }
+        String plainParams;
+        byte version = appCallbackConfig.getVersion();
+        if (version > 0) {
+            // 默认使用AES方式
+            plainParams = decryptByAES(log.getRequestParam(), aesDataKey);
+        } else {
+            plainParams = decryptByRSA(log.getRequestParam(), appLicenseDTO);
+        }
+        return plainParams;
     }
 
     private String decryptByAES(String data, String dataKey) {

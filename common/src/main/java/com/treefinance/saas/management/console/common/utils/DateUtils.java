@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -425,7 +428,24 @@ public class DateUtils {
 //        System.out.println(DateUtils.getLastDayOfMonth(new Date()));
 //        System.out.println(DateUtils.getWeekStrOfYear(new Date()));
 //        System.out.println(DateUtils.date2SimpleYm(new Date()));
-        System.out.println(DateUtils.getDayStrDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
+//        System.out.println(DateUtils.getDayStrDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
+        LocalDate localDate = LocalDate.now();
+        System.out.println("localDate:" + localDate);
+
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        System.out.println("tomorrow:" + tomorrow);
+
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        System.out.println("yesterday:" + yesterday);
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        System.out.println("默认格式化: " + now);
+        System.out.println("自定义格式化: " + now.format(dateTimeFormatter));
+        LocalDateTime localDateTime = LocalDateTime.parse("2017-07-20 15:27:44", dateTimeFormatter);
+        System.out.println("字符串转LocalDateTime: " + localDateTime);
+
     }
+
 
 }

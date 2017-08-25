@@ -80,9 +80,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             logger.debug("merchantStatAccessFacade.queryDayAccessList() : statRequest={},result={}",
                     JSON.toJSONString(statRequest), JSON.toJSONString(result));
         }
+        if (result == null || CollectionUtils.isEmpty(result.getData())) {
+            logger.error("merchantStatAccessFacade.queryDayAccessList()为空 : statRequest={},result={}",
+                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+        }
         Map<String, MerchantStatDayAccessRO> dayAccessROMap = this.queryTotalDayAccessList(request);
         List<MerchantStatDayVO> dataList = Lists.newArrayList();
-        result.getData().forEach(ro -> {
+        for (MerchantStatDayAccessRO ro : result.getData()) {
             MerchantStatDayVO merchantStatDayVO = new MerchantStatDayVO();
             merchantStatDayVO.setDateStr(DateUtils.date2Ymd(ro.getDataTime()));
             merchantStatDayVO.setTotalCount(ro.getSuccessCount());
@@ -102,7 +107,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 merchantStatDayVO.setUseOnTotalLimitRate(BigDecimal.ZERO);
             }
             dataList.add(merchantStatDayVO);
-        });
+        }
+        int total = dataList.size();
+        int start = request.getOffset();
+        int end = request.getOffset() + request.getPageSize();
+        if (end > total) {
+            end = total;
+        }
+        dataList = dataList.subList(start, end);
         return Results.newSuccessPageResult(request, result.getTotalCount(), dataList);
     }
 

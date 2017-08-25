@@ -38,7 +38,7 @@ public class TaskController {
         }
         if (StringUtils.isEmpty(taskRequest.getUniqueId()) && StringUtils.isEmpty(taskRequest.getAccountNo())
                 && taskRequest.getTaskId() == null && StringUtils.isBlank(taskRequest.getAppName())) {
-            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "uniqueId、accountNo和taskId不能同时为空");
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "uniqueId、accountNo、taskId和appName不能同时为空");
         }
         if (StringUtils.isBlank(taskRequest.getType())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "type不能为空");

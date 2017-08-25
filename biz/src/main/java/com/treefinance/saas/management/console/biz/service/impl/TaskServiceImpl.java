@@ -87,6 +87,8 @@ public class TaskServiceImpl implements TaskService {
             List<String> appIdList = this.getAppIdsLikeAppName(taskRequest.getAppName());
             if (CollectionUtils.isNotEmpty(appIdList)) {
                 criteria.andAppIdIn(appIdList);
+            } else {
+                criteria.andAppIdIn(null);
             }
         }
         criteria.andCreateTimeGreaterThanOrEqualTo(taskRequest.getStartDate());
@@ -260,7 +262,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private Map<String, MerchantBase> getMerchantBaseMap(List<Task> taskList) {
-        List<String> appIdList = taskList.stream().map(Task::getAppId).collect(Collectors.toList());
+        List<String> appIdList = taskList.stream().map(Task::getAppId).distinct().collect(Collectors.toList());
         MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
         merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);

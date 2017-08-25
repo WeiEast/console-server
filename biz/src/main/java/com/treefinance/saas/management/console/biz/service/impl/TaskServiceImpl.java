@@ -271,6 +271,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private List<String> getAppIdsLikeAppName(String appName) {
+        appName = StringUtils.deleteWhitespace(appName);
         List<String> result = Lists.newArrayList();
         MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
         merchantBaseCriteria.createCriteria().andAppNameLike("%" + appName + "%");

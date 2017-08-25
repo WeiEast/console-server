@@ -121,6 +121,7 @@ public class TaskServiceImpl implements TaskService {
             MerchantBase merchantBase = merchantBaseMap.get(task.getAppId());
             if (merchantBase != null) {
                 vo.setAppName(merchantBase.getAppName());
+                vo.setAppId(merchantBase.getAppId());
             }
             if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
                 OperatorRO operatorRO = operatorROMap.get(task.getWebSite());

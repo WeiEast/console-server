@@ -88,7 +88,7 @@ public class TaskServiceImpl implements TaskService {
             if (CollectionUtils.isNotEmpty(appIdList)) {
                 criteria.andAppIdIn(appIdList);
             } else {//根据appName未查询到appId,则直接返回空集合
-                Results.newSuccessPageResult(taskRequest, 0, Lists.newArrayList());
+                return Results.newSuccessPageResult(taskRequest, 0, Lists.newArrayList());
             }
         }
         criteria.andCreateTimeGreaterThanOrEqualTo(taskRequest.getStartDate());

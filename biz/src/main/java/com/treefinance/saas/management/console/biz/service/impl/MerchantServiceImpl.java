@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
+import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -37,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -57,6 +59,8 @@ public class MerchantServiceImpl implements MerchantService {
     private AppLicenseService appLicenseService;
     @Autowired
     private ISecurityCryptoService iSecurityCryptoService;
+    @Autowired
+    private DiamondConfig diamondConfig;
 
 
     @Override
@@ -196,12 +200,16 @@ public class MerchantServiceImpl implements MerchantService {
         if (StringUtils.isBlank(merchantBaseVO.getAppName())) {
             throw new BizException("app名称不能为空!");
         }
-        if (StringUtils.deleteWhitespace(merchantBaseVO.getAppId()).length() != 16) {
-            throw new BizException("appId需要为16位");
+
+        String pattern = "^" + diamondConfig.getAppIdEnvironmentPrefix() + "_" + "[0-9a-zA-Z]{16}";
+        String appId = StringUtils.deleteWhitespace(merchantBaseVO.getAppId());
+//        boolean hasPrefix = appId.startsWith(diamondConfig.getAppIdEnvironmentPrefix() + "_");
+        boolean isMatch = Pattern.matches(pattern, appId);
+        if (!isMatch) {
+            throw new BizException("appId格式有误!需满足:" + diamondConfig.getAppIdEnvironmentPrefix() + "_16位数字字母字符串");
         }
         checkAppNameUnique(merchantBaseVO);
         checkAppIdUnique(merchantBaseVO);
-        String appId = StringUtils.deleteWhitespace(merchantBaseVO.getAppId());
         if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
             appId = CommonUtils.generateAppId();
             merchantBaseVO.setAppId(appId);
@@ -297,7 +305,8 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public String autoGenerateAppId() {
-        String appId = CommonUtils.generateAppId();
+        String prefix = diamondConfig.getAppIdEnvironmentPrefix();
+        String appId = prefix + "_" + CommonUtils.generateAppId();
         return appId;
     }
 

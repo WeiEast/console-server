@@ -8,6 +8,9 @@ import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEn
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
+import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
+import com.treefinance.saas.assistant.config.model.enums.ConfigType;
+import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -61,7 +64,8 @@ public class MerchantServiceImpl implements MerchantService {
     private ISecurityCryptoService iSecurityCryptoService;
     @Autowired
     private DiamondConfig diamondConfig;
-
+    @Autowired
+    private ConfigUpdatePlugin configUpdatePlugin;
 
     @Override
     public MerchantBaseVO getMerchantById(Long id) {
@@ -227,6 +231,12 @@ public class MerchantServiceImpl implements MerchantService {
         Map<String, Object> map = Maps.newHashMap();
         map.put("merchantId", merchantId);
         map.put("plainTextPassword", plainTextPassword);
+
+        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
+                .configType(ConfigType.MERCHANT_BASE)
+                .configDesc("新增商户")
+                .configId(appId)
+                .configData(merchantBaseVO).build());
         return map;
     }
 
@@ -259,6 +269,11 @@ public class MerchantServiceImpl implements MerchantService {
         merchantUser.setIsTest(merchantBaseVO.getIsTest());
         merchantUserMapper.updateByExampleSelective(merchantUser, userCriteria);
 
+        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
+                .configType(ConfigType.MERCHANT_BASE)
+                .configDesc("更新商户")
+                .configId(merchantBaseList.get(0).getAppId())
+                .configData(merchantBaseVO).build());
     }
 
     @Override

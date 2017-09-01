@@ -4,6 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidGenerator;
+import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
+import com.treefinance.saas.assistant.config.model.enums.ConfigType;
+import com.treefinance.saas.assistant.config.model.enums.UpdateType;
+import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -55,6 +59,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     private AppCallbackBizMapper appCallbackBizMapper;
     @Autowired
     private AppBizTypeMapper appBizTypeMapper;
+    @Autowired
+    private ConfigUpdatePlugin configUpdatePlugin;
 
 
     @Override
@@ -217,6 +223,15 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 appCallbackBizMapper.insertSelective(rela);
             }
         }
+
+
+        // 发送配置变更消息
+        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
+                .configType(ConfigType.MERCHANT_CALLBACK)
+                .configDesc("新增回调配置")
+                .updateType(UpdateType.DELETE)
+                .configId(appCallbackConfigVO.getAppId())
+                .configData(appCallbackConfigVO).build());
         return appCallbackConfig.getId();
     }
 
@@ -257,16 +272,37 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 }
             }
         }
+
+        AppCallbackConfigVO _appCallbackConfigVO = getAppCallbackConfigById(appCallbackConfigVO.getId());
+        if (_appCallbackConfigVO != null) {
+            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
+                    .configType(ConfigType.MERCHANT_CALLBACK)
+                    .configDesc("更新回调配置")
+                    .configId(_appCallbackConfigVO.getAppId())
+                    .configData(appCallbackConfigVO).build());
+        }
     }
 
     @Override
     @Transactional
     public void deleteAppCallbackConfigById(Integer id) {
+        AppCallbackConfigVO appCallbackConfigVO = getAppCallbackConfigById(id);
+
         appCallbackConfigMapper.deleteByPrimaryKey(id);
         appLicenseService.removeCallbackLicenseById(id);
         AppCallbackBizCriteria relaCriteria = new AppCallbackBizCriteria();
         relaCriteria.createCriteria().andCallbackIdEqualTo(id);
         appCallbackBizMapper.deleteByExample(relaCriteria);
+
+        // 发送配置变更消息
+        if (appCallbackConfigVO != null) {
+            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
+                    .configType(ConfigType.MERCHANT_CALLBACK)
+                    .configDesc("删除回调配置")
+                    .updateType(UpdateType.DELETE)
+                    .configId(appCallbackConfigVO.getAppId())
+                    .configData(appCallbackConfigVO).build());
+        }
     }
 
     @Override

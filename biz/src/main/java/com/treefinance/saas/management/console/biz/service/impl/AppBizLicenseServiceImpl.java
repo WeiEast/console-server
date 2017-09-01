@@ -2,6 +2,10 @@ package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidGenerator;
+import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
+import com.treefinance.saas.assistant.config.model.enums.ConfigType;
+import com.treefinance.saas.assistant.config.model.enums.UpdateType;
+import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
@@ -38,6 +42,8 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
     private AppBizTypeMapper appBizTypeMapper;
+    @Autowired
+    private ConfigUpdatePlugin configUpdatePlugin;
 
     @Override
     public List<AppBizLicenseVO> selectBizLicenseByAppIdBizType(AppBizLicenseRequest request) {
@@ -102,6 +108,14 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
                 appBizLicense.setDailyLimit(0);
             }
             appBizLicenseMapper.insertSelective(appBizLicense);
+
+            // 发送配置变更消息
+            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
+                    .configType(ConfigType.MERCHANT_LICENSE)
+                    .configDesc("更新商户授权")
+                    .updateType(UpdateType.UPDATE)
+                    .configId(appBizLicense.getAppId())
+                    .configData(appBizLicense).build());
         } else {
             AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
             AppBizLicense appBizLicense = new AppBizLicense();
@@ -120,6 +134,13 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             }
             appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
 
+            // 发送配置变更消息
+            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
+                    .configType(ConfigType.MERCHANT_LICENSE)
+                    .configDesc("更新商户授权")
+                    .updateType(UpdateType.UPDATE)
+                    .configId(srcAppBizLicense.getAppId())
+                    .configData(appBizLicense).build());
         }
         return Boolean.TRUE;
     }

@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by haojiahong on 2017/8/30.
  */
 @RestController
-@RequestMapping("/saas/console/rawdata/proxy")
+@RequestMapping("/saas/console/rawdata/")
 public class ProxyProviderController {
 
     @Autowired
     private ProxyProviderService proxyProviderService;
 
 
-    @RequestMapping(value = "/user/list", method = {RequestMethod.GET}, produces = "application/json")
+    @RequestMapping(value = "/wiseproxy/proxy/users", method = {RequestMethod.GET}, produces = "application/json")
     public String queryUserList() {
         return proxyProviderService.queryUserList();
     }
 
-    @RequestMapping(value = "/cat", method = {RequestMethod.GET}, produces = "application/json")
+    @RequestMapping(value = "/wiseproxy/proxy/status/cat", method = {RequestMethod.GET}, produces = "application/json")
     public String queryAll(String user) {
         return proxyProviderService.queryProxyCat(user);
     }

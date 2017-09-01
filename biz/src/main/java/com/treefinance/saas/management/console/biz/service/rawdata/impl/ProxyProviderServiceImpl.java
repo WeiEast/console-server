@@ -21,13 +21,13 @@ public class ProxyProviderServiceImpl implements ProxyProviderService {
 
     @Override
     public String queryUserList() {
-        String url = diamondConfig.getDomainRawdataWiseproxy() + "wiseproxy/proxy/users";
+        String url = diamondConfig.getDomainRawdataWiseproxy() + "/wiseproxy/internal/proxy/users";
         return HttpClientUtils.doGet(url);
     }
 
     @Override
     public String queryProxyCat(String user) {
-        String url = diamondConfig.getDomainRawdataWiseproxy() + "wiseproxy/proxy/status/cat";
+        String url = diamondConfig.getDomainRawdataWiseproxy() + "/wiseproxy/internal/proxy/status/cat";
         Map<String, Object> params = Maps.newHashMap();
         params.put("user", user);
         return HttpClientUtils.doGet(url, params);

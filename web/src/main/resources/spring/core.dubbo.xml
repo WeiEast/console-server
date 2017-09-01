@@ -32,8 +32,6 @@
     <dubbo:reference id="websiteFacade" interface="com.treefinance.saas.monitor.facade.service.WebsiteFacade"
                      version="1.0.0"/>
 
-    <dubbo:reference id="proxyProvider" interface="com.treefinance.proxy.api.ProxyProvider"/>
-
 
 </beans>
 

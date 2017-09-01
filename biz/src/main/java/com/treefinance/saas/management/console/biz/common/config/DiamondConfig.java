@@ -21,12 +21,23 @@ public class DiamondConfig {
     @DAttribute(key = "appId.environment.prefix")
     private String appIdEnvironmentPrefix;
 
+    @DAttribute(key = "domain.rawdata.wiseproxy")
+    private String domainRawdataWiseproxy;
+
     public String getAppIdEnvironmentPrefix() {
         return appIdEnvironmentPrefix;
     }
 
     public void setAppIdEnvironmentPrefix(String appIdEnvironmentPrefix) {
         this.appIdEnvironmentPrefix = appIdEnvironmentPrefix;
+    }
+
+    public String getDomainRawdataWiseproxy() {
+        return domainRawdataWiseproxy;
+    }
+
+    public void setDomainRawdataWiseproxy(String domainRawdataWiseproxy) {
+        this.domainRawdataWiseproxy = domainRawdataWiseproxy;
     }
 
     @BeforeUpdate

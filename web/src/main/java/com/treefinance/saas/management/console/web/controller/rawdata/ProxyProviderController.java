@@ -1,6 +1,8 @@
 package com.treefinance.saas.management.console.web.controller.rawdata;
 
 import com.treefinance.saas.management.console.biz.service.rawdata.ProxyProviderService;
+import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,13 +20,13 @@ public class ProxyProviderController {
 
 
     @RequestMapping(value = "/wiseproxy/proxy/users", method = {RequestMethod.GET}, produces = "application/json")
-    public String queryUserList() {
-        return proxyProviderService.queryUserList();
+    public Result<String> queryUserList() {
+        return Results.newSuccessResult(proxyProviderService.queryUserList());
     }
 
     @RequestMapping(value = "/wiseproxy/proxy/status/cat", method = {RequestMethod.GET}, produces = "application/json")
-    public String queryAll(String user) {
-        return proxyProviderService.queryProxyCat(user);
+    public Result<String> queryAll(String user) {
+        return Results.newSuccessResult(proxyProviderService.queryProxyCat(user));
     }
 
 }

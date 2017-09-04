@@ -18,6 +18,7 @@ import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
 import com.treefinance.saas.management.console.dao.mapper.TaskLogMapper;
 import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequest;
@@ -62,6 +63,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private WebsiteFacade websiteFacade;
     @Autowired
     private TaskLogMapper taskLogMapper;
+    @Autowired
+    private MerchantUserMapper merchantUserMapper;
 
 
     @Override
@@ -454,7 +457,15 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
         merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        //<appId,merchantBase>
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
+
+        List<Long> merchantIdList = merchantBaseList.stream().map(MerchantBase::getId).collect(Collectors.toList());
+        MerchantUserCriteria merchantUserCriteria = new MerchantUserCriteria();
+        merchantUserCriteria.createCriteria().andMerchantIdIn(merchantIdList);
+        List<MerchantUser> merchantUserList = merchantUserMapper.selectByExample(merchantUserCriteria);
+        //<merchantId,merchantUser>
+        Map<Long, MerchantUser> merchantUserMap = merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, m -> m));
 
         Map<String, List<MerchantStatOverviewVO>> ovMap = overviewVOList.stream()
                 .filter(ov -> StringUtils.isNotBlank(ov.getAppId()))
@@ -473,6 +484,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             MerchantBase merchantBase = merchantBaseMap.get(entry.getKey());
             if (merchantBase != null) {
                 timeVO.setAppName(merchantBase.getAppName());
+                timeVO.setAppCreateTime(merchantBase.getCreateTime());
+                MerchantUser merchantUser = merchantUserMap.get(merchantBase.getId());
+                if (merchantUser != null) {
+                    timeVO.setAppIsTest(merchantUser.getIsTest());
+                }
+            } else {
+                timeVO.setAppCreateTime(new Date());
+                timeVO.setAppIsTest(true);
             }
             MerchantStatOverviewVO vo1 = entry.getValue().get(dateList.get(0));
             timeVO.setTime1Val(vo1 == null ? "0 | NA" : new StringBuilder().append(vo1.getTotalCount()).append(" | ").append(vo1.getRate()).append("%").toString());
@@ -495,6 +514,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
             timeOverViewList.add(timeVO);
         }
+
+        timeOverViewList = timeOverViewList
+                .stream()
+                .sorted((o1, o2) -> o2.getAppCreateTime().compareTo(o1.getAppCreateTime()))
+                .sorted((d1, d2) -> d1.getAppIsTest().compareTo(d2.getAppIsTest()))
+                .collect(Collectors.toList());
 
         return timeOverViewList;
     }
@@ -938,5 +963,20 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 return DateUtils.getTodayBeginDate(request.getEndDate());
         }
         return DateUtils.getTodayBeginDate(new Date());
+    }
+
+    static class Obj {
+        public Integer num;
+        public Boolean flag;
+
+        public Obj(Integer num, Boolean flag) {
+            this.num = num;
+            this.flag = flag;
+        }
+
+        @Override
+        public String toString() {
+            return num + "," + flag + ";";
+        }
     }
 }

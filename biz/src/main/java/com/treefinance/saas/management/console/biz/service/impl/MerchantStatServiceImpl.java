@@ -255,6 +255,54 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     }
 
     @Override
+    public Map<String, Object> queryAllAccessList4Pie(StatRequest request) {
+        baseCheck(request);
+        Map<String, Object> wrapMap = Maps.newHashMap();
+
+        MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
+        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
+
+        MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
+        if (logger.isDebugEnabled()) {
+            logger.debug("merchantStatAccessFacade.queryAllAccessList() : statRequest={},result={}",
+                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+        }
+        if (result == null || CollectionUtils.isEmpty(result.getData())) {
+            return wrapMap;
+        }
+        //<appId,totalCount>
+        Map<String, Integer> dataMap = Maps.newHashMap();
+        for (MerchantStatAccessRO ro : result.getData()) {
+            Integer total = dataMap.get(ro.getAppId());
+            if (total == null) {
+                total = ro.getTotalCount();
+            } else {
+                total = total + ro.getTotalCount();
+            }
+            dataMap.put(ro.getAppId(), total);
+        }
+        Map<String, Integer> appNameDataMap = this.changeKey2AppName4Pie(dataMap);
+        List<Integer> totalCountList = Lists.newArrayList(appNameDataMap.values());
+        int allTotalCount = totalCountList.stream().reduce(0, (sum, e) -> sum + e);//所有商户此段时间内的总任务量
+        List<PieChartStatRateVO> valueList = Lists.newArrayList();
+        for (Map.Entry<String, Integer> entry : appNameDataMap.entrySet()) {
+            BigDecimal value = BigDecimal.valueOf(entry.getValue())
+                    .multiply(BigDecimal.valueOf(100))
+                    .divide(BigDecimal.valueOf(allTotalCount), 2, BigDecimal.ROUND_HALF_UP);
+            PieChartStatRateVO vo = new PieChartStatRateVO();
+            vo.setName(entry.getKey());
+            vo.setValue(value);
+            valueList.add(vo);
+        }
+        List<String> keysList = Lists.newArrayList(appNameDataMap.keySet()).stream().sorted((String::compareTo)).collect(Collectors.toList());
+        wrapMap.put("keys", keysList);
+        wrapMap.put("values", valueList);
+        return wrapMap;
+    }
+
+    @Override
     public Map<String, Object> queryAccessNumberList(StatRequest request) {
         baseCheck(request);
         Map<String, Object> wrapMap = Maps.newHashMap();
@@ -814,6 +862,27 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 .collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
 
         for (Map.Entry<String, Map<Date, Integer>> entry : dataMap.entrySet()) {
+            MerchantBase merchantBase = merchantBaseMap.get(entry.getKey());
+            if (merchantBase == null) {
+                logger.error("系统任务量统计中,appId={}在MerchantBase表中未查询到相关记录", entry.getKey());
+                continue;
+            }
+            appNameMap.put(merchantBase.getAppName(), entry.getValue());
+        }
+        return appNameMap;
+    }
+
+    private Map<String, Integer> changeKey2AppName4Pie(Map<String, Integer> dataMap) {
+        Map<String, Integer> appNameMap = Maps.newHashMap();
+        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
+        merchantBaseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(dataMap.keySet()));
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        //<appId,MerchantBase>
+        Map<String, MerchantBase> merchantBaseMap = merchantBaseList
+                .stream()
+                .collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
+
+        for (Map.Entry<String, Integer> entry : dataMap.entrySet()) {
             MerchantBase merchantBase = merchantBaseMap.get(entry.getKey());
             if (merchantBase == null) {
                 logger.error("系统任务量统计中,appId={}在MerchantBase表中未查询到相关记录", entry.getKey());

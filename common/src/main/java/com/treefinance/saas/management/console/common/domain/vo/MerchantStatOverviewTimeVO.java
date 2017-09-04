@@ -1,6 +1,9 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by haojiahong on 2017/8/9.
@@ -26,6 +29,11 @@ public class MerchantStatOverviewTimeVO implements Serializable {
     private String time6Val;
 
     private String time7Val;
+
+    @JsonIgnore
+    private Date appCreateTime;
+    @JsonIgnore
+    private Boolean appIsTest;
 
     public String getAppId() {
         return appId;
@@ -97,5 +105,21 @@ public class MerchantStatOverviewTimeVO implements Serializable {
 
     public void setTime7Val(String time7Val) {
         this.time7Val = time7Val;
+    }
+
+    public Date getAppCreateTime() {
+        return appCreateTime;
+    }
+
+    public void setAppCreateTime(Date appCreateTime) {
+        this.appCreateTime = appCreateTime;
+    }
+
+    public Boolean getAppIsTest() {
+        return appIsTest;
+    }
+
+    public void setAppIsTest(Boolean appIsTest) {
+        this.appIsTest = appIsTest;
     }
 }

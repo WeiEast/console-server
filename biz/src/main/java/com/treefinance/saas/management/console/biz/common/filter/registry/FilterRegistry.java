@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.treefinance.saas.management.console.web.registry;
+package com.treefinance.saas.management.console.biz.common.filter.registry;
 
+import com.treefinance.saas.management.console.biz.common.filter.RawDataRequestFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,5 +45,15 @@ public class FilterRegistry {
         return bean;
     }
 
+
+    @Bean
+    public FilterRegistrationBean rawDataRequestFilter() {
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(new RawDataRequestFilter());
+        registration.setName("rawDataRequestFilter");
+        registration.addUrlPatterns("/*");
+        registration.setOrder(1);
+        return registration;
+    }
 
 }

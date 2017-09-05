@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.shiro.filter;
+package com.treefinance.saas.management.console.biz.common.filter;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 

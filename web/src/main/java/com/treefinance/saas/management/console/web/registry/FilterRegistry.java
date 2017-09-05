@@ -46,15 +46,15 @@ public class FilterRegistry {
     }
 
 
-    @Bean
-    public FilterRegistrationBean webContextFilter() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(new LoggingRequestFilter());
-        registration.setName("loggingRequestFilter");
-        registration.addUrlPatterns("/saas/console/*");
-        registration.setOrder(1);
-        return registration;
-    }
+//    @Bean
+//    public FilterRegistrationBean webContextFilter() {
+//        FilterRegistrationBean registration = new FilterRegistrationBean();
+//        registration.setFilter(new LoggingRequestFilter());
+//        registration.setName("loggingRequestFilter");
+//        registration.addUrlPatterns("/saas/console/*");
+//        registration.setOrder(1);
+//        return registration;
+//    }
 
 
 }

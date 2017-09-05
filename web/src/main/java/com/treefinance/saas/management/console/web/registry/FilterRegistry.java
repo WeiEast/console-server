@@ -51,7 +51,7 @@ public class FilterRegistry {
         FilterRegistrationBean registration = new FilterRegistrationBean();
         registration.setFilter(new LoggingRequestFilter());
         registration.setName("loggingRequestFilter");
-        registration.addUrlPatterns("/*");
+        registration.addUrlPatterns("/saas/console/*");
         registration.setOrder(1);
         return registration;
     }

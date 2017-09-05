@@ -37,7 +37,7 @@ public class LoggingRequestFilter extends AbstractRequestFilter {
         } catch (Exception e) {
             logger.error("获取ip出错:url={},method={}", request.getRequestURI(), request.getMethod());
         }
-        AuthUserDTO user = (AuthUserDTO) request.getSession().getAttribute(Constants.USER_KEY);
+//        AuthUserDTO user = (AuthUserDTO) request.getSession().getAttribute(Constants.USER_KEY);
 
         long start = System.currentTimeMillis();
         try {
@@ -45,7 +45,7 @@ public class LoggingRequestFilter extends AbstractRequestFilter {
         } finally {
             long time = System.currentTimeMillis() - start;
             logger.info("===>url={},user={},method={},time={},ip={},耗时={}ms",
-                    request.getRequestURI(), user == null ? "用户未登录" : user.getLoginName(), request.getMethod(), DateUtils.date2Hms(new Date()), ip, time);
+                    request.getRequestURI(),  "用户未登录", request.getMethod(), DateUtils.date2Hms(new Date()), ip, time);
         }
     }
 

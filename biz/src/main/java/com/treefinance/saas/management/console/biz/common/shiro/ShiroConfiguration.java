@@ -3,6 +3,7 @@
  */
 package com.treefinance.saas.management.console.biz.common.shiro;
 
+import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.common.filter.LoggingRequestFilter;
 import com.treefinance.saas.management.console.biz.common.filter.RawDataRequestFilter;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -107,7 +108,7 @@ public class ShiroConfiguration {
     }
 
     @Bean(name = "shiroFilter")
-    public ShiroFilterFactoryBean shiroFilterFactoryBean() {
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(DiamondConfig diamondConfig) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager());
 
@@ -118,15 +119,16 @@ public class ShiroConfiguration {
         shiroFilterFactoryBean.getFilters().put("authc", authcFilter);
         LoggingRequestFilter loggingFilter = new LoggingRequestFilter();
         shiroFilterFactoryBean.getFilters().put("logging", loggingFilter);
-//        RawDataRequestFilter rawDataFilter = new RawDataRequestFilter();
-//        shiroFilterFactoryBean.getFilters().put("rawdata", rawDataFilter);
+        RawDataRequestFilter rawDataFilter = new RawDataRequestFilter(diamondConfig);
+        shiroFilterFactoryBean.getFilters().put("rawdata", rawDataFilter);
         // 权限配置
         Map<String, String> filterChainDefinitionManager = new LinkedHashMap<>();
         //filterChainDefinitionManager.put("/logout", "logout");
         filterChainDefinitionManager.put("/saas/console/data/rsa/decrypt", "anon");
         filterChainDefinitionManager.put("/saas/console/data/rsa/encrypt", "anon");
         filterChainDefinitionManager.put("/saas/console/data/download", "anon");
-        filterChainDefinitionManager.put("/saas/console/**", "authc");
+        filterChainDefinitionManager.put("/saas/console/rawdata/**", "authc,logging,rawdata");
+        filterChainDefinitionManager.put("/saas/console/**", "authc,logging");
         filterChainDefinitionManager.put("/currentuser", "authc");
 //        filterChainDefinitionManager.put("/saas/rawdata/**", "rawdata,authc");
         filterChainDefinitionManager.put("/**", "anon,logging");

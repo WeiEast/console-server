@@ -6,9 +6,9 @@ import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,14 +18,9 @@ import java.util.Date;
 /**
  * Created by haojiahong on 2017/9/5.
  */
-public class LoggingRequestFilter extends AbstractRequestFilter {
+public class LoggingRequestFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingRequestFilter.class);
-
-    @Override
-    protected void initFilterBean(FilterConfig filterConfig) throws ServletException {
-
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

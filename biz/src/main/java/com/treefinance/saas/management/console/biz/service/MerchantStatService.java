@@ -21,6 +21,14 @@ public interface MerchantStatService {
 
     Map<String, Object> queryAllAccessList(StatRequest request);
 
+    /**
+     * 系统总任务量监控(饼状图)
+     *
+     * @param request
+     * @return
+     */
+    Map<String, Object> queryAllAccessList4Pie(StatRequest request);
+
     Map<String, Object> queryAccessNumberList(StatRequest request);
 
     Map<String, Object> queryAccessRateList(StatRequest request);

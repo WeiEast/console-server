@@ -16,6 +16,7 @@
 
 package com.treefinance.saas.management.console.web.registry;
 
+import com.treefinance.saas.management.console.web.filter.LoggingRequestFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +43,17 @@ public class FilterRegistry {
         FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         bean.setOrder(0);
         return bean;
+    }
+
+
+    @Bean
+    public FilterRegistrationBean webContextFilter() {
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(new LoggingRequestFilter());
+        registration.setName("loggingRequestFilter");
+        registration.addUrlPatterns("/*");
+        registration.setOrder(1);
+        return registration;
     }
 
 

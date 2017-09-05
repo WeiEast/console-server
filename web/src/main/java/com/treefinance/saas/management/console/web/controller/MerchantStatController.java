@@ -43,6 +43,11 @@ public class MerchantStatController {
         return Results.newSuccessResult(merchantStatService.queryAllAccessList(request));
     }
 
+    @RequestMapping(value = "/stataccess/all/pie", method = {RequestMethod.GET}, produces = "application/json")
+    public Result<Map<String, Object>> getAllPie(StatRequest request) {
+        return Results.newSuccessResult(merchantStatService.queryAllAccessList4Pie(request));
+    }
+
     @RequestMapping(value = "/stataccess/number", method = {RequestMethod.GET}, produces = "application/json")
     public Result<Map<String, Object>> getNumber(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryAccessNumberList(request));

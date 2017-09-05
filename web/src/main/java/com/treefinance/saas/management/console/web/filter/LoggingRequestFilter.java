@@ -38,9 +38,15 @@ public class LoggingRequestFilter extends AbstractRequestFilter {
             logger.error("获取ip出错:url={},method={}", request.getRequestURI(), request.getMethod());
         }
         AuthUserDTO user = (AuthUserDTO) request.getSession().getAttribute(Constants.USER_KEY);
-        logger.info("===>url={},user={},method={},time={},ip={}",
-                request.getRequestURI(), user == null ? "用户未登录" : user.getLoginName(), request.getMethod(), DateUtils.date2Hms(new Date()), ip);
-        filterChain.doFilter(request, response);
+
+        long start = System.currentTimeMillis();
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            long time = System.currentTimeMillis() - start;
+            logger.info("===>url={},user={},method={},time={},ip={},耗时={}ms",
+                    request.getRequestURI(), user == null ? "用户未登录" : user.getLoginName(), request.getMethod(), DateUtils.date2Hms(new Date()), ip, time);
+        }
     }
 
 }

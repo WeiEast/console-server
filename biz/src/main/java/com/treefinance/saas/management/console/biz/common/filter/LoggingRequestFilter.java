@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.shiro.filter;
+package com.treefinance.saas.management.console.biz.common.filter;
 
 import com.datatrees.toolkits.util.http.servlet.ServletRequestUtils;
 import com.treefinance.saas.management.console.common.domain.Constants;
@@ -38,8 +38,6 @@ public class LoggingRequestFilter extends AbstractRequestFilter {
             logger.error("获取ip出错:url={},method={}", request.getRequestURI(), request.getMethod());
         }
         AuthUserDTO user = (AuthUserDTO) request.getSession().getAttribute(Constants.USER_KEY);
-
-//        AuthUserDTO user = null;
         long start = System.currentTimeMillis();
         try {
             filterChain.doFilter(request, response);

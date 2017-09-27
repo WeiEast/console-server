@@ -10,7 +10,8 @@ public enum EBizType4Monitor {
     EMAIL("EMAIL", (byte) 1, "邮箱账单", (byte) 3, "邮箱"),
     ECOMMERCE("ECOMMERCE", (byte) 2, "电商", (byte) 2, "电商"),
     OPERATOR("OPERATOR", (byte) 3, "运营商", (byte) 4, "运营商"),
-    BANK("BANK", (byte) -2, "银行", (byte) 1, "银行");
+    BANK("BANK", (byte) -2, "银行", (byte) 1, "银行"),
+    FUND("FUND", (byte) 4, "公积金", (byte) 5, "公积金");
 
 
     private Byte code;

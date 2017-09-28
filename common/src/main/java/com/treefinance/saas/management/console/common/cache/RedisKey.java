@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author luoyihua
  * @Title: RedisKey.java
- * @Description: TODO
+ * @Description:
  * @date 2017年5月18日 上午11:36:18
  */
 

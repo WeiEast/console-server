@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author luoyihua
  * @Title: UserRealm.java
- * @Description: TODO
  * @date 2017年5月18日 上午8:00:38
  */
 

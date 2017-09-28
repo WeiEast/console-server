@@ -81,7 +81,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
             config.setAppId(vo.getAppId());
             config.setServiceTag(vo.getServiceTag());
             configList.add(config);
-            //发送消息
+            //发送消息 // TODO: 2017/9/28 haojiahong 配置有问题
             ConfigUpdateModel model = ConfigUpdateBuilder.newBuilder()
                     .configDesc("更新商户流量分配")
                     .configId(vo.getAppId()).build();

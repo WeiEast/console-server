@@ -7,10 +7,10 @@ import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
-import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
+import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -19,6 +19,7 @@ import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
+import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -28,6 +29,7 @@ import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.management.console.dao.mapper.MerchantFlowConfigMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -66,6 +69,9 @@ public class MerchantServiceImpl implements MerchantService {
     private DiamondConfig diamondConfig;
     @Autowired
     private ConfigUpdatePlugin configUpdatePlugin;
+    @Autowired
+    private MerchantFlowConfigMapper merchantFlowConfigMapper;
+
 
     @Override
     public MerchantBaseVO getMerchantById(Long id) {
@@ -228,6 +234,8 @@ public class MerchantServiceImpl implements MerchantService {
         }
         //生成相关秘钥key
         appLicenseService.generateAppLicenseByAppId(appId);
+        //默认配置商户流量分配到生产环境
+        this.insertMerchantFlowConfig(appId);
         Map<String, Object> map = Maps.newHashMap();
         map.put("merchantId", merchantId);
         map.put("plainTextPassword", plainTextPassword);
@@ -240,6 +248,14 @@ public class MerchantServiceImpl implements MerchantService {
         return map;
     }
 
+    private void insertMerchantFlowConfig(String appId) {
+        MerchantFlowConfig merchantFlowConfig = new MerchantFlowConfig();
+        merchantFlowConfig.setId(UidGenerator.getId());
+        merchantFlowConfig.setAppId(appId);
+        merchantFlowConfig.setServiceTag(EServiceTag.PRODUCT.getTag());
+        merchantFlowConfig.setCreateTime(new Date());
+        merchantFlowConfigMapper.insert(merchantFlowConfig);
+    }
 
     @Override
     @Transactional

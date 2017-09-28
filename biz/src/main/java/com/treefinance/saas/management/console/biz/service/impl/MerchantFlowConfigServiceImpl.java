@@ -121,6 +121,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
             list.add(config);
         }
         merchantFlowConfigMapper.batchInsert(list);
+        logger.info("初始化商户流量分配配置,list={}", JSON.toJSONString(list));
 
     }
 }

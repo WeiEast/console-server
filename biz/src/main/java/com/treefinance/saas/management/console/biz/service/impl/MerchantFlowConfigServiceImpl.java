@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
@@ -58,7 +59,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
         Map<String, String> baseMap = baseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, MerchantBase::getAppName));
         for (MerchantFlowConfig config : list) {
             MerchantFlowConfigVO vo = new MerchantFlowConfigVO();
-            vo.setAppId(config.getAppId());
+            vo.setId(config.getId());
             String appName = baseMap.get(config.getAppId());
             if (StringUtils.isNotBlank(appName)) {
                 vo.setAppName(appName);
@@ -71,25 +72,36 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
     }
 
     @Override
+    @Transactional
     public void batchUpdate(List<MerchantFlowConfigVO> list) {
-        List<MerchantFlowConfig> configList = Lists.newArrayList();
         List<ConfigUpdateModel> modelList = Lists.newArrayList();
+
+        List<Long> idList = list.stream().map(MerchantFlowConfigVO::getId).collect(Collectors.toList());
+        MerchantFlowConfigCriteria configCriteria = new MerchantFlowConfigCriteria();
+        configCriteria.createCriteria().andIdIn(idList);
+        List<MerchantFlowConfig> needUpdateList = merchantFlowConfigMapper.selectByExample(configCriteria);
+        //<id,appId>
+        Map<Long, String> map = needUpdateList.stream().collect(Collectors.toMap(MerchantFlowConfig::getId, MerchantFlowConfig::getAppId));
+
         for (MerchantFlowConfigVO vo : list) {
             //更新db
             MerchantFlowConfig config = new MerchantFlowConfig();
             config.setId(vo.getId());
-            config.setAppId(vo.getAppId());
             config.setServiceTag(vo.getServiceTag());
-            configList.add(config);
+            merchantFlowConfigMapper.updateByPrimaryKeySelective(config);
+
+            String appId = map.get(vo.getId());
+            if (StringUtils.isBlank(appId)) {
+                continue;
+            }
             //发送消息 // TODO: 2017/9/28 haojiahong 配置有问题
             ConfigUpdateModel model = ConfigUpdateBuilder.newBuilder()
                     .configDesc("更新商户流量分配")
-                    .configId(vo.getAppId()).build();
+                    .configId(appId).build();
             modelList.add(model);
         }
-        merchantFlowConfigMapper.batchUpdateByPrimaryKeySelective(configList);
         // 发送配置变更消息
-        configUpdatePlugin.sendMessageList(modelList);
+//        configUpdatePlugin.sendMessageList(modelList);
         logger.info("发送更新商户流量分配配置消息,modelList={}", JSON.toJSONString(modelList));
 
 

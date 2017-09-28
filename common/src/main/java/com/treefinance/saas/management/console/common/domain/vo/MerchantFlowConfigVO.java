@@ -9,7 +9,6 @@ public class MerchantFlowConfigVO implements Serializable {
     private static final long serialVersionUID = 4399083039158113254L;
 
     private Long id;//主键id,批量更新使用
-    private String appId;//商户id
     private String appName;
     private String serviceTag;//关联服务
     private String serviceTagName;//关联服务名称
@@ -20,14 +19,6 @@ public class MerchantFlowConfigVO implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getAppId() {
-        return appId;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
     }
 
     public String getAppName() {

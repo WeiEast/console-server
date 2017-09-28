@@ -41,24 +41,26 @@ public class MerchantFlowConfigController {
      * @param list
      */
     @RequestMapping(value = "/update", produces = "application/json", method = RequestMethod.POST)
-    public void batchUpdate(@RequestBody List<MerchantFlowConfigVO> list) {
+    public Object batchUpdate(@RequestBody List<MerchantFlowConfigVO> list) {
         if (CollectionUtils.isEmpty(list)) {
             throw new IllegalArgumentException("parameter is error");
         }
         for (MerchantFlowConfigVO vo : list) {
-            if (vo.getId() == null || StringUtils.isBlank(vo.getAppId()) || StringUtils.isBlank(vo.getServiceTag())) {
+            if (vo.getId() == null || StringUtils.isBlank(vo.getServiceTag())) {
                 throw new IllegalArgumentException("parameter is error");
             }
         }
         merchantFlowConfigService.batchUpdate(list);
+        return Results.newSuccessResult(true);
     }
 
     /**
-     * 初始化,所有商户初始化为product的serviceTag
+     * 初始化,将为配置的商户初始化为product的serviceTag
      */
     @RequestMapping(value = "/init")
-    public void init() {
+    public Object init() {
         merchantFlowConfigService.init();
+        return Results.newSuccessResult(true);
     }
 
 

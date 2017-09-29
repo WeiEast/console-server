@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateModel;
+import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
@@ -94,14 +95,15 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
             if (StringUtils.isBlank(appId)) {
                 continue;
             }
-            //发送消息 // TODO: 2017/9/28 haojiahong 配置有问题
+            //发送消息
             ConfigUpdateModel model = ConfigUpdateBuilder.newBuilder()
+                    .configType(ConfigType.MERCHANT_OTHER)
                     .configDesc("更新商户流量分配")
                     .configId(appId).build();
             modelList.add(model);
         }
         // 发送配置变更消息
-//        configUpdatePlugin.sendMessageList(modelList);
+        configUpdatePlugin.sendMessageList(modelList);
         logger.info("发送更新商户流量分配配置消息,modelList={}", JSON.toJSONString(modelList));
 
 

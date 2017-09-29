@@ -17,21 +17,21 @@ package com.treefinance.saas.management.console.web.advice;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.exceptions.RequestLimitException;
-import com.treefinance.saas.management.console.common.exceptions.TaskTimeOutException;
-import com.treefinance.saas.management.console.common.exceptions.UnknownException;
+import com.treefinance.saas.management.console.common.exceptions.*;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.result.StateCode;
-import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
@@ -106,6 +106,17 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseBody
     public void handleAllException(HttpServletRequest request, Exception ex, HttpServletResponse response) {
         responseSystemException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR, response);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest webRequest) {
+        HttpServletRequest request = null;
+        if (webRequest instanceof ServletWebRequest) {
+            ServletWebRequest servletRequest = (ServletWebRequest) webRequest;
+            request = servletRequest.getNativeRequest(HttpServletRequest.class);
+        }
+        handleLog(request, ex);
+        return super.handleExceptionInternal(ex, body, headers, status, webRequest);
     }
 
     private void handleLog(HttpServletRequest request, Exception ex) {

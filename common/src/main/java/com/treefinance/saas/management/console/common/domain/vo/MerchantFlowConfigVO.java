@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Created by haojiahong on 2017/9/28.
  */
-//@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MerchantFlowConfigVO implements Serializable {
     private static final long serialVersionUID = 4399083039158113254L;
 

@@ -549,26 +549,33 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             }
             Map<Date, MerchantStatOverviewVO> entry = resultMap.get(appId);
             if (MapUtils.isEmpty(entry)) {
-                continue;
+                timeVO.setTime1Val("0 | NA");
+                timeVO.setTime2Val("0 | NA");
+                timeVO.setTime3Val("0 | NA");
+                timeVO.setTime4Val("0 | NA");
+                timeVO.setTime5Val("0 | NA");
+                timeVO.setTime6Val("0 | NA");
+                timeVO.setTime7Val("0 | NA");
+            } else {
+                MerchantStatOverviewVO vo1 = entry.get(dateList.get(0));
+                timeVO.setTime1Val(vo1 == null ? "0 | NA" : new StringBuilder().append(vo1.getTotalCount()).append(" | ").append(vo1.getRate()).append("%").toString());
+                MerchantStatOverviewVO vo2 = entry.get(dateList.get(1));
+                timeVO.setTime2Val(vo2 == null ? "0 | NA" : new StringBuilder().append(vo2.getTotalCount()).append(" | ").append(vo2.getRate()).append("%").toString());
+
+                MerchantStatOverviewVO vo3 = entry.get(dateList.get(2));
+                timeVO.setTime3Val(vo3 == null ? "0 | NA" : new StringBuilder().append(vo3.getTotalCount()).append(" | ").append(vo3.getRate()).append("%").toString());
+
+                MerchantStatOverviewVO vo4 = entry.get(dateList.get(3));
+                timeVO.setTime4Val(vo4 == null ? "0 | NA" : new StringBuilder().append(vo4.getTotalCount()).append(" | ").append(vo4.getRate()).append("%").toString());
+
+                MerchantStatOverviewVO vo5 = entry.get(dateList.get(4));
+                timeVO.setTime5Val(vo5 == null ? "0 | NA" : new StringBuilder().append(vo5.getTotalCount()).append(" | ").append(vo5.getRate()).append("%").toString());
+
+                MerchantStatOverviewVO vo6 = entry.get(dateList.get(5));
+                timeVO.setTime6Val(vo6 == null ? "0 | NA" : new StringBuilder().append(vo6.getTotalCount()).append(" | ").append(vo6.getRate()).append("%").toString());
+                MerchantStatOverviewVO vo7 = entry.get(dateList.get(6));
+                timeVO.setTime7Val(vo7 == null ? "0 | NA" : new StringBuilder().append(vo7.getTotalCount()).append(" | ").append(vo7.getRate()).append("%").toString());
             }
-            MerchantStatOverviewVO vo1 = entry.get(dateList.get(0));
-            timeVO.setTime1Val(vo1 == null ? "0 | NA" : new StringBuilder().append(vo1.getTotalCount()).append(" | ").append(vo1.getRate()).append("%").toString());
-            MerchantStatOverviewVO vo2 = entry.get(dateList.get(1));
-            timeVO.setTime2Val(vo2 == null ? "0 | NA" : new StringBuilder().append(vo2.getTotalCount()).append(" | ").append(vo2.getRate()).append("%").toString());
-
-            MerchantStatOverviewVO vo3 = entry.get(dateList.get(2));
-            timeVO.setTime3Val(vo3 == null ? "0 | NA" : new StringBuilder().append(vo3.getTotalCount()).append(" | ").append(vo3.getRate()).append("%").toString());
-
-            MerchantStatOverviewVO vo4 = entry.get(dateList.get(3));
-            timeVO.setTime4Val(vo4 == null ? "0 | NA" : new StringBuilder().append(vo4.getTotalCount()).append(" | ").append(vo4.getRate()).append("%").toString());
-
-            MerchantStatOverviewVO vo5 = entry.get(dateList.get(4));
-            timeVO.setTime5Val(vo5 == null ? "0 | NA" : new StringBuilder().append(vo5.getTotalCount()).append(" | ").append(vo5.getRate()).append("%").toString());
-
-            MerchantStatOverviewVO vo6 = entry.get(dateList.get(5));
-            timeVO.setTime6Val(vo6 == null ? "0 | NA" : new StringBuilder().append(vo6.getTotalCount()).append(" | ").append(vo6.getRate()).append("%").toString());
-            MerchantStatOverviewVO vo7 = entry.get(dateList.get(6));
-            timeVO.setTime7Val(vo7 == null ? "0 | NA" : new StringBuilder().append(vo7.getTotalCount()).append(" | ").append(vo7.getRate()).append("%").toString());
 
             timeOverViewList.add(timeVO);
         }

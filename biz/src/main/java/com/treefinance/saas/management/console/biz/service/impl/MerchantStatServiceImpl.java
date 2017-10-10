@@ -508,16 +508,26 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(request.getBizType());
         }
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).collect(Collectors.toList());
 
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).collect(Collectors.toList());
+        List<List<String>> appIdPartList = Lists.partition(appIdList, 50);
+        List<MerchantBase> merchantBaseList = Lists.newArrayList();
+        for (List<String> appIdParts : appIdPartList) {
+            MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
+            merchantBaseCriteria.createCriteria().andAppIdIn(appIdParts);
+            List<MerchantBase> merchantBasePartList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+            merchantBaseList.addAll(merchantBasePartList);
+        }
 
         List<Long> merchantIdList = merchantBaseList.stream().map(MerchantBase::getId).collect(Collectors.toList());
-        MerchantUserCriteria merchantUserCriteria = new MerchantUserCriteria();
-        merchantUserCriteria.createCriteria().andMerchantIdIn(merchantIdList);
-        List<MerchantUser> merchantUserList = merchantUserMapper.selectByExample(merchantUserCriteria);
+        List<List<Long>> merchantIdPartList = Lists.partition(merchantIdList, 50);
+        List<MerchantUser> merchantUserList = Lists.newArrayList();
+        for (List<Long> merchantIdParts : merchantIdPartList) {
+            MerchantUserCriteria merchantUserCriteria = new MerchantUserCriteria();
+            merchantUserCriteria.createCriteria().andMerchantIdIn(merchantIdParts);
+            List<MerchantUser> merchantUserPartList = merchantUserMapper.selectByExample(merchantUserCriteria);
+            merchantUserList.addAll(merchantUserPartList);
+        }
         //<merchantId,merchantUser>
         Map<Long, MerchantUser> merchantUserMap = merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, m -> m));
 

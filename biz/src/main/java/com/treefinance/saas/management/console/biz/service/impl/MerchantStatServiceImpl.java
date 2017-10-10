@@ -17,10 +17,7 @@ import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
-import com.treefinance.saas.management.console.dao.mapper.TaskLogMapper;
-import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
+import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;
@@ -31,6 +28,7 @@ import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessR
 import com.treefinance.saas.monitor.facade.domain.ro.stat.SaasErrorStepDayStatRO;
 import com.treefinance.saas.monitor.facade.service.WebsiteFacade;
 import com.treefinance.saas.monitor.facade.service.stat.MerchantStatAccessFacade;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +63,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private TaskLogMapper taskLogMapper;
     @Autowired
     private MerchantUserMapper merchantUserMapper;
+    @Autowired
+    private AppBizLicenseMapper appBizLicenseMapper;
 
 
     @Override
@@ -501,7 +501,15 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             }
             overviewVOList.add(vo);
         });
-        List<String> appIdList = overviewVOList.stream().map(MerchantStatOverviewVO::getAppId).collect(Collectors.toList());
+
+
+        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
+        if (!EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
+            appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(request.getBizType());
+        }
+        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).collect(Collectors.toList());
+
         MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
         merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
@@ -526,38 +534,40 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             resultMap.put(entry.getKey(), tempMap);
         }
         List<MerchantStatOverviewTimeVO> timeOverViewList = Lists.newArrayList();
-        for (Map.Entry<String, Map<Date, MerchantStatOverviewVO>> entry : resultMap.entrySet()) {
+
+        for (MerchantBase merchantBase : merchantBaseList) {
+            String appId = merchantBase.getAppId();
             MerchantStatOverviewTimeVO timeVO = new MerchantStatOverviewTimeVO();
-            timeVO.setAppId(entry.getKey());
-            MerchantBase merchantBase = merchantBaseMap.get(entry.getKey());
-            if (merchantBase != null) {
-                timeVO.setAppName(merchantBase.getAppName());
-                timeVO.setAppCreateTime(merchantBase.getCreateTime());
-                MerchantUser merchantUser = merchantUserMap.get(merchantBase.getId());
-                if (merchantUser != null) {
-                    timeVO.setAppIsTest(merchantUser.getIsTest());
-                }
+            timeVO.setAppId(appId);
+            timeVO.setAppName(merchantBase.getAppName());
+            timeVO.setAppCreateTime(merchantBase.getCreateTime());
+            MerchantUser merchantUser = merchantUserMap.get(merchantBase.getId());
+            if (merchantUser != null) {
+                timeVO.setAppIsTest(merchantUser.getIsTest());
             } else {
-                timeVO.setAppCreateTime(new Date());
                 timeVO.setAppIsTest(true);
             }
-            MerchantStatOverviewVO vo1 = entry.getValue().get(dateList.get(0));
+            Map<Date, MerchantStatOverviewVO> entry = resultMap.get(appId);
+            if (MapUtils.isEmpty(entry)) {
+                continue;
+            }
+            MerchantStatOverviewVO vo1 = entry.get(dateList.get(0));
             timeVO.setTime1Val(vo1 == null ? "0 | NA" : new StringBuilder().append(vo1.getTotalCount()).append(" | ").append(vo1.getRate()).append("%").toString());
-            MerchantStatOverviewVO vo2 = entry.getValue().get(dateList.get(1));
+            MerchantStatOverviewVO vo2 = entry.get(dateList.get(1));
             timeVO.setTime2Val(vo2 == null ? "0 | NA" : new StringBuilder().append(vo2.getTotalCount()).append(" | ").append(vo2.getRate()).append("%").toString());
 
-            MerchantStatOverviewVO vo3 = entry.getValue().get(dateList.get(2));
+            MerchantStatOverviewVO vo3 = entry.get(dateList.get(2));
             timeVO.setTime3Val(vo3 == null ? "0 | NA" : new StringBuilder().append(vo3.getTotalCount()).append(" | ").append(vo3.getRate()).append("%").toString());
 
-            MerchantStatOverviewVO vo4 = entry.getValue().get(dateList.get(3));
+            MerchantStatOverviewVO vo4 = entry.get(dateList.get(3));
             timeVO.setTime4Val(vo4 == null ? "0 | NA" : new StringBuilder().append(vo4.getTotalCount()).append(" | ").append(vo4.getRate()).append("%").toString());
 
-            MerchantStatOverviewVO vo5 = entry.getValue().get(dateList.get(4));
+            MerchantStatOverviewVO vo5 = entry.get(dateList.get(4));
             timeVO.setTime5Val(vo5 == null ? "0 | NA" : new StringBuilder().append(vo5.getTotalCount()).append(" | ").append(vo5.getRate()).append("%").toString());
 
-            MerchantStatOverviewVO vo6 = entry.getValue().get(dateList.get(5));
+            MerchantStatOverviewVO vo6 = entry.get(dateList.get(5));
             timeVO.setTime6Val(vo6 == null ? "0 | NA" : new StringBuilder().append(vo6.getTotalCount()).append(" | ").append(vo6.getRate()).append("%").toString());
-            MerchantStatOverviewVO vo7 = entry.getValue().get(dateList.get(6));
+            MerchantStatOverviewVO vo7 = entry.get(dateList.get(6));
             timeVO.setTime7Val(vo7 == null ? "0 | NA" : new StringBuilder().append(vo7.getTotalCount()).append(" | ").append(vo7.getRate()).append("%").toString());
 
             timeOverViewList.add(timeVO);

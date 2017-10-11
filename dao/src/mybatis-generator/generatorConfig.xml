@@ -62,14 +62,14 @@
             <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-        <!--<table tableName="app_callback_config" domainObjectName="AppCallbackConfig"-->
-               <!--enableSelectPaginationByExample="true"-->
-               <!--enableBatchInsert="true"-->
-               <!--enableBatchUpdateByPrimaryKey="true"-->
-               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        <!--</table>-->
+        <table tableName="app_callback_config" domainObjectName="AppCallbackConfig"
+               enableSelectPaginationByExample="true"
+               enableBatchInsert="true"
+               enableBatchUpdateByPrimaryKey="true"
+               enableBatchUpdateByPrimaryKeySelective="true">
+            <property name="useActualColumnNames" value="true"/>
+            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
+        </table>
 
 
 
@@ -116,13 +116,13 @@
             <!--<property name="useActualColumnNames" value="true"/>-->
         <!--</table>-->
 
-        <table tableName="merchant_flow_config" domainObjectName="MerchantFlowConfig"
-               enableSelectPaginationByExample="true"
-               enableBatchInsert="true"
-               enableBatchUpdateByPrimaryKey="true"
-               enableBatchUpdateByPrimaryKeySelective="true">
-            <property name="useActualColumnNames" value="true"/>
-        </table>
+        <!--<table tableName="merchant_flow_config" domainObjectName="MerchantFlowConfig"-->
+               <!--enableSelectPaginationByExample="true"-->
+               <!--enableBatchInsert="true"-->
+               <!--enableBatchUpdateByPrimaryKey="true"-->
+               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--</table>-->
 
         <!--<table tableName="task_sub_log" domainObjectName="TaskSubLog">-->
         <!--<property name="useActualColumnNames" value="true"/>-->

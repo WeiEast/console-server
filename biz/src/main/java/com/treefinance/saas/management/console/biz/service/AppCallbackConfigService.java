@@ -2,10 +2,9 @@ package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
-import com.treefinance.saas.management.console.common.enumeration.EBizType;
+import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.dao.entity.AppCallbackConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -68,5 +67,13 @@ public interface AppCallbackConfigService {
      * @return
      */
     Boolean testUrl(String url);
+
+    /**
+     * 获取回调管理下数据类型
+     *
+     * @return
+     */
+    List<AppCallbackDataTypeVO> getCallbackDataTypeList();
+
 
 }

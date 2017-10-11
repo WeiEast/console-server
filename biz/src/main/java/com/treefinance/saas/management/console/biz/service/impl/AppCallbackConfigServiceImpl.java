@@ -15,7 +15,9 @@ import com.treefinance.saas.management.console.common.domain.dto.CallbackLicense
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
+import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -129,7 +131,10 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                     vo.setDataSecretKey(callbackLicenseDTO.getDataSecretKey());
                 }
             }
-
+            AppCallbackDataTypeVO dataTypeVO = new AppCallbackDataTypeVO();
+            dataTypeVO.setCode(config.getDataType());
+            dataTypeVO.setText(ECallBackDataType.getText(config.getDataType()));
+            vo.setDataTypeVO(dataTypeVO);
             resultList.add(vo);
 
         });
@@ -183,6 +188,10 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 vo.setDataSecretKey(callbackLicenseDTO.getDataSecretKey());
             }
         }
+        AppCallbackDataTypeVO dataTypeVO = new AppCallbackDataTypeVO();
+        dataTypeVO.setCode(config.getDataType());
+        dataTypeVO.setText(ECallBackDataType.getText(config.getDataType()));
+        vo.setDataTypeVO(dataTypeVO);
         return vo;
     }
 
@@ -203,6 +212,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         AppCallbackConfig appCallbackConfig = new AppCallbackConfig();
         BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);
         appCallbackConfig.setVersion((byte) 1);
+        appCallbackConfig.setDataType(appCallbackConfigVO.getDataTypeVO() == null ? 0 : appCallbackConfigVO.getDataTypeVO().getCode());
         appCallbackConfigMapper.insertSelective(appCallbackConfig);
         if (Optional.fromNullable(appCallbackConfigVO.getIsNewKey()).or((byte) 0) == 1) {
             appLicenseService.generateCallbackLicense(appCallbackConfig.getId());
@@ -244,6 +254,9 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         }
         AppCallbackConfig appCallbackConfig = new AppCallbackConfig();
         BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);
+        if (appCallbackConfigVO.getDataTypeVO() != null) {
+            appCallbackConfig.setDataType(appCallbackConfigVO.getDataTypeVO().getCode());
+        }
         appCallbackConfigMapper.updateByPrimaryKeySelective(appCallbackConfig);
         byte isNewKey = Optional.fromNullable(appCallbackConfig.getIsNewKey()).or((byte) 0);
         if (isNewKey == 1) {
@@ -338,6 +351,18 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public List<AppCallbackDataTypeVO> getCallbackDataTypeList() {
+        List<AppCallbackDataTypeVO> voList = Lists.newArrayList();
+        for (ECallBackDataType item : ECallBackDataType.values()) {
+            AppCallbackDataTypeVO vo = new AppCallbackDataTypeVO();
+            vo.setCode(item.getCode());
+            vo.setText(item.getText());
+            voList.add(vo);
+        }
+        return voList;
     }
 
     private String wrapNotifyModelName(Byte notifyModel) {

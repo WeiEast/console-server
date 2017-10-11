@@ -44,6 +44,8 @@ public class AppCallbackConfigVO implements Serializable {
 
     private List<AppCallbackBizVO> bizTypes;
 
+    private AppCallbackDataTypeVO dataTypeVO;
+
     public Integer getId() {
         return id;
     }
@@ -178,6 +180,14 @@ public class AppCallbackConfigVO implements Serializable {
 
     public void setIsNewKey(Byte isNewKey) {
         this.isNewKey = isNewKey;
+    }
+
+    public AppCallbackDataTypeVO getDataTypeVO() {
+        return dataTypeVO;
+    }
+
+    public void setDataTypeVO(AppCallbackDataTypeVO dataTypeVO) {
+        this.dataTypeVO = dataTypeVO;
     }
 }
 

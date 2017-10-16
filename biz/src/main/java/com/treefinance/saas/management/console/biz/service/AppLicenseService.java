@@ -22,6 +22,8 @@ import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
+import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
@@ -68,6 +70,8 @@ public class AppLicenseService {
     private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
     @Autowired
     private AppLicenseBackupMapper appLicenseBackupMapper;
+    @Autowired
+    private ISecurityCryptoService iSecurityCryptoService;
 
 
     /**
@@ -250,11 +254,11 @@ public class AppLicenseService {
                 backup.setId(UidGenerator.getId());
                 backup.setAppId(merchantBase.getAppId());
                 backup.setCreateTime(merchantBase.getCreateTime());
-                backup.setDataSecretKey(appLicenseDTO.getDataSecretKey());
-                backup.setSdkPrivateKey(appLicenseDTO.getSdkPrivateKey());
-                backup.setSdkPublicKey(appLicenseDTO.getSdkPublicKey());
-                backup.setServerPrivateKey(appLicenseDTO.getServerPrivateKey());
-                backup.setServerPublicKey(appLicenseDTO.getServerPublicKey());
+                backup.setDataSecretKey(iSecurityCryptoService.encrypt(appLicenseDTO.getDataSecretKey(), EncryptionIntensityEnum.NORMAL));
+                backup.setSdkPrivateKey(iSecurityCryptoService.encrypt(appLicenseDTO.getSdkPrivateKey(), EncryptionIntensityEnum.NORMAL));
+                backup.setSdkPublicKey(iSecurityCryptoService.encrypt(appLicenseDTO.getSdkPublicKey(), EncryptionIntensityEnum.NORMAL));
+                backup.setServerPrivateKey(iSecurityCryptoService.encrypt(appLicenseDTO.getServerPrivateKey(), EncryptionIntensityEnum.NORMAL));
+                backup.setServerPublicKey(iSecurityCryptoService.encrypt(appLicenseDTO.getServerPublicKey(), EncryptionIntensityEnum.NORMAL));
                 appLicenseBackupMapper.insertSelective(backup);
             } else {
                 logger.info("商户历史密钥初始化时,appId={}在redis中未查询到密钥信息.", merchantBase.getAppId());

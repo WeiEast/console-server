@@ -1,6 +1,8 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
+import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
+import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.enums.ConfigType;
@@ -61,6 +63,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     private AppCallbackConfigExtService appCallbackConfigExtService;
     @Autowired
     private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
+    @Autowired
+    private ISecurityCryptoService iSecurityCryptoService;
 
 
     @Override
@@ -307,7 +311,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 backup.setId(UidGenerator.getId());
                 backup.setCreateTime(config.getCreateTime());
                 backup.setCallBackConfigId(config.getId());
-                backup.setDataSecretKey(callbackLicenseDTO.getDataSecretKey());
+                backup.setDataSecretKey(iSecurityCryptoService.encrypt(callbackLicenseDTO.getDataSecretKey(), EncryptionIntensityEnum.NORMAL));
                 appCallbackConfigBackupMapper.insertSelective(backup);
             }
 

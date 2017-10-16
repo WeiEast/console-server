@@ -1,13 +1,11 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.model.enums.UpdateType;
 import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
+import com.treefinance.saas.management.console.biz.service.AppCallbackConfigExtService;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -18,7 +16,6 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfi
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -28,7 +25,6 @@ import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackBizMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +59,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     private AppBizTypeMapper appBizTypeMapper;
     @Autowired
     private ConfigUpdatePlugin configUpdatePlugin;
+    @Autowired
+    private AppCallbackConfigExtService appCallbackConfigExtService;
 
 
     @Override
@@ -196,97 +194,23 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     }
 
     @Override
-    @Transactional
     public Integer add(AppCallbackConfigVO appCallbackConfigVO) {
-        logger.info("添加回调配置信息 appCallbackConfigVO={}", JSON.toJSONString(appCallbackConfigVO));
-        if (StringUtils.isBlank(appCallbackConfigVO.getAppId())) {
-            throw new BizException("appId不能为空");
-        }
-        if (StringUtils.isBlank(appCallbackConfigVO.getUrl())) {
-            throw new BizException("回调地址URL不能为空");
-        }
-        if (CollectionUtils.isEmpty(appCallbackConfigVO.getBizTypes())) {
-            throw new BizException("业务类型不能为空");
-        }
-
-        AppCallbackConfig appCallbackConfig = new AppCallbackConfig();
-        BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);
-        appCallbackConfig.setVersion((byte) 1);
-        appCallbackConfig.setDataType(appCallbackConfigVO.getDataTypeVO() == null ? 0 : appCallbackConfigVO.getDataTypeVO().getCode());
-        appCallbackConfigMapper.insertSelective(appCallbackConfig);
-        if (Optional.fromNullable(appCallbackConfigVO.getIsNewKey()).or((byte) 0) == 1) {
-            appLicenseService.generateCallbackLicense(appCallbackConfig.getId());
-        }
-        List<Byte> bizTypeList = appCallbackConfigVO.getBizTypes().stream().map(AppCallbackBizVO::getBizType).collect(Collectors.toList());
-        if (bizTypeList.contains((byte) 0)) {
-            AppCallbackBiz rela = new AppCallbackBiz();
-            rela.setId(UidGenerator.getId());
-            rela.setCallbackId(appCallbackConfig.getId());
-            rela.setBizType((byte) 0);
-            appCallbackBizMapper.insertSelective(rela);
-        } else {
-            for (Byte bizType : bizTypeList) {
-                AppCallbackBiz rela = new AppCallbackBiz();
-                rela.setId(UidGenerator.getId());
-                rela.setCallbackId(appCallbackConfig.getId());
-                rela.setBizType(bizType);
-                appCallbackBizMapper.insertSelective(rela);
-            }
-        }
-
-
+        Integer configId = appCallbackConfigExtService.addCallbackConfig(appCallbackConfigVO);
         // 发送配置变更消息
         configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
                 .configType(ConfigType.MERCHANT_CALLBACK)
                 .configDesc("新增回调配置")
-                .updateType(UpdateType.DELETE)
+                .updateType(UpdateType.CREATE)
                 .configId(appCallbackConfigVO.getAppId())
                 .configData(appCallbackConfigVO).build());
-        return appCallbackConfig.getId();
+        return configId;
     }
 
     @Override
-    @Transactional
     public void update(AppCallbackConfigVO appCallbackConfigVO) {
-        logger.info("更新回调配置信息 appCallbackConfigVO={}", JSON.toJSONString(appCallbackConfigVO));
-        if (Optional.fromNullable(appCallbackConfigVO.getId()).or(0) <= 0) {
-            throw new BizException("Id不能为空");
-        }
-        AppCallbackConfig appCallbackConfig = new AppCallbackConfig();
-        BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);
-        if (appCallbackConfigVO.getDataTypeVO() != null) {
-            appCallbackConfig.setDataType(appCallbackConfigVO.getDataTypeVO().getCode());
-        }
-        appCallbackConfigMapper.updateByPrimaryKeySelective(appCallbackConfig);
-        byte isNewKey = Optional.fromNullable(appCallbackConfig.getIsNewKey()).or((byte) 0);
-        if (isNewKey == 1) {
-            appLicenseService.generateCallbackLicense(appCallbackConfig.getId());
-        } else if (isNewKey == 0) {
-            appLicenseService.removeCallbackLicenseById(appCallbackConfig.getId());
-        }
-        if (!CollectionUtils.isEmpty(appCallbackConfigVO.getBizTypes())) {
-            AppCallbackBizCriteria relaCriteria = new AppCallbackBizCriteria();
-            relaCriteria.createCriteria().andCallbackIdEqualTo(appCallbackConfigVO.getId());
-            appCallbackBizMapper.deleteByExample(relaCriteria);
-            List<Byte> bizTypeList = appCallbackConfigVO.getBizTypes().stream().map(AppCallbackBizVO::getBizType).collect(Collectors.toList());
-            if (bizTypeList.contains((byte) 0)) {
-                AppCallbackBiz rela = new AppCallbackBiz();
-                rela.setId(UidGenerator.getId());
-                rela.setCallbackId(appCallbackConfig.getId());
-                rela.setBizType((byte) 0);
-                appCallbackBizMapper.insertSelective(rela);
-            } else {
-                for (Byte bizType : bizTypeList) {
-                    AppCallbackBiz rela = new AppCallbackBiz();
-                    rela.setId(UidGenerator.getId());
-                    rela.setCallbackId(appCallbackConfig.getId());
-                    rela.setBizType(bizType);
-                    appCallbackBizMapper.insertSelective(rela);
-                }
-            }
-        }
-
+        appCallbackConfigExtService.updateCallbackConfig(appCallbackConfigVO);
         AppCallbackConfigVO _appCallbackConfigVO = getAppCallbackConfigById(appCallbackConfigVO.getId());
+
         if (_appCallbackConfigVO != null) {
             configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
                     .configType(ConfigType.MERCHANT_CALLBACK)
@@ -299,14 +223,9 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Override
     @Transactional
     public void deleteAppCallbackConfigById(Integer id) {
+
+        appCallbackConfigExtService.deleteAppCallbackConfigById(id);
         AppCallbackConfigVO appCallbackConfigVO = getAppCallbackConfigById(id);
-
-        appCallbackConfigMapper.deleteByPrimaryKey(id);
-        appLicenseService.removeCallbackLicenseById(id);
-        AppCallbackBizCriteria relaCriteria = new AppCallbackBizCriteria();
-        relaCriteria.createCriteria().andCallbackIdEqualTo(id);
-        appCallbackBizMapper.deleteByExample(relaCriteria);
-
         // 发送配置变更消息
         if (appCallbackConfigVO != null) {
             configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()

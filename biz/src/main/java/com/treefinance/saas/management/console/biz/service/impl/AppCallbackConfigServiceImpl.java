@@ -221,11 +221,10 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     }
 
     @Override
-    @Transactional
     public void deleteAppCallbackConfigById(Integer id) {
 
-        appCallbackConfigExtService.deleteAppCallbackConfigById(id);
         AppCallbackConfigVO appCallbackConfigVO = getAppCallbackConfigById(id);
+        appCallbackConfigExtService.deleteAppCallbackConfigById(id);
         // 发送配置变更消息
         if (appCallbackConfigVO != null) {
             configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()

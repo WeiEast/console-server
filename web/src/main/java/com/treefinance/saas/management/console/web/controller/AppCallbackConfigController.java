@@ -78,6 +78,6 @@ public class AppCallbackConfigController {
     @RequestMapping(value = "/history/secretkey/init")
     public Object initHistorySecretKey() {
         appCallbackConfigService.initHistorySecretKey();
-        return Results.newSuccessResult(true);
+        return Results.newSuccessResult("商户历史回调密钥初始化成功!");
     }
 }

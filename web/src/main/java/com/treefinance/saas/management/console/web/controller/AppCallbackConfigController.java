@@ -75,5 +75,9 @@ public class AppCallbackConfigController {
         return Results.newSuccessResult(result);
     }
 
-
+    @RequestMapping(value = "/history/secretkey/init")
+    public Object initHistorySecretKey() {
+        appCallbackConfigService.initHistorySecretKey();
+        return Results.newSuccessResult(true);
+    }
 }

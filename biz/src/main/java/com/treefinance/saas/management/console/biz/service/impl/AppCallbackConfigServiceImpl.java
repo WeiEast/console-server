@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
+import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.model.enums.UpdateType;
@@ -21,10 +22,7 @@ import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
-import com.treefinance.saas.management.console.dao.mapper.AppCallbackBizMapper;
-import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.management.console.dao.mapper.*;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +59,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     private ConfigUpdatePlugin configUpdatePlugin;
     @Autowired
     private AppCallbackConfigExtService appCallbackConfigExtService;
+    @Autowired
+    private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
 
 
     @Override
@@ -282,6 +282,37 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             voList.add(vo);
         }
         return voList;
+    }
+
+    @Override
+    @Transactional
+    public void initHistorySecretKey() {
+        AppCallbackConfigCriteria configCriteria = new AppCallbackConfigCriteria();
+        configCriteria.createCriteria().andIsNewKeyEqualTo((byte) 1);
+        List<AppCallbackConfig> configList = appCallbackConfigMapper.selectByExample(configCriteria);
+        for (AppCallbackConfig config : configList) {
+            CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(config.getId());
+            if (callbackLicenseDTO == null) {
+                logger.info("初始化商户历史回调密钥时,appId={},configId={}的回调配置在redis中未查询到回调密钥.", config.getAppId(), config.getId());
+            } else {
+
+                AppCallbackConfigBackupCriteria backupCriteria = new AppCallbackConfigBackupCriteria();
+                backupCriteria.createCriteria().andCallBackConfigIdEqualTo(config.getId());
+                List<AppCallbackConfigBackup> list = appCallbackConfigBackupMapper.selectByExample(backupCriteria);
+                if (!CollectionUtils.isEmpty(list)) {
+                    logger.info("初始化商户历史回调密钥时,appId={},configId={}的回调配置在backup备份表中已存在,不再初始化.", config.getAppId(), config.getId());
+                    continue;
+                }
+                AppCallbackConfigBackup backup = new AppCallbackConfigBackup();
+                backup.setId(UidGenerator.getId());
+                backup.setCreateTime(config.getCreateTime());
+                backup.setCallBackConfigId(config.getId());
+                backup.setDataSecretKey(callbackLicenseDTO.getDataSecretKey());
+                appCallbackConfigBackupMapper.insertSelective(backup);
+            }
+
+        }
+
     }
 
     private String wrapNotifyModelName(Byte notifyModel) {

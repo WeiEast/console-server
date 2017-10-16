@@ -76,4 +76,8 @@ public interface AppCallbackConfigService {
     List<AppCallbackDataTypeVO> getCallbackDataTypeList();
 
 
+    /**
+     * 初始化商户的历史回调密钥
+     */
+    void initHistorySecretKey();
 }

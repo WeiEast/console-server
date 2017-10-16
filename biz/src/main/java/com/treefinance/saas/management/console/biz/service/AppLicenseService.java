@@ -22,6 +22,7 @@ import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
@@ -31,14 +32,16 @@ import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
+import com.treefinance.saas.management.console.dao.entity.*;
+import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigBackupMapper;
+import com.treefinance.saas.management.console.dao.mapper.AppLicenseBackupMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -61,6 +64,10 @@ public class AppLicenseService {
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
+    @Autowired
+    private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
+    @Autowired
+    private AppLicenseBackupMapper appLicenseBackupMapper;
 
 
     /**
@@ -93,6 +100,16 @@ public class AppLicenseService {
             throw new BizException("授权许可已经存在！");
         }
         AppLicenseDTO license = Helper.generateLicense(appId);
+        AppLicenseBackup backup = new AppLicenseBackup();
+        backup.setId(UidGenerator.getId());
+        backup.setAppId(license.getAppId());
+        backup.setDataSecretKey(license.getDataSecretKey());
+        backup.setSdkPrivateKey(license.getSdkPrivateKey());
+        backup.setSdkPublicKey(license.getSdkPublicKey());
+        backup.setServerPrivateKey(license.getServerPrivateKey());
+        backup.setServerPublicKey(license.getServerPublicKey());
+        appLicenseBackupMapper.insertSelective(backup);
+
         String key = APPID_SUFFIX + appId;
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
         logger.info("generateAppLicense : key={},license={}", key, JSON.toJSONString(license));
@@ -170,6 +187,12 @@ public class AppLicenseService {
             return new Result<>();
         }
         CallbackLicenseDTO license = Helper.generateCallbackLicense(id);
+        AppCallbackConfigBackup backup = new AppCallbackConfigBackup();
+        backup.setId(UidGenerator.getId());
+        backup.setCallBackConfigId(license.getCallBackConfigId());
+        backup.setDataSecretKey(license.getDataSecretKey());
+        appCallbackConfigBackupMapper.insertSelective(backup);
+
         String key = CALLBACK_SUFFIX + id;
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
         Result<Integer> result = new Result<>();
@@ -199,6 +222,44 @@ public class AppLicenseService {
             stringRedisTemplate.opsForValue().getOperations().delete(key);
         }
         return null;
+    }
+
+    @Transactional
+    public void initHistorySecretKey() {
+        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
+        criteria.setOrderByClause("CreateTime desc");
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
+        if (CollectionUtils.isEmpty(merchantBaseList)) {
+            logger.info("商户历史密钥初始化时,查询商户基本信息为空.");
+            return;
+        }
+        for (MerchantBase merchantBase : merchantBaseList) {
+            String key = APPID_SUFFIX + merchantBase.getAppId();
+            String result = stringRedisTemplate.opsForValue().get(key);
+            AppLicenseBackup backup = new AppLicenseBackup();
+            if (result != null) {
+                AppLicenseDTO appLicenseDTO = JSON.parseObject(result, AppLicenseDTO.class);
+
+                AppLicenseBackupCriteria backupCriteria = new AppLicenseBackupCriteria();
+                backupCriteria.createCriteria().andAppIdEqualTo(merchantBase.getAppId());
+                List<AppLicenseBackup> list = appLicenseBackupMapper.selectByExample(backupCriteria);
+                if (!CollectionUtils.isEmpty(list)) {
+                    logger.info("商户历史密钥初始化时,appId={}的商户秘钥在backup备份表已经存在,不再初始化.", merchantBase.getAppId());
+                    continue;
+                }
+                backup.setId(UidGenerator.getId());
+                backup.setAppId(merchantBase.getAppId());
+                backup.setCreateTime(merchantBase.getCreateTime());
+                backup.setDataSecretKey(appLicenseDTO.getDataSecretKey());
+                backup.setSdkPrivateKey(appLicenseDTO.getSdkPrivateKey());
+                backup.setSdkPublicKey(appLicenseDTO.getSdkPublicKey());
+                backup.setServerPrivateKey(appLicenseDTO.getServerPrivateKey());
+                backup.setServerPublicKey(appLicenseDTO.getServerPublicKey());
+                appLicenseBackupMapper.insertSelective(backup);
+            } else {
+                logger.info("商户历史密钥初始化时,appId={}在redis中未查询到密钥信息.", merchantBase.getAppId());
+            }
+        }
     }
 
 

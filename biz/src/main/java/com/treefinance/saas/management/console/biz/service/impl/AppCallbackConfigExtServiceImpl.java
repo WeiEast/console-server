@@ -11,7 +11,9 @@ import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.dao.entity.AppCallbackBiz;
 import com.treefinance.saas.management.console.dao.entity.AppCallbackBizCriteria;
 import com.treefinance.saas.management.console.dao.entity.AppCallbackConfig;
+import com.treefinance.saas.management.console.dao.entity.AppCallbackConfigBackupCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackBizMapper;
+import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigBackupMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +41,8 @@ public class AppCallbackConfigExtServiceImpl implements AppCallbackConfigExtServ
     private AppLicenseService appLicenseService;
     @Autowired
     private AppCallbackBizMapper appCallbackBizMapper;
+    @Autowired
+    private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
 
     @Override
     @Transactional
@@ -128,9 +132,15 @@ public class AppCallbackConfigExtServiceImpl implements AppCallbackConfigExtServ
     public void deleteAppCallbackConfigById(Integer id) {
         appCallbackConfigMapper.deleteByPrimaryKey(id);
         appLicenseService.removeCallbackLicenseById(id);
+
         AppCallbackBizCriteria relaCriteria = new AppCallbackBizCriteria();
         relaCriteria.createCriteria().andCallbackIdEqualTo(id);
         appCallbackBizMapper.deleteByExample(relaCriteria);
+
+        AppCallbackConfigBackupCriteria backupCriteria = new AppCallbackConfigBackupCriteria();
+        backupCriteria.createCriteria().andCallBackConfigIdEqualTo(id);
+        appCallbackConfigBackupMapper.deleteByExample(backupCriteria);
+
 
     }
 }

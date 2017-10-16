@@ -62,13 +62,22 @@
             <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-        <table tableName="app_callback_config" domainObjectName="AppCallbackConfig"
+        <table tableName="app_callback_config_backup" domainObjectName="AppCallbackConfigBackup"
                enableSelectPaginationByExample="true"
                enableBatchInsert="true"
                enableBatchUpdateByPrimaryKey="true"
                enableBatchUpdateByPrimaryKeySelective="true">
             <property name="useActualColumnNames" value="true"/>
-            <generatedKey column="Id" sqlStatement="MySql" identity="true"/>
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        </table>
+
+        <table tableName="app_license_backup" domainObjectName="AppLicenseBackup"
+               enableSelectPaginationByExample="true"
+               enableBatchInsert="true"
+               enableBatchUpdateByPrimaryKey="true"
+               enableBatchUpdateByPrimaryKeySelective="true">
+            <property name="useActualColumnNames" value="true"/>
+            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         </table>
 
 

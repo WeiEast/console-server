@@ -107,11 +107,11 @@ public class AppLicenseService {
         AppLicenseBackup backup = new AppLicenseBackup();
         backup.setId(UidGenerator.getId());
         backup.setAppId(license.getAppId());
-        backup.setDataSecretKey(license.getDataSecretKey());
-        backup.setSdkPrivateKey(license.getSdkPrivateKey());
-        backup.setSdkPublicKey(license.getSdkPublicKey());
-        backup.setServerPrivateKey(license.getServerPrivateKey());
-        backup.setServerPublicKey(license.getServerPublicKey());
+        backup.setDataSecretKey(iSecurityCryptoService.encrypt(license.getDataSecretKey(), EncryptionIntensityEnum.NORMAL));
+        backup.setSdkPrivateKey(iSecurityCryptoService.encrypt(license.getSdkPrivateKey(), EncryptionIntensityEnum.NORMAL));
+        backup.setSdkPublicKey(iSecurityCryptoService.encrypt(license.getSdkPublicKey(), EncryptionIntensityEnum.NORMAL));
+        backup.setServerPrivateKey(iSecurityCryptoService.encrypt(license.getServerPrivateKey(), EncryptionIntensityEnum.NORMAL));
+        backup.setServerPublicKey(iSecurityCryptoService.encrypt(license.getServerPublicKey(), EncryptionIntensityEnum.NORMAL));
         appLicenseBackupMapper.insertSelective(backup);
 
         String key = APPID_SUFFIX + appId;
@@ -194,7 +194,7 @@ public class AppLicenseService {
         AppCallbackConfigBackup backup = new AppCallbackConfigBackup();
         backup.setId(UidGenerator.getId());
         backup.setCallBackConfigId(license.getCallBackConfigId());
-        backup.setDataSecretKey(license.getDataSecretKey());
+        backup.setDataSecretKey(iSecurityCryptoService.encrypt(license.getDataSecretKey(), EncryptionIntensityEnum.NORMAL));
         appCallbackConfigBackupMapper.insertSelective(backup);
 
         String key = CALLBACK_SUFFIX + id;

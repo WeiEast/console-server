@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.service;
+package com.treefinance.saas.management.console.biz.service.dao;
 
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
 
@@ -6,7 +6,7 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfi
  * 更新添加有事务操作,从而需要再抽象一层.
  * Created by haojiahong on 2017/10/16.
  */
-public interface AppCallbackConfigExtService {
+public interface AppCallbackConfigDao {
 
     Integer addCallbackConfig(AppCallbackConfigVO appCallbackConfigVO);
 

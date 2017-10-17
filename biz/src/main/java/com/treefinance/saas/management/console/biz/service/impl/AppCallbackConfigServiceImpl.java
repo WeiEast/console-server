@@ -8,7 +8,7 @@ import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.model.enums.UpdateType;
 import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
-import com.treefinance.saas.management.console.biz.service.AppCallbackConfigExtService;
+import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -60,7 +60,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Autowired
     private ConfigUpdatePlugin configUpdatePlugin;
     @Autowired
-    private AppCallbackConfigExtService appCallbackConfigExtService;
+    private AppCallbackConfigDao appCallbackConfigDao;
     @Autowired
     private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
     @Autowired
@@ -199,7 +199,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
     @Override
     public Integer add(AppCallbackConfigVO appCallbackConfigVO) {
-        Integer configId = appCallbackConfigExtService.addCallbackConfig(appCallbackConfigVO);
+        Integer configId = appCallbackConfigDao.addCallbackConfig(appCallbackConfigVO);
         // 发送配置变更消息
         configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
                 .configType(ConfigType.MERCHANT_CALLBACK)
@@ -212,7 +212,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
     @Override
     public void update(AppCallbackConfigVO appCallbackConfigVO) {
-        appCallbackConfigExtService.updateCallbackConfig(appCallbackConfigVO);
+        appCallbackConfigDao.updateCallbackConfig(appCallbackConfigVO);
         AppCallbackConfigVO _appCallbackConfigVO = getAppCallbackConfigById(appCallbackConfigVO.getId());
 
         if (_appCallbackConfigVO != null) {
@@ -228,7 +228,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     public void deleteAppCallbackConfigById(Integer id) {
 
         AppCallbackConfigVO appCallbackConfigVO = getAppCallbackConfigById(id);
-        appCallbackConfigExtService.deleteAppCallbackConfigById(id);
+        appCallbackConfigDao.deleteAppCallbackConfigById(id);
         // 发送配置变更消息
         if (appCallbackConfigVO != null) {
             configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()

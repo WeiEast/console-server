@@ -6,20 +6,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
-import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
+import com.treefinance.saas.management.console.biz.service.dao.MerchantDao;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
-import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -29,9 +28,7 @@ import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantFlowConfigMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -70,7 +66,7 @@ public class MerchantServiceImpl implements MerchantService {
     @Autowired
     private ConfigUpdatePlugin configUpdatePlugin;
     @Autowired
-    private MerchantFlowConfigMapper merchantFlowConfigMapper;
+    private MerchantDao merchantDao;
 
 
     @Override
@@ -201,7 +197,6 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    @Transactional
     public Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("添加商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
@@ -210,7 +205,6 @@ public class MerchantServiceImpl implements MerchantService {
         if (StringUtils.isBlank(merchantBaseVO.getAppName())) {
             throw new BizException("app名称不能为空!");
         }
-
         String pattern = "^" + diamondConfig.getAppIdEnvironmentPrefix() + "_" + "[0-9a-zA-Z]{16}";
         String appId = StringUtils.deleteWhitespace(merchantBaseVO.getAppId());
 //        boolean hasPrefix = appId.startsWith(diamondConfig.getAppIdEnvironmentPrefix() + "_");
@@ -224,37 +218,14 @@ public class MerchantServiceImpl implements MerchantService {
             appId = CommonUtils.generateAppId();
             merchantBaseVO.setAppId(appId);
         }
-        //生成商户基本信息
-        Long merchantId = insertMerchantBase(merchantBaseVO);
-        //生成商户用户名密码
-        String plainTextPassword = insertMerchantUser(merchantBaseVO, merchantId);
-        //生成商户开通服务
-        if (!CollectionUtils.isEmpty(merchantBaseVO.getAppBizLicenseVOList())) {
-            insertAppBizLicense(merchantBaseVO, appId);
-        }
-        //生成相关秘钥key
-        appLicenseService.generateAppLicenseByAppId(appId);
-        //默认配置商户流量分配到生产环境
-        this.insertMerchantFlowConfig(appId);
-        Map<String, Object> map = Maps.newHashMap();
-        map.put("merchantId", merchantId);
-        map.put("plainTextPassword", plainTextPassword);
 
+        Map<String, Object> map = merchantDao.addMerchant(merchantBaseVO);
         configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
                 .configType(ConfigType.MERCHANT_BASE)
                 .configDesc("新增商户")
                 .configId(appId)
                 .configData(merchantBaseVO).build());
         return map;
-    }
-
-    private void insertMerchantFlowConfig(String appId) {
-        MerchantFlowConfig merchantFlowConfig = new MerchantFlowConfig();
-        merchantFlowConfig.setId(UidGenerator.getId());
-        merchantFlowConfig.setAppId(appId);
-        merchantFlowConfig.setServiceTag(EServiceTag.PRODUCT.getTag());
-        merchantFlowConfig.setCreateTime(new Date());
-        merchantFlowConfigMapper.insert(merchantFlowConfig);
     }
 
     @Override
@@ -265,6 +236,7 @@ public class MerchantServiceImpl implements MerchantService {
             throw new BizException("app名称不能为空!");
         }
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
+
         MerchantBaseCriteria criteria = new MerchantBaseCriteria();
         criteria.createCriteria().andIdEqualTo(merchantBaseVO.getId());
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
@@ -275,15 +247,7 @@ public class MerchantServiceImpl implements MerchantService {
         if (!merchantBaseList.get(0).getAppName().equals(merchantBaseVO.getAppName())) {
             checkAppNameUnique(merchantBaseVO);
         }
-        MerchantBase merchantBase = new MerchantBase();
-        BeanUtils.copyProperties(merchantBaseVO, merchantBase);
-        merchantBaseMapper.updateByPrimaryKeySelective(merchantBase);
-
-        MerchantUserCriteria userCriteria = new MerchantUserCriteria();
-        userCriteria.createCriteria().andMerchantIdEqualTo(merchantBase.getId());
-        MerchantUser merchantUser = new MerchantUser();
-        merchantUser.setIsTest(merchantBaseVO.getIsTest());
-        merchantUserMapper.updateByExampleSelective(merchantUser, userCriteria);
+        merchantDao.updateMerchant(merchantBaseVO);
 
         configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
                 .configType(ConfigType.MERCHANT_BASE)
@@ -347,54 +311,6 @@ public class MerchantServiceImpl implements MerchantService {
         return text;
     }
 
-    private String insertMerchantUser(MerchantBaseVO merchantBaseVO, Long merchantId) {
-        MerchantUser merchantUser = new MerchantUser();
-        merchantUser.setId(UidGenerator.getId());
-        merchantUser.setMerchantId(merchantId);
-        String loginName = CommonUtils.generateLoginName(merchantBaseVO.getAppName());
-        MerchantUserCriteria criteria = new MerchantUserCriteria();
-        criteria.createCriteria().andLoginNameEqualTo(loginName);
-        long count = merchantUserMapper.countByExample(criteria);
-        if (count > 0) {
-            logger.info("创建商户时,登录名loginName={}的商户已经存在");
-            loginName = loginName + RandomStringUtils.randomNumeric(4);
-        }
-        merchantUser.setLoginName(loginName);
-        String plainTextPassword = CommonUtils.generatePassword();
-        merchantUser.setPassword(iSecurityCryptoService.encrypt(plainTextPassword, EncryptionIntensityEnum.NORMAL));
-        merchantUser.setIsActive(Boolean.TRUE);
-        merchantUser.setIsTest(merchantBaseVO.getIsTest());
-        merchantUserMapper.insertSelective(merchantUser);
-        return plainTextPassword;
-    }
-
-    private void insertAppBizLicense(MerchantBaseVO merchantBaseVO, String appId) {
-        for (AppBizLicenseVO appBizLicenseVO : merchantBaseVO.getAppBizLicenseVOList()) {
-            AppBizLicense appBizLicense = new AppBizLicense();
-            appBizLicense.setId(UidGenerator.getId());
-            appBizLicense.setAppId(appId);
-            appBizLicense.setBizType(appBizLicenseVO.getBizType());
-            appBizLicense.setIsValid((byte) 1);
-            appBizLicense.setIsShowLicense((byte) 1);
-            appBizLicense.setDailyLimit(100000);
-            appBizLicenseMapper.insertSelective(appBizLicense);
-        }
-    }
-
-    private Long insertMerchantBase(MerchantBaseVO merchantBaseVO) {
-        MerchantBase merchantBase = new MerchantBase();
-        merchantBase.setId(UidGenerator.getId());
-        merchantBase.setAppId(merchantBaseVO.getAppId());
-        merchantBase.setAppName(merchantBaseVO.getAppName());
-        merchantBase.setContactPerson(merchantBaseVO.getContactPerson());
-        merchantBase.setContactValue(merchantBaseVO.getContactValue());
-        merchantBase.setCompany(merchantBaseVO.getCompany());
-        merchantBase.setChName(merchantBaseVO.getChName());
-        merchantBase.setBussiness(merchantBaseVO.getBussiness());
-        merchantBase.setBussiness2(merchantBaseVO.getBussiness2());
-        merchantBaseMapper.insertSelective(merchantBase);
-        return merchantBase.getId();
-    }
 
     private void checkAppNameUnique(MerchantBaseVO merchantBaseVO) {
         MerchantBaseCriteria criteria = new MerchantBaseCriteria();

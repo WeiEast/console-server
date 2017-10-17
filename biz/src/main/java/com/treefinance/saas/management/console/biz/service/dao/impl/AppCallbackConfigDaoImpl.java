@@ -1,9 +1,9 @@
-package com.treefinance.saas.management.console.biz.service.impl;
+package com.treefinance.saas.management.console.biz.service.dao.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Optional;
 import com.treefinance.commonservice.uid.UidGenerator;
-import com.treefinance.saas.management.console.biz.service.AppCallbackConfigExtService;
+import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
@@ -31,9 +31,9 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/10/16.
  */
 @Service
-public class AppCallbackConfigExtServiceImpl implements AppCallbackConfigExtService {
+public class AppCallbackConfigDaoImpl implements AppCallbackConfigDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(AppCallbackConfigExtService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AppCallbackConfigDao.class);
 
     @Autowired
     private AppCallbackConfigMapper appCallbackConfigMapper;

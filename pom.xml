@@ -178,7 +178,7 @@
 			<dependency>
 				<groupId>com.treefinance.saas</groupId>
 				<artifactId>assistant-config</artifactId>
-				<version>1.0.2</version>
+				<version>1.0.3-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

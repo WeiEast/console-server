@@ -3,11 +3,10 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidGenerator;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.ConfigUpdateModel;
-import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
+import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfigDao;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
@@ -21,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
@@ -43,6 +41,8 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
     private ConfigUpdatePlugin configUpdatePlugin;
+    @Autowired
+    private MerchantFlowConfigDao merchantFlowConfigDao;
 
     @Override
     public List<MerchantFlowConfigVO> getList() {
@@ -73,35 +73,8 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
     }
 
     @Override
-    @Transactional
     public void batchUpdate(List<MerchantFlowConfigVO> list) {
-        List<ConfigUpdateModel> modelList = Lists.newArrayList();
-
-        List<Long> idList = list.stream().map(MerchantFlowConfigVO::getId).collect(Collectors.toList());
-        MerchantFlowConfigCriteria configCriteria = new MerchantFlowConfigCriteria();
-        configCriteria.createCriteria().andIdIn(idList);
-        List<MerchantFlowConfig> needUpdateList = merchantFlowConfigMapper.selectByExample(configCriteria);
-        //<id,appId>
-        Map<Long, String> map = needUpdateList.stream().collect(Collectors.toMap(MerchantFlowConfig::getId, MerchantFlowConfig::getAppId));
-
-        for (MerchantFlowConfigVO vo : list) {
-            //更新db
-            MerchantFlowConfig config = new MerchantFlowConfig();
-            config.setId(vo.getId());
-            config.setServiceTag(vo.getServiceTag());
-            merchantFlowConfigMapper.updateByPrimaryKeySelective(config);
-
-            String appId = map.get(vo.getId());
-            if (StringUtils.isBlank(appId)) {
-                continue;
-            }
-            //发送消息
-            ConfigUpdateModel model = ConfigUpdateBuilder.newBuilder()
-                    .configType(ConfigType.MERCHANT_OTHER)
-                    .configDesc("更新商户流量分配")
-                    .configId(appId).build();
-            modelList.add(model);
-        }
+        List<ConfigUpdateModel> modelList = merchantFlowConfigDao.batchUpdate(list);
         // 发送配置变更消息
         configUpdatePlugin.sendMessageList(modelList);
         logger.info("发送更新商户流量分配配置消息,modelList={}", JSON.toJSONString(modelList));

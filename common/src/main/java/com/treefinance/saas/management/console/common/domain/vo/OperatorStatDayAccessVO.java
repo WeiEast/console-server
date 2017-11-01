@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
+import com.treefinance.saas.management.console.common.utils.DateUtils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -17,6 +19,8 @@ public class OperatorStatDayAccessVO implements Serializable {
     private String groupName;
 
     private Date dataTime;
+
+    private String dataTimeStr;
 
     private Integer confirmMobileCount;
 
@@ -110,5 +114,16 @@ public class OperatorStatDayAccessVO implements Serializable {
 
     public void setProcessSuccessRate(BigDecimal processSuccessRate) {
         this.processSuccessRate = processSuccessRate;
+    }
+
+    public String getDataTimeStr() {
+        if (this.dataTime != null) {
+            return DateUtils.date2Ymd(this.dataTime);
+        }
+        return dataTimeStr;
+    }
+
+    public void setDataTimeStr(String dataTimeStr) {
+        this.dataTimeStr = dataTimeStr;
     }
 }

@@ -17,6 +17,8 @@ public class OperatorStatDayAccessDetailVO implements Serializable {
 
     private Date dataTime;
 
+    private String dataTimeStr;
+
     private Integer confirmMobileCount;
 
     private Integer loginSuccessCount;
@@ -31,7 +33,7 @@ public class OperatorStatDayAccessDetailVO implements Serializable {
 
     private BigDecimal processSuccessRate;
 
-    private List<OperatorStatDayAccessDetailVO> list;
+    private List<OperatorStatDayAccessDetailVO> children;
 
 
     public String getGroupName() {
@@ -106,11 +108,19 @@ public class OperatorStatDayAccessDetailVO implements Serializable {
         this.processSuccessRate = processSuccessRate;
     }
 
-    public List<OperatorStatDayAccessDetailVO> getList() {
-        return list;
+    public List<OperatorStatDayAccessDetailVO> getChildren() {
+        return children;
     }
 
-    public void setList(List<OperatorStatDayAccessDetailVO> list) {
-        this.list = list;
+    public void setChildren(List<OperatorStatDayAccessDetailVO> children) {
+        this.children = children;
+    }
+
+    public String getDataTimeStr() {
+        return dataTimeStr;
+    }
+
+    public void setDataTimeStr(String dataTimeStr) {
+        this.dataTimeStr = dataTimeStr;
     }
 }

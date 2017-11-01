@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -94,7 +96,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
         }
         Map<String, List<OperatorStatDayAccessDetailVO>> map = Maps.newHashMap();
-        DateFormat df = DateFormat.getDateInstance();
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance();
         for (OperatorStatAccessRO ro : rpcResult.getData()) {
             String dateStr = df.format(ro.getDataTime());
             List<OperatorStatDayAccessDetailVO> list = map.get(dateStr);
@@ -103,6 +106,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             }
             OperatorStatDayAccessDetailVO vo = new OperatorStatDayAccessDetailVO();
             BeanUtils.convert(ro, vo);
+            calendar.setTime(vo.getDataTime());
+            vo.setDataTimeStr(String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)));
             list.add(vo);
 
             map.put(dateStr, list);
@@ -116,11 +121,10 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             if (CollectionUtils.isNotEmpty(detailList)) {
                 detailList.stream().sorted((o1, o2) -> o2.getDataTime().compareTo(o1.getDataTime())).collect(Collectors.toList());
             }
-            vo.setList(detailList);
+            vo.setDataTimeStr(dateStr);
+            vo.setChildren(detailList);
             result.add(vo);
         }
         return Results.newSuccessPageResult(request, rpcDayResult.getTotalCount(), result);
     }
-
-
 }

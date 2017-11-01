@@ -23,6 +23,10 @@
                      interface="com.treefinance.saas.monitor.facade.service.stat.ApiStatAccessFacade"
                      version="1.0.0"/>
 
+    <dubbo:reference id="operatorStatAccessFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.OperatorStatAccessFacade"
+                     version="1.0.0"/>
+
     <dubbo:reference id="iSecurityCryptoService"
                      interface="com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService"/>
 

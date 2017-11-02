@@ -2,8 +2,6 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.OperatorStatService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +22,11 @@ public class OperatorStatController {
     private OperatorStatService operatorStatService;
 
     @RequestMapping(value = "/all/day/list", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Object> queryAllDayList(OperatorStatRequest request) {
+    public Object queryAllDayList(OperatorStatRequest request) {
         if (request.getStartDate() == null || request.getEndDate() == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        return Results.newSuccessResult(operatorStatService.queryAllOperatorStatDayAccessList(request));
+        return operatorStatService.queryAllOperatorStatDayAccessList(request);
     }
 
     @RequestMapping(value = "/each/day/list", method = {RequestMethod.GET}, produces = "application/json")

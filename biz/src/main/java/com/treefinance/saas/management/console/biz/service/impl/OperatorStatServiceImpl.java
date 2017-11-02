@@ -10,6 +10,7 @@ import com.treefinance.saas.management.console.common.domain.vo.OperatorStatDayA
 import com.treefinance.saas.management.console.common.domain.vo.OperatorStatDayAccessVO;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.monitor.facade.domain.request.OperatorStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.AllOperatorStatDayAccessRO;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,14 +45,16 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
         rpcRequest.setStartDate(request.getStartDate());
         rpcRequest.setEndDate(request.getEndDate());
-        MonitorResult<List<AllOperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcRequest);
-        logger.info("查询所有运营商日监控统计数据,rpcRequest={},rpcResult={}", JSON.toJSONString(rpcRequest), JSON.toJSONString(rpcResult));
+        rpcRequest.setPageSize(request.getPageSize());
+        rpcRequest.setPageNumber(request.getPageNumber());
+        MonitorResult<List<AllOperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessListWithPage(rpcRequest);
+        logger.info("查询所有运营商日监控统计数据(分页),rpcRequest={},rpcResult={}", JSON.toJSONString(rpcRequest), JSON.toJSONString(rpcResult));
         List<AllOperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
-            return result;
+            return Results.newSuccessPageResult(request, 0, result);
         }
         result = BeanUtils.convertList(rpcResult.getData(), AllOperatorStatDayAccessVO.class);
-        return result;
+        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
     }
 
     @Override
@@ -97,7 +99,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         }
         Map<String, List<OperatorStatDayAccessDetailVO>> map = Maps.newHashMap();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar calendar = Calendar.getInstance();
         for (OperatorStatAccessRO ro : rpcResult.getData()) {
             String dateStr = df.format(ro.getDataTime());
             List<OperatorStatDayAccessDetailVO> list = map.get(dateStr);
@@ -106,8 +107,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             }
             OperatorStatDayAccessDetailVO vo = new OperatorStatDayAccessDetailVO();
             BeanUtils.convert(ro, vo);
-            calendar.setTime(vo.getDataTime());
-            vo.setDataTimeStr(String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)));
+            vo.setDataTimeStr(DateUtils.date2SimpleHm(vo.getDataTime()));
             list.add(vo);
 
             map.put(dateStr, list);

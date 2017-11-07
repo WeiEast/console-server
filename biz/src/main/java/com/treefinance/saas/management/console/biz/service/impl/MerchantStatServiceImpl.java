@@ -509,7 +509,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         }
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
 
-        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).collect(Collectors.toList());
+        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
         List<List<String>> appIdPartList = Lists.partition(appIdList, 50);
         List<MerchantBase> merchantBaseList = Lists.newArrayList();
         for (List<String> appIdParts : appIdPartList) {

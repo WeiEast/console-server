@@ -18,13 +18,91 @@ public class AllOperatorStatDayAccessVO implements Serializable {
 
     private String dataTimeStr;
 
+    private Integer entryCount;
+    private Integer confirmMobileCount;
+    private Integer startLoginCount;
+    private Integer loginSuccessCount;
+    private Integer crawlSuccessCount;
+    private Integer processSuccessCount;
+    private Integer callbackSuccessCount;
+    private Integer confirmMobileConversionRate;
     private BigDecimal loginConversionRate;
-
+    private BigDecimal loginSuccessRate;
     private BigDecimal crawlSuccessRate;
-
     private BigDecimal processSuccessRate;
-
     private BigDecimal callbackSuccessRate;
+
+    public Integer getEntryCount() {
+        return entryCount;
+    }
+
+    public void setEntryCount(Integer entryCount) {
+        this.entryCount = entryCount;
+    }
+
+    public Integer getConfirmMobileCount() {
+        return confirmMobileCount;
+    }
+
+    public void setConfirmMobileCount(Integer confirmMobileCount) {
+        this.confirmMobileCount = confirmMobileCount;
+    }
+
+    public Integer getStartLoginCount() {
+        return startLoginCount;
+    }
+
+    public void setStartLoginCount(Integer startLoginCount) {
+        this.startLoginCount = startLoginCount;
+    }
+
+    public Integer getLoginSuccessCount() {
+        return loginSuccessCount;
+    }
+
+    public void setLoginSuccessCount(Integer loginSuccessCount) {
+        this.loginSuccessCount = loginSuccessCount;
+    }
+
+    public Integer getCrawlSuccessCount() {
+        return crawlSuccessCount;
+    }
+
+    public void setCrawlSuccessCount(Integer crawlSuccessCount) {
+        this.crawlSuccessCount = crawlSuccessCount;
+    }
+
+    public Integer getProcessSuccessCount() {
+        return processSuccessCount;
+    }
+
+    public void setProcessSuccessCount(Integer processSuccessCount) {
+        this.processSuccessCount = processSuccessCount;
+    }
+
+    public Integer getCallbackSuccessCount() {
+        return callbackSuccessCount;
+    }
+
+    public void setCallbackSuccessCount(Integer callbackSuccessCount) {
+        this.callbackSuccessCount = callbackSuccessCount;
+    }
+
+    public Integer getConfirmMobileConversionRate() {
+        return confirmMobileConversionRate;
+    }
+
+    public void setConfirmMobileConversionRate(Integer confirmMobileConversionRate) {
+        this.confirmMobileConversionRate = confirmMobileConversionRate;
+    }
+
+    public BigDecimal getLoginSuccessRate() {
+        return loginSuccessRate;
+    }
+
+    public void setLoginSuccessRate(BigDecimal loginSuccessRate) {
+        this.loginSuccessRate = loginSuccessRate;
+    }
 
     public Date getDataTime() {
         return dataTime;

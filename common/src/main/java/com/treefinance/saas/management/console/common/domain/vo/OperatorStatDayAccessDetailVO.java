@@ -20,21 +20,32 @@ public class OperatorStatDayAccessDetailVO implements Serializable {
     private String dataTimeStr;
 
     private Integer confirmMobileCount;
-
+    private Integer startLoginCount;
     private Integer loginSuccessCount;
-
     private Integer crawlSuccessCount;
-
     private Integer processSuccessCount;
-
     private BigDecimal loginConversionRate;
-
+    private BigDecimal loginSuccessRate;
     private BigDecimal crawlSuccessRate;
-
     private BigDecimal processSuccessRate;
 
     private List<OperatorStatDayAccessDetailVO> children;
 
+    public Integer getStartLoginCount() {
+        return startLoginCount;
+    }
+
+    public void setStartLoginCount(Integer startLoginCount) {
+        this.startLoginCount = startLoginCount;
+    }
+
+    public BigDecimal getLoginSuccessRate() {
+        return loginSuccessRate;
+    }
+
+    public void setLoginSuccessRate(BigDecimal loginSuccessRate) {
+        this.loginSuccessRate = loginSuccessRate;
+    }
 
     public String getGroupName() {
         return groupName;

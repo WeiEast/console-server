@@ -25,7 +25,7 @@ public class AllOperatorStatDayAccessVO implements Serializable {
     private Integer crawlSuccessCount;
     private Integer processSuccessCount;
     private Integer callbackSuccessCount;
-    private Integer confirmMobileConversionRate;
+    private BigDecimal confirmMobileConversionRate;
     private BigDecimal loginConversionRate;
     private BigDecimal loginSuccessRate;
     private BigDecimal crawlSuccessRate;
@@ -88,11 +88,11 @@ public class AllOperatorStatDayAccessVO implements Serializable {
         this.callbackSuccessCount = callbackSuccessCount;
     }
 
-    public Integer getConfirmMobileConversionRate() {
+    public BigDecimal getConfirmMobileConversionRate() {
         return confirmMobileConversionRate;
     }
 
-    public void setConfirmMobileConversionRate(Integer confirmMobileConversionRate) {
+    public void setConfirmMobileConversionRate(BigDecimal confirmMobileConversionRate) {
         this.confirmMobileConversionRate = confirmMobileConversionRate;
     }
 

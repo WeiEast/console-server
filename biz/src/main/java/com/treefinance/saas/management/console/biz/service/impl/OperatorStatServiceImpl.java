@@ -13,7 +13,7 @@ import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.monitor.facade.domain.request.OperatorStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.AllOperatorStatDayAccessRO;
+import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorAllStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.service.stat.OperatorStatAccessFacade;
@@ -47,7 +47,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setEndDate(request.getEndDate());
         rpcRequest.setPageSize(request.getPageSize());
         rpcRequest.setPageNumber(request.getPageNumber());
-        MonitorResult<List<AllOperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessListWithPage(rpcRequest);
+        MonitorResult<List<OperatorAllStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessListWithPage(rpcRequest);
         logger.info("查询所有运营商日监控统计数据(分页),rpcRequest={},rpcResult={}", JSON.toJSONString(rpcRequest), JSON.toJSONString(rpcResult));
         List<AllOperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {

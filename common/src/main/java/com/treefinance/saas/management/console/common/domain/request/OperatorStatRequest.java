@@ -25,6 +25,12 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
+    /**
+     * 统计维度:0-按任务;1-按人数
+     */
+    private Byte statType;
+
+    private String groupName;
 
     public String getGroupCode() {
         return groupCode;
@@ -56,5 +62,21 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public Byte getStatType() {
+        return statType;
+    }
+
+    public void setStatType(Byte statType) {
+        this.statType = statType;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 }

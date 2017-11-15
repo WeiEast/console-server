@@ -63,6 +63,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setDataDate(request.getDataDate());
         rpcRequest.setPageSize(request.getPageSize());
         rpcRequest.setPageNumber(request.getPageNumber());
+        rpcRequest.setGroupName(request.getGroupName());
         MonitorResult<List<OperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatDayAccessListWithPage(rpcRequest);
         logger.info("查询各个运营商日监控统计数据(分页),rpcRequest={},rpcResult={}", JSON.toJSONString(rpcRequest), JSON.toJSONString(rpcResult));
         List<OperatorStatDayAccessVO> result = Lists.newArrayList();

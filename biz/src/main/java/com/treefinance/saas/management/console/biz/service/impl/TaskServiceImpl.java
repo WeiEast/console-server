@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
+import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.TaskService;
@@ -65,6 +66,8 @@ public class TaskServiceImpl implements TaskService {
     private AppLicenseService appLicenseService;
     @Autowired
     private CallbackSecureHandler callbackSecureHandler;
+    @Autowired
+    private TaskAttributeMapper taskAttributeMapper;
 
     @Override
     public Result<Map<String, Object>> findByExample(TaskRequest taskRequest) {
@@ -96,18 +99,18 @@ public class TaskServiceImpl implements TaskService {
         criteria.andCreateTimeLessThanOrEqualTo(DateUtils.addSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1));
         Byte bizType = BizTypeEnum.valueOfType(BizTypeEnum.valueOf(taskRequest.getType()));
         criteria.andBizTypeEqualTo(bizType);
-        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
         long count = taskMapper.countByExample(taskCriteria);
         List<TaskVO> result = Lists.newArrayList();
         if (count <= 0) {
             return Results.newSuccessPageResult(taskRequest, count, result);
         }
+        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
         //<appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = getMerchantBaseMap(taskList);
         //<website,OperatorRO>
-        Map<String, OperatorRO> operatorROMap = Maps.newHashMap();
+        Map<Long, TaskAttribute> operatorMap = Maps.newHashMap();
         if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
-            operatorROMap = getOperatorMap(taskList);
+            operatorMap = getOperatorMapFromAttribute(taskList);
         }
         //<taskId,TaskCallbackLog>
         Map<Long, TaskCallbackLogDTO> taskCallbackLogMap = getTaskCallbackLogMap(taskList);
@@ -126,7 +129,7 @@ public class TaskServiceImpl implements TaskService {
                 vo.setAppId(merchantBase.getAppId());
             }
             if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
-                OperatorRO operatorRO = operatorROMap.get(task.getWebSite());
+                OperatorRO operatorRO = null;//operatorROMap.get(task.getWebSite());
                 if (operatorRO != null) {
                     vo.setOperatorName(operatorRO.getOperatorName());
                 }
@@ -139,6 +142,17 @@ public class TaskServiceImpl implements TaskService {
             result.add(vo);
         }
         return Results.newSuccessPageResult(taskRequest, count, result);
+    }
+
+    private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
+        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
+        TaskAttributeCriteria criteria = new TaskAttributeCriteria();
+        criteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+        List<TaskAttribute> list = taskAttributeMapper.selectByExample(criteria);
+        if (CollectionUtils.isEmpty(list)) {
+            return Maps.newHashMap();
+        }
+        return null;
     }
 
     private Map<Long, TaskCallbackLogDTO> getTaskCallbackLogMap(List<Task> taskList) {

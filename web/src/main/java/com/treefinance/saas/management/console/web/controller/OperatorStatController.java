@@ -23,7 +23,7 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/all/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllDayList(OperatorStatRequest request) {
-        if (request.getStartDate() == null || request.getEndDate() == null) {
+        if (request.getStartDate() == null || request.getEndDate() == null || request.getStatType() == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return operatorStatService.queryAllOperatorStatDayAccessList(request);
@@ -31,7 +31,7 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/each/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDayList(OperatorStatRequest request) {
-        if (request.getDataDate() == null) {
+        if (request.getDataDate() == null || request.getStatType() == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return operatorStatService.queryOperatorStatDayAccessList(request);
@@ -39,7 +39,7 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/each/detail/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDetailList(OperatorStatRequest request) {
-        if (request.getStartDate() == null || request.getEndDate() == null || StringUtils.isBlank(request.getGroupCode())) {
+        if (request.getStartDate() == null || request.getEndDate() == null || request.getStatType() == null || StringUtils.isBlank(request.getGroupCode())) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return operatorStatService.queryOperatorStatDayDetailAccessList(request);

@@ -34,12 +34,13 @@ public class RedisDataServiceImpl implements RedisDataService {
     @Override
     public List<Map<String, String>> queryKeyList(String keys, Integer pageNumber, Integer pageSize) {
         List<String> keyList = Lists.newArrayList();
-        RedisConnectionFactory factory = null;
-        RedisConnection rc = null;
         // 1.key 查询
         try {
             if (StringUtils.isEmpty(keys)) {
                 keys = "*";
+            }
+            if (!keys.contains("*")) {
+                keys = keys.concat("*");
             }
             if (pageNumber == null || pageNumber < 0) {
                 pageNumber = 0;
@@ -48,13 +49,13 @@ public class RedisDataServiceImpl implements RedisDataService {
                 pageSize = 100;
             }
             ScanOptions options = ScanOptions.scanOptions().match(keys).count(pageSize).build();
-            factory = stringRedisTemplate.getConnectionFactory();
-            rc = factory.getConnection();
+            RedisConnectionFactory factory = stringRedisTemplate.getConnectionFactory();
+            RedisConnection rc = factory.getConnection();
             Cursor<byte[]> cursor = rc.scan(options);
 
             int tmpIndex = 0;
-            int startIndex = (pageNumber - 1) * pageSize;
-            int end = pageNumber * pageSize;
+            int startIndex = pageNumber * pageSize;
+            int end = (pageNumber + 1) * pageSize;
             while (cursor.hasNext()) {
                 if (tmpIndex >= startIndex && tmpIndex < end) {
                     keyList.add(new String(cursor.next()));
@@ -68,11 +69,9 @@ public class RedisDataServiceImpl implements RedisDataService {
                 tmpIndex++;
                 cursor.next();
             }
-            cursor.close();
-        } catch (IOException e) {
-            logger.error("scan redis key exception:", e);
-        } finally {
             RedisConnectionUtils.releaseConnection(rc, factory);
+        } catch (Exception e) {
+            logger.error("scan redis key exception:", e);
         }
         // 2.填充类型
         List<Map<String, String>> resultList = Lists.newArrayList();

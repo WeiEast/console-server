@@ -1,11 +1,14 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.RedisDataService;
+import com.treefinance.saas.management.console.common.domain.request.RedisRequest;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -20,27 +23,24 @@ public class RedisController {
     /**
      * 获取redis key
      *
-     * @param keys
-     * @param pageNumber
-     * @param pageSize
      * @return
      */
-    @RequestMapping("/getKeys")
-    public Object getKeys(String keys, Integer pageNumber, Integer pageSize) {
-        Object data = redisDataService.queryKeyList(keys, pageNumber, pageSize);
+    @RequestMapping(value = "/getKeys", produces = "application/json", method = RequestMethod.POST)
+    public Object getKeys(@RequestBody RedisRequest request) {
+        Object data = redisDataService.queryKeyList(request.getKey(), request.getPageNumber(), request.getPageSize());
         return Results.newSuccessResult(data);
     }
 
     /**
      * 获取redis数据
      *
-     * @param key
-     * @param type
      * @return
      */
-    @RequestMapping("/getData")
-    public Object getData(String key, String type) {
+    @RequestMapping(value = "/getData", produces = "application/json", method = RequestMethod.POST)
+    public Object getData(@RequestBody RedisRequest request) {
         Object data = null;
+        String key = request.getKey();
+        String type = request.getType();
         if (DataType.NONE.code().equals(type)) {
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
         } else if (DataType.LIST.code().equals(type)) {

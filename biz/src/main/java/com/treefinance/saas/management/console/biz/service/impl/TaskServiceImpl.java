@@ -129,9 +129,9 @@ public class TaskServiceImpl implements TaskService {
                 vo.setAppId(merchantBase.getAppId());
             }
             if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
-                OperatorRO operatorRO = null;//operatorROMap.get(task.getWebSite());
-                if (operatorRO != null) {
-                    vo.setOperatorName(operatorRO.getOperatorName());
+                TaskAttribute taskAttribute = operatorMap.get(task.getId());
+                if (taskAttribute != null) {
+                    vo.setOperatorName(taskAttribute.getValue());
                 }
             }
             TaskCallbackLogDTO taskCallbackLogDTO = taskCallbackLogMap.get(task.getId());
@@ -152,7 +152,8 @@ public class TaskServiceImpl implements TaskService {
         if (CollectionUtils.isEmpty(list)) {
             return Maps.newHashMap();
         }
-        return null;
+        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getId, taskAttribute -> taskAttribute));
+        return map;
     }
 
     private Map<Long, TaskCallbackLogDTO> getTaskCallbackLogMap(List<Task> taskList) {

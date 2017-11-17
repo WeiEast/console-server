@@ -66,6 +66,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private MerchantUserMapper merchantUserMapper;
     @Autowired
     private AppBizLicenseMapper appBizLicenseMapper;
+    @Autowired
+    private AppBizTypeMapper appBizTypeMapper;
 
 
     @Override
@@ -614,7 +616,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             throw new BizException("statType参数有误");
         }
         if (EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
-            criteria.andBizTypeIn(Lists.newArrayList((byte) 1, (byte) 2, (byte) 3));
+            List<AppBizType> list = appBizTypeMapper.selectByExample(null);
+            List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
+            criteria.andBizTypeIn(bizTypeList);
         } else {
             criteria.andBizTypeEqualTo(request.getBizType());
         }

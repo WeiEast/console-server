@@ -567,6 +567,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 timeVO.setTime5Val("0 | NA");
                 timeVO.setTime6Val("0 | NA");
                 timeVO.setTime7Val("0 | NA");
+                timeVO.setNum(0);
             } else {
                 MerchantStatOverviewVO vo1 = entry.get(dateList.get(0));
                 timeVO.setTime1Val(vo1 == null ? "0 | NA" : new StringBuilder().append(vo1.getTotalCount()).append(" | ").append(vo1.getRate()).append("%").toString());
@@ -586,6 +587,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 timeVO.setTime6Val(vo6 == null ? "0 | NA" : new StringBuilder().append(vo6.getTotalCount()).append(" | ").append(vo6.getRate()).append("%").toString());
                 MerchantStatOverviewVO vo7 = entry.get(dateList.get(6));
                 timeVO.setTime7Val(vo7 == null ? "0 | NA" : new StringBuilder().append(vo7.getTotalCount()).append(" | ").append(vo7.getRate()).append("%").toString());
+                timeVO.setNum(vo7 == null ? 0 : vo7.getTotalCount());
             }
 
             timeOverViewList.add(timeVO);
@@ -593,6 +595,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         timeOverViewList = timeOverViewList
                 .stream()
+                .sorted((n1, n2) -> n2.getNum().compareTo(n1.getNum()))
                 .sorted((o1, o2) -> o2.getAppCreateTime().compareTo(o1.getAppCreateTime()))
                 .sorted((d1, d2) -> d1.getAppIsTest().compareTo(d2.getAppIsTest()))
                 .collect(Collectors.toList());

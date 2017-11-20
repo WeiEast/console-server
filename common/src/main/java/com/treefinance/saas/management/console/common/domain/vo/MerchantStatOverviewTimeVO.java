@@ -34,6 +34,8 @@ public class MerchantStatOverviewTimeVO implements Serializable {
     private Date appCreateTime;
     @JsonIgnore
     private Boolean appIsTest;
+    @JsonIgnore
+    private Integer num;
 
     public String getAppId() {
         return appId;
@@ -121,5 +123,13 @@ public class MerchantStatOverviewTimeVO implements Serializable {
 
     public void setAppIsTest(Boolean appIsTest) {
         this.appIsTest = appIsTest;
+    }
+
+    public Integer getNum() {
+        return num;
+    }
+
+    public void setNum(Integer num) {
+        this.num = num;
     }
 }

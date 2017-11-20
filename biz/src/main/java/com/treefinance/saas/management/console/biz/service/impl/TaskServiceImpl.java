@@ -23,11 +23,7 @@ import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
-import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.OperatorRO;
-import com.treefinance.saas.monitor.facade.service.OperatorFacade;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -54,8 +50,6 @@ public class TaskServiceImpl implements TaskService {
     private ISecurityCryptoService securityCryptoService;
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
-    @Autowired
-    private OperatorFacade operatorFacade;
     @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
@@ -152,7 +146,7 @@ public class TaskServiceImpl implements TaskService {
         if (CollectionUtils.isEmpty(list)) {
             return Maps.newHashMap();
         }
-        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getId, taskAttribute -> taskAttribute));
+        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
         return map;
     }
 
@@ -259,21 +253,6 @@ public class TaskServiceImpl implements TaskService {
         taskLogCriteria.createCriteria().andTaskIdEqualTo(taskId);
         taskLogCriteria.setOrderByClause("OccurTime desc, Id desc");
         return taskLogMapper.selectByExample(taskLogCriteria);
-    }
-
-    private Map<String, OperatorRO> getOperatorMap(List<Task> list) {
-        List<String> websiteList = list.stream().map(Task::getWebSite).distinct().filter(StringUtils::isNotBlank).collect(Collectors.toList());
-        MonitorResult<Map<String, OperatorRO>> resultMap = operatorFacade.queryOperatorByWebsites(websiteList);
-        if (logger.isDebugEnabled()) {
-            logger.debug("operatorFacade.queryOperatorByWebsites() :request={},result={}",
-                    JSON.toJSONString(websiteList), JSON.toJSONString(resultMap));
-        }
-        if (resultMap == null || MapUtils.isEmpty(resultMap.getData())) {
-            logger.info("result of queryOperatorByWebsites() is empty : request={}, result={}", JSON.toJSONString(websiteList), JSON.toJSONString(resultMap));
-            return Maps.newHashMap();
-        }
-        Map<String, OperatorRO> map = resultMap.getData();
-        return map;
     }
 
     private Map<String, MerchantBase> getMerchantBaseMap(List<Task> taskList) {

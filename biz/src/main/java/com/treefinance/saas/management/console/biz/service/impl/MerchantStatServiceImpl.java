@@ -5,11 +5,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.treefinance.saas.gateway.servicefacade.enums.TaskStepEnum;
+import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.dto.SaasErrorStepDayStatDTO;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
+import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
@@ -68,6 +70,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
     private AppBizTypeMapper appBizTypeMapper;
+    @Autowired
+    private TaskAttributeMapper taskAttributeMapper;
 
 
     @Override
@@ -659,6 +663,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<TaskLog> taskLogList = taskLogMapper.selectByExample(logCriteria);
         Map<Long, List<TaskLog>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLog::getTaskId));
 
+        Map<Long, TaskAttribute> taskAttributeMap = this.getOperatorMapFromAttribute(taskList);
+
         List<TaskDetailVO> resultList = Lists.newArrayList();
 
         for (Task task : taskList) {
@@ -696,13 +702,33 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 logger.error("查询任务taskId={},状态status={}时,在task_log表中未查询到对应的状态日志记录", task.getId(), task.getStatus());
             }
             vo.setOccurTime(task.getCreateTime());
-            WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
-            if (websiteRO != null) {
-                vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
+
+            if (EBizType.OPERATOR.getCode().equals(task.getBizType())) {
+                TaskAttribute taskAttribute = taskAttributeMap.get(task.getId());
+                if (taskAttribute != null) {
+                    vo.setWebsiteDetailName(taskAttribute.getValue());
+                }
+            } else {
+                WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
+                if (websiteRO != null) {
+                    vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
+                }
             }
             resultList.add(vo);
         }
         return Results.newSuccessPageResult(request, total, resultList);
+    }
+
+    private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
+        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
+        TaskAttributeCriteria criteria = new TaskAttributeCriteria();
+        criteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+        List<TaskAttribute> list = taskAttributeMapper.selectByExample(criteria);
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(list)) {
+            return Maps.newHashMap();
+        }
+        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
+        return map;
     }
 
     @Override

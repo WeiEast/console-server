@@ -11,6 +11,7 @@ import com.treefinance.saas.management.console.common.domain.request.StatDayRequ
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
+import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -65,6 +66,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private MerchantUserMapper merchantUserMapper;
     @Autowired
     private AppBizLicenseMapper appBizLicenseMapper;
+    @Autowired
+    private AppBizTypeMapper appBizTypeMapper;
 
 
     @Override
@@ -613,7 +616,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             throw new BizException("statType参数有误");
         }
         if (EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
-            criteria.andBizTypeIn(Lists.newArrayList((byte) 1, (byte) 2, (byte) 3));
+            List<AppBizType> list = appBizTypeMapper.selectByExample(null);
+            List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
+            criteria.andBizTypeIn(bizTypeList);
         } else {
             criteria.andBizTypeEqualTo(request.getBizType());
         }
@@ -672,7 +677,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                     taskLog = taskLogs.stream().filter(taskLog1 -> !taskLog1.getMsg().contains("回调通知")).collect(Collectors.toList()).get(1);
                 }
                 if (request.getStatType() == 2) {//失败,某些任务中会有"回调通知成功"环节,此环节没有实际意义,需剔除.
-                    taskLog = taskLogs.stream().filter(taskLog1 -> !taskLog1.getMsg().equals("回调通知成功") && !taskLog1.getMsg().equals("任务失败"))
+                    List<String> taskErrorStepList = ETaskErrorStep.getTaskErrorStepList();
+
+                    taskLog = taskLogs.stream().filter(taskLog1 -> taskErrorStepList.contains(taskLog1.getMsg()))
+                            .sorted((o1, o2) -> o2.getOccurTime().compareTo(o1.getOccurTime()))
                             .collect(Collectors.toList()).get(0);
                 }
                 if (taskLog == null) {

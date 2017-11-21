@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.RedisDataService;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.Cursor;
-import org.springframework.data.redis.core.RedisConnectionUtils;
-import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -90,26 +88,63 @@ public class RedisDataServiceImpl implements RedisDataService {
 
     @Override
     public Set<String> getRedisSet(String key) {
-        return stringRedisTemplate.boundSetOps(key).members();
+        BoundSetOperations<String, String> operations = stringRedisTemplate.boundSetOps(key);
+        Long size = operations.size();
+        if (size != null && size > 1000) {
+            return operations.distinctRandomMembers(1000);
+        }
+        return operations.members();
     }
 
     @Override
     public Set<String> getRedisZset(String key) {
-        return stringRedisTemplate.boundZSetOps(key).range(0, -1);
+        BoundZSetOperations<String, String> operations = stringRedisTemplate.boundZSetOps(key);
+        Long size = operations.size();
+        if (size != null && size > 1000) {
+            return operations.range(0, 1000);
+        }
+        return operations.range(0, -1);
     }
 
     @Override
     public List<String> getRedisList(String key) {
-        return stringRedisTemplate.boundListOps(key).range(0, -1);
+        BoundListOperations<String, String> operations = stringRedisTemplate.boundListOps(key);
+        Long size = operations.size();
+        if (size != null && size > 1000) {
+            return operations.range(0, 1000);
+        }
+        return operations.range(0, -1);
     }
 
     @Override
     public Object getRedisObject(String key) {
-        return stringRedisTemplate.boundValueOps(key).get();
+        BoundValueOperations<String, String> operations = stringRedisTemplate.boundValueOps(key);
+        Long size = operations.size();
+        if (size != null && size > 1024 * 100) {
+            return operations.get(0, 1024 * 100);
+        }
+        return operations.get();
     }
 
     @Override
     public Map<Object, Object> getRedisMap(String key) {
-        return stringRedisTemplate.boundHashOps(key).entries();
+        BoundHashOperations<String, Object, Object> operations = stringRedisTemplate.boundHashOps(key);
+        Long size = operations.size();
+        if (size != null && size > 1000) {
+            Map<Object, Object> map = Maps.newHashMap();
+            try {
+                ScanOptions scanOptions = ScanOptions.scanOptions().match("*").count(1000).build();
+                Cursor<Map.Entry<Object, Object>> cursor = operations.scan(scanOptions);
+                while (cursor != null && cursor.hasNext()) {
+                    Map.Entry<Object, Object> entry = cursor.next();
+                    map.put(entry.getKey(), entry.getValue());
+                }
+                cursor.close();
+            } catch (Exception e) {
+                logger.error("scan redis key exception:", e);
+            }
+            return map;
+        }
+        return operations.entries();
     }
 }

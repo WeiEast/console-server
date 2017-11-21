@@ -138,6 +138,9 @@ public class RedisDataServiceImpl implements RedisDataService {
                 while (cursor != null && cursor.hasNext()) {
                     Map.Entry<Object, Object> entry = cursor.next();
                     map.put(entry.getKey(), entry.getValue());
+                    if (map.size() > 1000) {
+                        break;
+                    }
                 }
                 cursor.close();
             } catch (Exception e) {

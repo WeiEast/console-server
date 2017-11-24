@@ -600,7 +600,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         timeOverViewList = timeOverViewList
                 .stream()
                 .sorted((n1, n2) -> n2.getNum().compareTo(n1.getNum()))
-                .sorted((o1, o2) -> o2.getAppCreateTime().compareTo(o1.getAppCreateTime()))
                 .collect(Collectors.toList());
 
         return timeOverViewList;

@@ -23,6 +23,23 @@ public class DateUtils {
 
     protected static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
+
+    /**
+     * 获取dataTime在间隔时间内的开始时间,如dataTime=19:41,intervalMinutes=5,则19:40
+     *
+     * @param dataTime
+     * @return
+     */
+    public static Date getIntervalDateTime(Date dataTime, Integer intervalMinutes) {
+        Date intervalTime = org.apache.commons.lang.time.DateUtils.truncate(dataTime, Calendar.MINUTE);
+        Long currentMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalTime, Calendar.HOUR_OF_DAY);
+        if (currentMinute % intervalMinutes == 0) {
+            return intervalTime;
+        }
+        intervalTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalTime, (-currentMinute.intValue() % intervalMinutes));
+        return intervalTime;
+    }
+
     public static String date2Ymd(Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return simpleDateFormat.format(date);
@@ -420,7 +437,7 @@ public class DateUtils {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
 //        System.out.println(DateUtils.getWeekOfYear(new Date()));
 //        System.out.println(DateUtils.getFirstDayOfWeek(new Date()));
 //        System.out.println(DateUtils.getLastDayOfWeek(new Date()));
@@ -444,6 +461,8 @@ public class DateUtils {
         System.out.println("自定义格式化: " + now.format(dateTimeFormatter));
         LocalDateTime localDateTime = LocalDateTime.parse("2017-07-20 15:27:44", dateTimeFormatter);
         System.out.println("字符串转LocalDateTime: " + localDateTime);
+        Date date = org.apache.commons.lang3.time.DateUtils.parseDate("2017-11-24 19:41:00", "yyyy-MM-dd HH:mm:ss");
+        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 3)));
 
     }
 

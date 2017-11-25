@@ -45,6 +45,12 @@ public class StatRequest extends PageRequest {
      */
     private Byte bizType;
 
+    /**
+     * 数据显示的时间间隔(默认10分钟)
+     */
+    private Integer intervalMins = 10;
+
+
     public Integer getDateType() {
         return dateType;
     }
@@ -99,5 +105,13 @@ public class StatRequest extends PageRequest {
 
     public void setBizType(Byte bizType) {
         this.bizType = bizType;
+    }
+
+    public Integer getIntervalMins() {
+        return intervalMins;
+    }
+
+    public void setIntervalMins(Integer intervalMins) {
+        this.intervalMins = intervalMins;
     }
 }

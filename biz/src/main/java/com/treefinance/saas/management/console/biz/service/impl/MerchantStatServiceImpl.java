@@ -419,6 +419,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(voList)) {
+                voList.remove(voList.size() - 1);
+            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;
@@ -871,6 +874,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(voList)) {
+                voList.remove(voList.size() - 1);
+            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;
@@ -921,6 +927,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 }
             }
             voList = voList.stream().sorted(((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime()))).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(voList)) {
+                voList.remove(voList.size() - 1);
+            }
             valuesMap.put(entry.getKey(), voList);
         }
         List<ChartStatVO> totalVOList = Lists.newArrayList();

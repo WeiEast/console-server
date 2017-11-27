@@ -385,8 +385,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<Date, List<MerchantStatAccessRO>> map = list.stream().collect(Collectors.groupingBy(ro -> DateUtils.getIntervalDateTime(ro.getDataTime(), intervalMins)));
         List<MerchantStatAccessRO> resultList = Lists.newArrayList();
         for (Map.Entry<Date, List<MerchantStatAccessRO>> entry : map.entrySet()) {
+            if (CollectionUtils.isEmpty(entry.getValue())) {
+                continue;
+            }
             MerchantStatAccessRO ro = new MerchantStatAccessRO();
-            BeanUtils.convert(entry, ro);
+            BeanUtils.convert(entry.getValue().get(0), ro);
             ro.setDataTime(entry.getKey());
             List<MerchantStatAccessRO> entryList = entry.getValue();
             int totalCount = 0, successCount = 0, failCount = 0, cancelCount = 0;

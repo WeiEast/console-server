@@ -386,6 +386,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<MerchantStatAccessRO> resultList = Lists.newArrayList();
         for (Map.Entry<Date, List<MerchantStatAccessRO>> entry : map.entrySet()) {
             MerchantStatAccessRO ro = new MerchantStatAccessRO();
+            BeanUtils.convert(entry, ro);
             ro.setDataTime(entry.getKey());
             List<MerchantStatAccessRO> entryList = entry.getValue();
             int totalCount = 0, successCount = 0, failCount = 0, cancelCount = 0;

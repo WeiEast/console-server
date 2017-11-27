@@ -23,6 +23,23 @@ public class DateUtils {
 
     protected static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
+
+    /**
+     * 获取dataTime在间隔时间内的开始时间,如dataTime=19:41,intervalMinutes=5,则19:40
+     *
+     * @param dataTime
+     * @return
+     */
+    public static Date getIntervalDateTime(Date dataTime, Integer intervalMinutes) {
+        Date intervalTime = org.apache.commons.lang.time.DateUtils.truncate(dataTime, Calendar.MINUTE);
+        Long currentMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalTime, Calendar.HOUR_OF_DAY);
+        if (currentMinute % intervalMinutes == 0) {
+            return intervalTime;
+        }
+        intervalTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalTime, (-currentMinute.intValue() % intervalMinutes));
+        return intervalTime;
+    }
+
     public static String date2Ymd(Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         return simpleDateFormat.format(date);
@@ -420,7 +437,7 @@ public class DateUtils {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
 //        System.out.println(DateUtils.getWeekOfYear(new Date()));
 //        System.out.println(DateUtils.getFirstDayOfWeek(new Date()));
 //        System.out.println(DateUtils.getLastDayOfWeek(new Date()));
@@ -429,21 +446,24 @@ public class DateUtils {
 //        System.out.println(DateUtils.getWeekStrOfYear(new Date()));
 //        System.out.println(DateUtils.date2SimpleYm(new Date()));
 //        System.out.println(DateUtils.getDayStrDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
-        LocalDate localDate = LocalDate.now();
-        System.out.println("localDate:" + localDate);
-
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-        System.out.println("tomorrow:" + tomorrow);
-
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        System.out.println("yesterday:" + yesterday);
-
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        System.out.println("默认格式化: " + now);
-        System.out.println("自定义格式化: " + now.format(dateTimeFormatter));
-        LocalDateTime localDateTime = LocalDateTime.parse("2017-07-20 15:27:44", dateTimeFormatter);
-        System.out.println("字符串转LocalDateTime: " + localDateTime);
+//        LocalDate localDate = LocalDate.now();
+//        System.out.println("localDate:" + localDate);
+//
+//        LocalDate tomorrow = LocalDate.now().plusDays(1);
+//        System.out.println("tomorrow:" + tomorrow);
+//
+//        LocalDate yesterday = LocalDate.now().minusDays(1);
+//        System.out.println("yesterday:" + yesterday);
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        System.out.println("默认格式化: " + now);
+//        System.out.println("自定义格式化: " + now.format(dateTimeFormatter));
+//        LocalDateTime localDateTime = LocalDateTime.parse("2017-07-20 15:27:44", dateTimeFormatter);
+//        System.out.println("字符串转LocalDateTime: " + localDateTime);
+        Date date = org.apache.commons.lang3.time.DateUtils.parseDate("2017-11-24 19:01:00", "yyyy-MM-dd HH:mm:ss");
+        //8,16,24,32,40,48,56
+        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
 
     }
 

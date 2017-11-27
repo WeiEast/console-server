@@ -222,16 +222,19 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (CollectionUtils.isEmpty(result.getData())) {
             return wrapMap;
         }
+
+        List<MerchantStatAccessRO> roList = changeIntervalDataTime(result.getData(), request.getIntervalMins());
+
         //遍历获取时间节点list
         Set<Date> dataTimeSet = Sets.newHashSet();
-        result.getData().forEach(ro -> {
+        roList.forEach(ro -> {
             dataTimeSet.add(ro.getDataTime());
         });
         List<Date> dataTimeList = Lists.newArrayList(dataTimeSet);
 
         //<appId,<dataTime,totalCount>>
         Map<String, Map<Date, Integer>> dataMap = Maps.newHashMap();
-        result.getData().forEach(ro -> {
+        roList.forEach(ro -> {
             Map<Date, Integer> valueMap = dataMap.get(ro.getAppId());
             if (valueMap == null || valueMap.isEmpty()) {
                 valueMap = Maps.newHashMap();

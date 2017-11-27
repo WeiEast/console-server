@@ -229,16 +229,19 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (CollectionUtils.isEmpty(result.getData())) {
             return wrapMap;
         }
+
+        List<MerchantStatAccessRO> roList = changeIntervalDataTime(result.getData(), request.getIntervalMins());
+
         //遍历获取时间节点list
         Set<Date> dataTimeSet = Sets.newHashSet();
-        result.getData().forEach(ro -> {
+        roList.forEach(ro -> {
             dataTimeSet.add(ro.getDataTime());
         });
         List<Date> dataTimeList = Lists.newArrayList(dataTimeSet);
 
         //<appId,<dataTime,totalCount>>
         Map<String, Map<Date, Integer>> dataMap = Maps.newHashMap();
-        result.getData().forEach(ro -> {
+        roList.forEach(ro -> {
             Map<Date, Integer> valueMap = dataMap.get(ro.getAppId());
             if (valueMap == null || valueMap.isEmpty()) {
                 valueMap = Maps.newHashMap();
@@ -327,6 +330,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (CollectionUtils.isEmpty(result.getData())) {
             return wrapMap;
         }
+
+        List<MerchantStatAccessRO> roList = changeIntervalDataTime(result.getData(), request.getIntervalMins());
+
         //<key,<data,keyCount>>
         Map<String, Map<Date, Integer>> dataMap = Maps.newLinkedHashMap();
         Map<Date, Integer> valueTotalMap = Maps.newHashMap();
@@ -334,7 +340,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<Date, Integer> valueFailMap = Maps.newHashMap();
         Map<Date, Integer> valueCancelMap = Maps.newHashMap();
 
-        result.getData().forEach(ro -> {
+        roList.forEach(ro -> {
             if (valueTotalMap.get(ro.getDataTime()) == null) {
                 valueTotalMap.put(ro.getDataTime(), ro.getTotalCount());
             } else {
@@ -375,6 +381,29 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return wrapMap;
     }
 
+    private List<MerchantStatAccessRO> changeIntervalDataTime(List<MerchantStatAccessRO> list, final Integer intervalMins) {
+        Map<Date, List<MerchantStatAccessRO>> map = list.stream().collect(Collectors.groupingBy(ro -> DateUtils.getIntervalDateTime(ro.getDataTime(), intervalMins)));
+        List<MerchantStatAccessRO> resultList = Lists.newArrayList();
+        for (Map.Entry<Date, List<MerchantStatAccessRO>> entry : map.entrySet()) {
+            MerchantStatAccessRO ro = new MerchantStatAccessRO();
+            ro.setDataTime(entry.getKey());
+            List<MerchantStatAccessRO> entryList = entry.getValue();
+            int totalCount = 0, successCount = 0, failCount = 0, cancelCount = 0;
+            for (MerchantStatAccessRO data : entryList) {
+                totalCount = totalCount + data.getTotalCount();
+                successCount = successCount + data.getSuccessCount();
+                failCount = failCount + data.getFailCount();
+                cancelCount = cancelCount + data.getCancelCount();
+            }
+            ro.setTotalCount(totalCount);
+            ro.setSuccessCount(successCount);
+            ro.setFailCount(failCount);
+            ro.setCancelCount(cancelCount);
+            resultList.add(ro);
+        }
+        return resultList;
+    }
+
     private Map<String, List<ChartStatVO>> wrapNumberTaskChart(Map<String, Map<Date, Integer>> dataMap) {
         Map<String, List<ChartStatVO>> valuesMap = Maps.newHashMap();
         for (Map.Entry<String, Map<Date, Integer>> dataEntry : dataMap.entrySet()) {
@@ -409,6 +438,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (CollectionUtils.isEmpty(result.getData())) {
             return wrapMap;
         }
+
+        List<MerchantStatAccessRO> roList = changeIntervalDataTime(result.getData(), request.getIntervalMins());
+
         //<key,<data,keyRate>>
         Map<String, Map<Date, BigDecimal>> dataMap = Maps.newLinkedHashMap();
         Map<Date, Integer> valueTotalMap = Maps.newHashMap();
@@ -416,7 +448,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<Date, Integer> valueFailMap = Maps.newHashMap();
         Map<Date, Integer> valueCancelMap = Maps.newHashMap();
 
-        result.getData().forEach(ro -> {
+        roList.forEach(ro -> {
             if (valueTotalMap.get(ro.getDataTime()) == null) {
                 valueTotalMap.put(ro.getDataTime(), ro.getTotalCount());
             } else {

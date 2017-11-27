@@ -22,6 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -93,8 +97,31 @@ public class OssDataServiceImpl implements OssDataService {
     }
 
     @Override
-    public Object downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response) {
-        return null;
+    public void downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response) {
+        OutputStream outputStream = null;
+        try {
+            String text = "我是haojiahong";
+            byte[] data = text.getBytes();
+            String fileName = "data.json";
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+            response.reset();
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+            response.addHeader("Content-Length", "" + data.length);
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            outputStream = new BufferedOutputStream(response.getOutputStream());
+            outputStream.write(data);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private List<OssCallbackDataVO> wrapperOssCallbackData(List<TaskCallbackLog> taskCallbackLogList, List<Task> list, OssDataRequest request) {

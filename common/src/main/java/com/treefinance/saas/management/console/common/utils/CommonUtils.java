@@ -2,13 +2,10 @@ package com.treefinance.saas.management.console.common.utils;
 
 import com.github.stuxuhai.jpinyin.PinyinFormat;
 import com.github.stuxuhai.jpinyin.PinyinHelper;
-import com.google.common.collect.Maps;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * 商户后台管理通用工具类
@@ -50,25 +47,6 @@ public class CommonUtils {
         byte[] b = Base64.decodeBase64(str.getBytes());
         return new String(b);
 
-    }
-
-    /**
-     * 解析获得url路径中的参数值
-     *
-     * @param url
-     * @param name
-     * @return
-     */
-    public static String getUrlQueryString(String url, String name) {
-        Map<String, String> map = Maps.newHashMap();
-        if (url != null && url.indexOf("&") > -1 && url.indexOf("=") > -1) {
-            String[] arrTemp = url.split("&");
-            for (String str : arrTemp) {
-                String[] qs = str.split("=");
-                map.put(qs[0], qs[1]);
-            }
-        }
-        return map.get(name);
     }
 
 }

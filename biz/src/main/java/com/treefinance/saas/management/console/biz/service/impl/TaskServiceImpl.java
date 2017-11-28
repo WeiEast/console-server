@@ -22,7 +22,6 @@ import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
@@ -154,16 +153,13 @@ public class TaskServiceImpl implements TaskService {
                 return false;
             }
             String dataUrl = jsonObject.getString("dataUrl");
-            if (StringUtils.isNotBlank(dataUrl)) {
-                String expires = CommonUtils.getUrlQueryString(dataUrl, "Expires");
-                if (StringUtils.isNotBlank(expires)) {
-                    if (Integer.valueOf(expires) * 1000 > System.currentTimeMillis()) {
-                        return true;
-                    }
+            String expirationTime = jsonObject.get("expirationTime").toString();
+            if (StringUtils.isNotBlank(dataUrl) && StringUtils.isNotBlank(expirationTime)) {
+                if (Integer.valueOf(expirationTime) > System.currentTimeMillis()) {
+                    return true;
                 }
             }
         }
-
         return false;
     }
 
@@ -190,7 +186,7 @@ public class TaskServiceImpl implements TaskService {
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
         }
-        List<Integer> configIdList = taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).collect(Collectors.toList());
+        List<Integer> configIdList = taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).distinct().collect(Collectors.toList());
         AppCallbackConfigCriteria appCallbackConfigCriteria = new AppCallbackConfigCriteria();
         appCallbackConfigCriteria.createCriteria().andIdIn(configIdList);
         List<AppCallbackConfig> appCallbackConfigList = appCallbackConfigMapper.selectByExample(appCallbackConfigCriteria);

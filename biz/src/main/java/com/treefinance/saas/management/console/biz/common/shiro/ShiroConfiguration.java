@@ -124,7 +124,6 @@ public class ShiroConfiguration {
         // 权限配置
         Map<String, String> filterChainDefinitionManager = new LinkedHashMap<>();
         //filterChainDefinitionManager.put("/logout", "logout");
-        filterChainDefinitionManager.put("/saas/console/oss/data/**", "anon");
         filterChainDefinitionManager.put("/saas/console/data/rsa/decrypt", "anon");
         filterChainDefinitionManager.put("/saas/console/data/rsa/encrypt", "anon");
         filterChainDefinitionManager.put("/saas/console/data/download", "anon");

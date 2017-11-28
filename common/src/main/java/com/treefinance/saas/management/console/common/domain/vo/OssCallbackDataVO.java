@@ -21,6 +21,10 @@ public class OssCallbackDataVO implements Serializable {
     private String callbackTypeName;
     private String callbackRequestParam;
     private String callbackResponseData;
+    /**
+     * 是否可以下载
+     */
+    private Boolean canDownload;
 
     public String getUniqueId() {
         return uniqueId;
@@ -116,5 +120,13 @@ public class OssCallbackDataVO implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Boolean getCanDownload() {
+        return canDownload;
+    }
+
+    public void setCanDownload(Boolean canDownload) {
+        this.canDownload = canDownload;
     }
 }

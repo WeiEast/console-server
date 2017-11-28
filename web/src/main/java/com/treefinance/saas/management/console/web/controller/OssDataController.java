@@ -43,8 +43,7 @@ public class OssDataController {
         if (id == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "id不能为空");
         }
-        ossDataService.downloadOssData(id, request, response);
-        return Results.newSuccessResult(true);
+        return ossDataService.downloadOssData(id, request, response);
     }
 
 

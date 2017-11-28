@@ -21,4 +21,5 @@ public interface CommonStateCode {
     StateCode ACCOUNT_DOES_NOT_EXIST = new StateCode(-1004, "账号不存在");
     StateCode ACCOUNT_NOT_ACTIVATED = new StateCode(-1005, "账号未激活");
     StateCode REPEAT_REQUEST_ERROR = new StateCode(-1006, "频繁请求,稍后重试");
+    StateCode DOWNLOAD_ERROR = new StateCode(-1007, "下载失败");
 }

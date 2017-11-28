@@ -1,23 +1,33 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
+import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
+import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.OssDataService;
+import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
+import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.request.OssDataRequest;
 import com.treefinance.saas.management.console.common.domain.vo.OssCallbackDataVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
+import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +46,8 @@ import java.util.stream.Collectors;
 @Service
 public class OssDataServiceImpl implements OssDataService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OssDataService.class);
+
     @Autowired
     private ISecurityCryptoService iSecurityCryptoService;
     @Autowired
@@ -48,6 +60,10 @@ public class OssDataServiceImpl implements OssDataService {
     private TaskCallbackLogMapper taskCallbackLogMapper;
     @Autowired
     private AppCallbackConfigMapper appCallbackConfigMapper;
+    @Autowired
+    protected CallbackSecureHandler callbackSecureHandler;
+    @Autowired
+    private AppLicenseService appLicenseService;
 
 
     @Override
@@ -97,11 +113,26 @@ public class OssDataServiceImpl implements OssDataService {
     }
 
     @Override
-    public void downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response) {
+    public Object downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response) {
+        TaskCallbackLog log = taskCallbackLogMapper.selectByPrimaryKey(id);
+        if (log == null) {
+            logger.error("oss数据下载,id={}的callbackLog记录不存在", id);
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+        }
+        JSONObject requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
+        String dataUrl = requestParamJsonObj.getString("dataUrl");
+        if (StringUtils.isBlank(dataUrl)) {
+            logger.error("oss数据下载,id={}的记录requestParam有误,log={}", id, JSON.toJSONString(log));
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+        }
+        String ossData = this.getOssData(log, dataUrl);
+        if (StringUtils.isBlank(ossData)) {
+            logger.error("oss数据下载,id={}的记录从oss上下载并解密数据失败,log={}", id, JSON.toJSONString(log));
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+        }
         OutputStream outputStream = null;
         try {
-            String text = "我是haojiahong";
-            byte[] data = text.getBytes();
+            byte[] data = ossData.getBytes();
             String fileName = "data.json";
             fileName = URLEncoder.encode(fileName, "UTF-8");
             response.reset();
@@ -122,6 +153,49 @@ public class OssDataServiceImpl implements OssDataService {
                 }
             }
         }
+        return Results.newSuccessResult("下载成功");
+    }
+
+
+    private String getOssData(TaskCallbackLog log, String dataUrl) {
+        Long callbackConfigId = log.getConfigId();
+        AppCallbackConfig callbackConfig = appCallbackConfigMapper.selectByPrimaryKey(callbackConfigId.intValue());
+        if (callbackConfig == null) {
+            logger.error("oss数据下载,log={}未查询到回调配置信息", JSON.toJSONString(log));
+            return null;
+        }
+
+        String dataKey = null;
+        if (callbackConfig.getIsNewKey() == 1) {
+            CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(callbackConfig.getId());
+            if (callbackLicenseDTO == null) {
+                logger.error("oss数据下载,log={}未查询到秘钥信息", JSON.toJSONString(log));
+                return null;
+            }
+        } else {
+            Long taskId = log.getTaskId();
+            Task task = taskMapper.selectByPrimaryKey(taskId);
+            if (task == null) {
+                logger.error("oss数据下载,log={}未查询到任务信息", JSON.toJSONString(log));
+                return null;
+            }
+            String appId = task.getAppId();
+            AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
+            if (appLicenseDTO == null) {
+                logger.error("oss数据下载,log={}未查询到秘钥信息", JSON.toJSONString(log));
+                return null;
+            }
+            dataKey = appLicenseDTO.getDataSecretKey();
+        }
+        String data;
+        try {
+            byte[] result = RemoteDataDownloadUtils.download(dataUrl, byte[].class);
+            data = callbackSecureHandler.decryptByAES(result, dataKey);
+        } catch (Exception e) {
+            logger.error("oss数据下载,log={}从oss上下载解密数据失败", JSON.toJSONString(log), e);
+            return null;
+        }
+        return data;
     }
 
     private List<OssCallbackDataVO> wrapperOssCallbackData(List<TaskCallbackLog> taskCallbackLogList, List<Task> list, OssDataRequest request) {
@@ -162,6 +236,20 @@ public class OssDataServiceImpl implements OssDataService {
             vo.setTaskId(taskId);
             vo.setCallbackRequestParam(log.getRequestParam());
             vo.setCallbackResponseData(log.getResponseData());
+            vo.setCanDownload(false);
+            if (StringUtils.isNotBlank(log.getRequestParam())) {
+                JSONObject jsonObject = JSONObject.parseObject(log.getRequestParam());
+                String dataUrl = jsonObject.getString("dataUrl");
+                if (StringUtils.isNotBlank(dataUrl)) {
+                    String expires = this.getQueryString(dataUrl, "Expires");
+                    if (StringUtils.isNotBlank(expires)) {
+                        if (Integer.valueOf(expires) * 1000 > System.currentTimeMillis()) {
+                            vo.setCanDownload(true);
+                        }
+                    }
+                }
+
+            }
             if (task != null) {
                 vo.setUniqueId(task.getUniqueId());
                 if (StringUtils.isNotBlank(task.getAccountNo())) {
@@ -190,5 +278,18 @@ public class OssDataServiceImpl implements OssDataService {
             dataList.add(vo);
         }
         return dataList;
+    }
+
+
+    private String getQueryString(String url, String name) {
+        Map<String, String> map = Maps.newHashMap();
+        if (url != null && url.indexOf("&") > -1 && url.indexOf("=") > -1) {
+            String[] arrTemp = url.split("&");
+            for (String str : arrTemp) {
+                String[] qs = str.split("=");
+                map.put(qs[0], qs[1]);
+            }
+        }
+        return map.get(name);
     }
 }

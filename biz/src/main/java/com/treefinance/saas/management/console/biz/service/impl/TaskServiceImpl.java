@@ -155,7 +155,7 @@ public class TaskServiceImpl implements TaskService {
             String dataUrl = jsonObject.getString("dataUrl");
             String expirationTime = jsonObject.getString("expirationTime");
             if (StringUtils.isNotBlank(dataUrl) && StringUtils.isNotBlank(expirationTime)) {
-                if (Integer.valueOf(expirationTime) > System.currentTimeMillis()) {
+                if (Long.valueOf(expirationTime) > System.currentTimeMillis()) {
                     return true;
                 }
             }

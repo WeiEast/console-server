@@ -19,7 +19,6 @@ import com.treefinance.saas.management.console.common.enumeration.ECallBackDataT
 import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
-import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
@@ -284,12 +283,10 @@ public class OssDataServiceImpl implements OssDataService {
                 return false;
             }
             String dataUrl = jsonObject.getString("dataUrl");
-            if (StringUtils.isNotBlank(dataUrl)) {
-                String expires = CommonUtils.getUrlQueryString(dataUrl, "Expires");
-                if (StringUtils.isNotBlank(expires)) {
-                    if (Integer.valueOf(expires) * 1000 > System.currentTimeMillis()) {
-                        return true;
-                    }
+            String expirationTime = jsonObject.get("expirationTime").toString();
+            if (StringUtils.isNotBlank(dataUrl) && StringUtils.isNotBlank(expirationTime)) {
+                if (Integer.valueOf(expirationTime) > System.currentTimeMillis()) {
+                    return true;
                 }
             }
         }

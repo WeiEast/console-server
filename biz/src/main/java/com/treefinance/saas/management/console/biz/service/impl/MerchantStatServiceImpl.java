@@ -639,7 +639,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         timeOverViewList = timeOverViewList
                 .stream()
                 .sorted((n1, n2) -> n2.getNum().compareTo(n1.getNum()))
-                .sorted((d1, d2) -> d1.getAppIsTest().compareTo(d2.getAppIsTest()))
                 .collect(Collectors.toList());
 
         return timeOverViewList;
@@ -721,7 +720,13 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
                 TaskLog taskLog = null;
                 if (request.getStatType() == 3) {//取消,取消任务会在log表中插入一条取消环节为取消的日志记录,而这条记录没有实际意义.
-                    taskLog = taskLogs.stream().filter(taskLog1 -> !taskLog1.getMsg().contains("回调通知")).collect(Collectors.toList()).get(1);
+                    for (int i = 0; i < taskLogs.size(); i++) {
+                        taskLog = taskLogs.get(i);
+                        if ("任务取消".equals(taskLog.getMsg())) {
+                            taskLog = taskLogs.get(i + 1);
+                            break;
+                        }
+                    }
                 }
                 if (request.getStatType() == 2) {//失败,某些任务中会有"回调通知成功"环节,此环节没有实际意义,需剔除.
                     List<String> taskErrorStepList = ETaskErrorStep.getTaskErrorStepList();

@@ -46,5 +46,4 @@ public class OssDataController {
         return ossDataService.downloadOssData(id, request, response);
     }
 
-
 }

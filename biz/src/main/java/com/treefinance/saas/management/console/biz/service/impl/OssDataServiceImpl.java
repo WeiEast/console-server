@@ -19,6 +19,7 @@ import com.treefinance.saas.management.console.common.enumeration.ECallBackDataT
 import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
@@ -162,7 +163,6 @@ public class OssDataServiceImpl implements OssDataService {
         return Results.newSuccessResult("下载成功");
     }
 
-
     private String getOssData(TaskCallbackLog log, String dataUrl) {
         Long callbackConfigId = log.getConfigId();
         AppCallbackConfig callbackConfig = appCallbackConfigMapper.selectByPrimaryKey(callbackConfigId.intValue());
@@ -285,7 +285,7 @@ public class OssDataServiceImpl implements OssDataService {
             }
             String dataUrl = jsonObject.getString("dataUrl");
             if (StringUtils.isNotBlank(dataUrl)) {
-                String expires = this.getQueryString(dataUrl, "Expires");
+                String expires = CommonUtils.getUrlQueryString(dataUrl, "Expires");
                 if (StringUtils.isNotBlank(expires)) {
                     if (Integer.valueOf(expires) * 1000 > System.currentTimeMillis()) {
                         return true;
@@ -297,16 +297,4 @@ public class OssDataServiceImpl implements OssDataService {
         return false;
     }
 
-
-    private String getQueryString(String url, String name) {
-        Map<String, String> map = Maps.newHashMap();
-        if (url != null && url.indexOf("&") > -1 && url.indexOf("=") > -1) {
-            String[] arrTemp = url.split("&");
-            for (String str : arrTemp) {
-                String[] qs = str.split("=");
-                map.put(qs[0], qs[1]);
-            }
-        }
-        return map.get(name);
-    }
 }

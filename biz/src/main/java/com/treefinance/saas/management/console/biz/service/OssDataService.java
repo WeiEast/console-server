@@ -19,4 +19,5 @@ public interface OssDataService {
     Object getOssCallbackDataList(OssDataRequest request);
 
     Object downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response);
+
 }

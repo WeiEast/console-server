@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.datatrees.toolkits.util.Base64Codec;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -16,10 +17,12 @@ import com.treefinance.saas.management.console.common.domain.dto.CallbackLicense
 import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
+import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
@@ -129,13 +132,39 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
             TaskCallbackLogDTO taskCallbackLogDTO = taskCallbackLogMap.get(task.getId());
+            vo.setCanDownload(false);
             if (taskCallbackLogDTO != null) {
                 vo.setCallbackRequest(taskCallbackLogDTO.getPlainRequestParam());
+                vo.setCanDownload(canDownload(taskCallbackLogDTO.getPlainRequestParam()));
                 vo.setCallbackResponse(taskCallbackLogDTO.getResponseData());
+                vo.setCallbackLogId(taskCallbackLogDTO.getId());
             }
             result.add(vo);
         }
         return Results.newSuccessPageResult(taskRequest, count, result);
+    }
+
+    private Boolean canDownload(String requestParam) {
+        if (StringUtils.isNotBlank(requestParam)) {
+            JSONObject jsonObject;
+            try {
+                jsonObject = JSONObject.parseObject(requestParam);
+            } catch (Exception e) {
+                logger.error("json转换异常", e);
+                return false;
+            }
+            String dataUrl = jsonObject.getString("dataUrl");
+            if (StringUtils.isNotBlank(dataUrl)) {
+                String expires = CommonUtils.getUrlQueryString(dataUrl, "Expires");
+                if (StringUtils.isNotBlank(expires)) {
+                    if (Integer.valueOf(expires) * 1000 > System.currentTimeMillis()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
@@ -177,6 +206,10 @@ public class TaskServiceImpl implements TaskService {
             AppCallbackConfig appCallbackConfig = appCallbackConfigMap.get(log.getConfigId().intValue());
             if (appCallbackConfig == null) {
                 logger.error("解密回调参数时,任务回调记录表中未找到对应的商户回调配置信息 configId={}", log.getConfigId());
+                continue;
+            }
+            if (ECallBackDataType.SHIPPING_ADDRESS.getCode().equals(appCallbackConfig.getDataType())) {
+                logger.info("收货地址的回调不显示");
                 continue;
             }
             Long taskId = task.getId();

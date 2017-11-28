@@ -119,7 +119,13 @@ public class OssDataServiceImpl implements OssDataService {
             logger.error("oss数据下载,id={}的callbackLog记录不存在", id);
             return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
         }
-        JSONObject requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
+        JSONObject requestParamJsonObj;
+        try {
+            requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
+        } catch (Exception e) {
+            logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log", id, JSON.toJSONString(log));
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+        }
         String dataUrl = requestParamJsonObj.getString("dataUrl");
         if (StringUtils.isBlank(dataUrl)) {
             logger.error("oss数据下载,id={}的记录requestParam有误,log={}", id, JSON.toJSONString(log));
@@ -236,20 +242,7 @@ public class OssDataServiceImpl implements OssDataService {
             vo.setTaskId(taskId);
             vo.setCallbackRequestParam(log.getRequestParam());
             vo.setCallbackResponseData(log.getResponseData());
-            vo.setCanDownload(false);
-            if (StringUtils.isNotBlank(log.getRequestParam())) {
-                JSONObject jsonObject = JSONObject.parseObject(log.getRequestParam());
-                String dataUrl = jsonObject.getString("dataUrl");
-                if (StringUtils.isNotBlank(dataUrl)) {
-                    String expires = this.getQueryString(dataUrl, "Expires");
-                    if (StringUtils.isNotBlank(expires)) {
-                        if (Integer.valueOf(expires) * 1000 > System.currentTimeMillis()) {
-                            vo.setCanDownload(true);
-                        }
-                    }
-                }
-
-            }
+            vo.setCanDownload(canDownload(log));
             if (task != null) {
                 vo.setUniqueId(task.getUniqueId());
                 if (StringUtils.isNotBlank(task.getAccountNo())) {
@@ -277,7 +270,31 @@ public class OssDataServiceImpl implements OssDataService {
             }
             dataList.add(vo);
         }
+        dataList = dataList.stream().sorted((o1, o2) -> o2.getTaskStartTime().compareTo(o1.getTaskStartTime())).collect(Collectors.toList());
         return dataList;
+    }
+
+    private Boolean canDownload(TaskCallbackLog log) {
+        if (StringUtils.isNotBlank(log.getRequestParam())) {
+            JSONObject jsonObject;
+            try {
+                jsonObject = JSONObject.parseObject(log.getRequestParam());
+            } catch (Exception e) {
+                logger.error("json转换异常", e);
+                return false;
+            }
+            String dataUrl = jsonObject.getString("dataUrl");
+            if (StringUtils.isNotBlank(dataUrl)) {
+                String expires = this.getQueryString(dataUrl, "Expires");
+                if (StringUtils.isNotBlank(expires)) {
+                    if (Integer.valueOf(expires) * 1000 > System.currentTimeMillis()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
 

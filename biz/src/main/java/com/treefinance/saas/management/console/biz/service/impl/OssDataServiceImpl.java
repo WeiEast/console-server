@@ -123,7 +123,7 @@ public class OssDataServiceImpl implements OssDataService {
         try {
             requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
         } catch (Exception e) {
-            logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log", id, JSON.toJSONString(log));
+            logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log={}", id, JSON.toJSONString(log));
             return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
         }
         String dataUrl = requestParamJsonObj.getString("dataUrl");
@@ -136,6 +136,7 @@ public class OssDataServiceImpl implements OssDataService {
             logger.error("oss数据下载,id={}的记录从oss上下载并解密数据失败,log={}", id, JSON.toJSONString(log));
             return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
         }
+
         JSONObject jsonObject = JSON.parseObject(ossData);
         ossData = JSON.toJSONString(jsonObject, true);
         OutputStream outputStream = null;
@@ -164,6 +165,33 @@ public class OssDataServiceImpl implements OssDataService {
         return Results.newSuccessResult("下载成功");
     }
 
+    @Override
+    public Object downloadOssDataCheck(Long id) {
+        TaskCallbackLog log = taskCallbackLogMapper.selectByPrimaryKey(id);
+        if (log == null) {
+            logger.error("oss数据下载,id={}的callbackLog记录不存在", id);
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+        }
+        JSONObject requestParamJsonObj;
+        try {
+            requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
+        } catch (Exception e) {
+            logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log={}", id, JSON.toJSONString(log));
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR, "回调参数有误,解析异常");
+        }
+        String dataUrl = requestParamJsonObj.getString("dataUrl");
+        if (StringUtils.isBlank(dataUrl)) {
+            logger.error("oss数据下载,id={}的记录requestParam有误,log={}", id, JSON.toJSONString(log));
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR, "回调参数有误,不存在dataUrl");
+        }
+        String ossData = this.getOssData(log, dataUrl);
+        if (StringUtils.isBlank(ossData)) {
+            logger.error("oss数据下载,id={}的记录从oss上下载并解密数据失败,log={}", id, JSON.toJSONString(log));
+            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR, "oss数据下载解密异常");
+        }
+        return Results.newSuccessResult(true);
+    }
+
     private String getOssData(TaskCallbackLog log, String dataUrl) {
         Long callbackConfigId = log.getConfigId();
         AppCallbackConfig callbackConfig = appCallbackConfigMapper.selectByPrimaryKey(callbackConfigId.intValue());
@@ -172,13 +200,14 @@ public class OssDataServiceImpl implements OssDataService {
             return null;
         }
 
-        String dataKey = null;
+        String dataKey;
         if (callbackConfig.getIsNewKey() == 1) {
             CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(callbackConfig.getId());
             if (callbackLicenseDTO == null) {
                 logger.error("oss数据下载,log={}未查询到秘钥信息", JSON.toJSONString(log));
                 return null;
             }
+            dataKey = callbackLicenseDTO.getDataSecretKey();
         } else {
             Long taskId = log.getTaskId();
             Task task = taskMapper.selectByPrimaryKey(taskId);
@@ -194,9 +223,16 @@ public class OssDataServiceImpl implements OssDataService {
             }
             dataKey = appLicenseDTO.getDataSecretKey();
         }
+        if (StringUtils.isBlank(dataKey)) {
+            return null;
+        }
         String data;
         try {
             byte[] result = RemoteDataDownloadUtils.download(dataUrl, byte[].class);
+            if (result == null) {
+                logger.info("oss数据下载,log={}从oss上下载数据失败,数据为空", JSON.toJSONString(log));
+                return null;
+            }
             data = callbackSecureHandler.decryptByAES(result, dataKey);
         } catch (Exception e) {
             logger.error("oss数据下载,log={}从oss上下载解密数据失败", JSON.toJSONString(log), e);

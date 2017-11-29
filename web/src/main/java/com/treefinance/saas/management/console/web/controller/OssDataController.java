@@ -38,6 +38,21 @@ public class OssDataController {
         return ossDataService.getOssCallbackDataList(request);
     }
 
+
+    /**
+     * 判断是否可以正确下载
+     *
+     * @param id
+     * @return
+     */
+    @RequestMapping(value = "/download/check", method = RequestMethod.GET)
+    public Object downloadOssDataCheck(Long id) {
+        if (id == null) {
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "id不能为空");
+        }
+        return ossDataService.downloadOssDataCheck(id);
+    }
+
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     public Object downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response) {
         if (id == null) {

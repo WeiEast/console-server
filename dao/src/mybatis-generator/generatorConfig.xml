@@ -62,16 +62,16 @@
             <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-        <table tableName="app_callback_config_backup" domainObjectName="AppCallbackConfigBackup"
-               enableSelectPaginationByExample="true"
-               enableBatchInsert="true"
-               enableBatchUpdateByPrimaryKey="true"
-               enableBatchUpdateByPrimaryKeySelective="true">
-            <property name="useActualColumnNames" value="true"/>
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        </table>
+        <!--<table tableName="app_callback_config_backup" domainObjectName="AppCallbackConfigBackup"-->
+               <!--enableSelectPaginationByExample="true"-->
+               <!--enableBatchInsert="true"-->
+               <!--enableBatchUpdateByPrimaryKey="true"-->
+               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+            <!--<property name="useActualColumnNames" value="true"/>-->
+            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--</table>-->
 
-        <table tableName="app_license_backup" domainObjectName="AppLicenseBackup"
+        <table tableName="task_attribute" domainObjectName="TaskAttribute"
                enableSelectPaginationByExample="true"
                enableBatchInsert="true"
                enableBatchUpdateByPrimaryKey="true"

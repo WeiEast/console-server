@@ -5,12 +5,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.treefinance.saas.gateway.servicefacade.enums.TaskStepEnum;
+import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.dto.SaasErrorStepDayStatDTO;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
+import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
+import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -65,6 +68,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private MerchantUserMapper merchantUserMapper;
     @Autowired
     private AppBizLicenseMapper appBizLicenseMapper;
+    @Autowired
+    private AppBizTypeMapper appBizTypeMapper;
+    @Autowired
+    private TaskAttributeMapper taskAttributeMapper;
 
 
     @Override
@@ -412,6 +419,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(voList)) {
+                voList.remove(voList.size() - 1);
+            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;
@@ -600,6 +610,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 timeVO.setTime5Val("0 | NA");
                 timeVO.setTime6Val("0 | NA");
                 timeVO.setTime7Val("0 | NA");
+                timeVO.setNum(0);
             } else {
                 MerchantStatOverviewVO vo1 = entry.get(dateList.get(0));
                 timeVO.setTime1Val(vo1 == null ? "0 | NA" : new StringBuilder().append(vo1.getTotalCount()).append(" | ").append(vo1.getRate()).append("%").toString());
@@ -619,6 +630,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 timeVO.setTime6Val(vo6 == null ? "0 | NA" : new StringBuilder().append(vo6.getTotalCount()).append(" | ").append(vo6.getRate()).append("%").toString());
                 MerchantStatOverviewVO vo7 = entry.get(dateList.get(6));
                 timeVO.setTime7Val(vo7 == null ? "0 | NA" : new StringBuilder().append(vo7.getTotalCount()).append(" | ").append(vo7.getRate()).append("%").toString());
+                timeVO.setNum(vo7 == null ? 0 : vo7.getTotalCount());
             }
 
             timeOverViewList.add(timeVO);
@@ -626,8 +638,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         timeOverViewList = timeOverViewList
                 .stream()
-                .sorted((o1, o2) -> o2.getAppCreateTime().compareTo(o1.getAppCreateTime()))
-                .sorted((d1, d2) -> d1.getAppIsTest().compareTo(d2.getAppIsTest()))
+                .sorted((n1, n2) -> n2.getNum().compareTo(n1.getNum()))
                 .collect(Collectors.toList());
 
         return timeOverViewList;
@@ -649,7 +660,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             throw new BizException("statType参数有误");
         }
         if (EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
-            criteria.andBizTypeIn(Lists.newArrayList((byte) 1, (byte) 2, (byte) 3));
+            List<AppBizType> list = appBizTypeMapper.selectByExample(null);
+            List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
+            criteria.andBizTypeIn(bizTypeList);
         } else {
             criteria.andBizTypeEqualTo(request.getBizType());
         }
@@ -688,6 +701,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<TaskLog> taskLogList = taskLogMapper.selectByExample(logCriteria);
         Map<Long, List<TaskLog>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLog::getTaskId));
 
+        Map<Long, TaskAttribute> taskAttributeMap = this.getOperatorMapFromAttribute(taskList);
+
         List<TaskDetailVO> resultList = Lists.newArrayList();
 
         for (Task task : taskList) {
@@ -705,10 +720,19 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
                 TaskLog taskLog = null;
                 if (request.getStatType() == 3) {//取消,取消任务会在log表中插入一条取消环节为取消的日志记录,而这条记录没有实际意义.
-                    taskLog = taskLogs.stream().filter(taskLog1 -> !taskLog1.getMsg().contains("回调通知")).collect(Collectors.toList()).get(1);
+                    for (int i = 0; i < taskLogs.size(); i++) {
+                        taskLog = taskLogs.get(i);
+                        if ("任务取消".equals(taskLog.getMsg())) {
+                            taskLog = taskLogs.get(i + 1);
+                            break;
+                        }
+                    }
                 }
                 if (request.getStatType() == 2) {//失败,某些任务中会有"回调通知成功"环节,此环节没有实际意义,需剔除.
-                    taskLog = taskLogs.stream().filter(taskLog1 -> !taskLog1.getMsg().equals("回调通知成功") && !taskLog1.getMsg().equals("任务失败"))
+                    List<String> taskErrorStepList = ETaskErrorStep.getTaskErrorStepList();
+
+                    taskLog = taskLogs.stream().filter(taskLog1 -> taskErrorStepList.contains(taskLog1.getMsg()))
+                            .sorted((o1, o2) -> o2.getOccurTime().compareTo(o1.getOccurTime()))
                             .collect(Collectors.toList()).get(0);
                 }
                 if (taskLog == null) {
@@ -722,13 +746,33 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 logger.error("查询任务taskId={},状态status={}时,在task_log表中未查询到对应的状态日志记录", task.getId(), task.getStatus());
             }
             vo.setOccurTime(task.getCreateTime());
-            WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
-            if (websiteRO != null) {
-                vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
+
+            if (EBizType.OPERATOR.getCode().equals(task.getBizType())) {
+                TaskAttribute taskAttribute = taskAttributeMap.get(task.getId());
+                if (taskAttribute != null) {
+                    vo.setWebsiteDetailName(taskAttribute.getValue());
+                }
+            } else {
+                WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
+                if (websiteRO != null) {
+                    vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
+                }
             }
             resultList.add(vo);
         }
         return Results.newSuccessPageResult(request, total, resultList);
+    }
+
+    private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
+        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
+        TaskAttributeCriteria criteria = new TaskAttributeCriteria();
+        criteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+        List<TaskAttribute> list = taskAttributeMapper.selectByExample(criteria);
+        if (org.apache.commons.collections.CollectionUtils.isEmpty(list)) {
+            return Maps.newHashMap();
+        }
+        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
+        return map;
     }
 
     @Override
@@ -836,6 +880,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(voList)) {
+                voList.remove(voList.size() - 1);
+            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;
@@ -886,6 +933,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 }
             }
             voList = voList.stream().sorted(((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime()))).collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(voList)) {
+                voList.remove(voList.size() - 1);
+            }
             valuesMap.put(entry.getKey(), voList);
         }
         List<ChartStatVO> totalVOList = Lists.newArrayList();

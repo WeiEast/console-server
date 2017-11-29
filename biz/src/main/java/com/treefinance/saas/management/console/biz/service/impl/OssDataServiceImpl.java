@@ -136,6 +136,8 @@ public class OssDataServiceImpl implements OssDataService {
             logger.error("oss数据下载,id={}的记录从oss上下载并解密数据失败,log={}", id, JSON.toJSONString(log));
             return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
         }
+        JSONObject jsonObject = JSON.parseObject(ossData);
+        ossData = JSON.toJSONString(jsonObject, true);
         OutputStream outputStream = null;
         try {
             byte[] data = ossData.getBytes();

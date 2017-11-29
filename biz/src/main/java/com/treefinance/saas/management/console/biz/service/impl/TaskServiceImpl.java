@@ -219,6 +219,7 @@ public class TaskServiceImpl implements TaskService {
             }
 
         }
+        logger.info("解密回调参数时,得到的任务对应主流程回调数据,Result={}", JSON.toJSONString(result));
         return result;
     }
 

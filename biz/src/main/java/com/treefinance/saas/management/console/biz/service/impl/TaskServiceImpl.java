@@ -204,21 +204,20 @@ public class TaskServiceImpl implements TaskService {
                 logger.error("解密回调参数时,任务回调记录表中未找到对应的商户回调配置信息 configId={}", log.getConfigId());
                 continue;
             }
-            if (ECallBackDataType.SHIPPING_ADDRESS.getCode().equals(appCallbackConfig.getDataType())) {
-                logger.info("收货地址的回调不显示");
-                continue;
-            }
-            Long taskId = task.getId();
+            if (ECallBackDataType.MAIN.getCode().equals(appCallbackConfig.getDataType())) {
+                Long taskId = task.getId();
 //            String plainParams = getPlainParamsCallbackLog(task, appCallbackConfig, log);
-            TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
-            BeanUtils.convert(log, logDTO);
-            logDTO.setPlainRequestParam(log.getRequestParam());
-            //网关支持:一个任务,回调多方,这里现将日志打印出来
-            if (result.get(taskId) != null) {
-                logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)), logDTO);
-                continue;
+                TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
+                BeanUtils.convert(log, logDTO);
+                logDTO.setPlainRequestParam(log.getRequestParam());
+                //网关支持:一个任务,回调多方,这里现将日志打印出来
+                if (result.get(taskId) != null) {
+                    logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)), logDTO);
+                    continue;
+                }
+                result.put(taskId, logDTO);
             }
-            result.put(taskId, logDTO);
+
         }
         return result;
     }

@@ -2,8 +2,7 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.OssDataService;
 import com.treefinance.saas.management.console.common.domain.request.OssDataRequest;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +25,14 @@ public class OssDataController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public Object getOssList(OssDataRequest request) {
         if (request == null) {
-            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "参数不能为空");
+            throw new BizException("参数不能为空");
         }
         if (request.getType() == null) {
-            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "参数type不能为空");
+            throw new BizException("参数type不能为空");
         }
         if (StringUtils.isBlank(request.getAccountNo()) && request.getTaskId() == null &&
                 StringUtils.isBlank(request.getAppName()) && StringUtils.isBlank(request.getUniqueId())) {
-            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "uniqueId、accountNo、taskId和appName不能同时为空");
+            throw new BizException("uniqueId、accountNo、taskId和appName不能同时为空");
         }
         return ossDataService.getOssCallbackDataList(request);
     }
@@ -48,7 +47,7 @@ public class OssDataController {
     @RequestMapping(value = "/download/check", method = RequestMethod.GET)
     public Object downloadOssDataCheck(Long id) {
         if (id == null) {
-            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "id不能为空");
+            throw new BizException("id不能为空");
         }
         return ossDataService.downloadOssDataCheck(id);
     }
@@ -56,7 +55,7 @@ public class OssDataController {
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     public Object downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response) {
         if (id == null) {
-            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "id不能为空");
+            throw new BizException("id不能为空");
         }
         return ossDataService.downloadOssData(id, request, response);
     }

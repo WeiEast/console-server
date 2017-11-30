@@ -17,6 +17,7 @@ import com.treefinance.saas.management.console.common.domain.vo.OssCallbackDataV
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -170,24 +171,24 @@ public class OssDataServiceImpl implements OssDataService {
         TaskCallbackLog log = taskCallbackLogMapper.selectByPrimaryKey(id);
         if (log == null) {
             logger.error("oss数据下载,id={}的callbackLog记录不存在", id);
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+            throw new BizException("下载失败");
         }
         JSONObject requestParamJsonObj;
         try {
             requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
         } catch (Exception e) {
             logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log={}", id, JSON.toJSONString(log));
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR, "回调参数有误,解析异常");
+            throw new BizException("回调参数有误,解析异常");
         }
         String dataUrl = requestParamJsonObj.getString("dataUrl");
         if (StringUtils.isBlank(dataUrl)) {
             logger.error("oss数据下载,id={}的记录requestParam有误,log={}", id, JSON.toJSONString(log));
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR, "回调参数有误,不存在dataUrl");
+            throw new BizException("回调参数有误,不存在dataUrl");
         }
         String ossData = this.getOssData(log, dataUrl);
         if (StringUtils.isBlank(ossData)) {
             logger.error("oss数据下载,id={}的记录从oss上下载并解密数据失败,log={}", id, JSON.toJSONString(log));
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR, "oss数据下载解密异常");
+            throw new BizException("oss数据下载解密异常");
         }
         return Results.newSuccessResult(true);
     }

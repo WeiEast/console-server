@@ -20,4 +20,5 @@ public interface OssDataService {
 
     Object downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response);
 
+    Object downloadOssDataCheck(Long id);
 }

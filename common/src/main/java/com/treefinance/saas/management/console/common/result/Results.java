@@ -40,6 +40,10 @@ public abstract class Results {
 
     /**
      * 没有数据回传的失败结果
+     * 请使用抛出异常的方式返回错误信息,如:BizException;
+     *
+     * @param failedCode
+     * @return
      */
     public static <T> Result<T> newFailedResult(StateCode failedCode) {
         return newFailedResult(null, failedCode);
@@ -47,6 +51,11 @@ public abstract class Results {
 
     /**
      * 没有数据回传的失败结果
+     * 请使用抛出异常的方式返回错误信息,如:BizException;
+     *
+     * @param failedCode
+     * @param statusText
+     * @return
      */
     public static <T> Result<T> newFailedResult(StateCode failedCode, String statusText) {
         return newFailedResult(null, failedCode, statusText);
@@ -54,6 +63,11 @@ public abstract class Results {
 
     /**
      * 有数据回传的失败结果
+     * 请使用抛出异常的方式返回错误信息,如:BizException;
+     *
+     * @param data
+     * @param failedCode
+     * @return
      */
     public static <T> Result<T> newFailedResult(T data, StateCode failedCode) {
         return newFailedResult(data, failedCode, failedCode.getDesc());
@@ -61,6 +75,12 @@ public abstract class Results {
 
     /**
      * 有数据回传的失败结果
+     * 请使用抛出异常的方式返回错误信息,如:BizException;
+     *
+     * @param data
+     * @param failedCode
+     * @param statusText
+     * @return
      */
     public static <T> Result<T> newFailedResult(T data, StateCode failedCode, String statusText) {
         checkNotNull(failedCode);

@@ -667,8 +667,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 criteria.andIdIn(taskIdList);
             } else if (request.getBizType() == -1) {//合计
                 List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
-                criteria.andIdIn(taskIdList);
-                criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
+                if (!CollectionUtils.isEmpty(taskIdList)) {
+                    criteria.andIdIn(taskIdList);
+                } else {
+                    criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
+                }
             } else {//邮箱账单或电商或其他
                 criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
             }
@@ -759,7 +762,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
         TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
         criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
-                .andValueLike("%"+request.getWebsiteDetailName() + "%");
+                .andValueLike("%" + request.getWebsiteDetailName() + "%");
         if (request.getDate() != null) {
             criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
         }

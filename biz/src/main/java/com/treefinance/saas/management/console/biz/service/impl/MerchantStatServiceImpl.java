@@ -28,7 +28,6 @@ import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.SaasErrorStepDayStatRO;
-import com.treefinance.saas.monitor.facade.service.WebsiteFacade;
 import com.treefinance.saas.monitor.facade.service.stat.MerchantStatAccessFacade;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,8 +58,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
     private TaskMapper taskMapper;
-    @Autowired
-    private WebsiteFacade websiteFacade;
     @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
@@ -668,8 +665,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             if (request.getBizType() == 3) {//运营商
                 List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
                 criteria.andIdIn(taskIdList);
+            } else if (request.getBizType() == -1) {//合计
+                List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
+                criteria.andIdIn(taskIdList);
+                criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
             } else {//邮箱账单或电商或其他
-                criteria.andWebSiteLike(request.getWebsiteDetailName() + "%");
+                criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
             }
         }
         if (request.getDate() != null) {
@@ -758,7 +759,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
         TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
         criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
-                .andValueLike(request.getWebsiteDetailName() + "%");
+                .andValueLike("%"+request.getWebsiteDetailName() + "%");
         if (request.getDate() != null) {
             criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
         }

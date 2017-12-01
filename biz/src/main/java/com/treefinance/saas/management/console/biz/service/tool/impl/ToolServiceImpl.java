@@ -1,7 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.tool.impl;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.management.console.biz.service.tool.ToolService;
@@ -24,23 +24,32 @@ public class ToolServiceImpl implements ToolService {
 
     @Override
     public Object cryptoEncryptDataList(String param) {
-        Map<String, String> result = Maps.newHashMap();
+        List<String> result = Lists.newArrayList();
         List<String> paramStrList = Splitter.on(",").splitToList(param);
         if (CollectionUtils.isEmpty(paramStrList)) {
             return Results.newSuccessResult(result);
         }
-        result = iSecurityCryptoService.batchEncrypt(paramStrList, EncryptionIntensityEnum.NORMAL);
+        Map<String, String> map = iSecurityCryptoService.batchEncrypt(paramStrList, EncryptionIntensityEnum.NORMAL);
+        for (String str : paramStrList) {
+            String encryptStr = map.get(str);
+            result.add(encryptStr);
+        }
+
         return Results.newSuccessResult(result);
     }
 
     @Override
     public Object cryptoDecryptDataList(String param) {
-        Map<String, String> result = Maps.newHashMap();
+        List<String> result = Lists.newArrayList();
         List<String> paramStrList = Splitter.on(",").splitToList(param);
         if (CollectionUtils.isEmpty(paramStrList)) {
             return Results.newSuccessResult(result);
         }
-        result = iSecurityCryptoService.batchDecrypt(paramStrList, EncryptionIntensityEnum.NORMAL);
+        Map<String, String> map = iSecurityCryptoService.batchDecrypt(paramStrList, EncryptionIntensityEnum.NORMAL);
+        for (String str : paramStrList) {
+            String decryptStr = map.get(str);
+            result.add(decryptStr);
+        }
         return Results.newSuccessResult(result);
 
     }

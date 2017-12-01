@@ -25,7 +25,6 @@ import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequ
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.WebsiteRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.SaasErrorStepDayStatRO;
@@ -500,9 +499,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (statType == null) {
             throw new IllegalArgumentException("请求参数statType不能为空！");
         }
-        if (statType < 1 || statType > 3) {
-            throw new IllegalArgumentException("请求参数statType非法！");
-        }
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
@@ -656,6 +652,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             criteria.andStatusEqualTo((byte) 3);//失败的任务
         } else if (request.getStatType() == 3) {
             criteria.andStatusEqualTo((byte) 1);//取消的任务
+        } else if (request.getStatType() == 1) {
+            criteria.andStatusEqualTo((byte) 2);//成功的任务
         } else {
             throw new BizException("statType参数有误");
         }
@@ -665,6 +663,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             criteria.andBizTypeIn(bizTypeList);
         } else {
             criteria.andBizTypeEqualTo(request.getBizType());
+        }
+        if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
+            if (request.getBizType() == 3) {//运营商
+                List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
+                criteria.andIdIn(taskIdList);
+            } else {//邮箱账单或电商或其他
+                criteria.andWebSiteLike(request.getWebsiteDetailName() + "%");
+            }
         }
         if (request.getDate() != null) {
             criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
@@ -679,20 +685,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         taskCriteria.setOffset(request.getOffset());
         taskCriteria.setLimit(request.getPageSize());
         taskCriteria.setOrderByClause("createTime desc");
-        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
-
-        Map<String, WebsiteRO> websiteROMap = Maps.newHashMap();
-        List<String> websiteNameList = taskList.stream().map(Task::getWebSite).collect(Collectors.toList());
-        MonitorResult<List<WebsiteRO>> rpcResult = websiteFacade.queryWebsiteDetailByWebsiteName(websiteNameList);
-        if (logger.isDebugEnabled()) {
-            logger.debug("websiteFacade.queryWebsiteDetailByWebsiteName() : request={},result={}",
-                    JSON.toJSONString(websiteNameList), JSON.toJSONString(rpcResult));
-        }
-        if (rpcResult != null && !CollectionUtils.isEmpty(rpcResult.getData())) {
-            logger.info("result of queryWebsiteDetailByWebsiteName() is empty : request={}, result={}", JSON.toJSONString(websiteNameList), JSON.toJSONString(rpcResult));
-            websiteROMap = rpcResult.getData().stream()
-                    .collect(Collectors.toMap(WebsiteRO::getWebsiteName, websiteRO -> websiteRO, (key1, key2) -> key1));
-        }
+        List<Task> taskList = taskMapper.selectByExample(taskCriteria);
 
         List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
 
@@ -753,14 +746,34 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                     vo.setWebsiteDetailName(taskAttribute.getValue());
                 }
             } else {
-                WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
-                if (websiteRO != null) {
-                    vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
-                }
+                vo.setWebsiteDetailName(task.getWebSite());
+
             }
             resultList.add(vo);
         }
         return Results.newSuccessPageResult(request, total, resultList);
+    }
+
+    private List<Long> getTaskIdByTaskAttributeGroupName(StatDayRequest request) {
+        TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
+        TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
+        criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
+                .andValueLike(request.getWebsiteDetailName() + "%");
+        if (request.getDate() != null) {
+            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
+        }
+        if (request.getStartTime() != null && request.getEndTime() != null) {
+            criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+        }
+        taskAttributeCriteria.setOrderByClause("CreateTime desc");
+        taskAttributeCriteria.setOffset(request.getOffset());
+        taskAttributeCriteria.setLimit(request.getPageSize());
+        List<TaskAttribute> list = taskAttributeMapper.selectByExample(taskAttributeCriteria);
+        if (CollectionUtils.isEmpty(list)) {
+            return Lists.newArrayList();
+        }
+        List<Long> taskIdList = list.stream().map(TaskAttribute::getTaskId).distinct().collect(Collectors.toList());
+        return taskIdList;
     }
 
     private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {

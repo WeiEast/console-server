@@ -946,6 +946,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             totalVOList.add(vo);
         }
         totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+        totalVOList.remove(totalVOList.size() - 1);
         valuesMap.put("总任务量", totalVOList);
         return valuesMap;
     }

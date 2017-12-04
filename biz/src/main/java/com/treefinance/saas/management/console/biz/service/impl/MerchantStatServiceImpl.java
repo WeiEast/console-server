@@ -727,10 +727,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 }
                 if (request.getStatType() == 2) {//失败,某些任务中会有"回调通知成功"环节,此环节没有实际意义,需剔除.
                     List<String> taskErrorStepList = ETaskErrorStep.getTaskErrorStepList();
-
-                    taskLog = taskLogs.stream().filter(taskLog1 -> taskErrorStepList.contains(taskLog1.getMsg()))
+                    List<TaskLog> list = taskLogs.stream().filter(taskLog1 -> taskErrorStepList.contains(taskLog1.getMsg()))
                             .sorted((o1, o2) -> o2.getOccurTime().compareTo(o1.getOccurTime()))
-                            .collect(Collectors.toList()).get(0);
+                            .collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(list)) {
+                        taskLog = list.get(0);
+                    }
                 }
                 if (taskLog == null) {
                     logger.error("查询任务taskId={},状态status={}时,在task_log表中未查询到对应的状态日志记录", task.getId(), task.getStatus());

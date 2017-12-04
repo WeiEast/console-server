@@ -25,6 +25,8 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
+    private String appId;
+
     /**
      * 统计维度:0-按任务;1-按人数
      */
@@ -78,5 +80,13 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 }

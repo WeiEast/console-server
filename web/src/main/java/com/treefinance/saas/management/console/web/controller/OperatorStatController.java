@@ -23,15 +23,25 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/all/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllDayList(OperatorStatRequest request) {
-        if (request.getStartDate() == null || request.getEndDate() == null || request.getStatType() == null) {
+        if (request == null || request.getStartDate() == null || request.getEndDate() == null
+                || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return operatorStatService.queryAllOperatorStatDayAccessList(request);
     }
 
+    @RequestMapping(value = "/all/detail/list", method = {RequestMethod.GET}, produces = "application/json")
+    public Object queryAllDayDetailList(OperatorStatRequest request) {
+        if (request == null || request.getDataDate() == null
+                || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        return operatorStatService.queryAllOperatorStatAccessList(request);
+    }
+
     @RequestMapping(value = "/each/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDayList(OperatorStatRequest request) {
-        if (request.getDataDate() == null || request.getStatType() == null) {
+        if (request.getDataDate() == null || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return operatorStatService.queryOperatorStatDayAccessList(request);
@@ -39,10 +49,21 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/each/detail/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDetailList(OperatorStatRequest request) {
-        if (request.getStartDate() == null || request.getEndDate() == null || request.getStatType() == null || StringUtils.isBlank(request.getGroupCode())) {
+        if (request.getStartDate() == null || request.getEndDate() == null || request.getStatType() == null
+                || StringUtils.isBlank(request.getGroupCode()) || StringUtils.isBlank(request.getAppId())) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return operatorStatService.queryOperatorStatDayDetailAccessList(request);
+    }
+
+    /**
+     * 获取有运营商权限的商户列表
+     *
+     * @return
+     */
+    @RequestMapping(value = "/merchant/list", method = RequestMethod.GET)
+    public Object queryMerchantsHasOperatorAuth() {
+        return operatorStatService.queryMerchantsHasOperatorAuth();
     }
 
 

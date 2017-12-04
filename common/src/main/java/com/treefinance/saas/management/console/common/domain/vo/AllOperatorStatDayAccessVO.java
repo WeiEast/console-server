@@ -17,7 +17,10 @@ public class AllOperatorStatDayAccessVO implements Serializable {
     private Date dataTime;
 
     private String dataTimeStr;
-
+    /**
+     * 任务人数比
+     */
+    private BigDecimal taskUserRatio;
     private Integer entryCount;
     private Integer confirmMobileCount;
     private Integer startLoginCount;
@@ -25,6 +28,10 @@ public class AllOperatorStatDayAccessVO implements Serializable {
     private Integer crawlSuccessCount;
     private Integer processSuccessCount;
     private Integer callbackSuccessCount;
+    /**
+     * 总转化率
+     */
+    private BigDecimal wholeConversionRate;
     private BigDecimal confirmMobileConversionRate;
     private BigDecimal loginConversionRate;
     private BigDecimal loginSuccessRate;
@@ -153,5 +160,21 @@ public class AllOperatorStatDayAccessVO implements Serializable {
 
     public void setDataTimeStr(String dataTimeStr) {
         this.dataTimeStr = dataTimeStr;
+    }
+
+    public BigDecimal getWholeConversionRate() {
+        return wholeConversionRate;
+    }
+
+    public void setWholeConversionRate(BigDecimal wholeConversionRate) {
+        this.wholeConversionRate = wholeConversionRate;
+    }
+
+    public BigDecimal getTaskUserRatio() {
+        return taskUserRatio;
+    }
+
+    public void setTaskUserRatio(BigDecimal taskUserRatio) {
+        this.taskUserRatio = taskUserRatio;
     }
 }

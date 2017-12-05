@@ -765,11 +765,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
         criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
                 .andValueLike("%" + request.getWebsiteDetailName() + "%");
-        if (request.getDate() != null) {
-            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
-        }
         if (request.getStartTime() != null && request.getEndTime() != null) {
             criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+        } else if (request.getDate() != null) {
+            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
         }
         taskAttributeCriteria.setOrderByClause("CreateTime desc");
         taskAttributeCriteria.setOffset(request.getOffset());

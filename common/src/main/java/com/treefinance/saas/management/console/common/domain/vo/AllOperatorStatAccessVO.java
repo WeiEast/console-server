@@ -7,66 +7,36 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * @author haojiahong
- * @date 2017/11/1
+ * Created by haojiahong on 2017/12/4.
  */
-public class OperatorStatDayAccessVO implements Serializable {
+public class AllOperatorStatAccessVO implements Serializable {
 
-    private static final long serialVersionUID = 5314057593105667410L;
-
-    private String groupCode;
-
-    private String groupName;
+    private static final long serialVersionUID = -3702552273325772879L;
 
     private Date dataTime;
 
     private String dataTimeStr;
-
+    /**
+     * 任务人数比
+     */
+    private BigDecimal taskUserRatio;
+    private Integer entryCount;
     private Integer confirmMobileCount;
     private Integer startLoginCount;
     private Integer loginSuccessCount;
     private Integer crawlSuccessCount;
     private Integer processSuccessCount;
     private Integer callbackSuccessCount;
+    /**
+     * 总转化率
+     */
+    private BigDecimal wholeConversionRate;
+    private BigDecimal confirmMobileConversionRate;
     private BigDecimal loginConversionRate;
     private BigDecimal loginSuccessRate;
     private BigDecimal crawlSuccessRate;
     private BigDecimal processSuccessRate;
     private BigDecimal callbackSuccessRate;
-    private BigDecimal taskUserRatio;
-
-
-    public Integer getStartLoginCount() {
-        return startLoginCount;
-    }
-
-    public void setStartLoginCount(Integer startLoginCount) {
-        this.startLoginCount = startLoginCount;
-    }
-
-    public BigDecimal getLoginSuccessRate() {
-        return loginSuccessRate;
-    }
-
-    public void setLoginSuccessRate(BigDecimal loginSuccessRate) {
-        this.loginSuccessRate = loginSuccessRate;
-    }
-
-    public String getGroupCode() {
-        return groupCode;
-    }
-
-    public void setGroupCode(String groupCode) {
-        this.groupCode = groupCode;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
 
     public Date getDataTime() {
         return dataTime;
@@ -76,12 +46,47 @@ public class OperatorStatDayAccessVO implements Serializable {
         this.dataTime = dataTime;
     }
 
+    public String getDataTimeStr() {
+        if (dataTime != null) {
+            return DateUtils.date2SimpleHm(this.dataTime);
+        }
+        return dataTimeStr;
+    }
+
+    public void setDataTimeStr(String dataTimeStr) {
+        this.dataTimeStr = dataTimeStr;
+    }
+
+    public BigDecimal getTaskUserRatio() {
+        return taskUserRatio;
+    }
+
+    public void setTaskUserRatio(BigDecimal taskUserRatio) {
+        this.taskUserRatio = taskUserRatio;
+    }
+
+    public Integer getEntryCount() {
+        return entryCount;
+    }
+
+    public void setEntryCount(Integer entryCount) {
+        this.entryCount = entryCount;
+    }
+
     public Integer getConfirmMobileCount() {
         return confirmMobileCount;
     }
 
     public void setConfirmMobileCount(Integer confirmMobileCount) {
         this.confirmMobileCount = confirmMobileCount;
+    }
+
+    public Integer getStartLoginCount() {
+        return startLoginCount;
+    }
+
+    public void setStartLoginCount(Integer startLoginCount) {
+        this.startLoginCount = startLoginCount;
     }
 
     public Integer getLoginSuccessCount() {
@@ -108,12 +113,44 @@ public class OperatorStatDayAccessVO implements Serializable {
         this.processSuccessCount = processSuccessCount;
     }
 
+    public Integer getCallbackSuccessCount() {
+        return callbackSuccessCount;
+    }
+
+    public void setCallbackSuccessCount(Integer callbackSuccessCount) {
+        this.callbackSuccessCount = callbackSuccessCount;
+    }
+
+    public BigDecimal getWholeConversionRate() {
+        return wholeConversionRate;
+    }
+
+    public void setWholeConversionRate(BigDecimal wholeConversionRate) {
+        this.wholeConversionRate = wholeConversionRate;
+    }
+
+    public BigDecimal getConfirmMobileConversionRate() {
+        return confirmMobileConversionRate;
+    }
+
+    public void setConfirmMobileConversionRate(BigDecimal confirmMobileConversionRate) {
+        this.confirmMobileConversionRate = confirmMobileConversionRate;
+    }
+
     public BigDecimal getLoginConversionRate() {
         return loginConversionRate;
     }
 
     public void setLoginConversionRate(BigDecimal loginConversionRate) {
         this.loginConversionRate = loginConversionRate;
+    }
+
+    public BigDecimal getLoginSuccessRate() {
+        return loginSuccessRate;
+    }
+
+    public void setLoginSuccessRate(BigDecimal loginSuccessRate) {
+        this.loginSuccessRate = loginSuccessRate;
     }
 
     public BigDecimal getCrawlSuccessRate() {
@@ -132,38 +169,11 @@ public class OperatorStatDayAccessVO implements Serializable {
         this.processSuccessRate = processSuccessRate;
     }
 
-    public String getDataTimeStr() {
-        if (this.dataTime != null) {
-            return DateUtils.date2Ymd(this.dataTime);
-        }
-        return dataTimeStr;
-    }
-
-    public void setDataTimeStr(String dataTimeStr) {
-        this.dataTimeStr = dataTimeStr;
-    }
-
-    public Integer getCallbackSuccessCount() {
-        return callbackSuccessCount;
-    }
-
-    public void setCallbackSuccessCount(Integer callbackSuccessCount) {
-        this.callbackSuccessCount = callbackSuccessCount;
-    }
-
     public BigDecimal getCallbackSuccessRate() {
         return callbackSuccessRate;
     }
 
     public void setCallbackSuccessRate(BigDecimal callbackSuccessRate) {
         this.callbackSuccessRate = callbackSuccessRate;
-    }
-
-    public BigDecimal getTaskUserRatio() {
-        return taskUserRatio;
-    }
-
-    public void setTaskUserRatio(BigDecimal taskUserRatio) {
-        this.taskUserRatio = taskUserRatio;
     }
 }

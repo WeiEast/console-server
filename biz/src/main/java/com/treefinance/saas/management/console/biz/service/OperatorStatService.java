@@ -9,7 +9,17 @@ public interface OperatorStatService {
 
     Object queryAllOperatorStatDayAccessList(OperatorStatRequest request);
 
+    Object queryAllOperatorStatAccessList(OperatorStatRequest request);
+
     Object queryOperatorStatDayAccessList(OperatorStatRequest request);
 
     Object queryOperatorStatDayDetailAccessList(OperatorStatRequest request);
+
+
+    /**
+     * 获取有运营商权限的商户列表
+     *
+     * @return
+     */
+    Object queryMerchantsHasOperatorAuth();
 }

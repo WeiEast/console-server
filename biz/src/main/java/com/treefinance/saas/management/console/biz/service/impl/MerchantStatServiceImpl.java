@@ -689,7 +689,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         taskCriteria.setOffset(request.getOffset());
         taskCriteria.setLimit(request.getPageSize());
         taskCriteria.setOrderByClause("createTime desc");
-        List<Task> taskList = taskMapper.selectByExample(taskCriteria);
+        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
 
         List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
 
@@ -773,7 +773,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         taskAttributeCriteria.setOrderByClause("CreateTime desc");
         taskAttributeCriteria.setOffset(request.getOffset());
         taskAttributeCriteria.setLimit(request.getPageSize());
-        List<TaskAttribute> list = taskAttributeMapper.selectByExample(taskAttributeCriteria);
+        List<TaskAttribute> list = taskAttributeMapper.selectPaginationByExample(taskAttributeCriteria);
         if (CollectionUtils.isEmpty(list)) {
             return Lists.newArrayList();
         }

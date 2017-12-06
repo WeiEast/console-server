@@ -689,7 +689,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         taskCriteria.setOffset(request.getOffset());
         taskCriteria.setLimit(request.getPageSize());
         taskCriteria.setOrderByClause("createTime desc");
-        List<Task> taskList = taskMapper.selectByExample(taskCriteria);
+        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
 
         List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
 
@@ -765,16 +765,15 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
         criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
                 .andValueLike("%" + request.getWebsiteDetailName() + "%");
-        if (request.getDate() != null) {
-            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
-        }
         if (request.getStartTime() != null && request.getEndTime() != null) {
             criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+        } else if (request.getDate() != null) {
+            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
         }
         taskAttributeCriteria.setOrderByClause("CreateTime desc");
         taskAttributeCriteria.setOffset(request.getOffset());
         taskAttributeCriteria.setLimit(request.getPageSize());
-        List<TaskAttribute> list = taskAttributeMapper.selectByExample(taskAttributeCriteria);
+        List<TaskAttribute> list = taskAttributeMapper.selectPaginationByExample(taskAttributeCriteria);
         if (CollectionUtils.isEmpty(list)) {
             return Lists.newArrayList();
         }

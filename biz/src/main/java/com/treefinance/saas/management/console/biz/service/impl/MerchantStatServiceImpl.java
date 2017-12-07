@@ -676,11 +676,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
             }
         }
-        if (request.getDate() != null) {
-            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
-        }
         if (request.getStartTime() != null && request.getEndTime() != null) {
             criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+        } else if (request.getDate() != null) {
+            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
         }
         long total = taskMapper.countByExample(taskCriteria);
         if (total <= 0) {

@@ -1,12 +1,14 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.datatrees.toolkits.util.Base64Codec;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
+import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.TaskService;
@@ -15,6 +17,7 @@ import com.treefinance.saas.management.console.common.domain.dto.CallbackLicense
 import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
+import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -22,11 +25,7 @@ import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
-import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.OperatorRO;
-import com.treefinance.saas.monitor.facade.service.OperatorFacade;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -54,8 +53,6 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
-    private OperatorFacade operatorFacade;
-    @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
     private TaskCallbackLogMapper taskCallbackLogMapper;
@@ -65,6 +62,8 @@ public class TaskServiceImpl implements TaskService {
     private AppLicenseService appLicenseService;
     @Autowired
     private CallbackSecureHandler callbackSecureHandler;
+    @Autowired
+    private TaskAttributeMapper taskAttributeMapper;
 
     @Override
     public Result<Map<String, Object>> findByExample(TaskRequest taskRequest) {
@@ -96,18 +95,18 @@ public class TaskServiceImpl implements TaskService {
         criteria.andCreateTimeLessThanOrEqualTo(DateUtils.addSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1));
         Byte bizType = BizTypeEnum.valueOfType(BizTypeEnum.valueOf(taskRequest.getType()));
         criteria.andBizTypeEqualTo(bizType);
-        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
         long count = taskMapper.countByExample(taskCriteria);
         List<TaskVO> result = Lists.newArrayList();
         if (count <= 0) {
             return Results.newSuccessPageResult(taskRequest, count, result);
         }
+        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
         //<appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = getMerchantBaseMap(taskList);
         //<website,OperatorRO>
-        Map<String, OperatorRO> operatorROMap = Maps.newHashMap();
+        Map<Long, TaskAttribute> operatorMap = Maps.newHashMap();
         if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
-            operatorROMap = getOperatorMap(taskList);
+            operatorMap = getOperatorMapFromAttribute(taskList);
         }
         //<taskId,TaskCallbackLog>
         Map<Long, TaskCallbackLogDTO> taskCallbackLogMap = getTaskCallbackLogMap(taskList);
@@ -126,19 +125,54 @@ public class TaskServiceImpl implements TaskService {
                 vo.setAppId(merchantBase.getAppId());
             }
             if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
-                OperatorRO operatorRO = operatorROMap.get(task.getWebSite());
-                if (operatorRO != null) {
-                    vo.setOperatorName(operatorRO.getOperatorName());
+                TaskAttribute taskAttribute = operatorMap.get(task.getId());
+                if (taskAttribute != null) {
+                    vo.setOperatorName(taskAttribute.getValue());
                 }
             }
             TaskCallbackLogDTO taskCallbackLogDTO = taskCallbackLogMap.get(task.getId());
+            vo.setCanDownload(false);
             if (taskCallbackLogDTO != null) {
                 vo.setCallbackRequest(taskCallbackLogDTO.getPlainRequestParam());
+                vo.setCanDownload(canDownload(taskCallbackLogDTO.getPlainRequestParam()));
                 vo.setCallbackResponse(taskCallbackLogDTO.getResponseData());
+                vo.setCallbackLogId(taskCallbackLogDTO.getId());
             }
             result.add(vo);
         }
         return Results.newSuccessPageResult(taskRequest, count, result);
+    }
+
+    private Boolean canDownload(String requestParam) {
+        if (StringUtils.isNotBlank(requestParam)) {
+            JSONObject jsonObject;
+            try {
+                jsonObject = JSONObject.parseObject(requestParam);
+            } catch (Exception e) {
+                logger.error("json转换异常", e);
+                return false;
+            }
+            String dataUrl = jsonObject.getString("dataUrl");
+            String expirationTime = jsonObject.getString("expirationTime");
+            if (StringUtils.isNotBlank(dataUrl) && StringUtils.isNotBlank(expirationTime)) {
+                if (Long.valueOf(expirationTime) > System.currentTimeMillis()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
+        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
+        TaskAttributeCriteria criteria = new TaskAttributeCriteria();
+        criteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+        List<TaskAttribute> list = taskAttributeMapper.selectByExample(criteria);
+        if (CollectionUtils.isEmpty(list)) {
+            return Maps.newHashMap();
+        }
+        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
+        return map;
     }
 
     private Map<Long, TaskCallbackLogDTO> getTaskCallbackLogMap(List<Task> taskList) {
@@ -152,7 +186,7 @@ public class TaskServiceImpl implements TaskService {
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
         }
-        List<Integer> configIdList = taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).collect(Collectors.toList());
+        List<Integer> configIdList = taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).distinct().collect(Collectors.toList());
         AppCallbackConfigCriteria appCallbackConfigCriteria = new AppCallbackConfigCriteria();
         appCallbackConfigCriteria.createCriteria().andIdIn(configIdList);
         List<AppCallbackConfig> appCallbackConfigList = appCallbackConfigMapper.selectByExample(appCallbackConfigCriteria);
@@ -170,18 +204,22 @@ public class TaskServiceImpl implements TaskService {
                 logger.error("解密回调参数时,任务回调记录表中未找到对应的商户回调配置信息 configId={}", log.getConfigId());
                 continue;
             }
-            Long taskId = task.getId();
+            if (ECallBackDataType.MAIN.getCode().equals(appCallbackConfig.getDataType())) {
+                Long taskId = task.getId();
 //            String plainParams = getPlainParamsCallbackLog(task, appCallbackConfig, log);
-            TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
-            BeanUtils.convert(log, logDTO);
-            logDTO.setPlainRequestParam(log.getRequestParam());
-            //网关支持:一个任务,回调多方,这里现将日志打印出来
-            if (result.get(taskId) != null) {
-                logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)), logDTO);
-                continue;
+                TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
+                BeanUtils.convert(log, logDTO);
+                logDTO.setPlainRequestParam(log.getRequestParam());
+                //网关支持:一个任务,回调多方,这里现将日志打印出来
+                if (result.get(taskId) != null) {
+                    logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)), logDTO);
+                    continue;
+                }
+                result.put(taskId, logDTO);
             }
-            result.put(taskId, logDTO);
+
         }
+        logger.info("解密回调参数时,得到的任务对应主流程回调数据,Result={}", JSON.toJSONString(result));
         return result;
     }
 
@@ -244,21 +282,6 @@ public class TaskServiceImpl implements TaskService {
         taskLogCriteria.createCriteria().andTaskIdEqualTo(taskId);
         taskLogCriteria.setOrderByClause("OccurTime desc, Id desc");
         return taskLogMapper.selectByExample(taskLogCriteria);
-    }
-
-    private Map<String, OperatorRO> getOperatorMap(List<Task> list) {
-        List<String> websiteList = list.stream().map(Task::getWebSite).distinct().filter(StringUtils::isNotBlank).collect(Collectors.toList());
-        MonitorResult<Map<String, OperatorRO>> resultMap = operatorFacade.queryOperatorByWebsites(websiteList);
-        if (logger.isDebugEnabled()) {
-            logger.debug("operatorFacade.queryOperatorByWebsites() :request={},result={}",
-                    JSON.toJSONString(websiteList), JSON.toJSONString(resultMap));
-        }
-        if (resultMap == null || MapUtils.isEmpty(resultMap.getData())) {
-            logger.info("result of queryOperatorByWebsites() is empty : request={}, result={}", JSON.toJSONString(websiteList), JSON.toJSONString(resultMap));
-            return Maps.newHashMap();
-        }
-        Map<String, OperatorRO> map = resultMap.getData();
-        return map;
     }
 
     private Map<String, MerchantBase> getMerchantBaseMap(List<Task> taskList) {

@@ -5,14 +5,20 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.OperatorStatService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
-import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatDayAccessVO;
-import com.treefinance.saas.management.console.common.domain.vo.OperatorStatDayAccessDetailVO;
-import com.treefinance.saas.management.console.common.domain.vo.OperatorStatDayAccessVO;
+import com.treefinance.saas.management.console.common.domain.vo.*;
+import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
+import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
+import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
+import com.treefinance.saas.management.console.dao.entity.MerchantBase;
+import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
+import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
+import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.monitor.facade.domain.request.OperatorStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
+import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorAllStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorAllStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatDayAccessRO;
@@ -39,6 +45,11 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
     @Autowired
     private OperatorStatAccessFacade operatorStatAccessFacade;
+    @Autowired
+    private AppBizLicenseMapper appBizLicenseMapper;
+    @Autowired
+    private MerchantBaseMapper merchantBaseMapper;
+
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -48,14 +59,31 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setPageSize(request.getPageSize());
         rpcRequest.setPageNumber(request.getPageNumber());
         rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setAppId(request.getAppId());
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessListWithPage(rpcRequest);
-        logger.info("查询所有运营商日监控统计数据(分页),rpcRequest={},rpcResult={}", JSON.toJSONString(rpcRequest), JSON.toJSONString(rpcResult));
         List<AllOperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newSuccessPageResult(request, 0, result);
         }
         result = BeanUtils.convertList(rpcResult.getData(), AllOperatorStatDayAccessVO.class);
         return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
+    }
+
+    @Override
+    public Object queryAllOperatorStatAccessList(OperatorStatRequest request) {
+        OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
+        rpcRequest.setStartDate(DateUtils.getTodayBeginDate(request.getDataDate()));
+        rpcRequest.setEndDate(DateUtils.getTodayEndDate(request.getDataDate()));
+        rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setIntervalMins(30);
+        MonitorResult<List<OperatorAllStatAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStaAccessList(rpcRequest);
+        List<AllOperatorStatAccessVO> result = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(rpcResult.getData())) {
+            return Results.newSuccessResult(result);
+        }
+        result = BeanUtils.convertList(rpcResult.getData(), AllOperatorStatAccessVO.class);
+        return Results.newSuccessResult(result);
     }
 
     @Override
@@ -66,8 +94,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setPageNumber(request.getPageNumber());
         rpcRequest.setGroupName(request.getGroupName());
         rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setAppId(request.getAppId());
         MonitorResult<List<OperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatDayAccessListWithPage(rpcRequest);
-        logger.info("查询各个运营商日监控统计数据(分页),rpcRequest={},rpcResult={}", JSON.toJSONString(rpcRequest), JSON.toJSONString(rpcResult));
         List<OperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newSuccessPageResult(request, 0, result);
@@ -86,8 +114,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcDayRequest.setPageNumber(request.getPageNumber());
         rpcDayRequest.setGroupCode(request.getGroupCode());
         rpcDayRequest.setStatType(request.getStatType());
+        rpcDayRequest.setAppId(request.getAppId());
         MonitorResult<List<OperatorStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryOneOperatorStatDayAccessListWithPage(rpcDayRequest);
-        logger.info("查询某一个运营商日监控统计数据(分页),rpcDayRequest={},rpcResult={}", JSON.toJSONString(rpcDayRequest), JSON.toJSONString(rpcDayResult));
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
         }
@@ -96,8 +124,9 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setStartDate(request.getStartDate());
         rpcRequest.setEndDate(request.getEndDate());
         rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setIntervalMins(60);
         MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatAccessList(rpcRequest);
-        logger.info("查询某一个运营商小时监控统计数据,rpcRequest={},rpcResult={}", JSON.toJSONString(rpcRequest), JSON.toJSONString(rpcResult));
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             logger.error("查询具体运营商详细信息有误,存在日统计数据,缺失小时统计数据,request={}", JSON.toJSONString(request));
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
@@ -131,5 +160,36 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             result.add(vo);
         }
         return Results.newSuccessPageResult(request, rpcDayResult.getTotalCount(), result);
+    }
+
+    @Override
+    public Object queryMerchantsHasOperatorAuth() {
+        List<MerchantSimpleVO> result = Lists.newArrayList();
+        MerchantSimpleVO totalVO = new MerchantSimpleVO();
+        totalVO.setAppId("virtual_total_stat_appId");
+        totalVO.setAppName("所有商户");
+        result.add(totalVO);
+        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
+        appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(EBizType.OPERATOR.getCode());
+        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        if (CollectionUtils.isEmpty(appBizLicenseList)) {
+            return Results.newSuccessResult(result);
+        }
+        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
+        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
+        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
+        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        if (CollectionUtils.isEmpty(merchantBaseList)) {
+            return Results.newSuccessResult(result);
+        }
+        merchantBaseList = merchantBaseList.stream()
+                .sorted((o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime())).collect(Collectors.toList());
+        for (MerchantBase merchantBase : merchantBaseList) {
+            MerchantSimpleVO vo = new MerchantSimpleVO();
+            vo.setAppId(merchantBase.getAppId());
+            vo.setAppName(merchantBase.getAppName());
+            result.add(vo);
+        }
+        return Results.newSuccessResult(result);
     }
 }

@@ -25,6 +25,8 @@ public class TaskVO implements Serializable {
     private String webSite;
     private Date createTime;
     private Date lastUpdateTime;
+    private Boolean canDownload;
+    private Long callbackLogId;
 
     public Long getId() {
         return id;
@@ -120,5 +122,21 @@ public class TaskVO implements Serializable {
 
     public void setCallbackResponse(String callbackResponse) {
         this.callbackResponse = callbackResponse;
+    }
+
+    public Boolean getCanDownload() {
+        return canDownload;
+    }
+
+    public void setCanDownload(Boolean canDownload) {
+        this.canDownload = canDownload;
+    }
+
+    public Long getCallbackLogId() {
+        return callbackLogId;
+    }
+
+    public void setCallbackLogId(Long callbackLogId) {
+        this.callbackLogId = callbackLogId;
     }
 }

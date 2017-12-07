@@ -7,9 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -215,6 +212,17 @@ public class DateUtils {
         m = cal.get(Calendar.MONTH);
         d = cal.get(Calendar.DATE);
         cal.set(y, m, d, 0, 0, 0);//时、分、秒，设置成0，获取凌晨的时间
+        return cal.getTime();
+    }
+
+    public static Date getTodayEndDate(Date date) {
+        int y, m, d;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        y = cal.get(Calendar.YEAR);
+        m = cal.get(Calendar.MONTH);
+        d = cal.get(Calendar.DATE);
+        cal.set(y, m, d, 23, 59, 59);//时、分、秒，设置成0，获取凌晨的时间
         return cal.getTime();
     }
 
@@ -464,6 +472,8 @@ public class DateUtils {
         Date date = org.apache.commons.lang3.time.DateUtils.parseDate("2017-11-24 19:01:00", "yyyy-MM-dd HH:mm:ss");
         //8,16,24,32,40,48,56
         System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
+
+        System.out.println(DateUtils.getTodayEndDate(new Date()));
 
     }
 

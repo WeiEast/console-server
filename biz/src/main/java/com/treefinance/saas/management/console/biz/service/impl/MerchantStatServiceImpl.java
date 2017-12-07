@@ -664,6 +664,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
             if (request.getBizType() == 3) {//运营商
                 List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
+                if (CollectionUtils.isEmpty(taskIdList)) {
+                    return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+                }
                 criteria.andIdIn(taskIdList);
             } else if (request.getBizType() == -1) {//合计
                 List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);

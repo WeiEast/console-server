@@ -24,10 +24,13 @@ public class OperatorStatDayAccessDetailVO implements Serializable {
     private Integer loginSuccessCount;
     private Integer crawlSuccessCount;
     private Integer processSuccessCount;
+    private Integer callbackSuccessCount;
     private BigDecimal loginConversionRate;
     private BigDecimal loginSuccessRate;
     private BigDecimal crawlSuccessRate;
     private BigDecimal processSuccessRate;
+    private BigDecimal callbackSuccessRate;
+    private BigDecimal taskUserRatio;
 
     private List<OperatorStatDayAccessDetailVO> children;
 
@@ -133,5 +136,29 @@ public class OperatorStatDayAccessDetailVO implements Serializable {
 
     public void setDataTimeStr(String dataTimeStr) {
         this.dataTimeStr = dataTimeStr;
+    }
+
+    public Integer getCallbackSuccessCount() {
+        return callbackSuccessCount;
+    }
+
+    public void setCallbackSuccessCount(Integer callbackSuccessCount) {
+        this.callbackSuccessCount = callbackSuccessCount;
+    }
+
+    public BigDecimal getCallbackSuccessRate() {
+        return callbackSuccessRate;
+    }
+
+    public void setCallbackSuccessRate(BigDecimal callbackSuccessRate) {
+        this.callbackSuccessRate = callbackSuccessRate;
+    }
+
+    public BigDecimal getTaskUserRatio() {
+        return taskUserRatio;
+    }
+
+    public void setTaskUserRatio(BigDecimal taskUserRatio) {
+        this.taskUserRatio = taskUserRatio;
     }
 }

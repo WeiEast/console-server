@@ -25,11 +25,9 @@ import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequ
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.WebsiteRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.SaasErrorStepDayStatRO;
-import com.treefinance.saas.monitor.facade.service.WebsiteFacade;
 import com.treefinance.saas.monitor.facade.service.stat.MerchantStatAccessFacade;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,8 +58,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
     private TaskMapper taskMapper;
-    @Autowired
-    private WebsiteFacade websiteFacade;
     @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
@@ -500,9 +496,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (statType == null) {
             throw new IllegalArgumentException("请求参数statType不能为空！");
         }
-        if (statType < 1 || statType > 3) {
-            throw new IllegalArgumentException("请求参数statType非法！");
-        }
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
@@ -656,6 +649,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             criteria.andStatusEqualTo((byte) 3);//失败的任务
         } else if (request.getStatType() == 3) {
             criteria.andStatusEqualTo((byte) 1);//取消的任务
+        } else if (request.getStatType() == 1) {
+            criteria.andStatusEqualTo((byte) 2);//成功的任务
         } else {
             throw new BizException("statType参数有误");
         }
@@ -666,11 +661,28 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         } else {
             criteria.andBizTypeEqualTo(request.getBizType());
         }
-        if (request.getDate() != null) {
-            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
+        if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
+            if (request.getBizType() == 3) {//运营商
+                List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
+                if (CollectionUtils.isEmpty(taskIdList)) {
+                    return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+                }
+                criteria.andIdIn(taskIdList);
+            } else if (request.getBizType() == -1) {//合计
+                List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
+                if (!CollectionUtils.isEmpty(taskIdList)) {
+                    criteria.andIdIn(taskIdList);
+                } else {
+                    criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
+                }
+            } else {//邮箱账单或电商或其他
+                criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
+            }
         }
         if (request.getStartTime() != null && request.getEndTime() != null) {
             criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+        } else if (request.getDate() != null) {
+            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
         }
         long total = taskMapper.countByExample(taskCriteria);
         if (total <= 0) {
@@ -680,19 +692,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         taskCriteria.setLimit(request.getPageSize());
         taskCriteria.setOrderByClause("createTime desc");
         List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
-
-        Map<String, WebsiteRO> websiteROMap = Maps.newHashMap();
-        List<String> websiteNameList = taskList.stream().map(Task::getWebSite).collect(Collectors.toList());
-        MonitorResult<List<WebsiteRO>> rpcResult = websiteFacade.queryWebsiteDetailByWebsiteName(websiteNameList);
-        if (logger.isDebugEnabled()) {
-            logger.debug("websiteFacade.queryWebsiteDetailByWebsiteName() : request={},result={}",
-                    JSON.toJSONString(websiteNameList), JSON.toJSONString(rpcResult));
-        }
-        if (rpcResult != null && !CollectionUtils.isEmpty(rpcResult.getData())) {
-            logger.info("result of queryWebsiteDetailByWebsiteName() is empty : request={}, result={}", JSON.toJSONString(websiteNameList), JSON.toJSONString(rpcResult));
-            websiteROMap = rpcResult.getData().stream()
-                    .collect(Collectors.toMap(WebsiteRO::getWebsiteName, websiteRO -> websiteRO, (key1, key2) -> key1));
-        }
 
         List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
 
@@ -730,10 +729,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 }
                 if (request.getStatType() == 2) {//失败,某些任务中会有"回调通知成功"环节,此环节没有实际意义,需剔除.
                     List<String> taskErrorStepList = ETaskErrorStep.getTaskErrorStepList();
-
-                    taskLog = taskLogs.stream().filter(taskLog1 -> taskErrorStepList.contains(taskLog1.getMsg()))
+                    List<TaskLog> list = taskLogs.stream().filter(taskLog1 -> taskErrorStepList.contains(taskLog1.getMsg()))
                             .sorted((o1, o2) -> o2.getOccurTime().compareTo(o1.getOccurTime()))
-                            .collect(Collectors.toList()).get(0);
+                            .collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(list)) {
+                        taskLog = list.get(0);
+                    }
                 }
                 if (taskLog == null) {
                     logger.error("查询任务taskId={},状态status={}时,在task_log表中未查询到对应的状态日志记录", task.getId(), task.getStatus());
@@ -753,14 +754,33 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                     vo.setWebsiteDetailName(taskAttribute.getValue());
                 }
             } else {
-                WebsiteRO websiteRO = websiteROMap.get(task.getWebSite());
-                if (websiteRO != null) {
-                    vo.setWebsiteDetailName(websiteRO.getWebsiteDetailName());
-                }
+                vo.setWebsiteDetailName(task.getWebSite());
+
             }
             resultList.add(vo);
         }
         return Results.newSuccessPageResult(request, total, resultList);
+    }
+
+    private List<Long> getTaskIdByTaskAttributeGroupName(StatDayRequest request) {
+        TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
+        TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
+        criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
+                .andValueLike("%" + request.getWebsiteDetailName() + "%");
+        if (request.getStartTime() != null && request.getEndTime() != null) {
+            criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+        } else if (request.getDate() != null) {
+            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
+        }
+        taskAttributeCriteria.setOrderByClause("CreateTime desc");
+        taskAttributeCriteria.setOffset(request.getOffset());
+        taskAttributeCriteria.setLimit(request.getPageSize());
+        List<TaskAttribute> list = taskAttributeMapper.selectPaginationByExample(taskAttributeCriteria);
+        if (CollectionUtils.isEmpty(list)) {
+            return Lists.newArrayList();
+        }
+        List<Long> taskIdList = list.stream().map(TaskAttribute::getTaskId).distinct().collect(Collectors.toList());
+        return taskIdList;
     }
 
     private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
@@ -946,6 +966,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             totalVOList.add(vo);
         }
         totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+        totalVOList.remove(totalVOList.size() - 1);
         valuesMap.put("总任务量", totalVOList);
         return valuesMap;
     }

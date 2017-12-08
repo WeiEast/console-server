@@ -153,7 +153,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             BeanUtils.convert(ro, vo);
             List<OperatorStatDayAccessDetailVO> detailList = map.get(dateStr);
             if (CollectionUtils.isNotEmpty(detailList)) {
-                detailList.stream().sorted((o1, o2) -> o2.getDataTime().compareTo(o1.getDataTime())).collect(Collectors.toList());
+                detailList = detailList.stream().sorted((o1, o2) -> o2.getDataTime().compareTo(o1.getDataTime())).collect(Collectors.toList());
             }
             vo.setDataTimeStr(dateStr);
             vo.setChildren(detailList);

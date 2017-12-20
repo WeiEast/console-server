@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -198,7 +197,9 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     @Override
     public Object queryNumberRatio(OperatorStatRequest request) {
         Map<String, Object> map = Maps.newHashMap();
-        map.put("keys", DateUtils.getIntervalDateStrRegion(request.getStartTime(), request.getEndTime(), 5));
+        List<String> keys = DateUtils.getIntervalDateStrRegion(request.getStartTime(), request.getEndTime(), 5);
+        List<String> groupNameList = Lists.newArrayList("中国联通", "广东移动", "浙江移动", "江苏移动", "福建移动", "山东移动", "河南移动", "湖南移动", "广西移动", "湖北移动", "其他");
+        map.put("keys", keys);
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
         rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), 5));
         rpcRequest.setEndDate(DateUtils.getIntervalDateTime(request.getEndTime(), 5));
@@ -214,7 +215,17 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         //<时间,<运营商名称,数值>>
         Map<String, Map<String, String>> everyOneMap = Maps.newHashMap();
         for (Date date : dateList) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(DateUtils.date2SimpleHm(date));
+            Date mediTime = org.apache.commons.lang3.time.DateUtils.addMinutes(date, 5);
+            sb.append("-").append(DateUtils.date2SimpleHm(mediTime));
+
             List<OperatorStatAccessRO> dateDataList = dateMap.get(date);
+            if (CollectionUtils.isEmpty(dateDataList)) {
+                everyOneMap.put(sb.toString(), Maps.newHashMap());
+                continue;
+            }
+
             int total = 0;
             for (OperatorStatAccessRO ro : dateDataList) {
                 total += ro.getConfirmMobileCount();
@@ -227,18 +238,29 @@ public class OperatorStatServiceImpl implements OperatorStatService {
                 for (OperatorStatAccessRO ro : entry.getValue()) {
                     i += ro.getConfirmMobileCount();
                 }
-                BigDecimal rate = new BigDecimal(i).multiply(new BigDecimal(100)).divide(new BigDecimal(total), 2, BigDecimal.ROUND_HALF_UP);
-                StringBuilder sb = new StringBuilder();
-                sb.append(i).append("(").append(rate).append("%").append(")");
-                dateCountMap.put(entry.getKey(), sb.toString());
+                if (groupNameList.contains(entry.getKey())) {
+                    dateCountMap.put(entry.getKey(), i + "");
+                } else {
+                    if (dateCountMap.get("其他") == null) {
+                        dateCountMap.put("其他", i + "");
+                    } else {
+                        i = i + Integer.valueOf(dateCountMap.get("其他"));
+                        dateCountMap.put("其他", i + "");
+                    }
+                }
             }
-            StringBuilder sb = new StringBuilder();
-            sb.append(DateUtils.date2SimpleHm(date));
-            Date mediTime = org.apache.commons.lang3.time.DateUtils.addMinutes(date, 5);
-            sb.append("-").append(DateUtils.date2SimpleHm(mediTime));
+
             everyOneMap.put(sb.toString(), dateCountMap);
         }
+        //// TODO: 2017/12/20  好一点的方式是x轴,y轴的数据返给前端,所有数据返给前端,前端自己去比对.
+        Map<String, Map<String, String>> valueMap = Maps.newHashMap();
+        for (String timeKey : keys) {
+            for (String groupName : groupNameList) {
 
-        return Results.newSuccessResult(everyOneMap);
+            }
+        }
+
+        map.put("values", everyOneMap);
+        return Results.newSuccessResult(map);
     }
 }

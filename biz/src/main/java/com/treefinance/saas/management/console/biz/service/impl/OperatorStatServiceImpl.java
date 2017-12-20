@@ -29,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -191,5 +193,52 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             result.add(vo);
         }
         return Results.newSuccessResult(result);
+    }
+
+    @Override
+    public Object queryNumberRatio(OperatorStatRequest request) {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("keys", DateUtils.getIntervalDateStrRegion(request.getStartTime(), request.getEndTime(), 5));
+        OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
+        rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), 5));
+        rpcRequest.setEndDate(DateUtils.getIntervalDateTime(request.getEndTime(), 5));
+        rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setIntervalMins(5);
+        MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatAccessListByExample(rpcRequest);
+        if (CollectionUtils.isEmpty(rpcResult.getData())) {
+            map.put("values", Maps.newHashMap());
+        }
+        List<OperatorStatAccessRO> dataList = rpcResult.getData();
+        Map<Date, List<OperatorStatAccessRO>> dateMap = dataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getDataTime));
+        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), 5);
+        //<时间,<运营商名称,数值>>
+        Map<String, Map<String, String>> everyOneMap = Maps.newHashMap();
+        for (Date date : dateList) {
+            List<OperatorStatAccessRO> dateDataList = dateMap.get(date);
+            int total = 0;
+            for (OperatorStatAccessRO ro : dateDataList) {
+                total += ro.getConfirmMobileCount();
+            }
+            Map<String, List<OperatorStatAccessRO>> dateDataMap = dateDataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getGroupName));
+            Map<String, String> dateCountMap = Maps.newHashMap();
+
+            for (Map.Entry<String, List<OperatorStatAccessRO>> entry : dateDataMap.entrySet()) {
+                int i = 0;
+                for (OperatorStatAccessRO ro : entry.getValue()) {
+                    i += ro.getConfirmMobileCount();
+                }
+                BigDecimal rate = new BigDecimal(i).multiply(new BigDecimal(100)).divide(new BigDecimal(total), 2, BigDecimal.ROUND_HALF_UP);
+                StringBuilder sb = new StringBuilder();
+                sb.append(i).append("(").append(rate).append("%").append(")");
+                dateCountMap.put(entry.getKey(), sb.toString());
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append(DateUtils.date2SimpleHm(date));
+            Date mediTime = org.apache.commons.lang3.time.DateUtils.addMinutes(date, 5);
+            sb.append("-").append(DateUtils.date2SimpleHm(mediTime));
+            everyOneMap.put(sb.toString(), dateCountMap);
+        }
+
+        return Results.newSuccessResult(everyOneMap);
     }
 }

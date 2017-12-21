@@ -24,11 +24,14 @@ import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatA
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.service.stat.OperatorStatAccessFacade;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -225,11 +228,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
                 everyOneMap.put(sb.toString(), Maps.newHashMap());
                 continue;
             }
-
-            int total = 0;
-            for (OperatorStatAccessRO ro : dateDataList) {
-                total += ro.getConfirmMobileCount();
-            }
             Map<String, List<OperatorStatAccessRO>> dateDataMap = dateDataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getGroupName));
             Map<String, String> dateCountMap = Maps.newHashMap();
 
@@ -252,15 +250,39 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
             everyOneMap.put(sb.toString(), dateCountMap);
         }
-        //// TODO: 2017/12/20  好一点的方式是x轴,y轴的数据返给前端,所有数据返给前端,前端自己去比对.
-        Map<String, Map<String, String>> valueMap = Maps.newHashMap();
+        Map<String, Map<String, String>> valueMap = Maps.newLinkedHashMap();
         for (String timeKey : keys) {
-            for (String groupName : groupNameList) {
-
+            Map<String, String> itemCountMap = everyOneMap.get(timeKey);
+            Map<String, String> itemValueMap = Maps.newLinkedHashMap();
+            int total = 0;
+            if (MapUtils.isNotEmpty(itemCountMap)) {
+                for (Map.Entry<String, String> entry : itemCountMap.entrySet()) {
+                    total += Integer.valueOf(entry.getValue());
+                }
+                for (String groupName : groupNameList) {
+                    String valueStr = itemCountMap.get(groupName);
+                    StringBuilder sb = new StringBuilder();
+                    if (StringUtils.isBlank(valueStr)) {
+                        sb = sb.append("0").append(" | ").append("NA");
+                        itemValueMap.put(groupName, sb.toString());
+                    } else {
+                        BigDecimal rate = new BigDecimal(valueStr).multiply(new BigDecimal(100)).divide(new BigDecimal(total), 2, BigDecimal.ROUND_HALF_UP);
+                        sb = sb.append(valueStr).append(" | ").append(rate).append("%");
+                        itemValueMap.put(groupName, sb.toString());
+                    }
+                }
+            } else {
+                StringBuilder sb = new StringBuilder();
+                sb = sb.append("0").append(" | ").append("NA");
+                for (String groupName : groupNameList) {
+                    itemValueMap.put(groupName, sb.toString());
+                }
             }
+            valueMap.put(timeKey, itemValueMap);
         }
 
-        map.put("values", everyOneMap);
+        map.put("values", valueMap);
         return Results.newSuccessResult(map);
     }
+
 }

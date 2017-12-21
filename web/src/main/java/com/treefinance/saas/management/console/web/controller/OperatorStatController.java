@@ -74,7 +74,7 @@ public class OperatorStatController {
     /**
      * 运营商任务监控占比
      */
-    @RequestMapping(value = "num/ratio", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/num/ratio", method = RequestMethod.GET, produces = "application/json")
     public Object queryNumberRatio(OperatorStatRequest request) {
         OperatorStatRequest statRequest = new OperatorStatRequest();
         Date startTime = DateUtils.truncate(new Date(), Calendar.HOUR);

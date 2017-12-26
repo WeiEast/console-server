@@ -4,10 +4,7 @@ import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
-import com.treefinance.saas.assistant.config.model.enums.ConfigType;
-import com.treefinance.saas.assistant.config.model.enums.UpdateType;
-import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
+import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
@@ -58,7 +55,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Autowired
     private AppBizTypeMapper appBizTypeMapper;
     @Autowired
-    private ConfigUpdatePlugin configUpdatePlugin;
+    private VariableMessageNotifyService variableMessageNotifyService;
     @Autowired
     private AppCallbackConfigDao appCallbackConfigDao;
     @Autowired
@@ -201,12 +198,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     public Integer add(AppCallbackConfigVO appCallbackConfigVO) {
         Integer configId = appCallbackConfigDao.addCallbackConfig(appCallbackConfigVO);
         // 发送配置变更消息
-        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                .configType(ConfigType.MERCHANT_CALLBACK)
-                .configDesc("新增回调配置")
-                .updateType(UpdateType.CREATE)
-                .configId(appCallbackConfigVO.getAppId())
-                .configData(appCallbackConfigVO).build());
+        variableMessageNotifyService.sendVariableMessage("merchant-callback", "create", appCallbackConfigVO.getAppId());
         return configId;
     }
 
@@ -216,11 +208,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         AppCallbackConfigVO _appCallbackConfigVO = getAppCallbackConfigById(appCallbackConfigVO.getId());
 
         if (_appCallbackConfigVO != null) {
-            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                    .configType(ConfigType.MERCHANT_CALLBACK)
-                    .configDesc("更新回调配置")
-                    .configId(_appCallbackConfigVO.getAppId())
-                    .configData(appCallbackConfigVO).build());
+            variableMessageNotifyService.sendVariableMessage("merchant-callback", "update", _appCallbackConfigVO.getAppId());
         }
     }
 
@@ -231,12 +219,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         appCallbackConfigDao.deleteAppCallbackConfigById(id);
         // 发送配置变更消息
         if (appCallbackConfigVO != null) {
-            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                    .configType(ConfigType.MERCHANT_CALLBACK)
-                    .configDesc("删除回调配置")
-                    .updateType(UpdateType.DELETE)
-                    .configId(appCallbackConfigVO.getAppId())
-                    .configData(appCallbackConfigVO).build());
+            variableMessageNotifyService.sendVariableMessage("merchant-callback", "delete", appCallbackConfigVO.getAppId());
+
         }
     }
 

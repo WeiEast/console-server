@@ -1,9 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.dao.impl;
 
 import com.google.common.collect.Lists;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateModel;
-import com.treefinance.saas.assistant.config.model.enums.ConfigType;
+import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfigDao;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.dao.entity.MerchantFlowConfig;
@@ -25,11 +23,12 @@ import java.util.stream.Collectors;
 public class MerchantFlowConfigDaoImpl implements MerchantFlowConfigDao {
     @Autowired
     private MerchantFlowConfigMapper merchantFlowConfigMapper;
+    @Autowired
+    private VariableMessageNotifyService variableMessageNotifyService;
 
     @Override
     @Transactional
-    public List<ConfigUpdateModel> batchUpdate(List<MerchantFlowConfigVO> list) {
-        List<ConfigUpdateModel> modelList = Lists.newArrayList();
+    public void batchUpdate(List<MerchantFlowConfigVO> list) {
         List<Long> idList = list.stream().map(MerchantFlowConfigVO::getId).collect(Collectors.toList());
         MerchantFlowConfigCriteria configCriteria = new MerchantFlowConfigCriteria();
         configCriteria.createCriteria().andIdIn(idList);
@@ -48,13 +47,7 @@ public class MerchantFlowConfigDaoImpl implements MerchantFlowConfigDao {
             if (StringUtils.isBlank(appId)) {
                 continue;
             }
-            //拼装消息待发送
-            ConfigUpdateModel model = ConfigUpdateBuilder.newBuilder()
-                    .configType(ConfigType.MERCHANT_OTHER)
-                    .configDesc("更新商户流量分配")
-                    .configId(appId).build();
-            modelList.add(model);
+            variableMessageNotifyService.sendVariableMessage("merchant-flow", "update", appId);
         }
-        return modelList;
     }
 }

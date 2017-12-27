@@ -6,9 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
-import com.treefinance.saas.assistant.config.model.enums.ConfigType;
-import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
+import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
@@ -64,7 +62,7 @@ public class MerchantServiceImpl implements MerchantService {
     @Autowired
     private DiamondConfig diamondConfig;
     @Autowired
-    private ConfigUpdatePlugin configUpdatePlugin;
+    private VariableMessageNotifyService variableMessageNotifyService;
     @Autowired
     private MerchantDao merchantDao;
     @Autowired
@@ -224,11 +222,8 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         Map<String, Object> map = merchantDao.addMerchant(merchantBaseVO);
-        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                .configType(ConfigType.MERCHANT_BASE)
-                .configDesc("新增商户")
-                .configId(appId)
-                .configData(merchantBaseVO).build());
+        // 发送变量通知消息
+        variableMessageNotifyService.sendVariableMessage("merchant", "update", appId);
         return map;
     }
 
@@ -253,11 +248,8 @@ public class MerchantServiceImpl implements MerchantService {
         }
         merchantDao.updateMerchant(merchantBaseVO);
 
-        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                .configType(ConfigType.MERCHANT_BASE)
-                .configDesc("更新商户")
-                .configId(merchantBaseList.get(0).getAppId())
-                .configData(merchantBaseVO).build());
+        // 发送变量通知消息
+        variableMessageNotifyService.sendVariableMessage("merchant", "update", merchantBaseList.get(0).getAppId());
     }
 
     @Override

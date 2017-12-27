@@ -100,7 +100,7 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andAppIdEqualTo(appId);
+        appBizLicenseCriteria.createCriteria().andAppIdEqualTo(appId).andIsValidEqualTo((byte) 1);
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
         Map<Byte, String> appBizTypeNameMap = appBizTypeService.getBizTypeNameMap();
         if (!CollectionUtils.isEmpty(appBizLicenseList)) {

@@ -10,6 +10,7 @@ import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
 import com.treefinance.saas.assistant.config.model.enums.ConfigType;
 import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
+import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantDao;
@@ -67,6 +68,8 @@ public class MerchantServiceImpl implements MerchantService {
     private ConfigUpdatePlugin configUpdatePlugin;
     @Autowired
     private MerchantDao merchantDao;
+    @Autowired
+    private AppBizTypeService appBizTypeService;
 
 
     @Override
@@ -180,12 +183,13 @@ public class MerchantServiceImpl implements MerchantService {
                 merchantBaseVO.setIsTest(merchantUser.getIsTest());
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
+            Map<Byte, String> appBizTypeNameMap = appBizTypeService.getBizTypeNameMap();
             if (!CollectionUtils.isEmpty(licenseList)) {
                 List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
                 for (AppBizLicense appBizLicense : licenseList) {
                     AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
                     appBizLicenseVO.setBizType(appBizLicense.getBizType());
-                    appBizLicenseVO.setBizName(EBizType.getName(appBizLicense.getBizType()));
+                    appBizLicenseVO.setBizName(appBizTypeNameMap.get(appBizLicense.getBizType()));
                     appBizLicenseVOList.add(appBizLicenseVO);
                 }
                 appBizLicenseVOList = appBizLicenseVOList.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());

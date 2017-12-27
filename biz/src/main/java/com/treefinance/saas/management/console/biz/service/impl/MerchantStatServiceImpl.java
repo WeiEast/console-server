@@ -648,6 +648,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         Map<String, Object> map = Maps.newHashMap();
         map.put("appId", request.getAppId());
+        map.put("name", ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
         if (request.getStatType() == 2) {
             map.put("status", 3);//失败的任务
         } else if (request.getStatType() == 3) {

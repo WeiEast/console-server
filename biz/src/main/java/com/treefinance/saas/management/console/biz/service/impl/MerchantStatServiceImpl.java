@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.treefinance.saas.gateway.servicefacade.enums.TaskStepEnum;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
+import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.dto.SaasErrorStepDayStatDTO;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
@@ -70,6 +71,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private TaskAttributeMapper taskAttributeMapper;
     @Autowired
     private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
+    @Autowired
+    private AppBizTypeService appBizTypeService;
 
 
     @Override
@@ -696,6 +699,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<Long, List<TaskLog>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLog::getTaskId));
 
         List<TaskDetailVO> resultList = Lists.newArrayList();
+        Map<Byte, String> bizTypeMap = appBizTypeService.getBizTypeNameMap();
 
         for (TaskAndTaskAttribute task : taskList) {
             TaskDetailVO vo = new TaskDetailVO();
@@ -703,7 +707,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             vo.setAppId(task.getAppId());
             vo.setUniqueId(task.getUniqueId());
             vo.setBizType(task.getBizType());
-            vo.setBizTypeName(EBizType4Monitor.getMainName(task.getBizType()));
+            vo.setBizTypeName(bizTypeMap.get(task.getBizType()));
             List<TaskLog> taskLogs = taskLogsMap.get(task.getId());
             if (!CollectionUtils.isEmpty(taskLogs)) {
                 taskLogs = taskLogs.stream()

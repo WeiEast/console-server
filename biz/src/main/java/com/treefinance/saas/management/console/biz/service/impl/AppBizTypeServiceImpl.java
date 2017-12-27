@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
@@ -11,6 +12,7 @@ import com.treefinance.saas.management.console.dao.entity.AppBizType;
 import com.treefinance.saas.management.console.dao.entity.AppBizTypeCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -39,6 +41,29 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
         appBizTypeVOList = BeanUtils.convertList(appBizTypeList, AppBizTypeVO.class);
         return appBizTypeVOList;
+    }
+
+    @Override
+    public Map<Byte, String> getBizTypeNameMap() {
+        Map<Byte, String> map = Maps.newHashMap();
+        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(null);
+        if (CollectionUtils.isEmpty(appBizTypeList)) {
+            return map;
+        }
+        map = appBizTypeList.stream().collect(Collectors.toMap(AppBizType::getBizType, AppBizType::getBizName));
+        return map;
+    }
+
+    @Override
+    public AppBizType getBizTypeByBizCodeIgnoreCase(String bizCode) {
+        AppBizTypeCriteria appBizTypeCriteria = new AppBizTypeCriteria();
+        String lowercaseBizCode = StringUtils.lowerCase(bizCode);
+        appBizTypeCriteria.createCriteria().andBizCodeIn(Lists.newArrayList(bizCode, lowercaseBizCode));
+        List<AppBizType> list = appBizTypeMapper.selectByExample(appBizTypeCriteria);
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        return list.get(0);
     }
 
     @Override

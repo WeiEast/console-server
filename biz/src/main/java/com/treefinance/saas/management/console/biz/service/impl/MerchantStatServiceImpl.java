@@ -68,6 +68,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private AppBizTypeMapper appBizTypeMapper;
     @Autowired
     private TaskAttributeMapper taskAttributeMapper;
+    @Autowired
+    private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
 
 
     @Override
@@ -643,68 +645,58 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 || request.getStatType() == null || request.getBizType() == null) {
             throw new BizException("appId,date,statType,bizType不能为空");
         }
-        TaskCriteria taskCriteria = new TaskCriteria();
-        TaskCriteria.Criteria criteria = taskCriteria.createCriteria().andAppIdEqualTo(request.getAppId());
+
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("appId", request.getAppId());
         if (request.getStatType() == 2) {
-            criteria.andStatusEqualTo((byte) 3);//失败的任务
+            map.put("status", 3);//失败的任务
         } else if (request.getStatType() == 3) {
-            criteria.andStatusEqualTo((byte) 1);//取消的任务
+            map.put("status", 1);//取消的任务
         } else if (request.getStatType() == 1) {
-            criteria.andStatusEqualTo((byte) 2);//成功的任务
+            map.put("status", 2);//成功的任务
         } else {
             throw new BizException("statType参数有误");
         }
+
         if (EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
             List<AppBizType> list = appBizTypeMapper.selectByExample(null);
             List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
-            criteria.andBizTypeIn(bizTypeList);
+            map.put("bizTypeList", bizTypeList);
         } else {
-            criteria.andBizTypeEqualTo(request.getBizType());
+            map.put("bizType", request.getBizType());
         }
         if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
-            if (request.getBizType() == 3) {//运营商
-                List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
-                if (CollectionUtils.isEmpty(taskIdList)) {
-                    return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
-                }
-                criteria.andIdIn(taskIdList);
-            } else if (request.getBizType() == -1) {//合计
-                List<Long> taskIdList = this.getTaskIdByTaskAttributeGroupName(request);
-                if (!CollectionUtils.isEmpty(taskIdList)) {
-                    criteria.andIdIn(taskIdList);
-                } else {
-                    criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
-                }
-            } else {//邮箱账单或电商或其他
-                criteria.andWebSiteLike("%" + request.getWebsiteDetailName() + "%");
-            }
+            map.put("webSite", request.getWebsiteDetailName());
+            map.put("value", request.getWebsiteDetailName());
         }
+
         if (request.getStartTime() != null && request.getEndTime() != null) {
-            criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
+            map.put("startTime", request.getStartTime());
+            map.put("endTime", request.getEndTime());
         } else if (request.getDate() != null) {
-            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
+            map.put("startTime", DateUtils.getTodayBeginDate(request.getDate()));
+            map.put("endTime", DateUtils.getTomorrowBeginDate(request.getDate()));
         }
-        long total = taskMapper.countByExample(taskCriteria);
+        map.put("start", request.getOffset());
+        map.put("limit", request.getPageSize());
+        map.put("orderStr", "createTime desc");
+
+        long total = taskAndTaskAttributeMapper.countByExample(map);
         if (total <= 0) {
             return Results.newSuccessPageResult(request, total, Lists.newArrayList());
         }
-        taskCriteria.setOffset(request.getOffset());
-        taskCriteria.setLimit(request.getPageSize());
-        taskCriteria.setOrderByClause("createTime desc");
-        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
+        List<TaskAndTaskAttribute> taskList = taskAndTaskAttributeMapper.getByExample(map);
 
-        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
+        List<Long> taskIdList = taskList.stream().map(TaskAndTaskAttribute::getId).collect(Collectors.toList());
 
         TaskLogCriteria logCriteria = new TaskLogCriteria();
         logCriteria.createCriteria().andTaskIdIn(taskIdList);
         List<TaskLog> taskLogList = taskLogMapper.selectByExample(logCriteria);
         Map<Long, List<TaskLog>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLog::getTaskId));
 
-        Map<Long, TaskAttribute> taskAttributeMap = this.getOperatorMapFromAttribute(taskList);
-
         List<TaskDetailVO> resultList = Lists.newArrayList();
 
-        for (Task task : taskList) {
+        for (TaskAndTaskAttribute task : taskList) {
             TaskDetailVO vo = new TaskDetailVO();
             vo.setId(task.getId());
             vo.setAppId(task.getAppId());
@@ -749,10 +741,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             vo.setOccurTime(task.getCreateTime());
 
             if (EBizType.OPERATOR.getCode().equals(task.getBizType())) {
-                TaskAttribute taskAttribute = taskAttributeMap.get(task.getId());
-                if (taskAttribute != null) {
-                    vo.setWebsiteDetailName(taskAttribute.getValue());
-                }
+                vo.setWebsiteDetailName(task.getValue());
             } else {
                 vo.setWebsiteDetailName(task.getWebSite());
 
@@ -773,8 +762,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
         }
         taskAttributeCriteria.setOrderByClause("CreateTime desc");
-        taskAttributeCriteria.setOffset(request.getOffset());
-        taskAttributeCriteria.setLimit(request.getPageSize());
         List<TaskAttribute> list = taskAttributeMapper.selectPaginationByExample(taskAttributeCriteria);
         if (CollectionUtils.isEmpty(list)) {
             return Lists.newArrayList();

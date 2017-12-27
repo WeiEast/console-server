@@ -107,7 +107,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicenseMapper.insertSelective(appBizLicense);
 
             // 发送配置变更消息
-            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", appBizLicense.getAppId());
+            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
         } else {
             AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
             AppBizLicense appBizLicense = new AppBizLicense();
@@ -127,7 +127,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
 
             // 发送配置变更消息
-            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", appBizLicense.getAppId());
+            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
         }
         return Boolean.TRUE;
     }

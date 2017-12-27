@@ -1,6 +1,5 @@
 package com.treefinance.saas.management.console.biz.service.dao.impl;
 
-import com.google.common.collect.Lists;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfigDao;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;

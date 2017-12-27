@@ -19,7 +19,6 @@ import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -103,12 +102,13 @@ public class MerchantServiceImpl implements MerchantService {
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
         appBizLicenseCriteria.createCriteria().andAppIdEqualTo(appId);
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        Map<Byte, String> appBizTypeNameMap = appBizTypeService.getBizTypeNameMap();
         if (!CollectionUtils.isEmpty(appBizLicenseList)) {
             List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
             for (AppBizLicense appBizLicense : appBizLicenseList) {
                 AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
                 appBizLicenseVO.setBizType(appBizLicense.getBizType());
-                appBizLicenseVO.setBizName(EBizType.getName(appBizLicense.getBizType()));
+                appBizLicenseVO.setBizName(appBizTypeNameMap.get(appBizLicense.getBizType()));
                 appBizLicenseVOList.add(appBizLicenseVO);
             }
             merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);

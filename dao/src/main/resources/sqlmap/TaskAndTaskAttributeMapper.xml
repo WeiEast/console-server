@@ -51,11 +51,8 @@
         <if test="name != null">
             and attribute.name = #{name}
         </if>
-        <if test="webSite != null">
-            or task.webSite like CONCAT('%',#{webSite},'%')
-        </if>
-        <if test="value != null">
-            or attribute.value like CONCAT('%',#{value},'%')
+        <if test="webSite != null and value != null">
+            and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )
         </if>
     </select>
 
@@ -88,11 +85,8 @@
         <if test="name != null">
             and attribute.name = #{name}
         </if>
-        <if test="webSite != null">
-            or task.webSite like CONCAT('%',#{webSite},'%')
-        </if>
-        <if test="value != null">
-            or attribute.value like CONCAT('%',#{value},'%')
+        <if test="webSite != null and value != null">
+            and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )
         </if>
         <if test="orderStr != null">
             order by ${orderStr}

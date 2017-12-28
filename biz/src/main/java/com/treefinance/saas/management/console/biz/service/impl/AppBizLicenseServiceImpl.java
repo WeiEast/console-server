@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
+import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
@@ -14,6 +15,7 @@ import com.treefinance.saas.management.console.dao.entity.AppBizType;
 import com.treefinance.saas.management.console.dao.entity.AppBizTypeCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
                 appBizLicenseVO.setAppId(request.getAppId());
                 appBizLicenseVO.setIsShowLicense((byte) 0);
                 appBizLicenseVO.setIsValid((byte) 0);
+                appBizLicenseVO.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
             } else {
                 BeanUtils.convert(appBizLicense, appBizLicenseVO);
                 appBizLicenseVO.setBizName(appBizType.getBizName());
@@ -98,6 +101,11 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicense.setBizType(request.getBizType());
             appBizLicense.setIsShowLicense(request.getIsShowLicense() == null ? 0 : request.getIsShowLicense());
             appBizLicense.setIsValid(request.getIsValid() == null ? 0 : request.getIsValid());
+            if (StringUtils.isNotBlank(request.getLicenseTemplate())) {
+                appBizLicense.setLicenseTemplate(request.getLicenseTemplate());
+            } else {
+                appBizLicense.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
+            }
             if (request.getIsValid() != null && request.getIsValid() == (byte) 1) {
                 appBizLicense.setDailyLimit(100000);
             }
@@ -114,6 +122,11 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicense.setId(srcAppBizLicense.getId());
             if (request.getIsShowLicense() != null) {
                 appBizLicense.setIsShowLicense(request.getIsShowLicense());
+            }
+            if (StringUtils.isNotBlank(request.getLicenseTemplate())) {
+                appBizLicense.setLicenseTemplate(request.getLicenseTemplate());
+            } else {
+                appBizLicense.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
             }
             if (request.getIsValid() != null) {
                 appBizLicense.setIsValid(request.getIsValid());

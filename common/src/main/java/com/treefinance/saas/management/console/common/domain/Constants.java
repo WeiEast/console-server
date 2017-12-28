@@ -15,4 +15,8 @@ public interface Constants {
     String RETURN_PICTURE_CODE = "RETURN_PICTURE_CODE";
 
     static final String USER_KEY = "login_user";
+    /**
+     * 默认授权协议
+     */
+    static final String DEFAULT_LICENSE_TEMPLATE = "DEFAULT";
 }

@@ -7,7 +7,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public enum ECallBackDataType {
     MAIN((byte) 0, "主流程数据"),
-    SHIPPING_ADDRESS((byte) 1, "收货地址数据");
+    SHIPPING_ADDRESS((byte) 1, "收货地址数据"),
+    OPERATOR_FLOW((byte) 2, "运营商流量数据");
 
     private Byte code;
     private String text;

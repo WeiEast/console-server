@@ -48,21 +48,30 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
-        <!--</table>-->
+        <table tableName="app_biz_license" domainObjectName="AppBizLicense">
+        <property name="useActualColumnNames" value="true"/>
+        <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        </table>
 
         <!--<table tableName="merchant_base" domainObjectName="MerchantBase"-->
-               <!--enableSelectPaginationByExample="true"-->
-               <!--enableBatchInsert="true"-->
-               <!--enableBatchUpdateByPrimaryKey="true"-->
-               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--enableSelectPaginationByExample="true"-->
+        <!--enableBatchInsert="true"-->
+        <!--enableBatchUpdateByPrimaryKey="true"-->
+        <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
         <!--<table tableName="app_callback_config_backup" domainObjectName="AppCallbackConfigBackup"-->
+        <!--enableSelectPaginationByExample="true"-->
+        <!--enableBatchInsert="true"-->
+        <!--enableBatchUpdateByPrimaryKey="true"-->
+        <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--</table>-->
+
+        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense"-->
                <!--enableSelectPaginationByExample="true"-->
                <!--enableBatchInsert="true"-->
                <!--enableBatchUpdateByPrimaryKey="true"-->
@@ -71,36 +80,21 @@
             <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
-        <table tableName="task_attribute" domainObjectName="TaskAttribute"
-               enableSelectPaginationByExample="true"
-               enableBatchInsert="true"
-               enableBatchUpdateByPrimaryKey="true"
-               enableBatchUpdateByPrimaryKeySelective="true">
-            <property name="useActualColumnNames" value="true"/>
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        </table>
-
-
-
-
-
-
 
         <!--<table tableName="app_biz_type" domainObjectName="AppBizType">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
-
 
 
         <!--<table tableName="merchant_user" domainObjectName="MerchantUser">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->
 
         <!--<table tableName="console_user" domainObjectName="ConsoleUser">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
-            <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
         <!--</table>-->
 
 
@@ -110,27 +104,27 @@
         <!--</table>-->
 
         <!--<table tableName="task_callback_log" domainObjectName="TaskCallbackLog"-->
-               <!--enableSelectPaginationByExample="true"-->
-               <!--enableBatchInsert="true"-->
-               <!--enableBatchUpdateByPrimaryKey="true"-->
-               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+        <!--enableSelectPaginationByExample="true"-->
+        <!--enableBatchInsert="true"-->
+        <!--enableBatchUpdateByPrimaryKey="true"-->
+        <!--enableBatchUpdateByPrimaryKeySelective="true">-->
         <!--<property name="useActualColumnNames" value="true"/>-->
         <!--</table>-->
 
         <!--<table tableName="task_log" domainObjectName="TaskLog"-->
-               <!--enableSelectPaginationByExample="true"-->
-               <!--enableBatchInsert="true"-->
-               <!--enableBatchUpdateByPrimaryKey="true"-->
-               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--enableSelectPaginationByExample="true"-->
+        <!--enableBatchInsert="true"-->
+        <!--enableBatchUpdateByPrimaryKey="true"-->
+        <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
         <!--</table>-->
 
         <!--<table tableName="merchant_flow_config" domainObjectName="MerchantFlowConfig"-->
-               <!--enableSelectPaginationByExample="true"-->
-               <!--enableBatchInsert="true"-->
-               <!--enableBatchUpdateByPrimaryKey="true"-->
-               <!--enableBatchUpdateByPrimaryKeySelective="true">-->
-            <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--enableSelectPaginationByExample="true"-->
+        <!--enableBatchInsert="true"-->
+        <!--enableBatchUpdateByPrimaryKey="true"-->
+        <!--enableBatchUpdateByPrimaryKeySelective="true">-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
         <!--</table>-->
 
         <!--<table tableName="task_sub_log" domainObjectName="TaskSubLog">-->

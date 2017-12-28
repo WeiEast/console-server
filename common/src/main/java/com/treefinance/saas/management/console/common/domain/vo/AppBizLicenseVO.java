@@ -16,6 +16,7 @@ public class AppBizLicenseVO implements Serializable {
     private BigDecimal trafficLimit;
     private Byte isShowLicense;
     private Byte isValid;
+    private String licenseTemplate;
 
 
     public Byte getBizType() {
@@ -72,5 +73,13 @@ public class AppBizLicenseVO implements Serializable {
 
     public void setTrafficLimit(BigDecimal trafficLimit) {
         this.trafficLimit = trafficLimit;
+    }
+
+    public String getLicenseTemplate() {
+        return licenseTemplate;
+    }
+
+    public void setLicenseTemplate(String licenseTemplate) {
+        this.licenseTemplate = licenseTemplate;
     }
 }

@@ -3,8 +3,6 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidGenerator;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateModel;
-import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfigDao;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
@@ -40,8 +38,6 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
-    private ConfigUpdatePlugin configUpdatePlugin;
-    @Autowired
     private MerchantFlowConfigDao merchantFlowConfigDao;
 
     @Override
@@ -74,12 +70,9 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
     @Override
     public void batchUpdate(List<MerchantFlowConfigVO> list) {
-        List<ConfigUpdateModel> modelList = merchantFlowConfigDao.batchUpdate(list);
         // 发送配置变更消息
-        configUpdatePlugin.sendMessageList(modelList);
-        logger.info("发送更新商户流量分配配置消息,modelList={}", JSON.toJSONString(modelList));
-
-
+        merchantFlowConfigDao.batchUpdate(list);
+        logger.info("发送更新商户流量分配配置消息,list={}", JSON.toJSONString(list));
     }
 
     @Override

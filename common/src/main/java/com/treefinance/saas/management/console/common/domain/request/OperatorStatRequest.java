@@ -94,4 +94,17 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     public void setAppId(String appId) {
         this.appId = appId;
     }
+
+    @Override
+    public String toString() {
+        return "OperatorStatRequest{" +
+                "groupCode='" + groupCode + '\'' +
+                ", dataDate=" + dataDate +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", appId='" + appId + '\'' +
+                ", statType=" + statType +
+                ", groupName='" + groupName + '\'' +
+                '}';
+    }
 }

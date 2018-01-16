@@ -29,14 +29,8 @@ public class EcmmerceController {
     @RequestMapping(value = "all/detail/list", method = RequestMethod.POST, produces = "application/json")
     public Object queryAllEcommerceMonitor(@RequestBody OperatorStatRequest request) {
 
-        logger.info("电商分时详细查询 queryAllEcommerceMonitor  Controller层");
-
-        if (request == null || request.getDataDate() == null
-                || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
-        }
+        logger.info("电商分时详细查询 Controller层  传入参数为{}", request.toString());
         return ecommerceMonitorService.queryAllEcommerceMonitorList(request);
-
 
     }
 }

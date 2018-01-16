@@ -9,7 +9,7 @@ import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.request.EcommerceDetailAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.ecommerce.EcommerceAllDetailRO;
-import com.treefinance.saas.monitor.facade.service.stat.EcommerceDetailAccessFacade;
+import com.treefinance.saas.monitor.facade.service.stat.EcommerceStatDivisionAccessFacade;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
 
 
     @Autowired
-    EcommerceDetailAccessFacade ecommerceDetailAccessFacade;
+    EcommerceStatDivisionAccessFacade ecommerceStatDivisionAccessFacade;
 
 
     @Override
@@ -41,7 +41,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         ecommerceDetailAccessRequest.setStatType(request.getStatType());
 
         MonitorResult<List<EcommerceAllDetailRO>> monitorResult =
-                ecommerceDetailAccessFacade.queryEcommerceAllDetailAccessList(ecommerceDetailAccessRequest);
+                ecommerceStatDivisionAccessFacade.queryEcommerceAllDetailAccessList(ecommerceDetailAccessRequest);
 
         List<AllOperatorStatAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(monitorResult.getData())) {

@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
+import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -17,12 +19,15 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     private String groupCode;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dataDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
     private String appId;

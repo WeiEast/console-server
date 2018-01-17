@@ -1,6 +1,8 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
+import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
@@ -25,6 +27,9 @@ public class MerchantController {
 
     @Autowired
     private MerchantService merchantService;
+    @Autowired
+    EcommerceMonitorService ecommerceMonitorService;
+
 
     @RequestMapping(value = "list", produces = "application/json")
     public Result<Map<String, Object>> getMerchantList(PageRequest request) {
@@ -87,6 +92,15 @@ public class MerchantController {
     public Result<String> getCipherTextPassword(@PathVariable String str) {
         String result = merchantService.generateCipherTextPassword(str);
         return Results.newSuccessResult(result);
+    }
+
+
+    @RequestMapping(value = "stat/merchant/list", method = RequestMethod.GET)
+    public Object queryAllEcommerceMonitor(Integer bizType) {
+
+        logger.info("电商列表查询 Controller层  传入参数为{}", bizType);
+        return ecommerceMonitorService.queryAllEcommerceListByBizType(bizType);
+
     }
 
 

@@ -83,7 +83,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         result = BeanUtils.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
         logger.info("电商整体监控返回信息为:{}",result.toString());
 
-        return Results.newSuccessPageResult(request,0,result);
+        return Results.newSuccessPageResult(request,monitorResult.getTotalCount(),result);
 
 
     }

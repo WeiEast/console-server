@@ -26,8 +26,8 @@ public class EcmmerceStatController {
 
 
 
-    @RequestMapping(value = "all/detail/list", method = RequestMethod.POST, produces = "application/json")
-    public Object queryDivisionEcommerceMonitor(@RequestBody OperatorStatRequest request) {
+    @RequestMapping(value = "all/detail/list", method = RequestMethod.GET, produces = "application/json")
+    public Object queryDivisionEcommerceMonitor(OperatorStatRequest request) {
 
         logger.info("电商分时详细查询 Controller层  传入参数为{}", request.toString());
         return ecommerceMonitorService.queryDivisionEcommerceMonitorList(request);
@@ -38,13 +38,6 @@ public class EcmmerceStatController {
 
         logger.info("电商整体查询 Controller层  传入参数为{}", request.toString());
         return ecommerceMonitorService.queryAllEcommerceMonitorList(request);
-
-    }
-    @RequestMapping(value ="merchant/list" ,method = RequestMethod.GET)
-    public Object queryAllEcommerceMonitor(Integer bizType) {
-
-        logger.info("电商列表查询 Controller层  传入参数为{}", bizType);
-        return ecommerceMonitorService.queryAllEcommerceListByBizType(bizType);
 
     }
 

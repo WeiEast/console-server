@@ -2,7 +2,6 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +17,40 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/saas/console/ecommerce/stat/")
-public class EcmmerceController {
+public class EcmmerceStatController {
 
-    private static Logger logger = LoggerFactory.getLogger(EcmmerceController.class);
+    private static Logger logger = LoggerFactory.getLogger(EcmmerceStatController.class);
 
     @Autowired
     EcommerceMonitorService ecommerceMonitorService;
 
 
+
     @RequestMapping(value = "all/detail/list", method = RequestMethod.POST, produces = "application/json")
-    public Object queryAllEcommerceMonitor(@RequestBody OperatorStatRequest request) {
+    public Object queryDivisionEcommerceMonitor(@RequestBody OperatorStatRequest request) {
 
         logger.info("电商分时详细查询 Controller层  传入参数为{}", request.toString());
+        return ecommerceMonitorService.queryDivisionEcommerceMonitorList(request);
+
+    }
+    @RequestMapping(value ="all/day/list", method = RequestMethod.POST, produces = "application/json")
+    public Object queryAllEcommerceMonitor(@RequestBody OperatorStatRequest request) {
+
+        logger.info("电商整体查询 Controller层  传入参数为{}", request.toString());
         return ecommerceMonitorService.queryAllEcommerceMonitorList(request);
 
     }
+    @RequestMapping(value ="merchant/list" ,method = RequestMethod.GET)
+    public Object queryAllEcommerceMonitor(String bizType) {
+
+        logger.info("电商列表查询 Controller层  传入参数为{}", bizType);
+        return ecommerceMonitorService.queryAllEcommerceListByBizType(Integer.parseInt(bizType));
+
+    }
+
+
+
+
+
+
 }

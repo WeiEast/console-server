@@ -4,8 +4,11 @@ import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatAccessVO;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.dao.ecommerce.EcommerceMonitorDao;
+import com.treefinance.saas.management.console.dao.entity.MerchantBase;
 import com.treefinance.saas.monitor.facade.domain.request.EcommerceDetailAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.ecommerce.EcommerceAllDetailRO;
@@ -16,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,10 +34,12 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
 
     @Autowired
     EcommerceStatDivisionAccessFacade ecommerceStatDivisionAccessFacade;
+    @Autowired
+    EcommerceMonitorDao ecommerceMonitorDao;
 
 
     @Override
-    public Object queryAllEcommerceMonitorList(OperatorStatRequest request) {
+    public Object queryDivisionEcommerceMonitorList(OperatorStatRequest request) {
 
         EcommerceDetailAccessRequest ecommerceDetailAccessRequest = new EcommerceDetailAccessRequest();
         ecommerceDetailAccessRequest.setAppId(request.getAppId());
@@ -49,12 +55,54 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
             return Results.newSuccessResult(result);
         }
         result = BeanUtils.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
-        for (AllOperatorStatAccessVO allOperatorStatAccessVO : result) {
-            logger.info("电商分时监控返回的数据为{}", allOperatorStatAccessVO.toString());
-        }
+
         return Results.newSuccessResult(result);
 
 
+    }
+
+    @Override
+    public Object queryAllEcommerceMonitorList(OperatorStatRequest request) {
+        EcommerceDetailAccessRequest ecommerceDetailAccessRequest = new EcommerceDetailAccessRequest();
+        ecommerceDetailAccessRequest.setAppId(request.getAppId());
+        ecommerceDetailAccessRequest.setStartDate(request.getStartDate());
+        ecommerceDetailAccessRequest.setEndDate(request.getEndDate());
+        ecommerceDetailAccessRequest.setPageNumber(request.getPageNumber());
+        ecommerceDetailAccessRequest.setPageSize(request.getPageSize());
+        ecommerceDetailAccessRequest.setStatType(request.getStatType());
+
+        MonitorResult<List<EcommerceAllDetailRO>> monitorResult =
+                ecommerceStatDivisionAccessFacade.queryEcommerceAllAccessList(ecommerceDetailAccessRequest);
+
+        List<AllOperatorStatAccessVO> result = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(monitorResult.getData())) {
+            logger.info("电商整体监控返回的值为空");
+            return Results.newSuccessPageResult(request,0,result);
+        }
+        result = BeanUtils.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
+
+        return Results.newSuccessPageResult(request,0,result);
+
+
+    }
+
+    @Override
+    public   Object queryAllEcommerceListByBizType(Integer bizType) {
+        List<MerchantSimpleVO> merchantSimpleVOS = new ArrayList<>();
+        MerchantSimpleVO merchantSimpleVO= new MerchantSimpleVO("virtual_total_stat_appId","所有商户");
+        merchantSimpleVOS.add(merchantSimpleVO);
+        List<MerchantBase> merchantBaseList = ecommerceMonitorDao.queryAllEcommerceListByBizeType(bizType);
+
+        List<MerchantSimpleVO> merchantSimpleVOSSecond =BeanUtils.convertList(merchantBaseList,MerchantSimpleVO.class);
+        merchantSimpleVOS.addAll(merchantSimpleVOSSecond);
+
+        if (CollectionUtils.isEmpty(merchantBaseList)) {
+            logger.info("电商整体监控返回的值为空");
+            return Results.newSuccessResult(merchantSimpleVOS);
+        }
+
+
+        return Results.newSuccessResult(merchantSimpleVOS);
     }
 
 }

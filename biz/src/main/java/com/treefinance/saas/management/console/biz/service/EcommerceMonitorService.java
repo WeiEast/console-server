@@ -12,4 +12,8 @@ import java.util.Map;
 public interface EcommerceMonitorService {
 
     Object queryAllEcommerceMonitorList(OperatorStatRequest request);
+
+    Object queryDivisionEcommerceMonitorList(OperatorStatRequest request);
+
+    Object queryAllEcommerceListByBizType(Integer bizType);
 }

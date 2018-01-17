@@ -55,6 +55,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
             return Results.newSuccessResult(result);
         }
         result = BeanUtils.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
+        logger.info("电商分时监控返回信息为:{}",result.toString());
 
         return Results.newSuccessResult(result);
 
@@ -80,6 +81,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
             return Results.newSuccessPageResult(request,0,result);
         }
         result = BeanUtils.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
+        logger.info("电商整体监控返回信息为:{}",result.toString());
 
         return Results.newSuccessPageResult(request,0,result);
 

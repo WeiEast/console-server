@@ -42,7 +42,6 @@ import java.util.stream.Collectors;
 public class OperatorStatServiceImpl implements OperatorStatService {
 
     private static final Logger logger = LoggerFactory.getLogger(OperatorStatService.class);
-
     @Autowired
     private OperatorStatAccessFacade operatorStatAccessFacade;
     @Autowired

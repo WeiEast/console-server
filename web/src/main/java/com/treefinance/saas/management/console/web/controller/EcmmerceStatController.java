@@ -41,10 +41,10 @@ public class EcmmerceStatController {
 
     }
     @RequestMapping(value ="merchant/list" ,method = RequestMethod.GET)
-    public Object queryAllEcommerceMonitor(String bizType) {
+    public Object queryAllEcommerceMonitor(Integer bizType) {
 
         logger.info("电商列表查询 Controller层  传入参数为{}", bizType);
-        return ecommerceMonitorService.queryAllEcommerceListByBizType(Integer.parseInt(bizType));
+        return ecommerceMonitorService.queryAllEcommerceListByBizType(bizType);
 
     }
 

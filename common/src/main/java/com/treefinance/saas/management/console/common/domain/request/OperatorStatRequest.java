@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
+import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -88,5 +90,18 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
 
     public void setAppId(String appId) {
         this.appId = appId;
+    }
+
+    @Override
+    public String toString() {
+        return "OperatorStatRequest{" +
+                "groupCode='" + groupCode + '\'' +
+                ", dataDate=" + dataDate +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", appId='" + appId + '\'' +
+                ", statType=" + statType +
+                ", groupName='" + groupName + '\'' +
+                '}';
     }
 }

@@ -33,8 +33,8 @@ public class EcmmerceStatController {
         return ecommerceMonitorService.queryDivisionEcommerceMonitorList(request);
 
     }
-    @RequestMapping(value ="all/day/list", method = RequestMethod.POST, produces = "application/json")
-    public Object queryAllEcommerceMonitor(@RequestBody OperatorStatRequest request) {
+    @RequestMapping(value ="all/day/list", method = RequestMethod.GET, produces = "application/json")
+    public Object queryAllEcommerceMonitor(OperatorStatRequest request) {
 
         logger.info("电商整体查询 Controller层  传入参数为{}", request.toString());
         return ecommerceMonitorService.queryAllEcommerceMonitorList(request);

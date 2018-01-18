@@ -3,6 +3,7 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
+import com.treefinance.saas.management.console.common.domain.vo.AllEcommerceStatDayAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -75,12 +76,12 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         MonitorResult<List<EcommerceAllDetailRO>> monitorResult =
                 ecommerceStatDivisionAccessFacade.queryEcommerceAllAccessList(ecommerceDetailAccessRequest);
 
-        List<AllOperatorStatAccessVO> result = Lists.newArrayList();
+        List<AllEcommerceStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(monitorResult.getData())) {
             logger.info("电商整体监控返回的值为空");
             return Results.newSuccessPageResult(request,0,result);
         }
-        result = BeanUtils.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
+        result = BeanUtils.convertList(monitorResult.getData(), AllEcommerceStatDayAccessVO.class);
         logger.info("电商整体监控返回信息为:{}",result.toString());
 
         return Results.newSuccessPageResult(request,monitorResult.getTotalCount(),result);

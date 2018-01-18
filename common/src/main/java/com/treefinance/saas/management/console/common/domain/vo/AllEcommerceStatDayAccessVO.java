@@ -7,12 +7,13 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Created by haojiahong on 2017/12/4.
+ * @author:guoguoyun
+ * @date:Created in 2018/1/18下午4:38
  */
-public class AllOperatorStatAccessVO implements Serializable {
-    private static final long serialVersionUID = -3702552273325772879L;
+public class AllEcommerceStatDayAccessVO implements Serializable {
 
 
+    private static final long serialVersionUID = 5506248863092089578L;
     private Date dataTime;
 
     private String dataTimeStr;
@@ -48,7 +49,7 @@ public class AllOperatorStatAccessVO implements Serializable {
 
     public String getDataTimeStr() {
         if (dataTime != null) {
-            return DateUtils.date2SimpleHm(this.dataTime);
+            return DateUtils.date2SimpleYmd(this.dataTime);
         }
         return dataTimeStr;
     }
@@ -199,4 +200,5 @@ public class AllOperatorStatAccessVO implements Serializable {
                 ", callbackSuccessRate=" + callbackSuccessRate +
                 '}';
     }
+
 }

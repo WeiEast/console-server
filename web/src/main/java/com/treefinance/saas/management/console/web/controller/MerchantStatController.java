@@ -1,9 +1,11 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewTimeVO;
+import com.treefinance.saas.management.console.common.domain.vo.SourceTypeVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,26 @@ public class MerchantStatController {
     @RequestMapping(value = "/stataccess/taskstep/fail", method = RequestMethod.GET, produces = "application/json")
     public Result<Map<String, Object>> getTaskStepFailInfo(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryTaskStepStatInfo(request));
+    }
+
+    @RequestMapping(value = "/source/list", method = RequestMethod.GET, produces = "application/json")
+    public Result<Object> getSourceTypeList() {
+        List<SourceTypeVO> list = Lists.newArrayList();
+        SourceTypeVO sourceTypeVO1 = new SourceTypeVO();
+        sourceTypeVO1.setId(0L);
+        sourceTypeVO1.setName("所有来源");
+        list.add(sourceTypeVO1);
+
+        SourceTypeVO sourceTypeVO2 = new SourceTypeVO();
+        sourceTypeVO2.setId(1L);
+        sourceTypeVO2.setName("SDK");
+        list.add(sourceTypeVO2);
+
+        SourceTypeVO sourceTypeVO3 = new SourceTypeVO();
+        sourceTypeVO3.setId(2L);
+        sourceTypeVO3.setName("H5");
+        list.add(sourceTypeVO3);
+        return Results.newSuccessResult(list);
     }
 
 }

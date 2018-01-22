@@ -36,6 +36,20 @@
     <dubbo:reference id="websiteFacade" interface="com.treefinance.saas.monitor.facade.service.WebsiteFacade"
                      version="1.0.0"/>
 
+    <dubbo:reference id="dataApiRawResultFacade"
+                     interface="com.treefinance.saas.dataservice.dataserver.dataapirawresult.facade.DataApiRawResultFacade"/>
+
+    <dubbo:reference id="dataApiConfigFacade"
+                     interface="com.treefinance.saas.dataservice.dataserver.dataapiconfig.facade.DataApiConfigFacade"/>
+
+    <dubbo:reference id="tpApiConfigFacade"
+                     interface="com.treefinance.saas.dataservice.dataserver.tpapiconfig.facade.TpApiConfigFacade"/>
+
+    <dubbo:reference id="dmStatDsFacade"
+                     interface="com.treefinance.saas.dataservice.monitor.statds.facade.DmStatDsFacade"/>
+
+    <dubbo:reference id="dmStatTpFacade"
+                     interface="com.treefinance.saas.dataservice.monitor.stattp.facade.DmStatTpFacade"/>
 
 </beans>
 

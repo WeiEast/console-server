@@ -34,7 +34,21 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
      */
     private Byte statType;
 
+    /**
+     * 统计维度:来源0：所有来源；1：sdk来源；2：h5来源（必填）
+     */
+    private Byte sourceType;
+
+
     private String groupName;
+
+    public Byte getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Byte sourceType) {
+        this.sourceType = sourceType;
+    }
 
     public String getGroupCode() {
         return groupCode;
@@ -101,6 +115,7 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
                 ", endDate=" + endDate +
                 ", appId='" + appId + '\'' +
                 ", statType=" + statType +
+                ", sourceType=" + sourceType +
                 ", groupName='" + groupName + '\'' +
                 '}';
     }

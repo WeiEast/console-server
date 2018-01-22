@@ -44,6 +44,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
 
         EcommerceDetailAccessRequest ecommerceDetailAccessRequest = new EcommerceDetailAccessRequest();
         ecommerceDetailAccessRequest.setAppId(request.getAppId());
+        ecommerceDetailAccessRequest.setSourceType(request.getSourceType());
         ecommerceDetailAccessRequest.setDataDate(request.getDataDate());
         ecommerceDetailAccessRequest.setStatType(request.getStatType());
 
@@ -68,6 +69,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         EcommerceDetailAccessRequest ecommerceDetailAccessRequest = new EcommerceDetailAccessRequest();
         ecommerceDetailAccessRequest.setAppId(request.getAppId());
         ecommerceDetailAccessRequest.setStartDate(request.getStartDate());
+        ecommerceDetailAccessRequest.setSourceType(request.getSourceType());
         ecommerceDetailAccessRequest.setEndDate(request.getEndDate());
         ecommerceDetailAccessRequest.setPageNumber(request.getPageNumber());
         ecommerceDetailAccessRequest.setPageSize(request.getPageSize());

@@ -45,14 +45,12 @@ public class DataServerController {
 
     @RequestMapping(value = "/dataapiconfig", method = {RequestMethod.GET})
     public Object dataApiConfig() {
-      Map<String,String> map =  dataApiConfigService.getDsApiConfigType();
-        return Results.newSuccessResult(map);
+      return dataApiConfigService.getDsApiConfigType();
     }
 
     @RequestMapping(value = "/tpapiconfig", method = {RequestMethod.GET})
     public Object tpApiConfig() {
-        Map<String,String> map =  tpApiConfigService.getTpApiConfigType();
-        return Results.newSuccessResult(map);
+       return tpApiConfigService.getTpApiConfigType();
     }
 
 

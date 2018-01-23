@@ -1,5 +1,9 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.management.console.common.domain.vo.DataTypeVO;
+import com.treefinance.saas.management.console.common.result.Result;
+
+import java.util.List;
 import java.util.Map;
 
 public interface DataApiConfigService {
@@ -9,6 +13,6 @@ public interface DataApiConfigService {
      * @return  key: [dataApiName]-[type]  blacklist-1
      *          val:desc    华道黑名单接口
      */
-    Map<String, String> getDsApiConfigType();
+    Result<List<DataTypeVO>> getDsApiConfigType();
 
 }

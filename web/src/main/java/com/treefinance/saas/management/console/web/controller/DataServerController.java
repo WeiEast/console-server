@@ -56,5 +56,14 @@ public class DataServerController {
        return tpApiConfigService.getTpApiConfigType();
     }
 
+    @RequestMapping(value = "/dsappid", method = {RequestMethod.GET})
+    public Object dsappid(String dataApiNameType) {
+        if (dataApiNameType == null){
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK,"接口类型不能为空");
+        }
+        return dataApiConfigService.getDsAppid(dataApiNameType);
+    }
+
+
 
 }

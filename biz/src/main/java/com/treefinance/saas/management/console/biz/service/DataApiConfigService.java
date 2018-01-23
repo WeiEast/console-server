@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.treefinance.saas.management.console.common.domain.vo.DataTypeVO;
 import com.treefinance.saas.management.console.common.result.Result;
 
@@ -15,4 +16,5 @@ public interface DataApiConfigService {
      */
     Result<List<DataTypeVO>> getDsApiConfigType();
 
+    Result<List<JSONObject>> getDsAppid(String dataApiNameType);
 }

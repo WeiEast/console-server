@@ -39,6 +39,9 @@ public class DataMonitorController {
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
         }
+        if(request.getStartDate().after(request.getEndDate())){
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
+        }
         if (toLocalDataTime(request.getStartDate()).plusDays(30).isBefore(toLocalDataTime(request.getEndDate()))) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间跨度不能超过30天");
         }
@@ -56,7 +59,9 @@ public class DataMonitorController {
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
         }
-
+        if(request.getStartDate().after(request.getEndDate())){
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
+        }
         if (toLocalDataTime(request.getStartDate()).plusYears(1).isBefore(toLocalDataTime(request.getEndDate()))) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间跨度不能超过1年");
         }
@@ -73,6 +78,9 @@ public class DataMonitorController {
         }
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
+        }
+        if(request.getStartDate().after(request.getEndDate())){
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
         }
         if (toLocalDataTime(request.getStartDate()).plusDays(30).isBefore(toLocalDataTime(request.getEndDate()))) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间跨度不能超过30天");
@@ -91,6 +99,9 @@ public class DataMonitorController {
         }
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
+        }
+        if(request.getStartDate().after(request.getEndDate())){
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
         }
         if (toLocalDataTime(request.getStartDate()).plusYears(1).isBefore(toLocalDataTime(request.getEndDate()))) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间跨度不能超过1年");

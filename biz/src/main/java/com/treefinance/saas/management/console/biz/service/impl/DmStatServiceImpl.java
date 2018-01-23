@@ -11,6 +11,8 @@ import com.treefinance.saas.management.console.common.domain.request.DmStatDsReq
 import com.treefinance.saas.management.console.common.domain.request.DmStatTpRequest;
 import com.treefinance.saas.management.console.common.domain.vo.DmStatActualVO;
 import com.treefinance.saas.management.console.common.domain.vo.DmStatDayVO;
+import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,43 +27,43 @@ public class DmStatServiceImpl implements DmStatService{
 
 
     @Override
-    public DmStatActualVO statDsActual(DmStatDsRequest request) {
+    public Result<DmStatActualVO> statDsActual(DmStatDsRequest request) {
         StatDsRequest statDsRequest = new StatDsRequest();
         BeanUtils.copyProperties(request,statDsRequest);
         DmStatActualDTO dto = dmStatDsFacade.statDsActual(statDsRequest);
         DmStatActualVO vo = new DmStatActualVO();
         BeanUtils.copyProperties(dto,vo);
-        return vo;
+        return Results.newSuccessResult(vo);
     }
 
 
     @Override
-    public DmStatDayVO statDsDay(DmStatDsRequest request) {
+    public Result<DmStatDayVO> statDsDay(DmStatDsRequest request) {
         StatDsRequest statDsRequest = new StatDsRequest();
         BeanUtils.copyProperties(request,statDsRequest);
         DmStatDayDTO dto = dmStatDsFacade.statDsDay(statDsRequest);
         DmStatDayVO vo = new DmStatDayVO();
         BeanUtils.copyProperties(dto,vo);
-        return vo;
+        return Results.newSuccessResult(vo);
     }
 
     @Override
-    public DmStatActualVO statTpActual(DmStatTpRequest request) {
+    public Result<DmStatActualVO> statTpActual(DmStatTpRequest request) {
         StatTpRequest statTpRequest = new StatTpRequest();
         BeanUtils.copyProperties(request,statTpRequest);
         DmStatActualDTO dto = dmStatTpFacade.statTpActual(statTpRequest);
         DmStatActualVO vo = new DmStatActualVO();
         BeanUtils.copyProperties(dto,vo);
-        return vo;
+        return Results.newSuccessResult(vo);
     }
 
     @Override
-    public DmStatDayVO statTpDay(DmStatTpRequest request) {
+    public Result<DmStatDayVO> statTpDay(DmStatTpRequest request) {
         StatTpRequest statTpRequest = new StatTpRequest();
         BeanUtils.copyProperties(request,statTpRequest);
         DmStatDayDTO dto = dmStatTpFacade.statTpDay(statTpRequest);
         DmStatDayVO vo = new DmStatDayVO();
         BeanUtils.copyProperties(dto,vo);
-        return vo;
+        return Results.newSuccessResult(vo);
     }
 }

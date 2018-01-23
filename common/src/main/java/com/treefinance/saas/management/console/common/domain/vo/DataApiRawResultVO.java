@@ -47,11 +47,11 @@ public class DataApiRawResultVO {
         this.execDurationInMills = execDurationInMills;
     }
 
-    public Boolean getSuccess() {
+    public Boolean getIsSuccess() {
         return isSuccess;
     }
 
-    public void setSuccess(Boolean success) {
+    public void setIsSuccess(Boolean success) {
         isSuccess = success;
     }
 

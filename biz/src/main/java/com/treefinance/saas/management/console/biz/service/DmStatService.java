@@ -5,15 +5,16 @@ import com.treefinance.saas.management.console.common.domain.request.DmStatDsReq
 import com.treefinance.saas.management.console.common.domain.request.DmStatTpRequest;
 import com.treefinance.saas.management.console.common.domain.vo.DmStatActualVO;
 import com.treefinance.saas.management.console.common.domain.vo.DmStatDayVO;
+import com.treefinance.saas.management.console.common.result.Result;
 
 public interface DmStatService {
 
-    DmStatActualVO statDsActual(DmStatDsRequest request);
+    Result<DmStatActualVO> statDsActual(DmStatDsRequest request);
 
-    DmStatDayVO statDsDay(DmStatDsRequest request);
+    Result<DmStatDayVO> statDsDay(DmStatDsRequest request);
 
-    DmStatActualVO statTpActual(DmStatTpRequest request);
+    Result<DmStatActualVO> statTpActual(DmStatTpRequest request);
 
-    DmStatDayVO statTpDay(DmStatTpRequest request);
+    Result<DmStatDayVO> statTpDay(DmStatTpRequest request);
 
 }

@@ -40,6 +40,9 @@ public class DataServerController {
         if (dsDataApiRequest.getStartDate() == null || dsDataApiRequest.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
         }
+        if(dsDataApiRequest.getStartDate().after(dsDataApiRequest.getEndDate())){
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
+        }
         return dsDataApiRawResultSerivce.findPageByExample(dsDataApiRequest);
     }
 

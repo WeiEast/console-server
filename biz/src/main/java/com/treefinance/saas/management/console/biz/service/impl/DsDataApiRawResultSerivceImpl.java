@@ -1,7 +1,9 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.dto.DataApiRawResultDTO;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.facade.DataApiRawResultFacade;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.request.DataApiRawResultRequest;
@@ -54,9 +56,9 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
         String ossUrl = vo.getParamsStorePath();
         String ossjson = getOssJson(dto.getAppId(),ossUrl);
         if(StringUtils.isNotBlank(ossjson)) {
-            JSONObject jsonObject = JSON.parseObject(ossjson);
-            vo.setRequesetJson(jsonObject.getString("requestParams"));
-            vo.setResponseJson(jsonObject.getString("responseParams"));
+           JSONObject jsonObject = JSON.parseObject(ossjson);
+            vo.setRequesetJson(jsonMerge((JSONObject)jsonObject.get("requestParams")));
+            vo.setResponseJson(jsonMerge((JSONObject)jsonObject.get("responseParams")));
             vo.setErrorMsg(jsonObject.getString("detailErrorMsg"));
         }
         return vo;
@@ -78,5 +80,26 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
             return null;
         }
     }
+
+
+    private String jsonMerge(JSONObject jsonObject){
+        Map<String,Object> map =  jsonObject;
+        map.forEach((k,v) ->{
+            if(v instanceof Long){
+                map.put(k,String.valueOf(v));
+            }
+            if(v instanceof JSONObject){
+                jsonMerge((JSONObject) v);
+            }
+            if (v instanceof JSONArray){
+                ((JSONArray)v).forEach(j -> jsonMerge((JSONObject) j));
+            }
+        });
+        return JSON.toJSONString(map);
+    }
+//    public static void main(String[] args) {
+//        String json = "{\"data\":{\"blackPhones\":135433042558070784},\"taskId\":135433042558070784,\"timestamp\":[{\"blackPhones\":135433042558070784},{\"blackPhones\":135433042558070784}]}";
+//        System.out.println(jsonMerge(JSON.parseObject(json)));
+//    }
 
 }

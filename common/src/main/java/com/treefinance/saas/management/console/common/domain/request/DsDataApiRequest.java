@@ -15,10 +15,20 @@ public class DsDataApiRequest extends PageRequest{
 
     private Long internalErrorCode;
 
+    private String appId;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
 
     public String getDataApiNameType() {
         return dataApiNameType;

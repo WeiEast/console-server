@@ -41,6 +41,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.alibaba.fastjson.serializer.SerializerFeature.PrettyFormat;
+import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue;
+
 /**
  * Created by haojiahong on 2017/11/21.
  */
@@ -139,7 +142,7 @@ public class OssDataServiceImpl implements OssDataService {
         }
 
         JSONObject jsonObject = JSON.parseObject(ossData);
-        ossData = JSON.toJSONString(jsonObject, true);
+        ossData = JSON.toJSONString(jsonObject, WriteMapNullValue, PrettyFormat);
         OutputStream outputStream = null;
         try {
             byte[] data = ossData.getBytes();

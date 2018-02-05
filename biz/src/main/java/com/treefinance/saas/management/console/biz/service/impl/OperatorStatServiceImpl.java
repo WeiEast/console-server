@@ -93,11 +93,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setAppId(request.getAppId());
         rpcRequest.setPageSize(request.getPageSize());
         rpcRequest.setPageNumber(request.getPageNumber());
-        if (request.getIntervalMins() == null) {
-            rpcRequest.setIntervalMins(30);
-        } else {
-            rpcRequest.setIntervalMins(request.getIntervalMins());
-        }
+        rpcRequest.setIntervalMins(30);
         MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatHourAccessListWithPage(rpcRequest);
         List<OperatorStatAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {

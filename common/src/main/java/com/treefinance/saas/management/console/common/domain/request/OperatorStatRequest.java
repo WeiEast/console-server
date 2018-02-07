@@ -1,7 +1,5 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
-import com.alibaba.fastjson.annotation.JSONType;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -27,7 +25,15 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date dataTime;
+
     private String appId;
+
+    /**
+     * 间隔时间
+     */
+    private Integer intervalMins;
 
     /**
      * 统计维度:0-按任务;1-按人数
@@ -41,6 +47,23 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
 
 
     private String groupName;
+
+
+    public Integer getIntervalMins() {
+        return intervalMins;
+    }
+
+    public void setIntervalMins(Integer intervalMins) {
+        this.intervalMins = intervalMins;
+    }
+
+    public Date getDataTime() {
+        return dataTime;
+    }
+
+    public void setDataTime(Date dataTime) {
+        this.dataTime = dataTime;
+    }
 
     public Byte getSourceType() {
         return sourceType;
@@ -106,17 +129,4 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
         this.appId = appId;
     }
 
-    @Override
-    public String toString() {
-        return "OperatorStatRequest{" +
-                "groupCode='" + groupCode + '\'' +
-                ", dataDate=" + dataDate +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", appId='" + appId + '\'' +
-                ", statType=" + statType +
-                ", sourceType=" + sourceType +
-                ", groupName='" + groupName + '\'' +
-                '}';
-    }
 }

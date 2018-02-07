@@ -86,6 +86,24 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     }
 
     @Override
+    public Object queryAllOperatorStatAccessSomeTimeList(OperatorStatRequest request) {
+        OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
+        rpcRequest.setDataDate(request.getDataTime());
+        rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setPageSize(request.getPageSize());
+        rpcRequest.setPageNumber(request.getPageNumber());
+        rpcRequest.setIntervalMins(30);
+        MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatHourAccessListWithPage(rpcRequest);
+        List<OperatorStatAccessVO> result = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(rpcResult.getData())) {
+            return Results.newSuccessPageResult(request, 0, result);
+        }
+        result = BeanUtils.convertList(rpcResult.getData(), OperatorStatAccessVO.class);
+        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
+    }
+
+    @Override
     public Object queryOperatorStatDayAccessList(OperatorStatRequest request) {
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
         rpcRequest.setDataDate(request.getDataDate());

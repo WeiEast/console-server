@@ -48,10 +48,10 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="app_biz_license" domainObjectName="AppBizLicense">
-        <property name="useActualColumnNames" value="true"/>
-        <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
-        </table>
+        <!--<table tableName="app_biz_license" domainObjectName="AppBizLicense">-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--&lt;!&ndash;<generatedKey column="Id" sqlStatement="MySql" identity="true"/>&ndash;&gt;-->
+        <!--</table>-->
 
         <!--<table tableName="merchant_base" domainObjectName="MerchantBase"-->
         <!--enableSelectPaginationByExample="true"-->
@@ -103,13 +103,13 @@
         <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->
 
-        <!--<table tableName="task_callback_log" domainObjectName="TaskCallbackLog"-->
-        <!--enableSelectPaginationByExample="true"-->
-        <!--enableBatchInsert="true"-->
-        <!--enableBatchUpdateByPrimaryKey="true"-->
-        <!--enableBatchUpdateByPrimaryKeySelective="true">-->
-        <!--<property name="useActualColumnNames" value="true"/>-->
-        <!--</table>-->
+        <table tableName="task_callback_log" domainObjectName="TaskCallbackLog"
+        enableSelectPaginationByExample="true"
+        enableBatchInsert="true"
+        enableBatchUpdateByPrimaryKey="true"
+        enableBatchUpdateByPrimaryKeySelective="true">
+        <property name="useActualColumnNames" value="true"/>
+        </table>
 
         <!--<table tableName="task_log" domainObjectName="TaskLog"-->
         <!--enableSelectPaginationByExample="true"-->

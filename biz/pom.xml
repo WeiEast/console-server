@@ -49,6 +49,18 @@
             <groupId>com.treefinance.saas</groupId>
             <artifactId>assistant-variable-notify</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.treefinance.saas.dataservice</groupId>
+            <artifactId>data-server-facade</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.treefinance.saas.dataservice</groupId>
+            <artifactId>data-monitor-facade</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -11,10 +11,18 @@ public interface OperatorStatService {
 
     Object queryAllOperatorStatAccessList(OperatorStatRequest request);
 
+    /**
+     * 查询某一个时刻下所有运营商任务情况
+     *
+     * @param request
+     * @return
+     */
+    Object queryAllOperatorStatAccessSomeTimeList(OperatorStatRequest request);
+
     Object queryOperatorStatDayAccessList(OperatorStatRequest request);
 
-    Object queryOperatorStatDayDetailAccessList(OperatorStatRequest request);
 
+    Object queryOperatorStatDayDetailAccessList(OperatorStatRequest request);
 
     /**
      * 获取有运营商权限的商户列表

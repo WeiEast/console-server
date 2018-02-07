@@ -383,28 +383,35 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     }
 
     private List<MerchantStatAccessRO> changeIntervalDataTime(List<MerchantStatAccessRO> list, final Integer intervalMins) {
-        Map<Date, List<MerchantStatAccessRO>> map = list.stream().collect(Collectors.groupingBy(ro -> DateUtils.getIntervalDateTime(ro.getDataTime(), intervalMins)));
         List<MerchantStatAccessRO> resultList = Lists.newArrayList();
-        for (Map.Entry<Date, List<MerchantStatAccessRO>> entry : map.entrySet()) {
-            if (CollectionUtils.isEmpty(entry.getValue())) {
+        Map<String, List<MerchantStatAccessRO>> appIdROMap = list.stream().collect(Collectors.groupingBy(ro -> ro.getAppId()));
+        for (Map.Entry<String, List<MerchantStatAccessRO>> appIdROEntry : appIdROMap.entrySet()) {
+            if (CollectionUtils.isEmpty(appIdROEntry.getValue())) {
                 continue;
             }
-            MerchantStatAccessRO ro = new MerchantStatAccessRO();
-            BeanUtils.convert(entry.getValue().get(0), ro);
-            ro.setDataTime(entry.getKey());
-            List<MerchantStatAccessRO> entryList = entry.getValue();
-            int totalCount = 0, successCount = 0, failCount = 0, cancelCount = 0;
-            for (MerchantStatAccessRO data : entryList) {
-                totalCount = totalCount + data.getTotalCount();
-                successCount = successCount + data.getSuccessCount();
-                failCount = failCount + data.getFailCount();
-                cancelCount = cancelCount + data.getCancelCount();
+            Map<Date, List<MerchantStatAccessRO>> map = appIdROEntry.getValue().stream()
+                    .collect(Collectors.groupingBy(ro -> DateUtils.getIntervalDateTime(ro.getDataTime(), intervalMins)));
+            for (Map.Entry<Date, List<MerchantStatAccessRO>> entry : map.entrySet()) {
+                if (CollectionUtils.isEmpty(entry.getValue())) {
+                    continue;
+                }
+                MerchantStatAccessRO ro = new MerchantStatAccessRO();
+                BeanUtils.convert(entry.getValue().get(0), ro);
+                ro.setDataTime(entry.getKey());
+                List<MerchantStatAccessRO> entryList = entry.getValue();
+                int totalCount = 0, successCount = 0, failCount = 0, cancelCount = 0;
+                for (MerchantStatAccessRO data : entryList) {
+                    totalCount = totalCount + data.getTotalCount();
+                    successCount = successCount + data.getSuccessCount();
+                    failCount = failCount + data.getFailCount();
+                    cancelCount = cancelCount + data.getCancelCount();
+                }
+                ro.setTotalCount(totalCount);
+                ro.setSuccessCount(successCount);
+                ro.setFailCount(failCount);
+                ro.setCancelCount(cancelCount);
+                resultList.add(ro);
             }
-            ro.setTotalCount(totalCount);
-            ro.setSuccessCount(successCount);
-            ro.setFailCount(failCount);
-            ro.setCancelCount(cancelCount);
-            resultList.add(ro);
         }
         return resultList;
     }

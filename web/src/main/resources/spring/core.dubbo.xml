@@ -25,6 +25,7 @@
 
     <dubbo:reference id="operatorStatAccessFacade"
                      interface="com.treefinance.saas.monitor.facade.service.stat.OperatorStatAccessFacade"
+                     timeout="30000"
                      version="1.0.0"/>
 
     <dubbo:reference id="iSecurityCryptoService"
@@ -36,7 +37,8 @@
     <dubbo:reference id="websiteFacade" interface="com.treefinance.saas.monitor.facade.service.WebsiteFacade"
                      version="1.0.0"/>
 
-    <dubbo:reference id="ecommerceStatDivisionAccessFacade" interface="com.treefinance.saas.monitor.facade.service.stat.EcommerceStatDivisionAccessFacade"
+    <dubbo:reference id="ecommerceStatDivisionAccessFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.EcommerceStatDivisionAccessFacade"
                      version="1.0.0"/>
 
     <dubbo:reference id="dataApiRawResultFacade"

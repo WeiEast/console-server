@@ -116,6 +116,7 @@ public class TaskServiceImpl implements TaskService {
             vo.setUniqueId(task.getUniqueId());
             vo.setId(task.getId());
             vo.setAccountNo(securityCryptoService.decrypt(task.getAccountNo(), EncryptionIntensityEnum.NORMAL));
+            vo.setWebSite(task.getWebSite());
             vo.setStatus(task.getStatus());
             vo.setCreateTime(task.getCreateTime());
             vo.setLastUpdateTime(task.getLastUpdateTime());

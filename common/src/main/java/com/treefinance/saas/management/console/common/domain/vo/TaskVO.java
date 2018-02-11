@@ -1,7 +1,5 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -21,7 +19,6 @@ public class TaskVO implements Serializable {
     private String operatorName;
     private String callbackRequest;
     private String callbackResponse;
-    @JsonIgnore
     private String webSite;
     private Date createTime;
     private Date lastUpdateTime;

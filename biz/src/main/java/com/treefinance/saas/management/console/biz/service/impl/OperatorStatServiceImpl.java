@@ -297,8 +297,25 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             }
             valueMap.put(timeKey, itemValueMap);
         }
-
-        map.put("values", valueMap);
+        List<OperatorFiveMinNumberRatioVO> resultList = Lists.newArrayList();
+        for (String groupName : groupNameList) {
+            OperatorFiveMinNumberRatioVO vo = new OperatorFiveMinNumberRatioVO();
+            vo.setGroupName(groupName);
+            vo.setTime0(valueMap.get(keys.get(0)).get(groupName));
+            vo.setTime5(valueMap.get(keys.get(1)).get(groupName));
+            vo.setTime10(valueMap.get(keys.get(2)).get(groupName));
+            vo.setTime15(valueMap.get(keys.get(3)).get(groupName));
+            vo.setTime20(valueMap.get(keys.get(4)).get(groupName));
+            vo.setTime25(valueMap.get(keys.get(5)).get(groupName));
+            vo.setTime30(valueMap.get(keys.get(6)).get(groupName));
+            vo.setTime35(valueMap.get(keys.get(7)).get(groupName));
+            vo.setTime40(valueMap.get(keys.get(8)).get(groupName));
+            vo.setTime45(valueMap.get(keys.get(9)).get(groupName));
+            vo.setTime50(valueMap.get(keys.get(10)).get(groupName));
+            vo.setTime55(valueMap.get(keys.get(11)).get(groupName));
+            resultList.add(vo);
+        }
+        map.put("values", resultList);
         return Results.newSuccessResult(map);
     }
 

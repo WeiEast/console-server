@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.common.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,53 @@ public class DateUtils {
         intervalTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalTime, (-currentMinute.intValue() % intervalMinutes));
         return intervalTime;
     }
+
+
+    public static List<Date> getIntervalDateRegion(Date startTime, Date endTime, Integer intervalMinutes) {
+        Date intervalStartTime = org.apache.commons.lang.time.DateUtils.truncate(startTime, Calendar.MINUTE);
+        Long currentStartMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalStartTime, Calendar.HOUR_OF_DAY);
+        if (currentStartMinute % intervalMinutes != 0) {
+            intervalStartTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalStartTime, (-currentStartMinute.intValue() % intervalMinutes));
+        }
+
+        Date intervalEndTime = org.apache.commons.lang.time.DateUtils.truncate(endTime, Calendar.MINUTE);
+        Long currentEndMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalEndTime, Calendar.HOUR_OF_DAY);
+        if (currentEndMinute % intervalMinutes != 0) {
+            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (-currentEndMinute.intValue() % intervalMinutes));
+        }
+        List<Date> list = Lists.newArrayList();
+
+
+        for (; intervalStartTime.compareTo(intervalEndTime) < 0; intervalStartTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes)) {
+            list.add(intervalStartTime);
+        }
+        return list;
+    }
+
+
+    public static List<String> getIntervalDateStrRegion(Date startTime, Date endTime, Integer intervalMinutes) {
+        Date intervalStartTime = org.apache.commons.lang.time.DateUtils.truncate(startTime, Calendar.MINUTE);
+        Long currentStartMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalStartTime, Calendar.HOUR_OF_DAY);
+        if (currentStartMinute % intervalMinutes != 0) {
+            intervalStartTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalStartTime, (-currentStartMinute.intValue() % intervalMinutes));
+        }
+
+        Date intervalEndTime = org.apache.commons.lang.time.DateUtils.truncate(endTime, Calendar.MINUTE);
+        Long currentEndMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalEndTime, Calendar.HOUR_OF_DAY);
+        if (currentEndMinute % intervalMinutes != 0) {
+            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (-currentEndMinute.intValue() % intervalMinutes));
+        }
+        List<String> list = Lists.newArrayList();
+        for (; intervalStartTime.compareTo(intervalEndTime) < 0; intervalStartTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(DateUtils.date2SimpleHm(intervalStartTime));
+            Date mediTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes);
+            sb.append("-").append(DateUtils.date2SimpleHm(mediTime));
+            list.add(sb.toString());
+        }
+        return list;
+    }
+
 
     public static String date2Ymd(Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -444,36 +492,10 @@ public class DateUtils {
         return ret;
     }
 
+    public static void main(String[] args) {
 
-    public static void main(String[] args) throws ParseException {
-//        System.out.println(DateUtils.getWeekOfYear(new Date()));
-//        System.out.println(DateUtils.getFirstDayOfWeek(new Date()));
-//        System.out.println(DateUtils.getLastDayOfWeek(new Date()));
-//        System.out.println(DateUtils.getFirstDayOfMonth(new Date()));
-//        System.out.println(DateUtils.getLastDayOfMonth(new Date()));
-//        System.out.println(DateUtils.getWeekStrOfYear(new Date()));
-//        System.out.println(DateUtils.date2SimpleYm(new Date()));
-//        System.out.println(DateUtils.getDayStrDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
-//        LocalDate localDate = LocalDate.now();
-//        System.out.println("localDate:" + localDate);
-//
-//        LocalDate tomorrow = LocalDate.now().plusDays(1);
-//        System.out.println("tomorrow:" + tomorrow);
-//
-//        LocalDate yesterday = LocalDate.now().minusDays(1);
-//        System.out.println("yesterday:" + yesterday);
-//
-//        LocalDateTime now = LocalDateTime.now();
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        System.out.println("默认格式化: " + now);
-//        System.out.println("自定义格式化: " + now.format(dateTimeFormatter));
-//        LocalDateTime localDateTime = LocalDateTime.parse("2017-07-20 15:27:44", dateTimeFormatter);
-//        System.out.println("字符串转LocalDateTime: " + localDateTime);
-        Date date = org.apache.commons.lang3.time.DateUtils.parseDate("2017-11-24 19:01:00", "yyyy-MM-dd HH:mm:ss");
-        //8,16,24,32,40,48,56
-        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
-
-        System.out.println(DateUtils.getTodayEndDate(new Date()));
+        List<String> list = DateUtils.getIntervalDateStrRegion(new Date(), org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100), 5);
+        System.out.println(JSON.toJSONString(list, true));
 
     }
 

@@ -30,4 +30,12 @@ public interface OperatorStatService {
      * @return
      */
     Object queryMerchantsHasOperatorAuth();
+
+    /**
+     * 运营商任务占比监控
+     *
+     * @param request
+     * @return
+     */
+    Object queryNumberRatio(OperatorStatRequest request);
 }

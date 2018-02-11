@@ -55,8 +55,6 @@ public class ApiStatController {
         return Results.newSuccessResult(apiStatService.queryStatAccess(request));
     }
 
-
-
     @RequestMapping(value = "/stataccess/rank", method = RequestMethod.GET, produces = "application/json")
     public Result<Map<String, Object>> queryStatAccessRank(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
         return Results.newSuccessResult(apiStatService.queryStatAccessRank(date));

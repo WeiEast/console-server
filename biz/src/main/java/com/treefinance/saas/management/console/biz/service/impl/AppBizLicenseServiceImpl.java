@@ -2,11 +2,9 @@ package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidGenerator;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
-import com.treefinance.saas.assistant.config.model.enums.ConfigType;
-import com.treefinance.saas.assistant.config.model.enums.UpdateType;
-import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
+import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
+import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
@@ -17,6 +15,7 @@ import com.treefinance.saas.management.console.dao.entity.AppBizType;
 import com.treefinance.saas.management.console.dao.entity.AppBizTypeCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
     @Autowired
     private AppBizTypeMapper appBizTypeMapper;
     @Autowired
-    private ConfigUpdatePlugin configUpdatePlugin;
+    private VariableMessageNotifyService variableMessageNotifyService;
 
     @Override
     public List<AppBizLicenseVO> selectBizLicenseByAppIdBizType(AppBizLicenseRequest request) {
@@ -75,6 +74,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
                 appBizLicenseVO.setAppId(request.getAppId());
                 appBizLicenseVO.setIsShowLicense((byte) 0);
                 appBizLicenseVO.setIsValid((byte) 0);
+                appBizLicenseVO.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
             } else {
                 BeanUtils.convert(appBizLicense, appBizLicenseVO);
                 appBizLicenseVO.setBizName(appBizType.getBizName());
@@ -101,6 +101,11 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicense.setBizType(request.getBizType());
             appBizLicense.setIsShowLicense(request.getIsShowLicense() == null ? 0 : request.getIsShowLicense());
             appBizLicense.setIsValid(request.getIsValid() == null ? 0 : request.getIsValid());
+            if (StringUtils.isNotBlank(request.getLicenseTemplate())) {
+                appBizLicense.setLicenseTemplate(request.getLicenseTemplate());
+            } else {
+                appBizLicense.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
+            }
             if (request.getIsValid() != null && request.getIsValid() == (byte) 1) {
                 appBizLicense.setDailyLimit(100000);
             }
@@ -110,18 +115,18 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicenseMapper.insertSelective(appBizLicense);
 
             // 发送配置变更消息
-            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                    .configType(ConfigType.MERCHANT_LICENSE)
-                    .configDesc("更新商户授权")
-                    .updateType(UpdateType.UPDATE)
-                    .configId(appBizLicense.getAppId())
-                    .configData(appBizLicense).build());
+            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
         } else {
             AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
             AppBizLicense appBizLicense = new AppBizLicense();
             appBizLicense.setId(srcAppBizLicense.getId());
             if (request.getIsShowLicense() != null) {
                 appBizLicense.setIsShowLicense(request.getIsShowLicense());
+            }
+            if (StringUtils.isNotBlank(request.getLicenseTemplate())) {
+                appBizLicense.setLicenseTemplate(request.getLicenseTemplate());
+            } else {
+                appBizLicense.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
             }
             if (request.getIsValid() != null) {
                 appBizLicense.setIsValid(request.getIsValid());
@@ -135,12 +140,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
 
             // 发送配置变更消息
-            configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                    .configType(ConfigType.MERCHANT_LICENSE)
-                    .configDesc("更新商户授权")
-                    .updateType(UpdateType.UPDATE)
-                    .configId(srcAppBizLicense.getAppId())
-                    .configData(appBizLicense).build());
+            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
         }
         return Boolean.TRUE;
     }

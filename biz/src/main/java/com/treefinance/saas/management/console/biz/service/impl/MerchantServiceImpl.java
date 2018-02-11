@@ -6,10 +6,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
-import com.treefinance.saas.assistant.config.model.ConfigUpdateBuilder;
-import com.treefinance.saas.assistant.config.model.enums.ConfigType;
-import com.treefinance.saas.assistant.config.plugin.ConfigUpdatePlugin;
+import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
+import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantDao;
@@ -18,7 +17,6 @@ import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -64,9 +62,11 @@ public class MerchantServiceImpl implements MerchantService {
     @Autowired
     private DiamondConfig diamondConfig;
     @Autowired
-    private ConfigUpdatePlugin configUpdatePlugin;
+    private VariableMessageNotifyService variableMessageNotifyService;
     @Autowired
     private MerchantDao merchantDao;
+    @Autowired
+    private AppBizTypeService appBizTypeService;
 
 
     @Override
@@ -98,14 +98,15 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andAppIdEqualTo(appId);
+        appBizLicenseCriteria.createCriteria().andAppIdEqualTo(appId).andIsValidEqualTo((byte) 1);
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+        Map<Byte, String> appBizTypeNameMap = appBizTypeService.getBizTypeNameMap();
         if (!CollectionUtils.isEmpty(appBizLicenseList)) {
             List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
             for (AppBizLicense appBizLicense : appBizLicenseList) {
                 AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
                 appBizLicenseVO.setBizType(appBizLicense.getBizType());
-                appBizLicenseVO.setBizName(EBizType.getName(appBizLicense.getBizType()));
+                appBizLicenseVO.setBizName(appBizTypeNameMap.get(appBizLicense.getBizType()));
                 appBizLicenseVOList.add(appBizLicenseVO);
             }
             merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);
@@ -180,12 +181,13 @@ public class MerchantServiceImpl implements MerchantService {
                 merchantBaseVO.setIsTest(merchantUser.getIsTest());
             }
             List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
+            Map<Byte, String> appBizTypeNameMap = appBizTypeService.getBizTypeNameMap();
             if (!CollectionUtils.isEmpty(licenseList)) {
                 List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
                 for (AppBizLicense appBizLicense : licenseList) {
                     AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
                     appBizLicenseVO.setBizType(appBizLicense.getBizType());
-                    appBizLicenseVO.setBizName(EBizType.getName(appBizLicense.getBizType()));
+                    appBizLicenseVO.setBizName(appBizTypeNameMap.get(appBizLicense.getBizType()));
                     appBizLicenseVOList.add(appBizLicenseVO);
                 }
                 appBizLicenseVOList = appBizLicenseVOList.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
@@ -220,11 +222,8 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         Map<String, Object> map = merchantDao.addMerchant(merchantBaseVO);
-        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                .configType(ConfigType.MERCHANT_BASE)
-                .configDesc("新增商户")
-                .configId(appId)
-                .configData(merchantBaseVO).build());
+        // 发送变量通知消息
+        variableMessageNotifyService.sendVariableMessage("merchant", "update", appId);
         return map;
     }
 
@@ -249,11 +248,8 @@ public class MerchantServiceImpl implements MerchantService {
         }
         merchantDao.updateMerchant(merchantBaseVO);
 
-        configUpdatePlugin.sendMessage(ConfigUpdateBuilder.newBuilder()
-                .configType(ConfigType.MERCHANT_BASE)
-                .configDesc("更新商户")
-                .configId(merchantBaseList.get(0).getAppId())
-                .configData(merchantBaseVO).build());
+        // 发送变量通知消息
+        variableMessageNotifyService.sendVariableMessage("merchant", "update", merchantBaseList.get(0).getAppId());
     }
 
     @Override

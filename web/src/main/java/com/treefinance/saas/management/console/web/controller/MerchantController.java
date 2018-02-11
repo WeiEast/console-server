@@ -1,11 +1,14 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
+import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,9 @@ public class MerchantController {
 
     @Autowired
     private MerchantService merchantService;
+    @Autowired
+    EcommerceMonitorService ecommerceMonitorService;
+
 
     @RequestMapping(value = "list", produces = "application/json")
     public Result<Map<String, Object>> getMerchantList(PageRequest request) {
@@ -87,6 +93,17 @@ public class MerchantController {
     public Result<String> getCipherTextPassword(@PathVariable String str) {
         String result = merchantService.generateCipherTextPassword(str);
         return Results.newSuccessResult(result);
+    }
+
+
+    @RequestMapping(value = "stat/merchant/list", method = RequestMethod.GET)
+    public Object queryAllEcommerceMonitor(Integer bizType) {
+        if (bizType == null ) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        logger.info("电商列表查询 Controller层  传入参数为{}", bizType);
+        return ecommerceMonitorService.queryAllEcommerceListByBizType(bizType);
+
     }
 
 

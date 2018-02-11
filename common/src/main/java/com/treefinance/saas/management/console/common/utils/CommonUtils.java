@@ -35,7 +35,7 @@ public class CommonUtils {
     }
 
     public static String generatePassword() {
-        return RandomStringUtils.randomAlphabetic(2) + RandomStringUtils.randomNumeric(4);
+        return RandomStringUtils.randomAlphanumeric(16);
     }
 
     public static String encodeBase64(String str) {
@@ -48,5 +48,6 @@ public class CommonUtils {
         return new String(b);
 
     }
+
 
 }

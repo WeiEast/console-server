@@ -43,6 +43,16 @@ public class OperatorStatController {
         return operatorStatService.queryAllOperatorStatAccessList(request);
     }
 
+    @RequestMapping(value = "/all/detail/some/time/list", method = {RequestMethod.GET}, produces = "application/json")
+    public Object queryAllDayDetailSomeTimeList(OperatorStatRequest request) {
+        if (request == null || request.getDataTime() == null
+                || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        return operatorStatService.queryAllOperatorStatAccessSomeTimeList(request);
+    }
+
+
     @RequestMapping(value = "/each/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDayList(OperatorStatRequest request) {
         if (request.getDataDate() == null || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
@@ -59,6 +69,7 @@ public class OperatorStatController {
         }
         return operatorStatService.queryOperatorStatDayDetailAccessList(request);
     }
+
 
     /**
      * 获取有运营商权限的商户列表

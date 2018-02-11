@@ -10,8 +10,8 @@ import java.util.Date;
  * Created by haojiahong on 2017/12/4.
  */
 public class AllOperatorStatAccessVO implements Serializable {
-
     private static final long serialVersionUID = -3702552273325772879L;
+
 
     private Date dataTime;
 
@@ -175,5 +175,28 @@ public class AllOperatorStatAccessVO implements Serializable {
 
     public void setCallbackSuccessRate(BigDecimal callbackSuccessRate) {
         this.callbackSuccessRate = callbackSuccessRate;
+    }
+
+    @Override
+    public String toString() {
+        return "AllOperatorStatAccessVO{" +
+                "dataTime=" + dataTime +
+                ", dataTimeStr='" + dataTimeStr + '\'' +
+                ", taskUserRatio=" + taskUserRatio +
+                ", entryCount=" + entryCount +
+                ", confirmMobileCount=" + confirmMobileCount +
+                ", startLoginCount=" + startLoginCount +
+                ", loginSuccessCount=" + loginSuccessCount +
+                ", crawlSuccessCount=" + crawlSuccessCount +
+                ", processSuccessCount=" + processSuccessCount +
+                ", callbackSuccessCount=" + callbackSuccessCount +
+                ", wholeConversionRate=" + wholeConversionRate +
+                ", confirmMobileConversionRate=" + confirmMobileConversionRate +
+                ", loginConversionRate=" + loginConversionRate +
+                ", loginSuccessRate=" + loginSuccessRate +
+                ", crawlSuccessRate=" + crawlSuccessRate +
+                ", processSuccessRate=" + processSuccessRate +
+                ", callbackSuccessRate=" + callbackSuccessRate +
+                '}';
     }
 }

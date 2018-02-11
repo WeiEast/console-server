@@ -26,6 +26,9 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     private Date endDate;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date dataTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -34,11 +37,47 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     private String appId;
 
     /**
+     * 间隔时间
+     */
+    private Integer intervalMins;
+
+    /**
      * 统计维度:0-按任务;1-按人数
      */
     private Byte statType;
 
+    /**
+     * 统计维度:来源0：所有来源；1：sdk来源；2：h5来源（必填）
+     */
+    private Byte sourceType;
+
+
     private String groupName;
+
+
+    public Integer getIntervalMins() {
+        return intervalMins;
+    }
+
+    public void setIntervalMins(Integer intervalMins) {
+        this.intervalMins = intervalMins;
+    }
+
+    public Date getDataTime() {
+        return dataTime;
+    }
+
+    public void setDataTime(Date dataTime) {
+        this.dataTime = dataTime;
+    }
+
+    public Byte getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Byte sourceType) {
+        this.sourceType = sourceType;
+    }
 
     public String getGroupCode() {
         return groupCode;
@@ -111,4 +150,5 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
+
 }

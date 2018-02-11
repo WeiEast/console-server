@@ -38,4 +38,12 @@ public class MerchantSimpleVO implements Serializable {
     public void setAppName(String appName) {
         this.appName = appName;
     }
+
+    public MerchantSimpleVO() {
+    }
+
+    public MerchantSimpleVO(String appId, String appName) {
+        this.appId = appId;
+        this.appName = appName;
+    }
 }

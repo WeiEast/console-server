@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 public class OperatorStatServiceImpl implements OperatorStatService {
 
     private static final Logger logger = LoggerFactory.getLogger(OperatorStatService.class);
-
     @Autowired
     private OperatorStatAccessFacade operatorStatAccessFacade;
     @Autowired
@@ -88,6 +87,24 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         }
         result = BeanUtils.convertList(rpcResult.getData(), AllOperatorStatAccessVO.class);
         return Results.newSuccessResult(result);
+    }
+
+    @Override
+    public Object queryAllOperatorStatAccessSomeTimeList(OperatorStatRequest request) {
+        OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
+        rpcRequest.setDataDate(request.getDataTime());
+        rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setPageSize(request.getPageSize());
+        rpcRequest.setPageNumber(request.getPageNumber());
+        rpcRequest.setIntervalMins(30);
+        MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatHourAccessListWithPage(rpcRequest);
+        List<OperatorStatAccessVO> result = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(rpcResult.getData())) {
+            return Results.newSuccessPageResult(request, 0, result);
+        }
+        result = BeanUtils.convertList(rpcResult.getData(), OperatorStatAccessVO.class);
+        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
     }
 
     @Override

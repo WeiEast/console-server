@@ -96,9 +96,13 @@ public class OperatorStatController {
             statRequest.setEndTime(endTime);
             statRequest.setAppId("virtual_total_stat_appId");
         } else {
+            if (request.getStartTime() != null) {
+                startTime = DateUtils.truncate(request.getStartTime(), Calendar.HOUR);
+                endTime = DateUtils.addHours(startTime, 1);
+            }
+            statRequest.setStartTime(startTime);
+            statRequest.setEndTime(endTime);
             statRequest.setStatType(request.getStatType() == null ? (byte) 0 : request.getStatType());
-            statRequest.setStartTime(request.getStartTime() == null ? startTime : request.getStartTime());
-            statRequest.setEndTime(request.getEndTime() == null ? endTime : request.getEndTime());
             statRequest.setAppId(request.getAppId() == null ? "virtual_total_stat_appId" : request.getAppId());
         }
         return operatorStatService.queryNumberRatio(statRequest);

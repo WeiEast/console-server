@@ -284,9 +284,14 @@ public class OperatorStatServiceImpl implements OperatorStatService {
                         sb = sb.append("0").append(" | ").append("NA");
                         itemValueMap.put(groupName, sb.toString());
                     } else {
-                        BigDecimal rate = new BigDecimal(valueStr).multiply(new BigDecimal(100)).divide(new BigDecimal(total), 2, BigDecimal.ROUND_HALF_UP);
-                        sb = sb.append(valueStr).append(" | ").append(rate).append("%");
-                        itemValueMap.put(groupName, sb.toString());
+                        if (total == 0) {
+                            sb = sb.append("0").append(" | ").append("NA");
+                            itemValueMap.put(groupName, sb.toString());
+                        } else {
+                            BigDecimal rate = new BigDecimal(valueStr).multiply(new BigDecimal(100)).divide(new BigDecimal(total), 2, BigDecimal.ROUND_HALF_UP);
+                            sb = sb.append(valueStr).append(" | ").append(rate).append("%");
+                            itemValueMap.put(groupName, sb.toString());
+                        }
                     }
                 }
             } else {

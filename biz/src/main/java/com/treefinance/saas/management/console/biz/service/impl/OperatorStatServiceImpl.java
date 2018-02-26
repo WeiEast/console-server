@@ -224,6 +224,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), 5));
         rpcRequest.setEndDate(DateUtils.getIntervalDateTime(request.getEndTime(), 5));
         rpcRequest.setStatType(request.getStatType());
+        rpcRequest.setAppId(request.getAppId());
         rpcRequest.setIntervalMins(5);
         MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatAccessListByExample(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {

@@ -68,7 +68,7 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/all/avg/convert/rate/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllConvertRateList(OperatorStatRequest request) {
-        if (StringUtils.isBlank(request.getAppId())) {
+        if (StringUtils.isBlank(request.getAppId()) || request.getStatType() == null) {
             throw new IllegalArgumentException("请求参数 appId 不能为空！");
         }
         return operatorStatService.queryAllOperatorStatConvertRateList(request);

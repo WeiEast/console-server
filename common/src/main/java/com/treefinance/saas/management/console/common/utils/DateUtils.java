@@ -444,6 +444,20 @@ public class DateUtils {
         return ret;
     }
 
+    /**
+     * 获取某一天加上或者减去某一间隔时间后的日期
+     * @param source 原目标日期
+     * @param interval 日期间隔
+     *
+     */
+    public static Date getSpecificDayDate(Date source, int interval) {
+
+        Long time = source.getTime();
+        Long intervalTime = interval*24*60*1000*60L;
+
+        return new Date(time+intervalTime);
+    }
+
 
     public static void main(String[] args) throws ParseException {
 //        System.out.println(DateUtils.getWeekOfYear(new Date()));
@@ -469,12 +483,12 @@ public class DateUtils {
 //        System.out.println("自定义格式化: " + now.format(dateTimeFormatter));
 //        LocalDateTime localDateTime = LocalDateTime.parse("2017-07-20 15:27:44", dateTimeFormatter);
 //        System.out.println("字符串转LocalDateTime: " + localDateTime);
-        Date date = org.apache.commons.lang3.time.DateUtils.parseDate("2017-11-24 19:01:00", "yyyy-MM-dd HH:mm:ss");
+//        Date date = org.apache.commons.lang3.time.DateUtils.parseDate("2017-11-24 19:01:00", "yyyy-MM-dd HH:mm:ss");
         //8,16,24,32,40,48,56
-        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
+//        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
 
-        System.out.println(DateUtils.getTodayEndDate(new Date()));
-
+//        System.out.println(DateUtils.getTodayEndDate(new Date()));
+          System.err.println(date2Ymd(getSpecificDayDate(new Date(),10)));
     }
 
 

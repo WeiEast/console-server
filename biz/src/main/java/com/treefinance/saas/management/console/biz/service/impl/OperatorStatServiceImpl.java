@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.datatrees.toolkits.util.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.OperatorStatService;
@@ -29,8 +30,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -180,6 +185,47 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     }
 
     @Override
+    public Object queryAllOperatorStatConvertRateList(OperatorStatRequest request) {
+        OperatorStatAccessRequest rpcDayRequest = new OperatorStatAccessRequest();
+
+        if (Objects.isEmpty(request.getEndDate())) {
+            request.setEndDate(new Date());
+        }
+        if (Objects.isEmpty(request.getStartDate())) {
+            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -10));
+        }
+
+        rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(request.getStartDate()));
+        rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
+        rpcDayRequest.setAppId(request.getAppId());
+        rpcDayRequest.setStatType(request.getStatType());
+        MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.querySupplierAllOperatorStatDayAccessList(rpcDayRequest);
+        if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
+            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+        }
+
+        List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
+        for (OperatorAllStatDayAccessRO op : rpcDayResult.getData()) {
+            OperatorStatDayConvertRateVo vo = new OperatorStatDayConvertRateVo();
+
+            BigDecimal callbackSuccessCount = new BigDecimal(op.getCallbackSuccessCount());
+            BigDecimal taskCount = new BigDecimal(op.getTaskCount());
+            BigDecimal rate = taskCount.compareTo(BigDecimal.ZERO)==0?BigDecimal.ZERO:callbackSuccessCount.divide
+                    (taskCount, 2,
+                    RoundingMode
+                    .HALF_UP);
+            String date = DateUtils.date2SimpleYmd(op.getDataTime());
+
+            vo.setConvertRate(rate);
+            vo.setDate(date);
+
+            result.add(vo);
+        }
+
+        return Results.newSuccessResult(result);
+    }
+
+    @Override
     public Object queryMerchantsHasOperatorAuth() {
         List<MerchantSimpleVO> result = Lists.newArrayList();
         MerchantSimpleVO totalVO = new MerchantSimpleVO();
@@ -209,4 +255,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         }
         return Results.newSuccessResult(result);
     }
+
+
 }

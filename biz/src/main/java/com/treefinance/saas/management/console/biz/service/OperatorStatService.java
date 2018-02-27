@@ -30,4 +30,10 @@ public interface OperatorStatService {
      * @return
      */
     Object queryMerchantsHasOperatorAuth();
+
+    /**
+    * 获取所有运营商每日转化率的列表
+    *
+    * */
+    Object queryAllOperatorStatConvertRateList(OperatorStatRequest request);
 }

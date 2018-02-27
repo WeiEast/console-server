@@ -66,6 +66,14 @@ public class OperatorStatController {
         return operatorStatService.queryOperatorStatDayDetailAccessList(request);
     }
 
+    @RequestMapping(value = "/all/avg/convert/rate/list", method = {RequestMethod.GET}, produces = "application/json")
+    public Object queryAllConvertRateList(OperatorStatRequest request) {
+        if (StringUtils.isBlank(request.getAppId())) {
+            throw new IllegalArgumentException("请求参数 appId 不能为空！");
+        }
+        return operatorStatService.queryAllOperatorStatConvertRateList(request);
+    }
+
 
     /**
      * 获取有运营商权限的商户列表
@@ -76,6 +84,5 @@ public class OperatorStatController {
     public Object queryMerchantsHasOperatorAuth() {
         return operatorStatService.queryMerchantsHasOperatorAuth();
     }
-
 
 }

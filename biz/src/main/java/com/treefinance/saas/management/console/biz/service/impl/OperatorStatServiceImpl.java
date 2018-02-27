@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -199,28 +200,29 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
         rpcDayRequest.setAppId(request.getAppId());
         rpcDayRequest.setStatType(request.getStatType());
-        MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.querySupplierAllOperatorStatDayAccessList(rpcDayRequest);
+        MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
         }
 
         List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
-        for (OperatorAllStatDayAccessRO op : rpcDayResult.getData()) {
-            OperatorStatDayConvertRateVo vo = new OperatorStatDayConvertRateVo();
+        rpcDayResult.getData().stream().filter(operatorAllStatDayAccessRO
+                -> request.getAppId().equals(operatorAllStatDayAccessRO.getAppId())).forEach(operatorAllStatDayAccessRO -> {
+                    OperatorStatDayConvertRateVo vo = new OperatorStatDayConvertRateVo();
 
-            BigDecimal callbackSuccessCount = new BigDecimal(op.getCallbackSuccessCount());
-            BigDecimal taskCount = new BigDecimal(op.getTaskCount());
-            BigDecimal rate = taskCount.compareTo(BigDecimal.ZERO)==0?BigDecimal.ZERO:callbackSuccessCount.divide
-                    (taskCount, 2,
-                    RoundingMode
-                    .HALF_UP);
-            String date = DateUtils.date2SimpleYmd(op.getDataTime());
+                    BigDecimal callbackSuccessCount = new BigDecimal(operatorAllStatDayAccessRO.getCallbackSuccessCount());
+                    BigDecimal taskCount = new BigDecimal(operatorAllStatDayAccessRO.getTaskCount());
+                    BigDecimal rate = taskCount.compareTo(BigDecimal.ZERO)==0?BigDecimal.ZERO:callbackSuccessCount.divide
+                            (taskCount, 2,
+                                    RoundingMode
+                                            .HALF_UP);
+                    String date = DateUtils.date2SimpleYmd(operatorAllStatDayAccessRO.getDataTime());
 
-            vo.setConvertRate(rate);
-            vo.setDate(date);
+                    vo.setConvertRate(rate);
+                    vo.setDate(date);
 
-            result.add(vo);
-        }
+                    result.add(vo);
+                });
 
         return Results.newSuccessResult(result);
     }

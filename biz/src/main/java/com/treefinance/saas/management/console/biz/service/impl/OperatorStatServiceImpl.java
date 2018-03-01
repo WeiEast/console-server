@@ -28,6 +28,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,6 +40,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +57,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
 
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -196,6 +200,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -10));
         }
 
+        List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
+
         rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(request.getStartDate()));
         rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
         rpcDayRequest.setAppId(request.getAppId());
@@ -205,26 +211,64 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
         }
 
-        List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
-        rpcDayResult.getData().stream().filter(operatorAllStatDayAccessRO
-                -> request.getAppId().equals(operatorAllStatDayAccessRO.getAppId())).forEach(operatorAllStatDayAccessRO -> {
-                    OperatorStatDayConvertRateVo vo = new OperatorStatDayConvertRateVo();
 
-                    BigDecimal callbackSuccessCount = new BigDecimal(operatorAllStatDayAccessRO.getCallbackSuccessCount());
-                    BigDecimal taskCount = new BigDecimal(operatorAllStatDayAccessRO.getTaskCount());
-                    BigDecimal rate = taskCount.compareTo(BigDecimal.ZERO)==0?BigDecimal.ZERO:callbackSuccessCount.divide
-                            (taskCount, 2,
-                                    RoundingMode
-                                            .HALF_UP);
-                    String date = DateUtils.date2SimpleYmd(operatorAllStatDayAccessRO.getDataTime());
+        List<OperatorAllStatDayAccessRO> list = rpcDayResult.getData();
 
-                    vo.setConvertRate(rate);
-                    vo.setDate(date);
+        Map<String, List<OperatorAllStatDayAccessRO>> map = list.stream().collect(Collectors.groupingBy
+                (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
 
-                    result.add(vo);
-                });
+        for (String key : map.keySet()) {
+            List<OperatorAllStatDayAccessRO> value = map.get(key);
+            Date firstTenDay = DateUtils.string2Date(key + "-01 00:00:00");
+            Date midTenDay = DateUtils.string2Date(key + "-11 00:00:00");
+            Date lastTenDay = DateUtils.string2Date(key + "-21 00:00:00");
+
+            List<OperatorAllStatDayAccessRO> firstTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
+                    operatorAllStatDayAccessRO.getDataTime()
+                            .compareTo
+                                    (firstTenDay) >= 0 && operatorAllStatDayAccessRO.getDataTime().compareTo
+                            (midTenDay) < 0).collect(Collectors.toList());
+
+            calcTenDayRate(result, key, firstTenDayList);
+
+            List<OperatorAllStatDayAccessRO> midTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
+                    operatorAllStatDayAccessRO.getDataTime()
+                            .compareTo
+                                    (midTenDay) >= 0 && operatorAllStatDayAccessRO.getDataTime().compareTo
+                            (lastTenDay) < 0).collect(Collectors.toList());
+
+            calcTenDayRate(result, key, midTenDayList);
+
+            List<OperatorAllStatDayAccessRO> lastTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
+                    operatorAllStatDayAccessRO.getDataTime()
+                            .compareTo(lastTenDay) >= 0).collect(Collectors.toList());
+
+            calcTenDayRate(result, key, lastTenDayList);
+
+        }
+
 
         return Results.newSuccessResult(result);
+    }
+
+    private void calcTenDayRate(List<OperatorStatDayConvertRateVo> result, String key, List<OperatorAllStatDayAccessRO> filteredList) {
+        int taskCount = 0,succCount = 0;
+
+        for (OperatorAllStatDayAccessRO ro:filteredList) {
+            taskCount += ro.getTaskCount();
+            succCount += ro.getCallbackSuccessCount();
+        }
+
+        OperatorStatDayConvertRateVo firstTenDayRate = new OperatorStatDayConvertRateVo();
+
+        BigDecimal rate = succCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
+                (taskCount),2, RoundingMode
+                .HALF_UP);
+
+        firstTenDayRate.setConvertRate(rate);
+        firstTenDayRate.setDate(key + "-01");
+
+        result.add(firstTenDayRate);
     }
 
     @Override

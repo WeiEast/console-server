@@ -458,7 +458,6 @@ public class DateUtils {
         return new Date(time+intervalTime);
     }
 
-
     public static void main(String[] args) throws ParseException {
 //        System.out.println(DateUtils.getWeekOfYear(new Date()));
 //        System.out.println(DateUtils.getFirstDayOfWeek(new Date()));

@@ -11,6 +11,8 @@ public class OperatorStatDayConvertRateVo implements Serializable {
 
     private static final long serialVersionUID = 854680180124395415L;
 
+
+
     private BigDecimal convertRate;
 
     private String date;

@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.common.utils;
 
+import com.datatrees.crawler.core.processor.format.unit.TimeUnit;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,8 @@ import java.util.List;
 public class DateUtils {
 
     protected static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
+
+
 
 
     /**
@@ -444,18 +447,23 @@ public class DateUtils {
         return ret;
     }
 
+
+    public static Date getSpecificDayDate(Date source, int interval) {
+        return getSpecificDayDate(source,interval,TimeUnit.DAY);
+    }
     /**
      * 获取某一天加上或者减去某一间隔时间后的日期
      * @param source 原目标日期
      * @param interval 日期间隔
-     *
+     * @param timeUnit 时间单位
      */
-    public static Date getSpecificDayDate(Date source, int interval) {
+    public static Date getSpecificDayDate(Date source, int interval, TimeUnit timeUnit) {
+
+        long ms = timeUnit.toMillis(interval);
 
         Long time = source.getTime();
-        Long intervalTime = interval*24*60*1000*60L;
 
-        return new Date(time+intervalTime);
+        return new Date(time+ms);
     }
 
     public static void main(String[] args) throws ParseException {
@@ -487,7 +495,13 @@ public class DateUtils {
 //        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
 
 //        System.out.println(DateUtils.getTodayEndDate(new Date()));
-          System.err.println(date2Ymd(getSpecificDayDate(new Date(),10)));
+          System.err.println(date2Ymd(getSpecificDayDate(new Date(),-3,TimeUnit.MONTH)));
+
+
+
+
+
+
     }
 
 

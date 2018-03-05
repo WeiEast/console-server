@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.datatrees.crawler.core.processor.format.unit.TimeUnit;
 import com.datatrees.toolkits.util.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,7 +29,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,8 +36,6 @@ import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -53,9 +51,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
-
-    @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -194,7 +189,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             request.setEndDate(new Date());
         }
         if (Objects.isEmpty(request.getStartDate())) {
-            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -10));
+            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -3, TimeUnit.MONTH));
         }
 
         List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
@@ -206,7 +201,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
         }
-
 
         List<OperatorAllStatDayAccessRO> list = rpcDayResult.getData();
 
@@ -254,6 +248,12 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
     private void calcTenDayRate(List<OperatorStatDayConvertRateVo> result, String date,
                                 List<OperatorAllStatDayAccessRO> filteredList) {
+        //如果比今天大 就不展示
+        Date day = DateUtils.ymdString2Date(date);
+        if(day == null || new Date().compareTo(day)<0){
+            return;
+        }
+
         int taskCount = 0,succCount = 0;
 
         for (OperatorAllStatDayAccessRO ro:filteredList) {

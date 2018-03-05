@@ -35,10 +35,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -204,8 +201,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(request.getStartDate()));
         rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
-        rpcDayRequest.setAppId(request.getAppId());
-        rpcDayRequest.setStatType(request.getStatType());
+        rpcDayRequest.setStatType(request.getStatType() == null?1:request.getStatType());
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
@@ -223,13 +219,18 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             Date midTenDay = DateUtils.string2Date(key + "-11 00:00:00");
             Date lastTenDay = DateUtils.string2Date(key + "-21 00:00:00");
 
+            //展示用的key 表示的是yyyy-MM + -dd
+            String firstKey = key + "-01";
+            String midKey = key + "-11";
+            String lastKey = key + "-21";
+
             List<OperatorAllStatDayAccessRO> firstTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
                     operatorAllStatDayAccessRO.getDataTime()
                             .compareTo
                                     (firstTenDay) >= 0 && operatorAllStatDayAccessRO.getDataTime().compareTo
                             (midTenDay) < 0).collect(Collectors.toList());
 
-            calcTenDayRate(result, key, firstTenDayList);
+            calcTenDayRate(result, firstKey, firstTenDayList);
 
             List<OperatorAllStatDayAccessRO> midTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
                     operatorAllStatDayAccessRO.getDataTime()
@@ -237,21 +238,22 @@ public class OperatorStatServiceImpl implements OperatorStatService {
                                     (midTenDay) >= 0 && operatorAllStatDayAccessRO.getDataTime().compareTo
                             (lastTenDay) < 0).collect(Collectors.toList());
 
-            calcTenDayRate(result, key, midTenDayList);
+            calcTenDayRate(result, midKey, midTenDayList);
 
             List<OperatorAllStatDayAccessRO> lastTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
                     operatorAllStatDayAccessRO.getDataTime()
                             .compareTo(lastTenDay) >= 0).collect(Collectors.toList());
 
-            calcTenDayRate(result, key, lastTenDayList);
+            calcTenDayRate(result, lastKey, lastTenDayList);
 
         }
-
+        result = result.stream().sorted(Comparator.comparing(OperatorStatDayConvertRateVo::getDate)).collect(Collectors.toList());
 
         return Results.newSuccessResult(result);
     }
 
-    private void calcTenDayRate(List<OperatorStatDayConvertRateVo> result, String key, List<OperatorAllStatDayAccessRO> filteredList) {
+    private void calcTenDayRate(List<OperatorStatDayConvertRateVo> result, String date,
+                                List<OperatorAllStatDayAccessRO> filteredList) {
         int taskCount = 0,succCount = 0;
 
         for (OperatorAllStatDayAccessRO ro:filteredList) {
@@ -261,12 +263,12 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         OperatorStatDayConvertRateVo firstTenDayRate = new OperatorStatDayConvertRateVo();
 
-        BigDecimal rate = succCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
+        BigDecimal rate = taskCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
                 (taskCount),2, RoundingMode
                 .HALF_UP);
 
         firstTenDayRate.setConvertRate(rate);
-        firstTenDayRate.setDate(key + "-01");
+        firstTenDayRate.setDate(date);
 
         result.add(firstTenDayRate);
     }

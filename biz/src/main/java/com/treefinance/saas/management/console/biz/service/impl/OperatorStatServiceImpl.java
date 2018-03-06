@@ -203,6 +203,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(request.getStartDate()));
         rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
         rpcDayRequest.setStatType(request.getStatType() == null?1:request.getStatType());
+        rpcDayRequest.setAppId("virtual_total_stat_appId");
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
             return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
@@ -210,7 +211,9 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         List<OperatorAllStatDayAccessRO> list = rpcDayResult.getData();
 
-        Map<String, List<OperatorAllStatDayAccessRO>> map = list.stream().collect(Collectors.groupingBy
+        Map<String, List<OperatorAllStatDayAccessRO>> map = list.stream().filter(operatorAllStatDayAccessRO ->
+                "virtual_total_stat_appId".equals(operatorAllStatDayAccessRO.getAppId()))
+                .collect(Collectors.groupingBy
                 (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
 
         for (String key : map.keySet()) {
@@ -260,17 +263,19 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             return;
         }
 
-        int taskCount = 0,succCount = 0;
+        int entryCount = 0,succCount = 0;
 
+        logger.info("统计"+date+"后十天的数据");
         for (OperatorAllStatDayAccessRO ro:filteredList) {
-            taskCount += ro.getTaskCount();
+            entryCount += ro.getEntryCount();
             succCount += ro.getCallbackSuccessCount();
         }
+        logger.info("此时段内 成功回调数量："+succCount+" 任务总数："+ entryCount);
 
         OperatorStatDayConvertRateVo firstTenDayRate = new OperatorStatDayConvertRateVo();
 
-        BigDecimal rate = taskCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
-                (taskCount),2, RoundingMode
+        BigDecimal rate = entryCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
+                (entryCount),4, RoundingMode
                 .HALF_UP);
 
         firstTenDayRate.setConvertRate(rate);

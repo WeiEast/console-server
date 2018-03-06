@@ -32,8 +32,18 @@ public interface OperatorStatService {
     Object queryMerchantsHasOperatorAuth();
 
     /**
-    * 获取所有商户运营商每旬转化率的列表
-    *
-    * */
+     * 运营商任务占比监控
+     *
+     * @param request
+     * @return
+     */
+    Object queryNumberRatio(OperatorStatRequest request);
+
+    /**
+     * 获取所有商户运营商每旬转化率的列表
+     *
+     * */
     Object queryAllOperatorStatConvertRateList(OperatorStatRequest request);
+
+
 }

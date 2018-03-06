@@ -313,28 +313,28 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     @Override
     public Object queryNumberRatio(OperatorStatRequest request) {
         Map<String, Object> map = Maps.newHashMap();
-        List<String> keys = DateUtils.getIntervalDateStrRegion(request.getStartTime(), request.getEndTime(), 5);
+        List<String> keys = DateUtils.getIntervalDateStrRegion(request.getStartTime(), request.getEndTime(), request.getIntervalMins());
         List<String> groupNameList = Lists.newArrayList("中国联通", "广东移动", "浙江移动", "江苏移动", "福建移动", "山东移动", "河南移动", "湖南移动", "广西移动", "湖北移动", "其他");
         map.put("keys", keys);
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
-        rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), 5));
-        rpcRequest.setEndDate(DateUtils.getIntervalDateTime(request.getEndTime(), 5));
+        rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), request.getIntervalMins()));
+        rpcRequest.setEndDate(DateUtils.getIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
-        rpcRequest.setIntervalMins(5);
+        rpcRequest.setIntervalMins(request.getIntervalMins());
         MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatAccessListByExample(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             map.put("values", Maps.newHashMap());
         }
         List<OperatorStatAccessRO> dataList = rpcResult.getData();
         Map<Date, List<OperatorStatAccessRO>> dateMap = dataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getDataTime));
-        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), 5);
+        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins());
         //<时间,<运营商名称,数值>>
         Map<String, Map<String, String>> everyOneMap = Maps.newHashMap();
         for (Date date : dateList) {
             StringBuilder sb = new StringBuilder();
             sb.append(DateUtils.date2SimpleHm(date));
-            Date mediTime = org.apache.commons.lang3.time.DateUtils.addMinutes(date, 5);
+            Date mediTime = org.apache.commons.lang3.time.DateUtils.addMinutes(date, request.getIntervalMins());
             sb.append("-").append(DateUtils.date2SimpleHm(mediTime));
 
             List<OperatorStatAccessRO> dateDataList = dateMap.get(date);
@@ -348,7 +348,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             for (Map.Entry<String, List<OperatorStatAccessRO>> entry : dateDataMap.entrySet()) {
                 int i = 0;
                 for (OperatorStatAccessRO ro : entry.getValue()) {
-                    i += ro.getConfirmMobileCount();
+                    i += ro.getCallbackSuccessCount();
                 }
                 if (groupNameList.contains(entry.getKey())) {
                     dateCountMap.put(entry.getKey(), i + "");
@@ -399,23 +399,14 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             }
             valueMap.put(timeKey, itemValueMap);
         }
-        List<OperatorFiveMinNumberRatioVO> resultList = Lists.newArrayList();
+        List<Object> resultList = Lists.newArrayList();
         for (String groupName : groupNameList) {
-            OperatorFiveMinNumberRatioVO vo = new OperatorFiveMinNumberRatioVO();
-            vo.setGroupName(groupName);
-            vo.setTime0(valueMap.get(keys.get(0)).get(groupName));
-            vo.setTime5(valueMap.get(keys.get(1)).get(groupName));
-            vo.setTime10(valueMap.get(keys.get(2)).get(groupName));
-            vo.setTime15(valueMap.get(keys.get(3)).get(groupName));
-            vo.setTime20(valueMap.get(keys.get(4)).get(groupName));
-            vo.setTime25(valueMap.get(keys.get(5)).get(groupName));
-            vo.setTime30(valueMap.get(keys.get(6)).get(groupName));
-            vo.setTime35(valueMap.get(keys.get(7)).get(groupName));
-            vo.setTime40(valueMap.get(keys.get(8)).get(groupName));
-            vo.setTime45(valueMap.get(keys.get(9)).get(groupName));
-            vo.setTime50(valueMap.get(keys.get(10)).get(groupName));
-            vo.setTime55(valueMap.get(keys.get(11)).get(groupName));
-            resultList.add(vo);
+            Map<String, String> objMap = Maps.newLinkedHashMap();
+            objMap.put("groupName", groupName);
+            for (String key : keys) {
+                objMap.put(key, valueMap.get(key).get(groupName));
+            }
+            resultList.add(objMap);
         }
         map.put("values", resultList);
         return Results.newSuccessResult(map);

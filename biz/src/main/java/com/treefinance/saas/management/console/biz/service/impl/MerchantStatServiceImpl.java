@@ -860,6 +860,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 }
 
                 int totalCount = failTotalCountMap.get(dataTime);
+                if (totalCount == 0) {
+                    vo.setDataTime(dataTime);
+                    vo.setDataValue(BigDecimal.valueOf(0, 2));
+                    voList.add(vo);
+                    continue;
+                }
                 int rateCount = 0;
                 for (SaasErrorStepDayStatDTO dto : list) {
                     rateCount = rateCount + dto.getFailCount();

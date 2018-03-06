@@ -1,6 +1,8 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.datatrees.crawler.core.processor.format.unit.TimeUnit;
+import com.datatrees.toolkits.util.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.OperatorStatService;
@@ -32,11 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +57,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
-
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -181,6 +185,98 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             result.add(vo);
         }
         return Results.newSuccessPageResult(request, rpcDayResult.getTotalCount(), result);
+    }
+
+    @Override
+    public Object queryAllOperatorStatConvertRateList(OperatorStatRequest request) {
+        OperatorStatAccessRequest rpcDayRequest = new OperatorStatAccessRequest();
+
+        if (Objects.isEmpty(request.getEndDate())) {
+            request.setEndDate(new Date());
+        }
+        if (Objects.isEmpty(request.getStartDate())) {
+            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -3, TimeUnit.MONTH));
+        }
+
+        List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
+
+        rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(request.getStartDate()));
+        rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
+        rpcDayRequest.setStatType(request.getStatType() == null?1:request.getStatType());
+        MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
+        if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
+            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+        }
+
+        List<OperatorAllStatDayAccessRO> list = rpcDayResult.getData();
+
+        Map<String, List<OperatorAllStatDayAccessRO>> map = list.stream().collect(Collectors.groupingBy
+                (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
+
+        for (String key : map.keySet()) {
+            List<OperatorAllStatDayAccessRO> value = map.get(key);
+            Date firstTenDay = DateUtils.string2Date(key + "-01 00:00:00");
+            Date midTenDay = DateUtils.string2Date(key + "-11 00:00:00");
+            Date lastTenDay = DateUtils.string2Date(key + "-21 00:00:00");
+
+            //展示用的key 表示的是yyyy-MM + -dd
+            String firstKey = key + "-01";
+            String midKey = key + "-11";
+            String lastKey = key + "-21";
+
+            List<OperatorAllStatDayAccessRO> firstTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
+                    operatorAllStatDayAccessRO.getDataTime()
+                            .compareTo
+                                    (firstTenDay) >= 0 && operatorAllStatDayAccessRO.getDataTime().compareTo
+                            (midTenDay) < 0).collect(Collectors.toList());
+
+            calcTenDayRate(result, firstKey, firstTenDayList);
+
+            List<OperatorAllStatDayAccessRO> midTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
+                    operatorAllStatDayAccessRO.getDataTime()
+                            .compareTo
+                                    (midTenDay) >= 0 && operatorAllStatDayAccessRO.getDataTime().compareTo
+                            (lastTenDay) < 0).collect(Collectors.toList());
+
+            calcTenDayRate(result, midKey, midTenDayList);
+
+            List<OperatorAllStatDayAccessRO> lastTenDayList = value.stream().filter(operatorAllStatDayAccessRO ->
+                    operatorAllStatDayAccessRO.getDataTime()
+                            .compareTo(lastTenDay) >= 0).collect(Collectors.toList());
+
+            calcTenDayRate(result, lastKey, lastTenDayList);
+
+        }
+        result = result.stream().sorted(Comparator.comparing(OperatorStatDayConvertRateVo::getDate)).collect(Collectors.toList());
+
+        return Results.newSuccessResult(result);
+    }
+
+    private void calcTenDayRate(List<OperatorStatDayConvertRateVo> result, String date,
+                                List<OperatorAllStatDayAccessRO> filteredList) {
+        //如果比今天大 就不展示
+        Date day = DateUtils.ymdString2Date(date);
+        if(day == null || new Date().compareTo(day)<0){
+            return;
+        }
+
+        int taskCount = 0,succCount = 0;
+
+        for (OperatorAllStatDayAccessRO ro:filteredList) {
+            taskCount += ro.getTaskCount();
+            succCount += ro.getCallbackSuccessCount();
+        }
+
+        OperatorStatDayConvertRateVo firstTenDayRate = new OperatorStatDayConvertRateVo();
+
+        BigDecimal rate = taskCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
+                (taskCount),2, RoundingMode
+                .HALF_UP);
+
+        firstTenDayRate.setConvertRate(rate);
+        firstTenDayRate.setDate(date);
+
+        result.add(firstTenDayRate);
     }
 
     @Override

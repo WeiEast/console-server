@@ -3,14 +3,10 @@ package com.treefinance.saas.management.console.web.controller;
 import com.treefinance.saas.management.console.biz.service.OperatorStatService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * 运营商监控
@@ -87,25 +83,20 @@ public class OperatorStatController {
      */
     @RequestMapping(value = "/num/ratio", method = RequestMethod.GET, produces = "application/json")
     public Object queryNumberRatio(OperatorStatRequest request) {
-        OperatorStatRequest statRequest = new OperatorStatRequest();
-        Date startTime = DateUtils.truncate(new Date(), Calendar.HOUR);
-        Date endTime = DateUtils.addHours(startTime, 1);
-        if (request == null) {
-            statRequest.setStatType((byte) 0);
-            statRequest.setStartTime(startTime);
-            statRequest.setEndTime(endTime);
-            statRequest.setAppId("virtual_total_stat_appId");
-        } else {
-            if (request.getStartTime() != null) {
-                startTime = DateUtils.truncate(request.getStartTime(), Calendar.HOUR);
-                endTime = DateUtils.addHours(startTime, 1);
-            }
-            statRequest.setStartTime(startTime);
-            statRequest.setEndTime(endTime);
-            statRequest.setStatType(request.getStatType() == null ? (byte) 0 : request.getStatType());
-            statRequest.setAppId(request.getAppId() == null ? "virtual_total_stat_appId" : request.getAppId());
+        if (request == null || request.getStartTime() == null || request.getEndTime() == null) {
+            throw new IllegalArgumentException("请求参数不能为空");
         }
-        return operatorStatService.queryNumberRatio(statRequest);
+        long start = request.getStartTime().getTime();
+        long end = request.getEndTime().getTime();
+        long dif = 3 * 60 * 60 * 1000L;
+        if (end - start > dif) {
+            throw new IllegalArgumentException("选取的时间范围过大");
+        }
+        request.setStatType(request.getStatType() == null ? (byte) 0 : request.getStatType());
+        request.setAppId(request.getAppId() == null ? "virtual_total_stat_appId" : request.getAppId());
+        request.setIntervalMins(request.getIntervalMins() == null ? 5 : request.getIntervalMins());
+
+        return operatorStatService.queryNumberRatio(request);
 
     }
 }

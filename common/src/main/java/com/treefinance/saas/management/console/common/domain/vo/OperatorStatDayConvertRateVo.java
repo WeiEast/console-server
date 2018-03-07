@@ -11,25 +11,23 @@ public class OperatorStatDayConvertRateVo implements Serializable {
 
     private static final long serialVersionUID = 854680180124395415L;
 
+    private BigDecimal dataValue;
 
+    private String dataTime;
 
-    private BigDecimal convertRate;
-
-    private String date;
-
-    public BigDecimal getConvertRate() {
-        return convertRate;
+    public BigDecimal getDataValue() {
+        return dataValue;
     }
 
-    public void setConvertRate(BigDecimal convertRate) {
-        this.convertRate = convertRate;
+    public void setDataValue(BigDecimal dataValue) {
+        this.dataValue = dataValue;
     }
 
-    public String getDate() {
-        return date;
+    public String getDataTime() {
+        return dataTime;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDataTime(String dataTime) {
+        this.dataTime = dataTime;
     }
 }

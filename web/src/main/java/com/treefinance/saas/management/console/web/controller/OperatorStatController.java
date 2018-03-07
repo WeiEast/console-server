@@ -97,9 +97,8 @@ public class OperatorStatController {
         if (end - start > dif) {
             throw new IllegalArgumentException("选取的时间范围过大");
         }
-        long minDif = request.getIntervalMins() == null ? 5 * 60 * 1000L : request.getIntervalMins() * 60 * 1000L;
-        if (end <= start || end - start < minDif) {
-            throw new IllegalArgumentException("开始时间需小于结束时间且差值不能小于所选时间间隔");
+        if (end <= start) {
+            throw new IllegalArgumentException("开始时间需小于结束时间");
         }
         request.setStatType(request.getStatType() == null ? (byte) 0 : request.getStatType());
         request.setAppId(request.getAppId() == null ? "virtual_total_stat_appId" : request.getAppId());

@@ -34,13 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -202,7 +198,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(request.getStartDate()));
         rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
-        rpcDayRequest.setStatType(request.getStatType() == null?1:request.getStatType());
+        rpcDayRequest.setStatType(request.getStatType() == null ? 1 : request.getStatType());
         rpcDayRequest.setAppId("virtual_total_stat_appId");
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
@@ -214,7 +210,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         Map<String, List<OperatorAllStatDayAccessRO>> map = list.stream().filter(operatorAllStatDayAccessRO ->
                 "virtual_total_stat_appId".equals(operatorAllStatDayAccessRO.getAppId()))
                 .collect(Collectors.groupingBy
-                (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
+                        (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
 
         for (String key : map.keySet()) {
             List<OperatorAllStatDayAccessRO> value = map.get(key);
@@ -259,23 +255,23 @@ public class OperatorStatServiceImpl implements OperatorStatService {
                                 List<OperatorAllStatDayAccessRO> filteredList) {
         //如果比今天大 就不展示
         Date day = DateUtils.ymdString2Date(date);
-        if(day == null || new Date().compareTo(day)<0){
+        if (day == null || new Date().compareTo(day) < 0) {
             return;
         }
 
-        int entryCount = 0,succCount = 0;
+        int entryCount = 0, succCount = 0;
 
-        logger.info("统计"+date+"后十天的数据");
-        for (OperatorAllStatDayAccessRO ro:filteredList) {
+        logger.info("统计" + date + "后十天的数据");
+        for (OperatorAllStatDayAccessRO ro : filteredList) {
             entryCount += ro.getEntryCount();
             succCount += ro.getCallbackSuccessCount();
         }
-        logger.info("此时段内 成功回调数量："+succCount+" 任务总数："+ entryCount);
+        logger.info("此时段内 成功回调数量：" + succCount + " 任务总数：" + entryCount);
 
         OperatorStatDayConvertRateVo firstTenDayRate = new OperatorStatDayConvertRateVo();
 
-        BigDecimal rate = entryCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
-                (entryCount),4, RoundingMode
+        BigDecimal rate = entryCount == 0 ? BigDecimal.ZERO : new BigDecimal(succCount).divide(new BigDecimal
+                (entryCount), 4, RoundingMode
                 .HALF_UP);
 
         firstTenDayRate.setConvertRate(rate);
@@ -323,7 +319,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         map.put("keys", keys);
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
         rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), request.getIntervalMins()));
-        rpcRequest.setEndDate(DateUtils.getIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
+        rpcRequest.setEndDate(DateUtils.getLaterIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
         rpcRequest.setIntervalMins(request.getIntervalMins());

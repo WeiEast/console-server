@@ -222,7 +222,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         map.put("keys", keys);
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
         rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), request.getIntervalMins()));
-        rpcRequest.setEndDate(DateUtils.getIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
+        rpcRequest.setEndDate(DateUtils.getLaterIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
         rpcRequest.setIntervalMins(request.getIntervalMins());

@@ -38,6 +38,16 @@ public class DateUtils {
         return intervalTime;
     }
 
+    public static Date getLaterIntervalDateTime(Date dataTime, Integer intervalMinutes) {
+        Date intervalTime = org.apache.commons.lang.time.DateUtils.truncate(dataTime, Calendar.MINUTE);
+        Long currentMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalTime, Calendar.HOUR_OF_DAY);
+        if (currentMinute % intervalMinutes == 0) {
+            return intervalTime;
+        }
+        intervalTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalTime, (intervalMinutes - (currentMinute.intValue() % intervalMinutes)));
+        return intervalTime;
+    }
+
 
     public static List<Date> getIntervalDateRegion(Date startTime, Date endTime, Integer intervalMinutes) {
         Date intervalStartTime = org.apache.commons.lang.time.DateUtils.truncate(startTime, Calendar.MINUTE);
@@ -49,7 +59,7 @@ public class DateUtils {
         Date intervalEndTime = org.apache.commons.lang.time.DateUtils.truncate(endTime, Calendar.MINUTE);
         Long currentEndMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalEndTime, Calendar.HOUR_OF_DAY);
         if (currentEndMinute % intervalMinutes != 0) {
-            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (-currentEndMinute.intValue() % intervalMinutes));
+            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (intervalMinutes - (currentEndMinute.intValue() % intervalMinutes)));
         }
         List<Date> list = Lists.newArrayList();
 

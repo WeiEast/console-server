@@ -59,7 +59,7 @@ public class DateUtils {
         Date intervalEndTime = org.apache.commons.lang.time.DateUtils.truncate(endTime, Calendar.MINUTE);
         Long currentEndMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalEndTime, Calendar.HOUR_OF_DAY);
         if (currentEndMinute % intervalMinutes != 0) {
-            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (-currentEndMinute.intValue() % intervalMinutes));
+            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (intervalMinutes - (currentEndMinute.intValue() % intervalMinutes)));
         }
         List<Date> list = Lists.newArrayList();
 

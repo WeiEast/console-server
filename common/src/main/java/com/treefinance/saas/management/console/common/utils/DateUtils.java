@@ -548,7 +548,9 @@ public class DateUtils {
         System.out.println(JSON.toJSONString(list, true));
 
 
-
+        System.err.println(date2Ymd(getLastDayOfMonth(new Date())));
+        System.err.println(date2Ymd(getFirstDayOfMonth(new Date())));
+        System.err.println(date2Ymd(getFirstDayOfMonth(getSpecificDayDate(new Date(),-3,TimeUnit.MONTH))));
 
     }
 

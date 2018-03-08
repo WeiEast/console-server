@@ -192,10 +192,11 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         OperatorStatAccessRequest rpcDayRequest = new OperatorStatAccessRequest();
 
         if (Objects.isEmpty(request.getEndDate())) {
-            request.setEndDate(new Date());
+            request.setEndDate(DateUtils.getLastDayOfMonth(new Date()));
         }
         if (Objects.isEmpty(request.getStartDate())) {
-            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -3, TimeUnit.MONTH));
+            request.setStartDate(DateUtils.getFirstDayOfMonth(DateUtils.getSpecificDayDate(request.getEndDate(), -3,
+                    TimeUnit.MONTH)));
         }
 
         List<OperatorStatDayConvertRateVo> result = new ArrayList<>();

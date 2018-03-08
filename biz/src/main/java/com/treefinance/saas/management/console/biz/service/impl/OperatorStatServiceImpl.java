@@ -246,7 +246,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             calcTenDayRate(result, lastKey, lastTenDayList);
 
         }
-        result = result.stream().sorted(Comparator.comparing(OperatorStatDayConvertRateVo::getDate)).collect(Collectors.toList());
+        result = result.stream().sorted(Comparator.comparing(OperatorStatDayConvertRateVo::getDataTime)).collect(Collectors
+                .toList());
 
         return Results.newSuccessResult(result);
     }
@@ -274,8 +275,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
                 (entryCount), 4, RoundingMode
                 .HALF_UP);
 
-        firstTenDayRate.setConvertRate(rate);
-        firstTenDayRate.setDate(date);
+        firstTenDayRate.setDataValue(rate);
+        firstTenDayRate.setDataTime(date);
 
         result.add(firstTenDayRate);
     }

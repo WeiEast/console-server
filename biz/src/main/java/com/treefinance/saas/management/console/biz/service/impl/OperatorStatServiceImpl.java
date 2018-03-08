@@ -192,17 +192,17 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         OperatorStatAccessRequest rpcDayRequest = new OperatorStatAccessRequest();
 
         if (Objects.isEmpty(request.getEndDate())) {
-            request.setEndDate(DateUtils.getLastDayOfMonth(new Date()));
+            request.setEndDate(new Date());
         }
         if (Objects.isEmpty(request.getStartDate())) {
-            request.setStartDate(DateUtils.getFirstDayOfMonth(DateUtils.getSpecificDayDate(request.getEndDate(), -3,
-                    TimeUnit.MONTH)));
+            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -3,
+                    TimeUnit.MONTH));
         }
 
         List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
 
-        rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(request.getStartDate()));
-        rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(request.getEndDate()));
+        rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(DateUtils.getFirstDayOfMonth(request.getStartDate())));
+        rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(DateUtils.getLastDayOfMonth(request.getEndDate())));
         rpcDayRequest.setStatType(request.getStatType() == null?1:request.getStatType());
         rpcDayRequest.setAppId("virtual_total_stat_appId");
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);

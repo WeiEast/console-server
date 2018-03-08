@@ -18,13 +18,13 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        task.Id AS Id,UniqueId,AppId,AccountNo,WebSite,BizType,Status,StepCode,
+        DISTINCT (task.Id) AS Id,UniqueId,AppId,AccountNo,WebSite,BizType,Status,StepCode,
         task.CreateTime AS CreateTime, task.LastUpdateTime AS LastUpdateTime,name,value
     </sql>
 
     <select id="countByExample" resultType="java.lang.Long">
         SELECT
-        count(1)
+        count(DISTINCT task.Id)
         FROM task task
         LEFT JOIN task_attribute attribute ON task.id = attribute.taskId
         WHERE 1=1

@@ -18,15 +18,15 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        DISTINCT (task.Id) AS Id,UniqueId,AppId,AccountNo,WebSite,BizType,Status,StepCode,
+        task.Id AS Id,UniqueId,AppId,AccountNo,WebSite,BizType,Status,StepCode,
         task.CreateTime AS CreateTime, task.LastUpdateTime AS LastUpdateTime,name,value
     </sql>
 
     <select id="countByExample" resultType="java.lang.Long">
         SELECT
-        count(DISTINCT task.Id)
+        count(task.Id)
         FROM task task
-        LEFT JOIN task_attribute attribute ON task.id = attribute.taskId
+        LEFT JOIN task_attribute attribute ON task.id = attribute.taskId AND attribute.name = #{name}
         WHERE 1=1
         <if test="appId != null">
             and task.appId = #{appId}
@@ -48,9 +48,6 @@
         <if test="startTime != null and endTime != null">
             and task.createTime BETWEEN #{startTime} AND #{endTime}
         </if>
-        <if test="name != null">
-            and (attribute.name = #{name} or attribute.name IS NULL )
-        </if>
         <if test="webSite != null and value != null and name != null">
             and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )
         </if>
@@ -61,7 +58,7 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM task task
-        LEFT JOIN task_attribute attribute ON task.id = attribute.taskId
+        LEFT JOIN task_attribute attribute ON task.id = attribute.taskId and attribute.name = #{name}
         where 1=1
         <if test="appId != null">
             and task.appId = #{appId}
@@ -82,9 +79,6 @@
         </if>
         <if test="startTime != null and endTime != null">
             and task.createTime BETWEEN #{startTime} AND #{endTime}
-        </if>
-        <if test="name != null">
-            and (attribute.name = #{name} or attribute.name IS NULL )
         </if>
         <if test="webSite != null and value != null">
             and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )

@@ -66,6 +66,11 @@ public class OperatorStatController {
         return operatorStatService.queryOperatorStatDayDetailAccessList(request);
     }
 
+    @RequestMapping(value = "/all/avg/convert/rate/list", method = {RequestMethod.GET}, produces = "application/json")
+    public Object queryAllConvertRateList(OperatorStatRequest request) {
+        return operatorStatService.queryAllOperatorStatConvertRateList(request);
+    }
+
 
     /**
      * 获取有运营商权限的商户列表

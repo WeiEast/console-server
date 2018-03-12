@@ -82,7 +82,7 @@ public class DateUtils {
         Date intervalEndTime = org.apache.commons.lang.time.DateUtils.truncate(endTime, Calendar.MINUTE);
         Long currentEndMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalEndTime, Calendar.HOUR_OF_DAY);
         if (currentEndMinute % intervalMinutes != 0) {
-            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (-currentEndMinute.intValue() % intervalMinutes));
+            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (intervalMinutes - (currentEndMinute.intValue() % intervalMinutes)));
         }
         List<String> list = Lists.newArrayList();
         for (; intervalStartTime.compareTo(intervalEndTime) < 0; intervalStartTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes)) {
@@ -505,11 +505,13 @@ public class DateUtils {
 
 
     public static Date getSpecificDayDate(Date source, int interval) {
-        return getSpecificDayDate(source,interval,TimeUnit.DAY);
+        return getSpecificDayDate(source, interval, TimeUnit.DAY);
     }
+
     /**
      * 获取某一天加上或者减去某一间隔时间后的日期
-     * @param source 原目标日期
+     *
+     * @param source   原目标日期
      * @param interval 日期间隔
      * @param timeUnit 时间单位
      */
@@ -519,7 +521,7 @@ public class DateUtils {
 
         Long time = source.getTime();
 
-        return new Date(time+ms);
+        return new Date(time + ms);
     }
 
     public static void main(String[] args) throws ParseException {
@@ -551,7 +553,7 @@ public class DateUtils {
 //        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
 
 //        System.out.println(DateUtils.getTodayEndDate(new Date()));
-          System.err.println(date2Ymd(getSpecificDayDate(new Date(),-3,TimeUnit.MONTH)));
+        System.err.println(date2Ymd(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH)));
 
 
         List<String> list = DateUtils.getIntervalDateStrRegion(new Date(), org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100), 5);
@@ -560,7 +562,7 @@ public class DateUtils {
 
         System.err.println(date2Ymd(getLastDayOfMonth(new Date())));
         System.err.println(date2Ymd(getFirstDayOfMonth(new Date())));
-        System.err.println(date2Ymd(getFirstDayOfMonth(getSpecificDayDate(new Date(),-3,TimeUnit.MONTH))));
+        System.err.println(date2Ymd(getFirstDayOfMonth(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH))));
 
     }
 

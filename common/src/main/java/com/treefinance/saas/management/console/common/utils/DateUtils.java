@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.common.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.datatrees.crawler.core.processor.format.unit.TimeUnit;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -509,8 +510,7 @@ public class DateUtils {
 
     /**
      * 获取某一天加上或者减去某一间隔时间后的日期
-     *
-     * @param source   原目标日期
+     * @param source 原目标日期
      * @param interval 日期间隔
      * @param timeUnit 时间单位
      */
@@ -552,17 +552,16 @@ public class DateUtils {
 //        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
 
 //        System.out.println(DateUtils.getTodayEndDate(new Date()));
-//        System.err.println(date2Ymd(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH)));
-//
-//
-//        List<String> list = DateUtils.getIntervalDateStrRegion(new Date(), org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100), 5);
-//        System.out.println(JSON.toJSONString(list, true));
+        System.err.println(date2Ymd(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH)));
 
-        System.out.println("aaaa");
-        String dateStr = "2018-03-07 13:03:00";
-        Date date = getLaterIntervalDateTime(strToDate(dateStr, "yyyy-MM-dd HH:mm:ss"), 5);
-        System.out.println(date);
 
+        List<String> list = DateUtils.getIntervalDateStrRegion(new Date(), org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100), 5);
+        System.out.println(JSON.toJSONString(list, true));
+
+
+        System.err.println(date2Ymd(getLastDayOfMonth(new Date())));
+        System.err.println(date2Ymd(getFirstDayOfMonth(new Date())));
+        System.err.println(date2Ymd(getFirstDayOfMonth(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH))));
 
     }
 

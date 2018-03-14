@@ -40,7 +40,7 @@ public interface OperatorStatService {
     Object queryNumberRatio(OperatorStatRequest request);
 
     /**
-     * 获取所有商户运营商每旬转化率的列表
+     * 获取所有商户运营商每月转化率的列表
      *
      * */
     Object queryAllOperatorStatConvertRateList(OperatorStatRequest request);

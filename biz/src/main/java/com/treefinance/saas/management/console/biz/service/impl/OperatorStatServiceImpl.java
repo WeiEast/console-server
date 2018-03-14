@@ -243,7 +243,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         BigDecimal rate = entryCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
                 (entryCount),4, RoundingMode
-                .HALF_UP);
+                .HALF_UP).multiply(new BigDecimal(100));
 
         rateVO.setDataValue(rate);
         rateVO.setDataTime(date);

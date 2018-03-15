@@ -41,6 +41,10 @@
                      interface="com.treefinance.saas.monitor.facade.service.stat.EcommerceStatDivisionAccessFacade"
                      version="1.0.0"/>
 
+    <dubbo:reference id="callbackMsgStatAccessFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.CallbackMsgStatAccessFacade"
+                     version="1.0.0"/>
+
     <dubbo:reference id="dataApiRawResultFacade"
                      interface="com.treefinance.saas.dataservice.dataserver.dataapirawresult.facade.DataApiRawResultFacade"/>
 

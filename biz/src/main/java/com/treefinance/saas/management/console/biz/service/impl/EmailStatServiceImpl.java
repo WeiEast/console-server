@@ -50,7 +50,7 @@ public class EmailStatServiceImpl implements EmailStatService {
         }
 
         List<EmailStatAccessVO> result = BeanUtils.convertList(rpcResult.getData(), EmailStatAccessVO.class);
-
+        result.stream().sorted();
         return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
     }
 
@@ -68,7 +68,7 @@ public class EmailStatServiceImpl implements EmailStatService {
 
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
-        rpcRequest.setEmail(request.getAppId());
+        rpcRequest.setEmail(request.getEmail());
         MonitorResult<List<EmailStatAccessBaseRO>> rpcResult = emailStatAccessFacade.queryEmailStatDayAccessListDetail(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newSuccessPageResult(request, 0, rpcResult.getData());

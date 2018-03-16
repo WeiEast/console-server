@@ -301,7 +301,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         }
         List<OperatorStatAccessRO> dataList = rpcResult.getData();
         Map<Date, List<OperatorStatAccessRO>> dateMap = dataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getDataTime));
-        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins());
+        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins(), 0);
         //<时间,<运营商名称,数值>>
         Map<String, Map<String, String>> everyOneMap = Maps.newHashMap();
         for (Date date : dateList) {

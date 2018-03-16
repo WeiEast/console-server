@@ -1,6 +1,5 @@
 package com.treefinance.saas.management.console.common.utils;
 
-import com.alibaba.fastjson.JSON;
 import com.datatrees.crawler.core.processor.format.unit.TimeUnit;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -50,7 +49,16 @@ public class DateUtils {
     }
 
 
-    public static List<Date> getIntervalDateRegion(Date startTime, Date endTime, Integer intervalMinutes) {
+    /**
+     * 获取时间区间(按intervalMinutes间隔)
+     *
+     * @param startTime       开始时间
+     * @param endTime         结束时间
+     * @param intervalMinutes 时间间隔
+     * @param sort            0:时间升序,1:时间降序
+     * @return [开始时间, 结束时间)
+     */
+    public static List<Date> getIntervalDateRegion(Date startTime, Date endTime, Integer intervalMinutes, Integer sort) {
         Date intervalStartTime = org.apache.commons.lang.time.DateUtils.truncate(startTime, Calendar.MINUTE);
         Long currentStartMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalStartTime, Calendar.HOUR_OF_DAY);
         if (currentStartMinute % intervalMinutes != 0) {
@@ -65,8 +73,69 @@ public class DateUtils {
         List<Date> list = Lists.newArrayList();
 
 
-        for (; intervalStartTime.compareTo(intervalEndTime) < 0; intervalStartTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes)) {
+        for (; intervalStartTime.compareTo(intervalEndTime) <= 0; intervalStartTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes)) {
             list.add(intervalStartTime);
+        }
+        if (sort == 1) {
+            list.sort((o1, o2) -> o2.compareTo(o1));
+        }
+        return list;
+    }
+
+    /**
+     * 获取时间区间(按intervalMinutes间隔)
+     *
+     * @param startTime       开始时间
+     * @param endTime         结束时间
+     * @param intervalMinutes 时间间隔
+     * @param sort            0:时间升序,1:时间降序
+     * @param right           0:不包含结束时间,右开区间,1:包含结束时间,右闭区间
+     * @return [开始时间, 结束时间) 或 [开始时间,结束时间]
+     */
+    public static List<Date> getIntervalDateRegion(Date startTime, Date endTime, Integer intervalMinutes, Integer sort, Integer right) {
+        Date intervalStartTime = org.apache.commons.lang.time.DateUtils.truncate(startTime, Calendar.MINUTE);
+        Long currentStartMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalStartTime, Calendar.HOUR_OF_DAY);
+        if (currentStartMinute % intervalMinutes != 0) {
+            intervalStartTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalStartTime, (-currentStartMinute.intValue() % intervalMinutes));
+        }
+
+        Date intervalEndTime = org.apache.commons.lang.time.DateUtils.truncate(endTime, Calendar.MINUTE);
+        Long currentEndMinute = org.apache.commons.lang.time.DateUtils.getFragmentInMinutes(intervalEndTime, Calendar.HOUR_OF_DAY);
+        if (currentEndMinute % intervalMinutes != 0) {
+            intervalEndTime = org.apache.commons.lang.time.DateUtils.addMinutes(intervalEndTime, (intervalMinutes - (currentEndMinute.intValue() % intervalMinutes)));
+        }
+        List<Date> list = Lists.newArrayList();
+
+        if (right == 1) {
+            for (; intervalStartTime.compareTo(intervalEndTime) <= 0; intervalStartTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes)) {
+                list.add(intervalStartTime);
+            }
+        } else {
+            for (; intervalStartTime.compareTo(intervalEndTime) < 0; intervalStartTime = org.apache.commons.lang3.time.DateUtils.addMinutes(intervalStartTime, intervalMinutes)) {
+                list.add(intervalStartTime);
+            }
+        }
+        if (sort == 1) {
+            list.sort((o1, o2) -> o2.compareTo(o1));
+        }
+        return list;
+    }
+
+    /**
+     * 获取时间区间(按天间隔)
+     *
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @param sort      0:时间升序,1:时间降序
+     * @return [开始时间, 结束时间]
+     */
+    public static List<Date> getDayDateRegion(Date startTime, Date endTime, Integer sort) {
+        List<Date> list = Lists.newArrayList();
+        for (; startTime.compareTo(endTime) <= 0; startTime = org.apache.commons.lang3.time.DateUtils.addDays(startTime, 1)) {
+            list.add(startTime);
+        }
+        if (sort == 1) {
+            list.sort((o1, o2) -> o2.compareTo(o1));
         }
         return list;
     }
@@ -552,16 +621,20 @@ public class DateUtils {
 //        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
 
 //        System.out.println(DateUtils.getTodayEndDate(new Date()));
-        System.err.println(date2Ymd(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH)));
+//        System.err.println(date2Ymd(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH)));
 
 
-        List<String> list = DateUtils.getIntervalDateStrRegion(new Date(), org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100), 5);
-        System.out.println(JSON.toJSONString(list, true));
+//        List<String> list = DateUtils.getIntervalDateStrRegion(new Date(), org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100), 5);
+//        System.out.println(JSON.toJSONString(list, true));
+//
+//
+//        System.err.println(date2Ymd(getLastDayOfMonth(new Date())));
+//        System.err.println(date2Ymd(getFirstDayOfMonth(new Date())));
+//        System.err.println(date2Ymd(getFirstDayOfMonth(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH))));
 
-
-        System.err.println(date2Ymd(getLastDayOfMonth(new Date())));
-        System.err.println(date2Ymd(getFirstDayOfMonth(new Date())));
-        System.err.println(date2Ymd(getFirstDayOfMonth(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH))));
+        Date d1 = new Date();
+        Date d2 = org.apache.commons.lang3.time.DateUtils.addDays(new Date(), 3);
+        System.out.println(DateUtils.getDayDateRegion(d1, d2, 1));
 
     }
 

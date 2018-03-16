@@ -37,9 +37,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -202,7 +199,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(DateUtils.getFirstDayOfMonth(request.getStartDate())));
         rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(DateUtils.getLastDayOfMonth(request.getEndDate())));
-        rpcDayRequest.setStatType(request.getStatType() == null?1:request.getStatType());
+        rpcDayRequest.setStatType(request.getStatType() == null ? 1 : request.getStatType());
         rpcDayRequest.setAppId("virtual_total_stat_appId");
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
@@ -214,7 +211,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         Map<String, List<OperatorAllStatDayAccessRO>> map = list.stream().filter(operatorAllStatDayAccessRO ->
                 "virtual_total_stat_appId".equals(operatorAllStatDayAccessRO.getAppId()))
                 .collect(Collectors.groupingBy
-                (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
+                        (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
 
         for (String key : map.keySet()) {
             List<OperatorAllStatDayAccessRO> value = map.get(key);
@@ -230,19 +227,19 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     private void calcRate(List<OperatorStatDayConvertRateVo> result, String date,
                           List<OperatorAllStatDayAccessRO> filteredList) {
 
-        int entryCount = 0,succCount = 0;
+        int entryCount = 0, succCount = 0;
 
-        logger.info("统计"+date+"内的数据");
-        for (OperatorAllStatDayAccessRO ro:filteredList) {
+        logger.info("统计" + date + "内的数据");
+        for (OperatorAllStatDayAccessRO ro : filteredList) {
             entryCount += ro.getEntryCount();
             succCount += ro.getCallbackSuccessCount();
         }
-        logger.info("此时段内 成功回调数量："+succCount+" 任务总数："+ entryCount);
+        logger.info("此时段内 成功回调数量：" + succCount + " 任务总数：" + entryCount);
 
         OperatorStatDayConvertRateVo rateVO = new OperatorStatDayConvertRateVo();
 
-        BigDecimal rate = entryCount == 0?BigDecimal.ZERO:new BigDecimal(succCount).divide(new BigDecimal
-                (entryCount),4, RoundingMode
+        BigDecimal rate = entryCount == 0 ? BigDecimal.ZERO : new BigDecimal(succCount).divide(new BigDecimal
+                (entryCount), 4, RoundingMode
                 .HALF_UP).multiply(new BigDecimal(100));
 
         rateVO.setDataValue(rate);
@@ -300,7 +297,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         }
         List<OperatorStatAccessRO> dataList = rpcResult.getData();
         Map<Date, List<OperatorStatAccessRO>> dateMap = dataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getDataTime));
-        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins());
+        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins(), 1);
         //<时间,<运营商名称,数值>>
         Map<String, Map<String, String>> everyOneMap = Maps.newHashMap();
         for (Date date : dateList) {

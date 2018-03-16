@@ -33,15 +33,16 @@ public class EmailStatController {
     public Object queryEmailMonitorDayAccessList(EmailStatRequest request) {
         if (request == null || request.getStartDate() == null || request.getEndDate() == null
                 || request.getStatType() == null || StringUtils.isBlank(request.getAppId()) || Objects.isEmpty
-                (request.getEndDate())) {
+                (request.getEndDate()) || request.getEmail() ==null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return emailStatService.queryEmailMonitorDayAccessList(request);
     }
     @RequestMapping(value = "/monitor/list/detail", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEmailMonitorDayAccessListDetail(EmailStatRequest request) {
-        if (request == null || request.getStartDate() == null || request.getEndDate() == null
-                || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
+        if (request == null || request.getDataDate() == null ||
+                request.getStatType() == null || StringUtils.isBlank(request.getAppId()) || request.getEmail()
+                ==null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         return emailStatService.queryEmailMonitorDayAccessListDetail(request);

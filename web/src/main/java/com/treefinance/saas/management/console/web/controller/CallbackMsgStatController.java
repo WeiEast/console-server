@@ -35,7 +35,7 @@ public class CallbackMsgStatController {
         return callbackMsgStatService.queryCallbackMsgStatDayAccessList(request);
     }
 
-    @RequestMapping(value = "/all/detail/list", method = {RequestMethod.GET}, produces = "application/json")
+    @RequestMapping(value = "/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllDayDetailList(CallbackMsgStatRequest request) {
         if (request == null || request.getStartTime() == null || request.getEndTime() == null || request.getIntervalMins() == null
                 || request.getBizType() == null || request.getDataType() == null || StringUtils.isBlank(request.getAppId())) {

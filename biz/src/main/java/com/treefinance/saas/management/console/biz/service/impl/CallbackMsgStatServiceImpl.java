@@ -13,9 +13,11 @@ import com.treefinance.saas.monitor.facade.domain.ro.stat.callback.AsStatCallbac
 import com.treefinance.saas.monitor.facade.domain.ro.stat.callback.AsStatDayCallbackRO;
 import com.treefinance.saas.monitor.facade.service.stat.CallbackMsgStatAccessFacade;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +76,22 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
             });
         }
 
+        Map<Date, Map<String, String>> resultMap = Maps.newHashMap();
+        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
+            Date key = entry.getKey();
+            int total = entry.getValue().get("任务总数");
+            Map<String, String> map1 = Maps.newHashMap();
+            for (String row : rowSet) {
+                if (StringUtils.equals(row, "任务总数")) {
+                    map1.put("任务总数", total + "");
+                    continue;
+                }
+                map1.put(row, count(map.get(key).get(row), total));
+            }
+            resultMap.put(key, map1);
+        }
+
+
         for (Date date : columns) {
             Map<String, Integer> valueMap = map.get(date);
             if (MapUtils.isEmpty(valueMap)) {
@@ -82,8 +100,16 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
             List<Map.Entry<String, Integer>> list = Lists.newArrayList(valueMap.entrySet());
             list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
             for (Map.Entry<String, Integer> entry : list) {
+                if (StringUtils.equals(entry.getKey(), "任务总数")
+                        || StringUtils.equals(entry.getKey(), "回调总数")
+                        || StringUtils.equals(entry.getKey(), "回调成功")) {
+                    continue;
+                }
                 rows.add(entry.getKey());
             }
+            rows.add(0, "任务总数");
+            rows.add(1, "回调总数");
+            rows.add(2, "回调成功");
             break;
         }
 
@@ -93,9 +119,9 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         for (String row : rows) {
             Map<String, Object> columnMap = Maps.newLinkedHashMap();
             for (Date column : columns) {
-                int v = 0;
-                if (!MapUtils.isEmpty(map.get(column)) && map.get(column).get(row) != null) {
-                    v = map.get(column).get(row);
+                String v = "0 | 0.00%";
+                if (!MapUtils.isEmpty(resultMap.get(column)) && resultMap.get(column).get(row) != null) {
+                    v = resultMap.get(column).get(row);
                 }
                 columnMap.put(DateUtils.date2Ymd(column), v);
             }
@@ -148,6 +174,22 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
             });
         }
 
+        Map<Date, Map<String, String>> resultMap = Maps.newHashMap();
+        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
+            Date key = entry.getKey();
+            int total = entry.getValue().get("任务总数");
+            Map<String, String> map1 = Maps.newHashMap();
+            for (String row : rowSet) {
+                if (StringUtils.equals(row, "任务总数")) {
+                    map1.put("任务总数", total + "");
+                    continue;
+                }
+                map1.put(row, count(map.get(key).get(row), total));
+            }
+            resultMap.put(key, map1);
+        }
+
+
         for (Date date : columns) {
             Map<String, Integer> valueMap = map.get(date);
             if (MapUtils.isEmpty(valueMap)) {
@@ -156,8 +198,16 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
             List<Map.Entry<String, Integer>> list = Lists.newArrayList(valueMap.entrySet());
             list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
             for (Map.Entry<String, Integer> entry : list) {
+                if (StringUtils.equals(entry.getKey(), "任务总数")
+                        || StringUtils.equals(entry.getKey(), "回调总数")
+                        || StringUtils.equals(entry.getKey(), "回调成功")) {
+                    continue;
+                }
                 rows.add(entry.getKey());
             }
+            rows.add(0, "任务总数");
+            rows.add(1, "回调总数");
+            rows.add(2, "回调成功");
             break;
         }
 
@@ -167,9 +217,9 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         for (String row : rows) {
             Map<String, Object> columnMap = Maps.newLinkedHashMap();
             for (Date column : columns) {
-                int v = 0;
-                if (!MapUtils.isEmpty(map.get(column)) && map.get(column).get(row) != null) {
-                    v = map.get(column).get(row);
+                String v = "0 | 0.00%";
+                if (!MapUtils.isEmpty(resultMap.get(column)) && resultMap.get(column).get(row) != null) {
+                    v = resultMap.get(column).get(row);
                 }
                 columnMap.put(DateUtils.date2SimpleHm(column), v);
             }
@@ -179,5 +229,15 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         result.put("values", valueList);
 
         return Results.newSuccessResult(result);
+    }
+
+    private String count(int value, int total) {
+        if (total == 0) {
+            return "0 | 0.00%";
+        }
+        BigDecimal c = BigDecimal.valueOf(value)
+                .multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
+        return value + " | " + c + "%";
     }
 }

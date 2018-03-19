@@ -33,6 +33,9 @@ public class CallbackMsgStatController {
             logger.error("日回调统计数据查询,请求参数缺失request={}", JSON.toJSONString(request));
             throw new IllegalArgumentException("请求参数不能为空！");
         }
+        if (request.getStartDate().compareTo(request.getEndDate()) >= 0) {
+            throw new IllegalArgumentException("所选时间区间,开始时间需小于结束时间!");
+        }
         if (DateUtils.addDays(request.getStartDate(), 30).compareTo(request.getEndDate()) < 0) {
             throw new IllegalArgumentException("所选时间区间不能超过30天!");
         }
@@ -46,7 +49,10 @@ public class CallbackMsgStatController {
             logger.error("分时回调统计数据查询,请求参数缺失request={}", JSON.toJSONString(request));
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        if (DateUtils.addHours(request.getStartTime(), 3).compareTo(request.getEndTime()) < 0) {
+        if (request.getStartTime().compareTo(request.getEndTime()) >= 0) {
+            throw new IllegalArgumentException("所选时间区间,开始时间需小于结束时间!");
+        }
+        if (DateUtils.addMinutes(request.getStartTime(), 3 * 60).compareTo(request.getEndTime()) < 0) {
             throw new IllegalArgumentException("所选时间区间不能超过3小时!");
         }
         return callbackMsgStatService.queryCallbackMsgStatAccessList(request);

@@ -30,25 +30,21 @@ public class EcommerceMonitorDaoImpl implements EcommerceMonitorDao {
     MerchantBaseMapper merchantBaseMapper;
 
 
-
-
-     @Override
+    @Override
     public List<MerchantBase> queryAllEcommerceListByBizeType(Integer bizType) {
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(Byte.parseByte(bizType + ""));
-        List<MerchantBase>  merchantBaseListTotal = new ArrayList<>();
+        appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(bizType.byteValue());
+        List<MerchantBase> merchantBaseListTotal = new ArrayList<>();
 
         List<AppBizLicense> licenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
 
-        List<String> stringList = new ArrayList<>();
         for (AppBizLicense appBizLicense : licenseList) {
-            stringList.add(appBizLicense.getAppId());
             MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
             merchantBaseCriteria.createCriteria().andAppIdEqualTo(appBizLicense.getAppId());
             List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
             merchantBaseListTotal.addAll(merchantBaseList);
         }
-        logger.info("电商列表数据查询返回结果：{}",merchantBaseListTotal.toString());
+        logger.info("电商列表数据查询返回结果：{}", merchantBaseListTotal.toString());
 
         return merchantBaseListTotal;
 

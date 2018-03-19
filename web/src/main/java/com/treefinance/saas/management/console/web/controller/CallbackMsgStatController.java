@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.management.console.biz.service.CallbackMsgStatService;
 import com.treefinance.saas.management.console.common.domain.request.CallbackMsgStatRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class CallbackMsgStatController {
             logger.error("日回调统计数据查询,请求参数缺失request={}", JSON.toJSONString(request));
             throw new IllegalArgumentException("请求参数不能为空！");
         }
+        if (DateUtils.addDays(request.getStartDate(), 30).compareTo(request.getEndDate()) > 0) {
+            throw new IllegalArgumentException("所选时间区间不能超过30天!");
+        }
         return callbackMsgStatService.queryCallbackMsgStatDayAccessList(request);
     }
 
@@ -41,6 +45,9 @@ public class CallbackMsgStatController {
                 || request.getBizType() == null || request.getDataType() == null || StringUtils.isBlank(request.getAppId())) {
             logger.error("分时回调统计数据查询,请求参数缺失request={}", JSON.toJSONString(request));
             throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        if (DateUtils.addHours(request.getStartTime(), 3).compareTo(request.getEndTime()) > 0) {
+            throw new IllegalArgumentException("所选时间区间不能超过3小时!");
         }
         return callbackMsgStatService.queryCallbackMsgStatAccessList(request);
     }

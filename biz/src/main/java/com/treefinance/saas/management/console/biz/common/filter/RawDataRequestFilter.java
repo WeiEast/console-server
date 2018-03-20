@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
  */
 public class RawDataRequestFilter extends OncePerRequestFilter {
 
-    private static String CONSOLE_RAW_DATA_URL = "/saas/console/rawdata";
-
     private DiamondConfig diamondConfig;
 
     public RawDataRequestFilter(DiamondConfig diamondConfig) {

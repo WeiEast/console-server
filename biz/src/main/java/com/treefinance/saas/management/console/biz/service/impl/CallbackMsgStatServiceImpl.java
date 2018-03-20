@@ -120,6 +120,9 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
             Map<String, Object> columnMap = Maps.newLinkedHashMap();
             for (Date column : columns) {
                 String v = "0 | 0.00%";
+                if (StringUtils.equals(row, "任务总数")) {
+                    v = 0 + "";
+                }
                 if (!MapUtils.isEmpty(resultMap.get(column)) && resultMap.get(column).get(row) != null) {
                     v = resultMap.get(column).get(row);
                 }
@@ -218,6 +221,9 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
             Map<String, Object> columnMap = Maps.newLinkedHashMap();
             for (Date column : columns) {
                 String v = "0 | 0.00%";
+                if (StringUtils.equals(row, "任务总数")) {
+                    v = 0 + "";
+                }
                 if (!MapUtils.isEmpty(resultMap.get(column)) && resultMap.get(column).get(row) != null) {
                     v = resultMap.get(column).get(row);
                 }

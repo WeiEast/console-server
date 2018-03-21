@@ -46,6 +46,6 @@ EOF
 
 #open new terminal
 sshpass -p dashu0701 ssh  root@192.168.5.24 << EOF
-	tail -500f $server_log_path/console-server.log
+	tail -500f $server_log_path/saas-console-server.log
 EOF
 

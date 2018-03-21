@@ -70,19 +70,19 @@ public class RawdataDomainConfig implements Serializable {
         List<RawdataDomainConfig> list = Lists.newArrayList();
         RawdataDomainConfig config1 = new RawdataDomainConfig();
         config1.setPatternPath("/saas/console/rawdata/wiseproxy/**");
-        config1.setDomian("http://wiseproxy.saas.test.treefinance.com.cn/");
+        config1.setDomian("http://wiseproxy.dashu.ds:29090/");
         config1.setSystemSymbol("wiseproxy");
         config1.setRemovePath("/saas/console/rawdata/");
 
         RawdataDomainConfig config2 = new RawdataDomainConfig();
         config2.setPatternPath("/saas/console/rawdata/crawler_monitor/**");
-        config2.setDomian("http://192.168.5.25:7789/");
+        config2.setDomian("http://crawlermonitor.saas.test.treefinance.com.cn/");
         config2.setSystemSymbol("crawler_monitor");
         config2.setRemovePath("/saas/console/rawdata/crawler_monitor");
 
         RawdataDomainConfig config3 = new RawdataDomainConfig();
         config3.setPatternPath("/saas/console/rawdata/rawdatacentral/**");
-        config3.setDomian("http://192.168.5.25:6789/");
+        config3.setDomian("http://rawdatacentral.saas.test.treefinance.com.cn/");
         config3.setSystemSymbol("rawdatacentral");
         config3.setRemovePath("/saas/console/rawdata/rawdatacentral");
 

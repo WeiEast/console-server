@@ -28,6 +28,11 @@
                      timeout="30000"
                      version="1.0.0"/>
 
+    <dubbo:reference id="emailStatAccessFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.EmailStatAccessFacade"
+                     timeout="30000"
+                     version="1.0.0"/>
+
     <dubbo:reference id="iSecurityCryptoService"
                      interface="com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService"/>
 

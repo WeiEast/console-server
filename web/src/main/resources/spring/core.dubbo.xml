@@ -19,6 +19,10 @@
                      interface="com.treefinance.saas.monitor.facade.service.stat.MerchantStatAccessFacade"
                      version="1.0.0" timeout="60000"/>
 
+    <dubbo:reference id="merchantBaseInfoFacade"
+                     interface="com.treefinance.saas.merchant.center.service.MerchantBaseInfoFacade"
+                     version="1.0.0" timeout="60000"/>
+
     <dubbo:reference id="apiStatAccessFacade"
                      interface="com.treefinance.saas.monitor.facade.service.stat.ApiStatAccessFacade"
                      version="1.0.0"/>

@@ -6,25 +6,61 @@ package com.treefinance.saas.management.console.common.exceptions;
  */
 public class RequestFailedException extends RuntimeException {
     private static final long serialVersionUID = -290315695168000010L;
+    /**
+     * 请求地址
+     */
+    private String requestUrl;
+    /**
+     * http 状态码
+     */
+    private int statusCode;
+    /**
+     * 返回结果
+     */
+    private String result;
 
     public RequestFailedException() {
         super();
     }
 
-    public RequestFailedException(String message) {
-        super(message);
+    /**
+     * 异常创建
+     *
+     * @param requestUrl
+     * @param statusCode
+     * @param result
+     */
+    public RequestFailedException(String requestUrl, int statusCode, String result) {
+        super("httpCode = " + statusCode + ",result=" + result);
+        this.requestUrl = requestUrl;
+        this.statusCode = statusCode;
+        this.result = result;
     }
 
-    public RequestFailedException(String message, Throwable cause) {
-        super(message, cause);
+    /**
+     * 异常创建
+     *
+     * @param requestUrl
+     * @param statusCode
+     * @param result
+     * @param cause
+     */
+    public RequestFailedException(String requestUrl, int statusCode, String result, Throwable cause) {
+        super("httpCode = " + statusCode + ",result=" + result, cause);
+        this.requestUrl = requestUrl;
+        this.statusCode = statusCode;
+        this.result = result;
     }
 
-    public RequestFailedException(Throwable cause) {
-        super(cause);
+    public String getRequestUrl() {
+        return requestUrl;
     }
 
-    protected RequestFailedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public int getStatusCode() {
+        return statusCode;
     }
 
+    public String getResult() {
+        return result;
+    }
 }

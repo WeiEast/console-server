@@ -133,7 +133,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
         //添加一个系统总访问量监控
         AppBizTypeVO appBizTypeVO = new AppBizTypeVO();
-        appBizTypeVO.setBizType(EBizType4Monitor.TOTAL.getCode());
+        appBizTypeVO.setBizType((byte) 0);
         appBizTypeVO.setBizName("系统总访问量监控");
         appBizTypeVOList.add(appBizTypeVO);
 
@@ -157,7 +157,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
         //添加一个系统总访问量监控
         AppBizTypeVO appBizTypeVO = new AppBizTypeVO();
-        appBizTypeVO.setBizType(EBizType4Monitor.TOTAL.getCode());
+        appBizTypeVO.setBizType((byte) 0);
         appBizTypeVO.setBizName("合计");
         appBizTypeVOList.add(appBizTypeVO);
 

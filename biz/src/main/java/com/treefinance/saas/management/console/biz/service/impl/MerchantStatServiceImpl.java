@@ -15,7 +15,6 @@ import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
@@ -58,8 +57,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
-    private TaskMapper taskMapper;
-    @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
     private MerchantUserMapper merchantUserMapper;
@@ -67,8 +64,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
     private AppBizTypeMapper appBizTypeMapper;
-    @Autowired
-    private TaskAttributeMapper taskAttributeMapper;
     @Autowired
     private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
     @Autowired
@@ -503,15 +498,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public List<MerchantStatOverviewTimeVO> queryOverviewAccessList(StatRequest request) {
-        baseCheck(request);
         Integer statType = request.getStatType();
-        if (statType == null) {
-            throw new IllegalArgumentException("请求参数statType不能为空！");
-        }
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(request.getSaasEnv());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryAllDayAccessListNoPage(statRequest);
         if (logger.isDebugEnabled()) {
@@ -651,13 +643,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public Result<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
-        if (StringUtils.isBlank(request.getAppId()) || request.getDate() == null
-                || request.getStatType() == null || request.getBizType() == null) {
-            throw new BizException("appId,date,statType,bizType不能为空");
-        }
 
         Map<String, Object> map = Maps.newHashMap();
         map.put("appId", request.getAppId());
+        if (request.getSaasEnv() != 0) {
+            map.put("saasEnv", request.getSaasEnv());
+        }
         map.put("name", ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
         if (request.getStatType() == 2) {
             map.put("status", 3);//失败的任务
@@ -666,10 +657,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         } else if (request.getStatType() == 1) {
             map.put("status", 2);//成功的任务
         } else {
-            throw new BizException("statType参数有误");
+            throw new IllegalArgumentException("statType参数有误");
         }
 
-        if (EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
+        if (request.getBizType() == 0) {
             List<AppBizType> list = appBizTypeMapper.selectByExample(null);
             List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
             map.put("bizTypeList", bizTypeList);
@@ -765,36 +756,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return Results.newSuccessPageResult(request, total, resultList);
     }
 
-    private List<Long> getTaskIdByTaskAttributeGroupName(StatDayRequest request) {
-        TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
-        TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
-        criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
-                .andValueLike("%" + request.getWebsiteDetailName() + "%");
-        if (request.getStartTime() != null && request.getEndTime() != null) {
-            criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
-        } else if (request.getDate() != null) {
-            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
-        }
-        taskAttributeCriteria.setOrderByClause("CreateTime desc");
-        List<TaskAttribute> list = taskAttributeMapper.selectPaginationByExample(taskAttributeCriteria);
-        if (CollectionUtils.isEmpty(list)) {
-            return Lists.newArrayList();
-        }
-        List<Long> taskIdList = list.stream().map(TaskAttribute::getTaskId).distinct().collect(Collectors.toList());
-        return taskIdList;
-    }
-
-    private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
-        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
-        TaskAttributeCriteria criteria = new TaskAttributeCriteria();
-        criteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
-        List<TaskAttribute> list = taskAttributeMapper.selectByExample(criteria);
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(list)) {
-            return Maps.newHashMap();
-        }
-        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
-        return map;
-    }
 
     @Override
     public Map<String, Object> queryTaskStepStatInfo(StatRequest request) {
@@ -1171,20 +1132,5 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 return DateUtils.getTodayBeginDate(request.getEndDate());
         }
         return DateUtils.getTodayBeginDate(new Date());
-    }
-
-    static class Obj {
-        public Integer num;
-        public Boolean flag;
-
-        public Obj(Integer num, Boolean flag) {
-            this.num = num;
-            this.flag = flag;
-        }
-
-        @Override
-        public String toString() {
-            return num + "," + flag + ";";
-        }
     }
 }

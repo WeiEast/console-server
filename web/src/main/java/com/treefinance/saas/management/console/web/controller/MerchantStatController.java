@@ -88,9 +88,9 @@ public class MerchantStatController {
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        if (StringUtils.isBlank(request.getAppId()) || request.getDate() == null
+        if (StringUtils.isBlank(request.getAppId()) || request.getDate() == null || request.getSaasEnv() == null
                 || request.getStatType() == null || request.getBizType() == null) {
-            throw new IllegalArgumentException("appId,date,statType,bizType不能为空");
+            throw new IllegalArgumentException("appId,date,saasEnv,statType,bizType不能为空");
         }
         return merchantStatService.queryOverviewDetailAccessList(request);
     }

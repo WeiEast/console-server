@@ -310,13 +310,13 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public Map<String, Object> queryAccessNumberList(StatRequest request) {
-        baseCheck(request);
         Map<String, Object> wrapMap = Maps.newHashMap();
 
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv(request.getSaasEnv());
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -432,13 +432,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public Map<String, Object> queryAccessRateList(StatRequest request) {
-        baseCheck(request);
         Map<String, Object> wrapMap = Maps.newHashMap();
-
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv(request.getSaasEnv());
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {

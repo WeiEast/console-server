@@ -58,11 +58,47 @@ public class MerchantStatController {
 
     @RequestMapping(value = "/stataccess/number", method = {RequestMethod.GET}, produces = "application/json")
     public Result<Map<String, Object>> getNumber(StatRequest request) {
+        logger.info("输入参数:request={}", JSON.toJSONString(request));
+        if (request == null) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        if (request.getBizType() == null || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数bizType,saasEnv不能为空！");
+        }
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
+        }
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
+        }
         return Results.newSuccessResult(merchantStatService.queryAccessNumberList(request));
     }
 
     @RequestMapping(value = "/stataccess/rate", method = {RequestMethod.GET}, produces = "application/json")
     public Result<Map<String, Object>> getRate(StatRequest request) {
+        logger.info("输入参数:request={}", JSON.toJSONString(request));
+        if (request == null) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        if (request.getBizType() == null || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数bizType,saasEnv不能为空！");
+        }
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
+        }
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
+        }
         return Results.newSuccessResult(merchantStatService.queryAccessRateList(request));
     }
 

@@ -63,6 +63,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setPageNumber(request.getPageNumber());
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessListWithPage(rpcRequest);
         List<AllOperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
@@ -79,6 +80,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setEndDate(DateUtils.getTodayEndDate(request.getDataDate()));
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setIntervalMins(30);
         MonitorResult<List<OperatorAllStatAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStaAccessList(rpcRequest);
         List<AllOperatorStatAccessVO> result = Lists.newArrayList();
@@ -116,6 +118,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setGroupName(request.getGroupName());
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         MonitorResult<List<OperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatDayAccessListWithPage(rpcRequest);
         List<OperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {

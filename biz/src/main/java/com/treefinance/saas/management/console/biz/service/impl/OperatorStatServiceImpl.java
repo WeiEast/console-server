@@ -97,6 +97,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setDataDate(request.getDataTime());
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setPageSize(request.getPageSize());
         rpcRequest.setPageNumber(request.getPageNumber());
         rpcRequest.setIntervalMins(30);

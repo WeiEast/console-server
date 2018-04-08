@@ -41,9 +41,9 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/all/detail/some/time/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllDayDetailSomeTimeList(OperatorStatRequest request) {
-        if (request == null || request.getDataTime() == null
+        if (request == null || request.getDataTime() == null || request.getSaasEnv() == null
                 || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
+            throw new IllegalArgumentException("请求参数dataTime,saasEnv,statType,appId不能为空！");
         }
         return operatorStatService.queryAllOperatorStatAccessSomeTimeList(request);
     }

@@ -563,7 +563,6 @@ public class DateUtils {
         m = calendar.get(Calendar.MONTH);
         d = calendar.get(Calendar.DATE);
         calendar.set(y, m, d, 0, 0, 0);//时、分、秒，设置成0，获取凌晨的时间
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
         Date tmpDate = calendar.getTime();
         while (tmpDate.before(end) || tmpDate.equals(end)) {
             ret.add(DateUtils.date2Ymd(calendar.getTime()));

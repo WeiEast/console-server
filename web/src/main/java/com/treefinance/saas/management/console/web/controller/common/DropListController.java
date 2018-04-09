@@ -36,12 +36,12 @@ public class DropListController {
         allEnv.setName("所有环境");
 
         SaasEnvVO productEnv = new SaasEnvVO();
-        allEnv.setId(1);
-        allEnv.setName("生产环境");
+        productEnv.setId(1);
+        productEnv.setName("生产环境");
 
         SaasEnvVO preProductEnv = new SaasEnvVO();
-        allEnv.setId(2);
-        allEnv.setName("预发布环境");
+        preProductEnv.setId(2);
+        preProductEnv.setName("预发布环境");
 
         list.add(allEnv);
         list.add(productEnv);

@@ -108,13 +108,22 @@ public class MerchantStatController {
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        if (request.getBizType() == null || request.getStatType() == null || request.getSaasEnv() == null
-                || request.getStartDate() == null || request.getEndDate() == null) {
-            throw new IllegalArgumentException("请求参数bizType,statTyp,saasEnv,startDate,endDate不能为空！");
+        if (request.getBizType() == null || request.getStatType() == null || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数bizType,statTyp,saasEnv不能为空！");
         }
-        if (request.getStartDate().after(request.getEndDate())) {
-            throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
         }
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
+        }
+
         return Results.newSuccessResult(merchantStatService.queryOverviewAccessList(request));
     }
 

@@ -513,8 +513,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             logger.info("result of merchantStatAccessFacade.queryDayAccessListNoPage() is empty : request={}, result={}", statRequest, JSON.toJSONString(result));
             return Lists.newArrayList();
         }
-        List<Date> dateList = DateUtils.getDateLists(this.getStartDate(request), this.getEndDate(request));
-        dateList = dateList.stream().sorted(Date::compareTo).collect(Collectors.toList());
+        List<String> dateList = DateUtils.getDayStrDateLists(this.getStartDate(request), this.getEndDate(request));
         if (dateList.size() != 7) {
             throw new IllegalArgumentException("请求参数startDate,endDate非法!");
         }
@@ -546,7 +545,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        if (!EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
+        if (request.getBizType() != 0) {
             appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(request.getBizType());
         }
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
@@ -577,10 +576,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 .filter(ov -> StringUtils.isNotBlank(ov.getAppId()))
                 .collect(Collectors.groupingBy(MerchantStatOverviewVO::getAppId));
 
-        Map<String, Map<Date, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
+        Map<String, Map<String, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
         for (Map.Entry<String, List<MerchantStatOverviewVO>> entry : ovMap.entrySet()) {
             List<MerchantStatOverviewVO> list = entry.getValue();
-            Map<Date, MerchantStatOverviewVO> tempMap = list.stream().collect(Collectors.toMap(MerchantStatOverviewVO::getDate, vo -> vo));
+            Map<String, MerchantStatOverviewVO> tempMap = list.stream().collect(Collectors.toMap(vo -> DateUtils.date2Ymd(vo.getDate()), vo -> vo));
             resultMap.put(entry.getKey(), tempMap);
         }
         List<MerchantStatOverviewTimeVO> timeOverViewList = Lists.newArrayList();
@@ -597,7 +596,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             } else {
                 timeVO.setAppIsTest(true);
             }
-            Map<Date, MerchantStatOverviewVO> entry = resultMap.get(appId);
+            Map<String, MerchantStatOverviewVO> entry = resultMap.get(appId);
             if (MapUtils.isEmpty(entry)) {
                 timeVO.setTime1Val("0 | NA");
                 timeVO.setTime2Val("0 | NA");

@@ -61,8 +61,9 @@ public class OperatorStatController {
     @RequestMapping(value = "/each/detail/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDetailList(OperatorStatRequest request) {
         if (request.getStartDate() == null || request.getEndDate() == null || request.getStatType() == null
-                || StringUtils.isBlank(request.getGroupCode()) || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
+                || StringUtils.isBlank(request.getGroupCode()) || StringUtils.isBlank(request.getAppId())
+                || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数startDate,endDate,statType,groupCode,appId,saasEnv不能为空！");
         }
         return operatorStatService.queryOperatorStatDayDetailAccessList(request);
     }

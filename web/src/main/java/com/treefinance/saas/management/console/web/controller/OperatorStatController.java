@@ -24,26 +24,26 @@ public class OperatorStatController {
     @RequestMapping(value = "/all/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllDayList(OperatorStatRequest request) {
         if (request == null || request.getStartDate() == null || request.getEndDate() == null
-                || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
+                || request.getStatType() == null || StringUtils.isBlank(request.getAppId()) || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数startDate,endDate,statType,appId,saasEnv不能为空！");
         }
         return operatorStatService.queryAllOperatorStatDayAccessList(request);
     }
 
     @RequestMapping(value = "/all/detail/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllDayDetailList(OperatorStatRequest request) {
-        if (request == null || request.getDataDate() == null
-                || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
+        if (request == null || request.getDataDate() == null || request.getStatType() == null
+                || StringUtils.isBlank(request.getAppId()) || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数dataDate,statType,appId,saasEnv不能为空！");
         }
         return operatorStatService.queryAllOperatorStatAccessList(request);
     }
 
     @RequestMapping(value = "/all/detail/some/time/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryAllDayDetailSomeTimeList(OperatorStatRequest request) {
-        if (request == null || request.getDataTime() == null
+        if (request == null || request.getDataTime() == null || request.getSaasEnv() == null
                 || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
+            throw new IllegalArgumentException("请求参数dataTime,saasEnv,statType,appId不能为空！");
         }
         return operatorStatService.queryAllOperatorStatAccessSomeTimeList(request);
     }
@@ -51,8 +51,9 @@ public class OperatorStatController {
 
     @RequestMapping(value = "/each/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDayList(OperatorStatRequest request) {
-        if (request.getDataDate() == null || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
+        if (request.getDataDate() == null || request.getStatType() == null
+                || StringUtils.isBlank(request.getAppId()) || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数dataDate,statType,appId,saasEnv不能为空！");
         }
         return operatorStatService.queryOperatorStatDayAccessList(request);
     }
@@ -60,8 +61,9 @@ public class OperatorStatController {
     @RequestMapping(value = "/each/detail/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDetailList(OperatorStatRequest request) {
         if (request.getStartDate() == null || request.getEndDate() == null || request.getStatType() == null
-                || StringUtils.isBlank(request.getGroupCode()) || StringUtils.isBlank(request.getAppId())) {
-            throw new IllegalArgumentException("请求参数不能为空！");
+                || StringUtils.isBlank(request.getGroupCode()) || StringUtils.isBlank(request.getAppId())
+                || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数startDate,endDate,statType,groupCode,appId,saasEnv不能为空！");
         }
         return operatorStatService.queryOperatorStatDayDetailAccessList(request);
     }

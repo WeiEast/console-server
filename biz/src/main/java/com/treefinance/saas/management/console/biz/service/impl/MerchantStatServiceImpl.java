@@ -216,6 +216,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv((byte) 0);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -269,6 +270,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv((byte) 0);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {

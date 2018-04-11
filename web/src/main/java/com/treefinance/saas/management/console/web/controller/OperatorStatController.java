@@ -107,6 +107,22 @@ public class OperatorStatController {
         request.setIntervalMins(request.getIntervalMins() == null ? 5 : request.getIntervalMins());
 
         return operatorStatService.queryNumberRatio(request);
-
     }
+
+    /**
+     * 添加环境标签后,需要初始化预警历史数据
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/init/alarm/history/data", method = RequestMethod.GET, produces = "application/json")
+    public Object initAlarmHistoryData(OperatorStatRequest request) {
+        if (request == null || request.getStartTime() == null || request.getEndTime() == null) {
+            throw new IllegalArgumentException("请求参数startDate,endDate不能为空");
+        }
+
+        return operatorStatService.initAlarmHistoryData(request);
+    }
+
+
 }

@@ -20,8 +20,15 @@
                      version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="merchantBaseInfoFacade"
-                     interface="com.treefinance.saas.merchant.center.service.MerchantBaseInfoFacade"
-                     version="1.0.0" timeout="60000"/>
+                     interface="com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade"
+                     version="1.0.0" timeout="60000" url="192.168.202.13:20193"/>
+    <dubbo:reference id="appBizTypeFacade"
+                     interface="com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade"
+                     version="1.0.0" timeout="60000" url="192.168.202.13:20193"/>
+
+    <dubbo:reference id="appCallbackConfigFacade"
+                     interface="com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade"
+                     version="1.0.0" timeout="60000" url="192.168.202.13:20193"/>
 
     <dubbo:reference id="apiStatAccessFacade"
                      interface="com.treefinance.saas.monitor.facade.service.stat.ApiStatAccessFacade"

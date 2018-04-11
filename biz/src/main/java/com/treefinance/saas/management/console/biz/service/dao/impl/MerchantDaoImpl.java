@@ -68,7 +68,6 @@ public class MerchantDaoImpl implements MerchantDao {
         map.put("merchantId", merchantId);
         map.put("plainTextPassword", plainTextPassword);
         return map;
-
     }
 
     @Override

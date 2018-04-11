@@ -2,8 +2,8 @@ import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.ConsoleServerApplication;
 import com.treefinance.saas.management.console.dao.entity.TaskAndTaskAttribute;
 import com.treefinance.saas.management.console.dao.mapper.TaskAndTaskAttributeMapper;
-import com.treefinance.saas.merchant.center.request.BaseRequest;
-import com.treefinance.saas.merchant.center.service.MerchantBaseInfoFacade;
+import com.treefinance.saas.merchant.center.facade.request.console.GetMerchantByIdRequest;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,10 @@ public class ConsoleServiceTest {
 
     @Test
     public void ss(){
-        merchantBaseInfoFacade.getBaseInfoByTaskId(new BaseRequest());
+        GetMerchantByIdRequest request = new GetMerchantByIdRequest();
+        request.setId(44026148916563971L);
+
+        merchantBaseInfoFacade.getBaseInfoById(request);
     }
 
     @Test

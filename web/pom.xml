@@ -23,7 +23,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.treefinance.saas</groupId>
-			<artifactId>merchant-center</artifactId>
+			<artifactId>merchant-center-facade</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

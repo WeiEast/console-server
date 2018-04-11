@@ -8,6 +8,7 @@ import com.treefinance.saas.gateway.servicefacade.enums.TaskStepEnum;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
+import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.dto.SaasErrorStepDayStatDTO;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
@@ -319,6 +320,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
         statRequest.setSaasEnv(request.getSaasEnv());
+        statRequest.setAppId(Constants.VIRTUAL_TOTAL_STAT_APPID);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -440,6 +442,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
         statRequest.setSaasEnv(request.getSaasEnv());
+        statRequest.setAppId(Constants.VIRTUAL_TOTAL_STAT_APPID);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {

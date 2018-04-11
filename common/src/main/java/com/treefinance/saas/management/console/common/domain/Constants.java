@@ -19,4 +19,6 @@ public interface Constants {
      * 默认授权协议
      */
     static final String DEFAULT_LICENSE_TEMPLATE = "DEFAULT";
+
+    String VIRTUAL_TOTAL_STAT_APPID = "virtual_total_stat_appId";
 }

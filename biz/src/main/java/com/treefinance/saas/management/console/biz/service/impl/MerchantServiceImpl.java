@@ -242,23 +242,4 @@ public class MerchantServiceImpl implements MerchantService {
         return text;
     }
 
-
-    private void checkAppNameUnique(MerchantBaseVO merchantBaseVO) {
-        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.createCriteria().andAppNameEqualTo(merchantBaseVO.getAppName());
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
-        if (merchantBaseList.size() > 0) {
-            throw new BizException("app名称重复");
-        }
-    }
-
-    private void checkAppIdUnique(MerchantBaseVO merchantBaseVO) {
-        MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
-        criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
-        List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
-        if (merchantBaseList1.size() > 0) {
-            throw new BizException("appId重复");
-        }
-    }
-
 }

@@ -82,4 +82,18 @@ public class AppBizLicenseVO implements Serializable {
     public void setLicenseTemplate(String licenseTemplate) {
         this.licenseTemplate = licenseTemplate;
     }
+
+    @Override
+    public String toString() {
+        return "AppBizLicenseVO{" +
+                "appId='" + appId + '\'' +
+                ", bizType=" + bizType +
+                ", bizName='" + bizName + '\'' +
+                ", dailyLimit=" + dailyLimit +
+                ", trafficLimit=" + trafficLimit +
+                ", isShowLicense=" + isShowLicense +
+                ", isValid=" + isValid +
+                ", licenseTemplate='" + licenseTemplate + '\'' +
+                '}';
+    }
 }

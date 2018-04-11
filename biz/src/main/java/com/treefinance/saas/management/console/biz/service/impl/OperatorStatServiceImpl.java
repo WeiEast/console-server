@@ -230,6 +230,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         return Results.newSuccessResult(result);
     }
 
+
     private void calcRate(List<OperatorStatDayConvertRateVo> result, String date,
                           List<OperatorAllStatDayAccessRO> filteredList) {
 
@@ -387,4 +388,13 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         return Results.newSuccessResult(map);
     }
 
+
+    @Override
+    public Object initAlarmHistoryData(OperatorStatRequest request) {
+        OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
+        rpcRequest.setStartDate(request.getStartTime());
+        rpcRequest.setEndDate(request.getEndTime());
+        MonitorResult<Boolean> rpcResult = operatorStatAccessFacade.initHistoryData4OperatorStatAccess(rpcRequest);
+        return Results.newSuccessResult(rpcResult.getData());
+    }
 }

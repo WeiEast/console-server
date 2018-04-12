@@ -10,17 +10,13 @@ import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfi
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
-import com.treefinance.saas.management.console.dao.entity.MerchantFlowConfig;
-import com.treefinance.saas.management.console.dao.entity.MerchantFlowConfigCriteria;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantFlowConfigMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.BatchUpdateFlowRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchantFlowRequest;
 import com.treefinance.saas.merchant.center.facade.request.gateway.GetMerchantFlowConfigByTaskIdRequest;
-import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByTaskIdRequest;
+import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
 import com.treefinance.saas.merchant.center.facade.result.console.BatchUpdateFlowResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
@@ -87,7 +83,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
         MerchantResult<List<MerchantBaseResult>> merchantResult;
         try {
-            QueryMerchantByTaskIdRequest request = new QueryMerchantByTaskIdRequest();
+            QueryMerchantByAppIdRequest request = new QueryMerchantByAppIdRequest();
             request.setAppIds(appIds);
             merchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(request);
         } catch (RpcException e) {

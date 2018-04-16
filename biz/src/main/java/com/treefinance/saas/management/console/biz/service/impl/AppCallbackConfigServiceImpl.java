@@ -5,6 +5,9 @@ import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEn
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
@@ -16,9 +19,6 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfi
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
@@ -65,11 +65,11 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
 
     @Override
-    public Result<Map<String, Object>> getList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getList(PageRequest request) {
         List<AppCallbackConfigVO> resultList = Lists.newArrayList();
         long total = appCallbackConfigMapper.countByExample(null);
         if (total <= 0) {
-            return Results.newSuccessPageResult(request, 0, resultList);
+            return Results.newPageResult(request, 0, resultList);
         }
         AppCallbackConfigCriteria configCriteria = new AppCallbackConfigCriteria();
         configCriteria.setOrderByClause("CreateTime desc");
@@ -77,7 +77,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         configCriteria.setLimit(request.getPageSize());
         List<AppCallbackConfig> configList = appCallbackConfigMapper.selectPaginationByExample(configCriteria);
         if (CollectionUtils.isEmpty(configList)) {
-            return Results.newSuccessPageResult(request, total, resultList);
+            return Results.newPageResult(request, total, resultList);
         }
         List<String> appIdList = configList.stream().map(AppCallbackConfig::getAppId).distinct().collect(Collectors.toList());
         MerchantBaseCriteria baseCriteria = new MerchantBaseCriteria();
@@ -137,7 +137,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             resultList.add(vo);
 
         });
-        return Results.newSuccessPageResult(request, total, resultList);
+        return Results.newPageResult(request, total, resultList);
     }
 
     @Override

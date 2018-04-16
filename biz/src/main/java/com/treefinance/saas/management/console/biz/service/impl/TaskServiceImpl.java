@@ -9,6 +9,8 @@ import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEn
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.TaskService;
@@ -19,8 +21,6 @@ import com.treefinance.saas.management.console.common.domain.request.TaskRequest
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
@@ -66,7 +66,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskAttributeMapper taskAttributeMapper;
 
     @Override
-    public Result<Map<String, Object>> findByExample(TaskRequest taskRequest) {
+    public SaasResult<Map<String, Object>> findByExample(TaskRequest taskRequest) {
         TaskCriteria taskCriteria = new TaskCriteria();
         taskCriteria.setOffset(taskRequest.getOffset());
         taskCriteria.setLimit(taskRequest.getPageSize());
@@ -87,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
             if (CollectionUtils.isNotEmpty(appIdList)) {
                 criteria.andAppIdIn(appIdList);
             } else {//根据appName未查询到appId,则直接返回空集合
-                return Results.newSuccessPageResult(taskRequest, 0, Lists.newArrayList());
+                return Results.newPageResult(taskRequest, 0, Lists.newArrayList());
             }
         }
         criteria.andCreateTimeGreaterThanOrEqualTo(taskRequest.getStartDate());
@@ -98,7 +98,7 @@ public class TaskServiceImpl implements TaskService {
         long count = taskMapper.countByExample(taskCriteria);
         List<TaskVO> result = Lists.newArrayList();
         if (count <= 0) {
-            return Results.newSuccessPageResult(taskRequest, count, result);
+            return Results.newPageResult(taskRequest, count, result);
         }
         List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
         //<appId,MerchantBase>
@@ -141,7 +141,7 @@ public class TaskServiceImpl implements TaskService {
             }
             result.add(vo);
         }
-        return Results.newSuccessPageResult(taskRequest, count, result);
+        return Results.newPageResult(taskRequest, count, result);
     }
 
     private Boolean canDownload(String requestParam) {

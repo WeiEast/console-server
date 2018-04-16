@@ -1,14 +1,12 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
-import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,32 +31,32 @@ public class MerchantController {
 
 
     @RequestMapping(value = "list", produces = "application/json")
-    public Result<Map<String, Object>> getMerchantList(PageRequest request) {
-        Result<Map<String, Object>> result = merchantService.getMerchantList(request);
+    public SaasResult<Map<String, Object>> getMerchantList(PageRequest request) {
+        SaasResult<Map<String, Object>> result = merchantService.getMerchantList(request);
         return result;
     }
 
     @RequestMapping(value = "add", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public Result<Map<String, Object>> addMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
+    public SaasResult<Map<String, Object>> addMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
         Map<String, Object> map = merchantService.addMerchant(merchantBaseVO);
         return Results.newSuccessResult(map);
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
-    public Result<Boolean> updateMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
+    public SaasResult<Boolean> updateMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
         merchantService.updateMerchant(merchantBaseVO);
         return Results.newSuccessResult(Boolean.TRUE);
     }
 
     @RequestMapping(value = "get/{id}", method = RequestMethod.GET, produces = "application/json")
-    public Result<MerchantBaseVO> getMerchantById(@PathVariable Long id) {
+    public SaasResult<MerchantBaseVO> getMerchantById(@PathVariable Long id) {
         MerchantBaseVO merchantBaseVO = merchantService.getMerchantById(id);
         return Results.newSuccessResult(merchantBaseVO);
 
     }
 
     @RequestMapping(value = "reset/pwd/{id}", method = RequestMethod.GET, produces = "application/json")
-    public Result<String> resetPassword(@PathVariable Long id) {
+    public SaasResult<String> resetPassword(@PathVariable Long id) {
         String plainTextPwd = merchantService.resetPassWord(id);
         return Results.newSuccessResult(plainTextPwd);
 
@@ -70,27 +68,27 @@ public class MerchantController {
      * @return
      */
     @RequestMapping(value = "simple/list", produces = "application/json")
-    public Result<List<MerchantSimpleVO>> getMerchantBaseList() {
+    public SaasResult<List<MerchantSimpleVO>> getMerchantBaseList() {
         List<MerchantSimpleVO> result = merchantService.getMerchantBaseList();
         return Results.newSuccessResult(result);
     }
 
     @RequestMapping(value = "reset/key/{id}", method = RequestMethod.GET, produces = "application/json")
-    public Result<Boolean> resetKey(@PathVariable Long id) {
+    public SaasResult<Boolean> resetKey(@PathVariable Long id) {
         merchantService.resetAppLicenseKey(id);
         return Results.newSuccessResult(Boolean.TRUE);
 
     }
 
     @RequestMapping(value = "generate/appid", method = RequestMethod.GET, produces = "application/json")
-    public Result<String> generateAppId() {
+    public SaasResult<String> generateAppId() {
         String result = merchantService.autoGenerateAppId();
         return Results.newSuccessResult(result);
 
     }
 
     @RequestMapping(value = "generate/pwd/{str}", method = RequestMethod.GET, produces = "application/json")
-    public Result<String> getCipherTextPassword(@PathVariable String str) {
+    public SaasResult<String> getCipherTextPassword(@PathVariable String str) {
         String result = merchantService.generateCipherTextPassword(str);
         return Results.newSuccessResult(result);
     }
@@ -98,7 +96,7 @@ public class MerchantController {
 
     @RequestMapping(value = "stat/merchant/list", method = RequestMethod.GET)
     public Object queryAllEcommerceMonitor(Integer bizType) {
-        if (bizType == null ) {
+        if (bizType == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         logger.info("电商列表查询 Controller层  传入参数为{}", bizType);

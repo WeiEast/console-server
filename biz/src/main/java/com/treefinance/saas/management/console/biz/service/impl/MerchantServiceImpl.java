@@ -7,6 +7,9 @@ import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
@@ -18,9 +21,6 @@ import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -122,12 +122,12 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Result<Map<String, Object>> getMerchantList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getMerchantList(PageRequest request) {
         List<MerchantBaseVO> merchantBaseVOList = Lists.newArrayList();
 
         long total = merchantBaseMapper.countByExample(null);
         if (Optional.fromNullable(total).or(Long.valueOf(0)) <= 0) {
-            return Results.newSuccessPageResult(request, total, merchantBaseVOList);
+            return Results.newPageResult(request, total, merchantBaseVOList);
         }
         MerchantBaseCriteria criteria = new MerchantBaseCriteria();
         criteria.setOffset(request.getOffset());
@@ -135,7 +135,7 @@ public class MerchantServiceImpl implements MerchantService {
         criteria.setOrderByClause("CreateTime desc");
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
-            return Results.newSuccessPageResult(request, total, merchantBaseList);
+            return Results.newPageResult(request, total, merchantBaseList);
         }
         //<merchantId,MerchantBase>
         Map<Long, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getId, merchantBase -> merchantBase));
@@ -195,7 +195,7 @@ public class MerchantServiceImpl implements MerchantService {
             }
             merchantBaseVOList.add(merchantBaseVO);
         }
-        return Results.newSuccessPageResult(request, total, merchantBaseVOList);
+        return Results.newPageResult(request, total, merchantBaseVOList);
     }
 
     @Override

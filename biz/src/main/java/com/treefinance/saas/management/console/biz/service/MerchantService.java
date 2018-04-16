@@ -1,9 +1,9 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ public interface MerchantService {
 
     MerchantBaseVO getMerchantById(Long id);
 
-    Result<Map<String, Object>> getMerchantList(PageRequest request);
+    SaasResult<Map<String, Object>> getMerchantList(PageRequest request);
 
     Map<String, Object> addMerchant(MerchantBaseVO merchantBaseVO);
 

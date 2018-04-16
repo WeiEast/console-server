@@ -1,8 +1,8 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;

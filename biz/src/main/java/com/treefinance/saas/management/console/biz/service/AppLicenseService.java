@@ -25,13 +25,13 @@ import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -97,7 +97,7 @@ public class AppLicenseService {
      * @param appId
      * @return
      */
-    public Result generateAppLicenseByAppId(String appId) {
+    public SaasResult generateAppLicenseByAppId(String appId) {
         // 验证是否已经含有license
         AppLicenseDTO appLicenseDTO = this.selectOneByAppId(appId);
         if (appLicenseDTO != null) {
@@ -120,7 +120,7 @@ public class AppLicenseService {
         return null;
     }
 
-    public Result removeAppLicenseByAppId(String appId) {
+    public SaasResult removeAppLicenseByAppId(String appId) {
         logger.info("根据appId={}删除秘钥key", appId);
         String key = APPID_SUFFIX + appId;
         if (stringRedisTemplate.hasKey(key)) {
@@ -129,22 +129,22 @@ public class AppLicenseService {
         return null;
     }
 
-    public Result<String> generateAppLicense() {
+    public SaasResult<String> generateAppLicense() {
         String appId = CommonUtils.generateAppId();
         AppLicenseDTO license = Helper.generateLicense(appId);
         String key = APPID_SUFFIX + appId;
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
-        Result<String> result = new Result<>();
+        SaasResult<String> result = new SaasResult<>();
         result.setData(appId);
         logger.info("generateAppLicense : key={}, license={}", key, JSON.toJSONString(license));
         return result;
     }
 
-    public Result<Map<String, Object>> getAppLicenseList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getAppLicenseList(PageRequest request) {
         List<AppLicenseVO> appLicenseVOList = Lists.newArrayList();
         long total = merchantBaseMapper.countByExample(null);
         if (Optional.fromNullable(total).or(Long.valueOf(0)) <= 0) {
-            return Results.newSuccessPageResult(request, total, appLicenseVOList);
+            return Results.newPageResult(request, total, appLicenseVOList);
         }
         MerchantBaseCriteria criteria = new MerchantBaseCriteria();
         criteria.setOffset(request.getOffset());
@@ -152,7 +152,7 @@ public class AppLicenseService {
         criteria.setOrderByClause("CreateTime desc");
         List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
-            return Results.newSuccessPageResult(request, total, appLicenseVOList);
+            return Results.newPageResult(request, total, appLicenseVOList);
         }
         for (MerchantBase merchantBase : merchantBaseList) {
             String key = APPID_SUFFIX + merchantBase.getAppId();
@@ -177,18 +177,18 @@ public class AppLicenseService {
             appLicenseVOList.add(appLicenseVO);
 
         }
-        return Results.newSuccessPageResult(request, total, appLicenseVOList);
+        return Results.newPageResult(request, total, appLicenseVOList);
 
     }
 
     /**
      * 根据call_back的id生成"其他"通知类型时的DataSecretKey
      */
-    public Result<Integer> generateCallbackLicense(Integer id) {
+    public SaasResult<Integer> generateCallbackLicense(Integer id) {
         CallbackLicenseDTO licenseDTO = this.selectCallbackLicenseById(id);
         if (licenseDTO != null) {
             logger.info("根据Id={}查询回调的DataSecretKey已经存在 result={}", id, JSON.toJSONString(licenseDTO));
-            return new Result<>();
+            return new SaasResult<>();
         }
         CallbackLicenseDTO license = Helper.generateCallbackLicense(id);
         AppCallbackConfigBackup backup = new AppCallbackConfigBackup();
@@ -199,7 +199,7 @@ public class AppLicenseService {
 
         String key = CALLBACK_SUFFIX + id;
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
-        Result<Integer> result = new Result<>();
+        SaasResult<Integer> result = new SaasResult<>();
         result.setData(id);
         logger.info("generateCallbackLicense : key={}, license={}", key, JSON.toJSONString(license));
         return result;
@@ -219,7 +219,7 @@ public class AppLicenseService {
         return result;
     }
 
-    public Result removeCallbackLicenseById(Integer id) {
+    public SaasResult removeCallbackLicenseById(Integer id) {
         logger.info("根据Id={}删除回调的DataSecretKey", id);
         String key = CALLBACK_SUFFIX + id;
         if (stringRedisTemplate.hasKey(key)) {

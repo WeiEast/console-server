@@ -90,10 +90,21 @@ public class MerchantServiceImpl implements MerchantService {
         if(!result.isSuccess()){
             throw new BizException("不存在的商户");
         }
+
+        logger.info(result.toString());
+
         MerchantBaseInfoResult infoResult = result.getData();
 
         MerchantBaseVO baseVO = new MerchantBaseVO();
         BeanUtils.copyProperties(infoResult,baseVO);
+
+        List<MerchantBizLicense> list = infoResult.getAppBizLicenseList();
+
+        List<AppBizLicenseVO> vos = BeanUtils.convertList(list,AppBizLicenseVO.class);
+
+        baseVO.setAppBizLicenseVOList(vos);
+
+        logger.info(JSON.toJSONString(baseVO));
 
         return baseVO;
     }
@@ -206,6 +217,8 @@ public class MerchantServiceImpl implements MerchantService {
 
         MerchantResult<List<MerchantSimpleResult>> result = merchantBaseInfoFacade.querySimpleMerchantSimple(new
                 BaseRequest());
+
+        logger.info(result.toString());
 
         if(!result.isSuccess()){
             logger.error("获取简单列表失败，错误信息：{}",result.getRetMsg());

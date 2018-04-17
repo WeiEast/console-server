@@ -7,6 +7,7 @@ import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.common.domain.config.RawdataDomainConfig;
+import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -56,7 +57,7 @@ public class RawDataRequestFilter extends OncePerRequestFilter {
             }
         }
         try {
-            String result = "";
+            HttpResponseResult result = new HttpResponseResult();
             if (StringUtils.isNotBlank(url)) {
                 String method = request.getMethod();
                 if ("GET".equals(method)) {
@@ -66,14 +67,14 @@ public class RawDataRequestFilter extends OncePerRequestFilter {
                         String paramName = paramNames.nextElement();
                         paramMap.put(paramName, request.getParameter(paramName));
                     }
-                    result = HttpClientUtils.doGet(url, paramMap);
+                    result = HttpClientUtils.doGetResult(url, paramMap);
                 }
                 if (StringUtils.equalsIgnoreCase("post", request.getMethod())) {
                     InputStream is = request.getInputStream();
                     String body = IOUtils.toString(is, "utf-8");
-                    result = HttpClientUtils.doPost(url, body);
+                    result = HttpClientUtils.doPostResult(url, body);
                 }
-                ServletResponseUtils.responseJson(response, HttpStatus.OK.value(), result);
+                ServletResponseUtils.responseJson(response, result.getStatusCode(), result.getResponseBody());
                 return;
             }
             filterChain.doFilter(request, response);

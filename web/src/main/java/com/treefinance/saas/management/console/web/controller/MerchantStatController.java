@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
@@ -8,6 +9,9 @@ import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOver
 import com.treefinance.saas.management.console.common.domain.vo.SourceTypeVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +26,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/saas/console/merchant/stat")
 public class MerchantStatController {
+
+    private static final Logger logger = LoggerFactory.getLogger(MerchantStatController.class);
     @Autowired
     private MerchantStatService merchantStatService;
 
@@ -52,21 +58,85 @@ public class MerchantStatController {
 
     @RequestMapping(value = "/stataccess/number", method = {RequestMethod.GET}, produces = "application/json")
     public Result<Map<String, Object>> getNumber(StatRequest request) {
+        logger.info("输入参数:request={}", JSON.toJSONString(request));
+        if (request == null) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        if (request.getBizType() == null || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数bizType,saasEnv不能为空！");
+        }
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
+        }
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
+        }
         return Results.newSuccessResult(merchantStatService.queryAccessNumberList(request));
     }
 
     @RequestMapping(value = "/stataccess/rate", method = {RequestMethod.GET}, produces = "application/json")
     public Result<Map<String, Object>> getRate(StatRequest request) {
+        logger.info("输入参数:request={}", JSON.toJSONString(request));
+        if (request == null) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        if (request.getBizType() == null || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数bizType,saasEnv不能为空！");
+        }
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
+        }
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
+        }
         return Results.newSuccessResult(merchantStatService.queryAccessRateList(request));
     }
 
     @RequestMapping(value = "/stataccess/all/overview", method = {RequestMethod.GET}, produces = "application/json")
     public Result<List<MerchantStatOverviewTimeVO>> getOverview(StatRequest request) {
+        logger.info("输入参数:request={}", JSON.toJSONString(request));
+        if (request == null) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        if (request.getBizType() == null || request.getStatType() == null || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数bizType,statTyp,saasEnv不能为空！");
+        }
+
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 4) {
+            throw new IllegalArgumentException("请求参数dateType为空或非法!");
+        }
+        if (request.getDateType() == 0) {
+            if (request.getStartDate() == null || request.getEndDate() == null) {
+                throw new IllegalArgumentException("请求参数startDate或endDate不能为空！");
+            }
+            if (request.getStartDate().after(request.getEndDate())) {
+                throw new IllegalArgumentException("请求参数startDate不能晚于endDate！");
+            }
+        }
+
         return Results.newSuccessResult(merchantStatService.queryOverviewAccessList(request));
     }
 
     @RequestMapping(value = "/stataccess/all/overview/detail", method = {RequestMethod.GET}, produces = "application/json")
     public Object getOverviewDetail(StatDayRequest request) {
+        logger.info("输入参数:request={}", JSON.toJSONString(request));
+        if (request == null) {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
+        if (StringUtils.isBlank(request.getAppId()) || request.getDate() == null || request.getSaasEnv() == null
+                || request.getStatType() == null || request.getBizType() == null) {
+            throw new IllegalArgumentException("appId,date,saasEnv,statType,bizType不能为空");
+        }
         return merchantStatService.queryOverviewDetailAccessList(request);
     }
 

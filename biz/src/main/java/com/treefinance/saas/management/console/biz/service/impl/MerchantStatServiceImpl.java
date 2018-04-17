@@ -8,6 +8,7 @@ import com.treefinance.saas.gateway.servicefacade.enums.TaskStepEnum;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
+import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.dto.SaasErrorStepDayStatDTO;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
@@ -15,7 +16,6 @@ import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
@@ -58,8 +58,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
-    private TaskMapper taskMapper;
-    @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
     private MerchantUserMapper merchantUserMapper;
@@ -67,8 +65,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
     private AppBizTypeMapper appBizTypeMapper;
-    @Autowired
-    private TaskAttributeMapper taskAttributeMapper;
     @Autowired
     private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
     @Autowired
@@ -221,6 +217,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv((byte) 0);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -274,6 +271,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv((byte) 0);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -315,13 +313,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public Map<String, Object> queryAccessNumberList(StatRequest request) {
-        baseCheck(request);
         Map<String, Object> wrapMap = Maps.newHashMap();
 
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv(request.getSaasEnv());
+        statRequest.setAppId(Constants.VIRTUAL_TOTAL_STAT_APPID);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -437,13 +436,13 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public Map<String, Object> queryAccessRateList(StatRequest request) {
-        baseCheck(request);
         Map<String, Object> wrapMap = Maps.newHashMap();
-
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setSaasEnv(request.getSaasEnv());
+        statRequest.setAppId(Constants.VIRTUAL_TOTAL_STAT_APPID);
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -503,15 +502,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public List<MerchantStatOverviewTimeVO> queryOverviewAccessList(StatRequest request) {
-        baseCheck(request);
         Integer statType = request.getStatType();
-        if (statType == null) {
-            throw new IllegalArgumentException("请求参数statType不能为空！");
-        }
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(request.getSaasEnv());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryAllDayAccessListNoPage(statRequest);
         if (logger.isDebugEnabled()) {
@@ -522,8 +518,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             logger.info("result of merchantStatAccessFacade.queryDayAccessListNoPage() is empty : request={}, result={}", statRequest, JSON.toJSONString(result));
             return Lists.newArrayList();
         }
-        List<Date> dateList = DateUtils.getDateLists(this.getStartDate(request), this.getEndDate(request));
-        dateList = dateList.stream().sorted(Date::compareTo).collect(Collectors.toList());
+        List<String> dateList = DateUtils.getDayStrDateLists(this.getStartDate(request), this.getEndDate(request));
         if (dateList.size() != 7) {
             throw new IllegalArgumentException("请求参数startDate,endDate非法!");
         }
@@ -555,7 +550,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
 
         AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        if (!EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
+        if (request.getBizType() != 0) {
             appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(request.getBizType());
         }
         List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
@@ -586,10 +581,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 .filter(ov -> StringUtils.isNotBlank(ov.getAppId()))
                 .collect(Collectors.groupingBy(MerchantStatOverviewVO::getAppId));
 
-        Map<String, Map<Date, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
+        Map<String, Map<String, MerchantStatOverviewVO>> resultMap = Maps.newHashMap();
         for (Map.Entry<String, List<MerchantStatOverviewVO>> entry : ovMap.entrySet()) {
             List<MerchantStatOverviewVO> list = entry.getValue();
-            Map<Date, MerchantStatOverviewVO> tempMap = list.stream().collect(Collectors.toMap(MerchantStatOverviewVO::getDate, vo -> vo));
+            Map<String, MerchantStatOverviewVO> tempMap = list.stream().collect(Collectors.toMap(vo -> DateUtils.date2Ymd(vo.getDate()), vo -> vo));
             resultMap.put(entry.getKey(), tempMap);
         }
         List<MerchantStatOverviewTimeVO> timeOverViewList = Lists.newArrayList();
@@ -606,7 +601,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             } else {
                 timeVO.setAppIsTest(true);
             }
-            Map<Date, MerchantStatOverviewVO> entry = resultMap.get(appId);
+            Map<String, MerchantStatOverviewVO> entry = resultMap.get(appId);
             if (MapUtils.isEmpty(entry)) {
                 timeVO.setTime1Val("0 | NA");
                 timeVO.setTime2Val("0 | NA");
@@ -651,13 +646,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     @Override
     public Result<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
-        if (StringUtils.isBlank(request.getAppId()) || request.getDate() == null
-                || request.getStatType() == null || request.getBizType() == null) {
-            throw new BizException("appId,date,statType,bizType不能为空");
-        }
 
         Map<String, Object> map = Maps.newHashMap();
         map.put("appId", request.getAppId());
+        if (request.getSaasEnv() != 0) {
+            map.put("saasEnv", request.getSaasEnv());
+        }
         map.put("name", ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
         if (request.getStatType() == 2) {
             map.put("status", 3);//失败的任务
@@ -666,10 +660,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         } else if (request.getStatType() == 1) {
             map.put("status", 2);//成功的任务
         } else {
-            throw new BizException("statType参数有误");
+            throw new IllegalArgumentException("statType参数有误");
         }
 
-        if (EBizType4Monitor.TOTAL.getCode().equals(request.getBizType())) {
+        if (request.getBizType() == 0) {
             List<AppBizType> list = appBizTypeMapper.selectByExample(null);
             List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
             map.put("bizTypeList", bizTypeList);
@@ -765,36 +759,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return Results.newSuccessPageResult(request, total, resultList);
     }
 
-    private List<Long> getTaskIdByTaskAttributeGroupName(StatDayRequest request) {
-        TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
-        TaskAttributeCriteria.Criteria criteria = taskAttributeCriteria.createCriteria();
-        criteria.andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute())
-                .andValueLike("%" + request.getWebsiteDetailName() + "%");
-        if (request.getStartTime() != null && request.getEndTime() != null) {
-            criteria.andCreateTimeBetween(request.getStartTime(), request.getEndTime());
-        } else if (request.getDate() != null) {
-            criteria.andCreateTimeBetween(DateUtils.getTodayBeginDate(request.getDate()), DateUtils.getTomorrowBeginDate(request.getDate()));
-        }
-        taskAttributeCriteria.setOrderByClause("CreateTime desc");
-        List<TaskAttribute> list = taskAttributeMapper.selectPaginationByExample(taskAttributeCriteria);
-        if (CollectionUtils.isEmpty(list)) {
-            return Lists.newArrayList();
-        }
-        List<Long> taskIdList = list.stream().map(TaskAttribute::getTaskId).distinct().collect(Collectors.toList());
-        return taskIdList;
-    }
-
-    private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
-        List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
-        TaskAttributeCriteria criteria = new TaskAttributeCriteria();
-        criteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
-        List<TaskAttribute> list = taskAttributeMapper.selectByExample(criteria);
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(list)) {
-            return Maps.newHashMap();
-        }
-        Map<Long, TaskAttribute> map = list.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
-        return map;
-    }
 
     @Override
     public Map<String, Object> queryTaskStepStatInfo(StatRequest request) {
@@ -973,7 +937,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             totalVOList.add(vo);
         }
         totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
-        totalVOList.remove(totalVOList.size() - 1);
+        if (totalVOList.size() > 0) {
+            totalVOList.remove(totalVOList.size() - 1);
+        }
         valuesMap.put("总任务量", totalVOList);
         return valuesMap;
     }
@@ -1171,20 +1137,5 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 return DateUtils.getTodayBeginDate(request.getEndDate());
         }
         return DateUtils.getTodayBeginDate(new Date());
-    }
-
-    static class Obj {
-        public Integer num;
-        public Boolean flag;
-
-        public Obj(Integer num, Boolean flag) {
-            this.num = num;
-            this.flag = flag;
-        }
-
-        @Override
-        public String toString() {
-            return num + "," + flag + ";";
-        }
     }
 }

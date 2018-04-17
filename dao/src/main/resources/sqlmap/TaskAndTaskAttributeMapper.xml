@@ -37,6 +37,9 @@
         <if test="bizType != null">
             and task.bizType = #{bizType}
         </if>
+        <if test="saasEnv != null">
+            and task.saasEnv = #{saasEnv}
+        </if>
         <if test="bizTypeList != null">
             and task.bizType in
             (
@@ -65,6 +68,9 @@
         </if>
         <if test="status != null">
             and task.status = #{status}
+        </if>
+        <if test="saasEnv != null">
+            and task.saasEnv = #{saasEnv}
         </if>
         <if test="bizType != null">
             and task.bizType = #{bizType}

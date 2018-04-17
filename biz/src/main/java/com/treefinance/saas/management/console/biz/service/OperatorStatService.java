@@ -41,9 +41,16 @@ public interface OperatorStatService {
 
     /**
      * 获取所有商户运营商每月转化率的列表
-     *
-     * */
+     */
     Object queryAllOperatorStatConvertRateList(OperatorStatRequest request);
 
+
+    /**
+     * 添加环境标签后,初始化历史预警数据
+     *
+     * @param request
+     * @return
+     */
+    Object initAlarmHistoryData(OperatorStatRequest request);
 
 }

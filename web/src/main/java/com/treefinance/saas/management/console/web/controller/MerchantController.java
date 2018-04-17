@@ -31,7 +31,6 @@ public class MerchantController {
     @Autowired
     EcommerceMonitorService ecommerceMonitorService;
 
-
     @RequestMapping(value = "list", produces = "application/json")
     public Result<Map<String, Object>> getMerchantList(PageRequest request) {
         Result<Map<String, Object>> result = merchantService.getMerchantList(request);
@@ -98,7 +97,7 @@ public class MerchantController {
 
     @RequestMapping(value = "stat/merchant/list", method = RequestMethod.GET)
     public Object queryAllEcommerceMonitor(Integer bizType) {
-        if (bizType == null ) {
+        if (bizType == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         logger.info("电商列表查询 Controller层  传入参数为{}", bizType);

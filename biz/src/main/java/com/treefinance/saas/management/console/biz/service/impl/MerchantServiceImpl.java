@@ -1,9 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
@@ -12,9 +10,7 @@ import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantDao;
-import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
-import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
@@ -23,10 +19,18 @@ import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.dao.entity.*;
+import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
+import com.treefinance.saas.management.console.dao.entity.MerchantBase;
+import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
+import com.treefinance.saas.merchant.center.facade.exception.BaseException;
+import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.*;
+import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.*;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +40,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 商户管理
@@ -49,8 +54,7 @@ import java.util.stream.Collectors;
 public class MerchantServiceImpl implements MerchantService {
     private static final Logger logger = LoggerFactory.getLogger(MerchantServiceImpl.class);
 
-    @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+    private final MerchantBaseMapper merchantBaseMapper;
     @Autowired
     private MerchantUserMapper merchantUserMapper;
     @Autowired
@@ -67,135 +71,54 @@ public class MerchantServiceImpl implements MerchantService {
     private MerchantDao merchantDao;
     @Autowired
     private AppBizTypeService appBizTypeService;
+    @Autowired
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
+
+    @Autowired
+    public MerchantServiceImpl(MerchantBaseMapper merchantBaseMapper) {
+        this.merchantBaseMapper = merchantBaseMapper;
+    }
 
 
     @Override
     public MerchantBaseVO getMerchantById(Long id) {
-        MerchantBase merchantBase = merchantBaseMapper.selectByPrimaryKey(id);
-        if (merchantBase == null) {
-            return null;
-        }
-        MerchantBaseVO merchantBaseVO = new MerchantBaseVO();
-        Long merchantId = merchantBase.getId();
-        String appId = merchantBase.getAppId();
-        BeanUtils.copyProperties(merchantBase, merchantBaseVO);
+        GetMerchantByIdRequest request = new GetMerchantByIdRequest();
+        request.setId(id);
 
-        MerchantUserCriteria merchantUserCriteria = new MerchantUserCriteria();
-        merchantUserCriteria.createCriteria().andMerchantIdEqualTo(merchantId);
-        List<MerchantUser> merchantUserList = merchantUserMapper.selectByExample(merchantUserCriteria);
-        if (!CollectionUtils.isEmpty(merchantUserList)) {
-            MerchantUser merchantUser = merchantUserList.get(0);
-            merchantBaseVO.setLoginName(merchantUser.getLoginName());
-            String text;
-            try {
-                text = iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL);
-            } catch (Exception e) {
-                logger.error("merchantId={}的密文解析有误", id, e);
-                text = "密码失效,请重置!";
-            }
-            merchantBaseVO.setPassword(text);
-            merchantBaseVO.setIsTest(merchantUser.getIsTest());
-        }
+        MerchantResult<MerchantBaseInfoResult> result = merchantBaseInfoFacade.getBaseInfoById(request);
 
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andAppIdEqualTo(appId).andIsValidEqualTo((byte) 1);
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        Map<Byte, String> appBizTypeNameMap = appBizTypeService.getBizTypeNameMap();
-        if (!CollectionUtils.isEmpty(appBizLicenseList)) {
-            List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
-            for (AppBizLicense appBizLicense : appBizLicenseList) {
-                AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
-                appBizLicenseVO.setBizType(appBizLicense.getBizType());
-                appBizLicenseVO.setBizName(appBizTypeNameMap.get(appBizLicense.getBizType()));
-                appBizLicenseVOList.add(appBizLicenseVO);
-            }
-            merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);
+        if(!result.isSuccess()){
+            throw new BizException("不存在的商户");
+        }
+        MerchantBaseInfoResult infoResult = result.getData();
 
-        }
-        AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
-        if (appLicenseDTO != null) {
-            AppLicenseVO appLicenseVO = new AppLicenseVO();
-            BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
-            merchantBaseVO.setAppLicenseVO(appLicenseVO);
-        }
-        return merchantBaseVO;
+        MerchantBaseVO baseVO = new MerchantBaseVO();
+        BeanUtils.copyProperties(infoResult,baseVO);
+
+        return baseVO;
     }
+
 
     @Override
     public Result<Map<String, Object>> getMerchantList(PageRequest request) {
         List<MerchantBaseVO> merchantBaseVOList = Lists.newArrayList();
 
-        long total = merchantBaseMapper.countByExample(null);
-        if (Optional.fromNullable(total).or(Long.valueOf(0)) <= 0) {
-            return Results.newSuccessPageResult(request, total, merchantBaseVOList);
+        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
+                .merchant.center.facade.request.common.PageRequest();
+
+        pageRequest.setPageNum(request.getPageNumber());
+        pageRequest.setPageSize(request.getPageSize());
+
+
+        MerchantResult<List<MerchantBaseResult>> result = merchantBaseInfoFacade.queryMerchantBaseList(pageRequest);
+        if(!result.isSuccess()) {
+            logger.error("获取商户列表失败：错误信息：{}", result.getRetMsg());
         }
-        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.setOffset(request.getOffset());
-        criteria.setLimit(request.getPageSize());
-        criteria.setOrderByClause("CreateTime desc");
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
-        if (CollectionUtils.isEmpty(merchantBaseList)) {
-            return Results.newSuccessPageResult(request, total, merchantBaseList);
-        }
-        //<merchantId,MerchantBase>
-        Map<Long, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getId, merchantBase -> merchantBase));
-        //<appId,merchantBase>
-        Map<String, MerchantBase> merchantBaseAppIdMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
-
-        MerchantUserCriteria merchantUserCriteria = new MerchantUserCriteria();
-        merchantUserCriteria.createCriteria().andMerchantIdIn(Lists.newArrayList(merchantBaseMap.keySet()));
-        List<MerchantUser> merchantUserList = merchantUserMapper.selectByExample(merchantUserCriteria);
-        //<merchantId,merchantUser>
-        Map<Long, MerchantUser> merchantUserMerchantIdMap = merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, merchantUser -> merchantUser));
-
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(merchantBaseAppIdMap.keySet())).andIsValidEqualTo((byte) 1);
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-
-        //<appId,List<appBizLicense>>
-        Map<String, List<AppBizLicense>> appBizLicenseAppIdMap = Maps.newHashMap();
-        for (AppBizLicense appBizLicense : appBizLicenseList) {
-            if (CollectionUtils.isEmpty(appBizLicenseAppIdMap.get(appBizLicense.getAppId()))) {
-                List<AppBizLicense> list = Lists.newArrayList();
-                list.add(appBizLicense);
-                appBizLicenseAppIdMap.put(appBizLicense.getAppId(), list);
-            } else {
-                appBizLicenseAppIdMap.get(appBizLicense.getAppId()).add(appBizLicense);
-            }
+        if(!CollectionUtils.isEmpty(result.getData())){
+            merchantBaseVOList = BeanUtils.convertList(result.getData(),MerchantBaseVO.class);
         }
 
-        for (MerchantBase merchantBase : merchantBaseList) {
-            MerchantBaseVO merchantBaseVO = new MerchantBaseVO();
-            BeanUtils.copyProperties(merchantBase, merchantBaseVO);
-            MerchantUser merchantUser = merchantUserMerchantIdMap.get(merchantBase.getId());
-            if (merchantUser != null) {
-                merchantBaseVO.setLoginName(merchantUser.getLoginName());
-                String text;
-                try {
-                    text = iSecurityCryptoService.decrypt(merchantUser.getPassword(), EncryptionIntensityEnum.NORMAL);
-                } catch (Exception e) {
-                    logger.error("merchantId={}的密文解析有误", merchantBase.getId(), e);
-                    text = "密码失效,请重置!";
-                }
-                merchantBaseVO.setPassword(text);
-                merchantBaseVO.setIsTest(merchantUser.getIsTest());
-            }
-            List<AppBizLicense> licenseList = appBizLicenseAppIdMap.get(merchantBase.getAppId());
-            Map<Byte, String> appBizTypeNameMap = appBizTypeService.getBizTypeNameMap();
-            if (!CollectionUtils.isEmpty(licenseList)) {
-                List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
-                for (AppBizLicense appBizLicense : licenseList) {
-                    AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
-                    appBizLicenseVO.setBizType(appBizLicense.getBizType());
-                    appBizLicenseVO.setBizName(appBizTypeNameMap.get(appBizLicense.getBizType()));
-                    appBizLicenseVOList.add(appBizLicenseVO);
-                }
-                appBizLicenseVOList = appBizLicenseVOList.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
-                merchantBaseVO.setAppBizLicenseVOList(appBizLicenseVOList);
-            }
-            merchantBaseVOList.add(merchantBaseVO);
-        }
-        return Results.newSuccessPageResult(request, total, merchantBaseVOList);
+        return Results.newSuccessPageResult(request, result.getTotalCount(), merchantBaseVOList);
     }
 
     @Override
@@ -209,26 +132,39 @@ public class MerchantServiceImpl implements MerchantService {
         }
         String pattern = "^" + diamondConfig.getAppIdEnvironmentPrefix() + "_" + "[0-9a-zA-Z]{16}";
         String appId = StringUtils.deleteWhitespace(merchantBaseVO.getAppId());
-//        boolean hasPrefix = appId.startsWith(diamondConfig.getAppIdEnvironmentPrefix() + "_");
         boolean isMatch = Pattern.matches(pattern, appId);
         if (!isMatch) {
             throw new BizException("appId格式有误!需满足:" + diamondConfig.getAppIdEnvironmentPrefix() + "_16位数字字母字符串");
         }
-        checkAppNameUnique(merchantBaseVO);
-        checkAppIdUnique(merchantBaseVO);
-        if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
-            appId = CommonUtils.generateAppId();
-            merchantBaseVO.setAppId(appId);
+
+        AddMerchantBaseRequest request = new AddMerchantBaseRequest();
+        BeanUtils.copyProperties(merchantBaseVO,request);
+        List<AddAppBizLicenseRequest> licenseRequests = new ArrayList<>();
+        for(AppBizLicenseVO vo:merchantBaseVO.getAppBizLicenseVOList()){
+            AddAppBizLicenseRequest addAppBizLicenseRequest = new AddAppBizLicenseRequest();
+            BeanUtils.copyProperties(vo,addAppBizLicenseRequest);
+            licenseRequests.add(addAppBizLicenseRequest);
+        }
+        request.setAppBizLicenseVOList(licenseRequests);
+        logger.info("更新信息：{}",request);
+        MerchantResult<AddMerchantResult> result;
+        try {
+            result = merchantBaseInfoFacade.addMerchant(request);
+            if(result.isSuccess()){
+                Map<String,Object> map = new HashMap<>(2);
+                map.put("merchantId", result.getData().getMerchantId());
+                map.put("plainTextPassword", result.getData().getPlainTextPassword());
+                return map;
+            }
+        }catch (Exception e){
+            logger.error("新增商户失败，错误信息：{}",e.getMessage());
         }
 
-        Map<String, Object> map = merchantDao.addMerchant(merchantBaseVO);
-        // 发送变量通知消息
-        variableMessageNotifyService.sendVariableMessage("merchant", "update", appId);
-        return map;
+
+        return null;
     }
 
     @Override
-    @Transactional
     public void updateMerchant(MerchantBaseVO merchantBaseVO) {
         logger.info("更新商户信息 merchantBaseVO={}", JSON.toJSONString(merchantBaseVO));
         if (StringUtils.isBlank(merchantBaseVO.getAppName())) {
@@ -236,62 +172,61 @@ public class MerchantServiceImpl implements MerchantService {
         }
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
 
-        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.createCriteria().andIdEqualTo(merchantBaseVO.getId());
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
-        if (CollectionUtils.isEmpty(merchantBaseList)) {
-            logger.info("更新商户基本信息传入merchantId={}非法!", merchantBaseVO.getId());
-            throw new BizException("id非法!");
-        }
-        if (!merchantBaseList.get(0).getAppName().equals(merchantBaseVO.getAppName())) {
-            checkAppNameUnique(merchantBaseVO);
-        }
-        merchantDao.updateMerchant(merchantBaseVO);
+        AddMerchantBaseRequest request = new AddMerchantBaseRequest();
+        BeanUtils.copyProperties(merchantBaseVO,request);
+        logger.info("更新商户信息，更新信息：{}",request);
 
-        // 发送变量通知消息
-        variableMessageNotifyService.sendVariableMessage("merchant", "update", merchantBaseList.get(0).getAppId());
+        MerchantResult<UpdateMerchantResult> result = merchantBaseInfoFacade.updateMerchant(request);
+
+        if(result.isSuccess()){
+            variableMessageNotifyService.sendVariableMessage("merchant", "update", result.getData().getAppId());
+        }
     }
 
     @Override
     public String resetPassWord(Long id) {
-        MerchantUserCriteria criteria = new MerchantUserCriteria();
-        criteria.createCriteria().andMerchantIdEqualTo(id);
-        List<MerchantUser> merchantUserList = merchantUserMapper.selectByExample(criteria);
-        if (CollectionUtils.isEmpty(merchantUserList)) {
-            return null;
-        }
-        MerchantUser merchantUser = new MerchantUser();
-        merchantUser.setId(merchantUserList.get(0).getId());
+
         String newPwd = CommonUtils.generatePassword();
-        logger.info("重置商户id={}密码 newPwd={}", id, newPwd);
-        merchantUser.setPassword(iSecurityCryptoService.encrypt(newPwd, EncryptionIntensityEnum.NORMAL));
-        merchantUserMapper.updateByPrimaryKeySelective(merchantUser);
-        return newPwd;
+
+        ResetPwdRequest resetPwdRequest = new ResetPwdRequest();
+        resetPwdRequest.setId(id);
+        resetPwdRequest.setNewPwd(newPwd);
+        MerchantResult<ResetPwdResult> result = merchantBaseInfoFacade.resetPwd(resetPwdRequest);
+        if(!result.isSuccess()){
+            logger.info("重置密码失败，错误信息{}",result.getRetMsg());
+        }
+
+        return result.getData().getPlainTextPwd();
     }
 
     @Override
     public List<MerchantSimpleVO> getMerchantBaseList() {
+
         List<MerchantSimpleVO> merchantSimpleVOList = Lists.newArrayList();
-        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.setOrderByClause("convert(AppName using gbk) asc");
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
-        if (CollectionUtils.isEmpty(merchantBaseList)) {
+
+        MerchantResult<List<MerchantSimpleResult>> result = merchantBaseInfoFacade.querySimpleMerchantSimple(new
+                BaseRequest());
+
+        if(!result.isSuccess()){
+            logger.error("获取简单列表失败，错误信息：{}",result.getRetMsg());
             return merchantSimpleVOList;
         }
-        merchantSimpleVOList = BeanUtils.convertList(merchantBaseList, MerchantSimpleVO.class);
+
+        merchantSimpleVOList = BeanUtils.convertList(result.getData(), MerchantSimpleVO.class);
         return merchantSimpleVOList;
     }
 
     @Override
     public void resetAppLicenseKey(Long id) {
-        MerchantBase merchantBase = merchantBaseMapper.selectByPrimaryKey(id);
-        if (merchantBase == null) {
-            logger.error("根据merchantId{}未查询到相关商户信息", id);
-            return;
+        ResetKeyRequest resetKeyRequest = new ResetKeyRequest();
+        resetKeyRequest.setId(id);
+        MerchantResult<BaseResult> merchantResult = merchantBaseInfoFacade.resetKey(resetKeyRequest);
+
+        if(!merchantResult.isSuccess()){
+            logger.info("重置Key失败，错误信息：{}",merchantResult.getRetMsg());
+            throw new BaseException("重置key失败，错误信息："+merchantResult.getRetMsg());
         }
-        String appId = merchantBase.getAppId();
-        appLicenseService.removeAppLicenseByAppId(appId);
-        appLicenseService.generateAppLicenseByAppId(appId);
+
     }
 
     @Override
@@ -305,25 +240,6 @@ public class MerchantServiceImpl implements MerchantService {
     public String generateCipherTextPassword(String str) {
         String text = iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
         return text;
-    }
-
-
-    private void checkAppNameUnique(MerchantBaseVO merchantBaseVO) {
-        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.createCriteria().andAppNameEqualTo(merchantBaseVO.getAppName());
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(criteria);
-        if (merchantBaseList.size() > 0) {
-            throw new BizException("app名称重复");
-        }
-    }
-
-    private void checkAppIdUnique(MerchantBaseVO merchantBaseVO) {
-        MerchantBaseCriteria criteria1 = new MerchantBaseCriteria();
-        criteria1.createCriteria().andAppIdEqualTo(merchantBaseVO.getAppId());
-        List<MerchantBase> merchantBaseList1 = merchantBaseMapper.selectByExample(criteria1);
-        if (merchantBaseList1.size() > 0) {
-            throw new BizException("appId重复");
-        }
     }
 
 }

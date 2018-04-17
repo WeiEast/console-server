@@ -37,4 +37,14 @@ public class AppBizTypeVO implements Serializable {
     public void setBizName(String bizName) {
         this.bizName = bizName;
     }
+
+
+    @Override
+    public String toString() {
+        return "AppBizTypeVO{" +
+                "id=" + id +
+                ", bizType=" + bizType +
+                ", bizName='" + bizName + '\'' +
+                '}';
+    }
 }

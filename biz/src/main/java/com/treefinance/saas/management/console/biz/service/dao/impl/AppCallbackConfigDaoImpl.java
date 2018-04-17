@@ -46,17 +46,9 @@ public class AppCallbackConfigDaoImpl implements AppCallbackConfigDao {
 
     @Override
     @Transactional
+    @Deprecated
     public Integer addCallbackConfig(AppCallbackConfigVO appCallbackConfigVO) {
         logger.info("添加回调配置信息 appCallbackConfigVO={}", JSON.toJSONString(appCallbackConfigVO));
-        if (StringUtils.isBlank(appCallbackConfigVO.getAppId())) {
-            throw new BizException("appId不能为空");
-        }
-        if (StringUtils.isBlank(appCallbackConfigVO.getUrl())) {
-            throw new BizException("回调地址URL不能为空");
-        }
-        if (CollectionUtils.isEmpty(appCallbackConfigVO.getBizTypes())) {
-            throw new BizException("业务类型不能为空");
-        }
 
         AppCallbackConfig appCallbackConfig = new AppCallbackConfig();
         BeanUtils.copyProperties(appCallbackConfigVO, appCallbackConfig);

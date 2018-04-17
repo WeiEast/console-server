@@ -46,10 +46,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
     private static Logger logger = LoggerFactory.getLogger(MerchantFlowConfigService.class);
 
-    @Autowired
-    private MerchantFlowConfigMapper merchantFlowConfigMapper;
-    @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+
     @Autowired
     private MerchantFlowConfigDao merchantFlowConfigDao;
 

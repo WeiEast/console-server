@@ -73,8 +73,7 @@ public class RawDataRequestFilter extends OncePerRequestFilter {
                     String body = IOUtils.toString(is, "utf-8");
                     result = HttpClientUtils.doPost(url, body);
                 }
-                String responseBody = Jackson.toJSONString(Results.newSuccessResult(result));
-                ServletResponseUtils.responseJson(response, HttpStatus.OK.value(), responseBody);
+                ServletResponseUtils.responseJson(response, HttpStatus.OK.value(), result);
                 return;
             }
             filterChain.doFilter(request, response);

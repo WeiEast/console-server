@@ -27,7 +27,6 @@ import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerch
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
-import com.treefinance.saas.merchant.center.facade.service.MerchantUserFacade;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;
@@ -69,8 +68,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private TaskLogMapper taskLogMapper;
     @Autowired
     private MerchantUserMapper merchantUserMapper;
-    @Autowired
-    private MerchantUserFacade  merchantUserFacade;
+
     @Autowired
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired

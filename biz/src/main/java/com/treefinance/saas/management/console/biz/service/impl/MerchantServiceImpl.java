@@ -5,6 +5,9 @@ import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
@@ -14,14 +17,8 @@ import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
@@ -36,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -87,7 +83,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         MerchantResult<MerchantBaseInfoResult> result = merchantBaseInfoFacade.getBaseInfoById(request);
 
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             throw new BizException("不存在的商户");
         }
 
@@ -96,11 +92,11 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantBaseInfoResult infoResult = result.getData();
 
         MerchantBaseVO baseVO = new MerchantBaseVO();
-        BeanUtils.copyProperties(infoResult,baseVO);
+        BeanUtils.copyProperties(infoResult, baseVO);
 
         List<MerchantBizLicense> list = infoResult.getAppBizLicenseList();
 
-        List<AppBizLicenseVO> vos = BeanUtils.convertList(list,AppBizLicenseVO.class);
+        List<AppBizLicenseVO> vos = BeanUtils.convertList(list, AppBizLicenseVO.class);
 
         baseVO.setAppBizLicenseVOList(vos);
 
@@ -111,7 +107,7 @@ public class MerchantServiceImpl implements MerchantService {
 
 
     @Override
-    public Result<Map<String, Object>> getMerchantList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getMerchantList(PageRequest request) {
         List<MerchantBaseVO> merchantBaseVOList = Lists.newArrayList();
 
         com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
@@ -122,14 +118,14 @@ public class MerchantServiceImpl implements MerchantService {
 
 
         MerchantResult<List<MerchantBaseResult>> result = merchantBaseInfoFacade.queryMerchantBaseList(pageRequest);
-        if(!result.isSuccess()) {
+        if (!result.isSuccess()) {
             logger.error("获取商户列表失败：错误信息：{}", result.getRetMsg());
         }
-        if(!CollectionUtils.isEmpty(result.getData())){
-            merchantBaseVOList = BeanUtils.convertList(result.getData(),MerchantBaseVO.class);
+        if (!CollectionUtils.isEmpty(result.getData())) {
+            merchantBaseVOList = BeanUtils.convertList(result.getData(), MerchantBaseVO.class);
         }
 
-        return Results.newSuccessPageResult(request, result.getTotalCount(), merchantBaseVOList);
+        return Results.newPageResult(request, result.getTotalCount(), merchantBaseVOList);
     }
 
     @Override
@@ -149,26 +145,26 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         AddMerchantBaseRequest request = new AddMerchantBaseRequest();
-        BeanUtils.copyProperties(merchantBaseVO,request);
+        BeanUtils.copyProperties(merchantBaseVO, request);
         List<AddAppBizLicenseRequest> licenseRequests = new ArrayList<>();
-        for(AppBizLicenseVO vo:merchantBaseVO.getAppBizLicenseVOList()){
+        for (AppBizLicenseVO vo : merchantBaseVO.getAppBizLicenseVOList()) {
             AddAppBizLicenseRequest addAppBizLicenseRequest = new AddAppBizLicenseRequest();
-            BeanUtils.copyProperties(vo,addAppBizLicenseRequest);
+            BeanUtils.copyProperties(vo, addAppBizLicenseRequest);
             licenseRequests.add(addAppBizLicenseRequest);
         }
         request.setAppBizLicenseVOList(licenseRequests);
-        logger.info("更新信息：{}",request);
+        logger.info("更新信息：{}", request);
         MerchantResult<AddMerchantResult> result;
         try {
             result = merchantBaseInfoFacade.addMerchant(request);
-            if(result.isSuccess()){
-                Map<String,Object> map = new HashMap<>(2);
+            if (result.isSuccess()) {
+                Map<String, Object> map = new HashMap<>(2);
                 map.put("merchantId", result.getData().getMerchantId());
                 map.put("plainTextPassword", result.getData().getPlainTextPassword());
                 return map;
             }
-        }catch (Exception e){
-            logger.error("新增商户失败，错误信息：{}",e.getMessage());
+        } catch (Exception e) {
+            logger.error("新增商户失败，错误信息：{}", e.getMessage());
         }
 
 
@@ -184,12 +180,12 @@ public class MerchantServiceImpl implements MerchantService {
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
 
         AddMerchantBaseRequest request = new AddMerchantBaseRequest();
-        BeanUtils.copyProperties(merchantBaseVO,request);
-        logger.info("更新商户信息，更新信息：{}",request);
+        BeanUtils.copyProperties(merchantBaseVO, request);
+        logger.info("更新商户信息，更新信息：{}", request);
 
         MerchantResult<UpdateMerchantResult> result = merchantBaseInfoFacade.updateMerchant(request);
 
-        if(result.isSuccess()){
+        if (result.isSuccess()) {
             variableMessageNotifyService.sendVariableMessage("merchant", "update", result.getData().getAppId());
         }
     }
@@ -203,8 +199,8 @@ public class MerchantServiceImpl implements MerchantService {
         resetPwdRequest.setId(id);
         resetPwdRequest.setNewPwd(newPwd);
         MerchantResult<ResetPwdResult> result = merchantBaseInfoFacade.resetPwd(resetPwdRequest);
-        if(!result.isSuccess()){
-            logger.info("重置密码失败，错误信息{}",result.getRetMsg());
+        if (!result.isSuccess()) {
+            logger.info("重置密码失败，错误信息{}", result.getRetMsg());
         }
 
         return result.getData().getPlainTextPwd();
@@ -220,8 +216,8 @@ public class MerchantServiceImpl implements MerchantService {
 
         logger.info(result.toString());
 
-        if(!result.isSuccess()){
-            logger.error("获取简单列表失败，错误信息：{}",result.getRetMsg());
+        if (!result.isSuccess()) {
+            logger.error("获取简单列表失败，错误信息：{}", result.getRetMsg());
             return merchantSimpleVOList;
         }
 
@@ -235,9 +231,9 @@ public class MerchantServiceImpl implements MerchantService {
         resetKeyRequest.setId(id);
         MerchantResult<BaseResult> merchantResult = merchantBaseInfoFacade.resetKey(resetKeyRequest);
 
-        if(!merchantResult.isSuccess()){
-            logger.info("重置Key失败，错误信息：{}",merchantResult.getRetMsg());
-            throw new BaseException("重置key失败，错误信息："+merchantResult.getRetMsg());
+        if (!merchantResult.isSuccess()) {
+            logger.info("重置Key失败，错误信息：{}", merchantResult.getRetMsg());
+            throw new BaseException("重置key失败，错误信息：" + merchantResult.getRetMsg());
         }
 
     }

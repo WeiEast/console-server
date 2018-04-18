@@ -10,10 +10,13 @@ import com.treefinance.saas.management.console.common.domain.vo.ApiStatAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.ChartStatDayVO;
 import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.management.console.common.domain.vo.PieChartStatVO;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.facade.domain.request.ApiStatBaseRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.api.ApiBaseStatRO;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,8 +43,10 @@ public class ApiStatServiceImpl implements ApiStatService {
 
     @Autowired
     private ApiStatAccessFacade apiStatAccessFacade;
+
+
     @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
 
 
     @Override
@@ -407,9 +413,11 @@ public class ApiStatServiceImpl implements ApiStatService {
     }
 
     private Map<String, Map<Date, Integer>> changeKey2AppName(Map<String, Map<Date, Integer>> map) {
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(map.keySet()));
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+
+        QueryMerchantByAppIdRequest request = new QueryMerchantByAppIdRequest();
+        request.setAppIds(Lists.newArrayList(map.keySet()));
+        MerchantResult<List<MerchantBaseResult>>  merchantBaseResultList = merchantBaseInfoFacade.queryMerchantBaseListByAppId(request);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(merchantBaseResultList.getData(),MerchantBase.class);
         //<appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList
                 .stream()

@@ -9,6 +9,9 @@ import com.treefinance.saas.management.console.common.domain.request.StatDayRequ
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewTimeVO;
 import com.treefinance.saas.management.console.common.domain.vo.SourceTypeVO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -55,7 +58,6 @@ public class MerchantStatController {
 
     @RequestMapping(value = "/stataccess/number", method = {RequestMethod.GET}, produces = "application/json")
     public SaasResult<Map<String, Object>> getNumber(StatRequest request) {
-    public Result<Map<String, Object>> getNumber(StatRequest request) {
         logger.info("输入参数:request={}", JSON.toJSONString(request));
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -79,7 +81,6 @@ public class MerchantStatController {
 
     @RequestMapping(value = "/stataccess/rate", method = {RequestMethod.GET}, produces = "application/json")
     public SaasResult<Map<String, Object>> getRate(StatRequest request) {
-    public Result<Map<String, Object>> getRate(StatRequest request) {
         logger.info("输入参数:request={}", JSON.toJSONString(request));
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -103,7 +104,6 @@ public class MerchantStatController {
 
     @RequestMapping(value = "/stataccess/all/overview", method = {RequestMethod.GET}, produces = "application/json")
     public SaasResult<List<MerchantStatOverviewTimeVO>> getOverview(StatRequest request) {
-    public Result<List<MerchantStatOverviewTimeVO>> getOverview(StatRequest request) {
         logger.info("输入参数:request={}", JSON.toJSONString(request));
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");

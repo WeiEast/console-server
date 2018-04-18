@@ -18,7 +18,6 @@ import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -646,7 +645,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     }
 
     @Override
-    public Result<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
+    public SaasResult<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
 
         Map<String, Object> map = Maps.newHashMap();
         map.put("appId", request.getAppId());

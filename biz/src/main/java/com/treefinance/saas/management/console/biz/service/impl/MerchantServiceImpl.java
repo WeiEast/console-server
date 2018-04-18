@@ -19,9 +19,6 @@ import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
@@ -36,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 

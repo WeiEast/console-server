@@ -19,9 +19,15 @@ import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
+import com.treefinance.saas.merchant.center.facade.service.MerchantUserFacade;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;
@@ -58,9 +64,13 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
     @Autowired
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
+    @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
     private MerchantUserMapper merchantUserMapper;
+    @Autowired
+    private MerchantUserFacade  merchantUserFacade;
     @Autowired
     private AppBizLicenseMapper appBizLicenseMapper;
     @Autowired
@@ -559,9 +569,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<List<String>> appIdPartList = Lists.partition(appIdList, 50);
         List<MerchantBase> merchantBaseList = Lists.newArrayList();
         for (List<String> appIdParts : appIdPartList) {
-            MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-            merchantBaseCriteria.createCriteria().andAppIdIn(appIdParts);
-            List<MerchantBase> merchantBasePartList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+            QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
+            queryMerchantByAppIdRequest.setAppIds(appIdParts);
+            MerchantResult<List<MerchantBaseResult>>  listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+            List<MerchantBase> merchantBasePartList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
             merchantBaseList.addAll(merchantBasePartList);
         }
 
@@ -958,9 +969,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     private Map<String, Map<Date, Integer>> changeKey2AppName(Map<String, Map<Date, Integer>> dataMap) {
         Map<String, Map<Date, Integer>> appNameMap = Maps.newHashMap();
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(dataMap.keySet()));
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
+        queryMerchantByAppIdRequest.setAppIds(Lists.newArrayList(dataMap.keySet()));
+        MerchantResult<List<MerchantBaseResult>>  listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
+
         //<appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList
                 .stream()
@@ -979,9 +992,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     private Map<String, Integer> changeKey2AppName4Pie(Map<String, Integer> dataMap) {
         Map<String, Integer> appNameMap = Maps.newHashMap();
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(Lists.newArrayList(dataMap.keySet()));
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
+        queryMerchantByAppIdRequest.setAppIds(Lists.newArrayList(dataMap.keySet()));
+        MerchantResult<List<MerchantBaseResult>>  listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
+
         //<appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList
                 .stream()

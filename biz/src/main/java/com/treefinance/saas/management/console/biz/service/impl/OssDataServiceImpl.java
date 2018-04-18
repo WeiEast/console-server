@@ -22,6 +22,7 @@ import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -56,6 +57,8 @@ public class OssDataServiceImpl implements OssDataService {
     private ISecurityCryptoService iSecurityCryptoService;
     @Autowired
     private MerchantBaseMapper merchantBaseMapper;
+    @Autowired
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
     private TaskMapper taskMapper;
     @Autowired

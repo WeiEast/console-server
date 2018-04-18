@@ -55,6 +55,16 @@ public class OperatorStatRequest extends PageRequest implements Serializable {
     private String groupName;
 
 
+    private Byte saasEnv;
+
+    public Byte getSaasEnv() {
+        return saasEnv;
+    }
+
+    public void setSaasEnv(Byte saasEnv) {
+        this.saasEnv = saasEnv;
+    }
+
     public Integer getIntervalMins() {
         return intervalMins;
     }

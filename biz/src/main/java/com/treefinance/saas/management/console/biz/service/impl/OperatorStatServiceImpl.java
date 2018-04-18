@@ -63,6 +63,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setPageNumber(request.getPageNumber());
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessListWithPage(rpcRequest);
         List<AllOperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
@@ -79,6 +80,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setEndDate(DateUtils.getTodayEndDate(request.getDataDate()));
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setIntervalMins(30);
         MonitorResult<List<OperatorAllStatAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStaAccessList(rpcRequest);
         List<AllOperatorStatAccessVO> result = Lists.newArrayList();
@@ -95,6 +97,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setDataDate(request.getDataTime());
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setPageSize(request.getPageSize());
         rpcRequest.setPageNumber(request.getPageNumber());
         rpcRequest.setIntervalMins(30);
@@ -116,6 +119,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setGroupName(request.getGroupName());
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         MonitorResult<List<OperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatDayAccessListWithPage(rpcRequest);
         List<OperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
@@ -136,6 +140,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcDayRequest.setGroupCode(request.getGroupCode());
         rpcDayRequest.setStatType(request.getStatType());
         rpcDayRequest.setAppId(request.getAppId());
+        rpcDayRequest.setSaasEnv(request.getSaasEnv());
         MonitorResult<List<OperatorStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryOneOperatorStatDayAccessListWithPage(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
             return Results.newPageResult(request, 0, Lists.newArrayList());
@@ -146,6 +151,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setEndDate(request.getEndDate());
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setIntervalMins(60);
         MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatAccessList(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
@@ -223,6 +229,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         return Results.newSuccessResult(result);
     }
+
 
     private void calcRate(List<OperatorStatDayConvertRateVo> result, String date,
                           List<OperatorAllStatDayAccessRO> filteredList) {
@@ -381,4 +388,13 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         return Results.newSuccessResult(map);
     }
 
+
+    @Override
+    public Object initAlarmHistoryData(OperatorStatRequest request) {
+        OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
+        rpcRequest.setStartDate(request.getStartTime());
+        rpcRequest.setEndDate(request.getEndTime());
+        MonitorResult<Boolean> rpcResult = operatorStatAccessFacade.initHistoryData4OperatorStatAccess(rpcRequest);
+        return Results.newSuccessResult(rpcResult.getData());
+    }
 }

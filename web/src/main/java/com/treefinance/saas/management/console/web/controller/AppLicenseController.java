@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,22 +28,22 @@ public class AppLicenseController {
     private AppLicenseService appLicenseService;
 
     @RequestMapping("/get/{appId}")
-    public Result<AppLicenseDTO> getApplicenseByAppId(@PathVariable String appId) {
-        return new Result<>(appLicenseService.selectOneByAppId(appId));
+    public SaasResult<AppLicenseDTO> getApplicenseByAppId(@PathVariable String appId) {
+        return Results.newSuccessResult(appLicenseService.selectOneByAppId(appId));
     }
 
     @RequestMapping("/generate")
-    public Result<String> generate() {
+    public SaasResult<String> generate() {
         return appLicenseService.generateAppLicense();
     }
 
     @RequestMapping("/generateBy/{appId}")
-    public Result<Integer> generate(@PathVariable String appId) {
+    public SaasResult<Integer> generate(@PathVariable String appId) {
         return appLicenseService.generateAppLicenseByAppId(appId);
     }
 
     @RequestMapping(value = "list", produces = "application/json", method = RequestMethod.GET)
-    public Result<Map<String, Object>> getKeyList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getKeyList(PageRequest request) {
         return appLicenseService.getAppLicenseList(request);
     }
 

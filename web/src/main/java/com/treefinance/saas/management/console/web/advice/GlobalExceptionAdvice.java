@@ -17,10 +17,11 @@ package com.treefinance.saas.management.console.web.advice;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.common.StateCode;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.management.console.common.domain.ConsoleStateCode;
 import com.treefinance.saas.management.console.common.exceptions.*;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Results;
-import com.treefinance.saas.management.console.common.result.StateCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -97,7 +98,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public void handleRequestLimitException(RequestLimitException ex, HttpServletRequest request, HttpServletResponse response) {
-        responseException(request, CommonStateCode.REPEAT_REQUEST_ERROR, ex, HttpStatus.BAD_REQUEST, response);
+        responseException(request, ConsoleStateCode.REPEAT_REQUEST_ERROR, ex, HttpStatus.BAD_REQUEST, response);
     }
 
 

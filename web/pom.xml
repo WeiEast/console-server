@@ -30,6 +30,11 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.treefinance.saas</groupId>
+			<artifactId>saas-knife</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

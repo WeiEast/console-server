@@ -1,9 +1,9 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewTimeVO;
-import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -13,11 +13,11 @@ import java.util.Map;
  */
 public interface MerchantStatService {
 
-    Result<Map<String, Object>> queryDayAccessList(StatRequest request);
+    SaasResult<Map<String, Object>> queryDayAccessList(StatRequest request);
 
-    Result<Map<String, Object>> queryWeekAccessList(StatRequest request);
+    SaasResult<Map<String, Object>> queryWeekAccessList(StatRequest request);
 
-    Result<Map<String, Object>> queryMonthAccessList(StatRequest request);
+    SaasResult<Map<String, Object>> queryMonthAccessList(StatRequest request);
 
     Map<String, Object> queryAllAccessList(StatRequest request);
 
@@ -47,7 +47,7 @@ public interface MerchantStatService {
      * @param request
      * @return
      */
-    Result<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request);
+    SaasResult<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request);
 
     /**
      * 任务失败取消环节统计表

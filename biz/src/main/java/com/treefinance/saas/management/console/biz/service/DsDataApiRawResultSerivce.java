@@ -1,8 +1,7 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.DsDataApiRequest;
-import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
-import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.Map;
 
@@ -14,5 +13,5 @@ public interface DsDataApiRawResultSerivce {
      * @param request
      * @return
      */
-    Result<Map<String, Object>> findPageByExample(DsDataApiRequest request);
+    SaasResult<Map<String, Object>> findPageByExample(DsDataApiRequest request);
 }

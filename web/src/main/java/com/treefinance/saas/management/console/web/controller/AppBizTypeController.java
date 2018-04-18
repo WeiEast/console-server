@@ -1,9 +1,9 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +23,7 @@ public class AppBizTypeController {
     private AppBizTypeService appBizTypeService;
 
     @RequestMapping(value = "list", produces = "application/json", method = RequestMethod.GET)
-    public Result<List<AppBizTypeVO>> getBizList() {
+    public SaasResult<List<AppBizTypeVO>> getBizList() {
         List<AppBizTypeVO> result = appBizTypeService.getBizList();
         return Results.newSuccessResult(result);
     }
@@ -35,7 +35,7 @@ public class AppBizTypeController {
      * @return
      */
     @RequestMapping(value = "list/{appId}", produces = "application/json", method = RequestMethod.GET)
-    public Result<List<AppBizTypeVO>> getBizList(@PathVariable("appId") String appId) {
+    public SaasResult<List<AppBizTypeVO>> getBizList(@PathVariable("appId") String appId) {
         List<AppBizTypeVO> result = appBizTypeService.getBizListByAppId(appId);
         return Results.newSuccessResult(result);
     }
@@ -46,7 +46,7 @@ public class AppBizTypeController {
      * @return
      */
     @RequestMapping(value = "task/list", produces = "application/json", method = RequestMethod.GET)
-    public Result<List<AppBizTypeVO>> getMerchantBaseList() {
+    public SaasResult<List<AppBizTypeVO>> getMerchantBaseList() {
         List<AppBizTypeVO> result = appBizTypeService.getTaskBizTypeList();
         return Results.newSuccessResult(result);
     }
@@ -57,7 +57,7 @@ public class AppBizTypeController {
      * @return
      */
     @RequestMapping(value = "task/access/list", produces = "application/json", method = RequestMethod.GET)
-    public Result<List<AppBizTypeVO>> getMerchantBaseAccessList() {
+    public SaasResult<List<AppBizTypeVO>> getMerchantBaseAccessList() {
         List<AppBizTypeVO> result = appBizTypeService.getAccessTaskBizTypeList();
         return Results.newSuccessResult(result);
     }
@@ -68,7 +68,7 @@ public class AppBizTypeController {
      * @return
      */
     @RequestMapping(value = "task/access/detail/list", produces = "application/json", method = RequestMethod.GET)
-    public Result<List<AppBizTypeVO>> getMerchantBaseDetailAccessList() {
+    public SaasResult<List<AppBizTypeVO>> getMerchantBaseDetailAccessList() {
         List<AppBizTypeVO> result = appBizTypeService.getAccessTaskDetailBizTypeList();
         return Results.newSuccessResult(result);
     }

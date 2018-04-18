@@ -6,6 +6,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.treefinance.saas.gateway.servicefacade.enums.TaskStepEnum;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.Constants;
@@ -16,8 +18,6 @@ import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -72,7 +72,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
 
     @Override
-    public Result<Map<String, Object>> queryDayAccessList(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryDayAccessList(StatRequest request) {
         checkParam(request);
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setAppId(request.getAppId());
@@ -90,7 +90,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         if (result == null || CollectionUtils.isEmpty(result.getData())) {
             logger.error("merchantStatAccessFacade.queryDayAccessList()为空 : statRequest={},result={}",
                     JSON.toJSONString(statRequest), JSON.toJSONString(result));
-            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+            return Results.newPageResult(request, 0, Lists.newArrayList());
         }
         Map<String, MerchantStatDayAccessRO> dayAccessROMap = this.queryTotalDayAccessList(request);
         List<MerchantStatDayVO> dataList = Lists.newArrayList();
@@ -122,7 +122,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             end = total;
         }
         dataList = dataList.subList(start, end);
-        return Results.newSuccessPageResult(request, result.getTotalCount(), dataList);
+        return Results.newPageResult(request, result.getTotalCount(), dataList);
     }
 
     private Map<String, MerchantStatDayAccessRO> queryTotalDayAccessList(StatRequest request) {
@@ -146,7 +146,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
 
     @Override
-    public Result<Map<String, Object>> queryWeekAccessList(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryWeekAccessList(StatRequest request) {
         checkParam(request);
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setAppId(request.getAppId());
@@ -178,7 +178,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
 
     @Override
-    public Result<Map<String, Object>> queryMonthAccessList(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryMonthAccessList(StatRequest request) {
         checkParam(request);
         MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
         statRequest.setAppId(request.getAppId());
@@ -645,7 +645,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     }
 
     @Override
-    public Result<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
+    public SaasResult<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
 
         Map<String, Object> map = Maps.newHashMap();
         map.put("appId", request.getAppId());
@@ -690,7 +690,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         long total = taskAndTaskAttributeMapper.countByExample(map);
         if (total <= 0) {
-            return Results.newSuccessPageResult(request, total, Lists.newArrayList());
+            return Results.newPageResult(request, total, Lists.newArrayList());
         }
         List<TaskAndTaskAttribute> taskList = taskAndTaskAttributeMapper.getByExample(map);
 
@@ -756,7 +756,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             }
             resultList.add(vo);
         }
-        return Results.newSuccessPageResult(request, total, resultList);
+        return Results.newPageResult(request, total, resultList);
     }
 
 
@@ -999,11 +999,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     }
 
 
-    private Result<Map<String, Object>> wrapDataPageResult(StatRequest request, Map<String, List<MerchantStatDayAccessRO>> timeMap) {
+    private SaasResult<Map<String, Object>> wrapDataPageResult(StatRequest request, Map<String, List<MerchantStatDayAccessRO>> timeMap) {
         int totalCount = timeMap.keySet().size();
         List<MerchantStatVO> dataList = Lists.newArrayList();
         if (totalCount == 0) {
-            return Results.newSuccessPageResult(request, totalCount, dataList);
+            return Results.newPageResult(request, totalCount, dataList);
         }
         for (Map.Entry<String, List<MerchantStatDayAccessRO>> entry : timeMap.entrySet()) {
             MerchantStatVO merchantStatVO = new MerchantStatVO();
@@ -1033,7 +1033,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             end = total;
         }
         dataList = dataList.subList(start, end);
-        return Results.newSuccessPageResult(request, totalCount, dataList);
+        return Results.newPageResult(request, totalCount, dataList);
     }
 
     private void checkParam(StatRequest request) {

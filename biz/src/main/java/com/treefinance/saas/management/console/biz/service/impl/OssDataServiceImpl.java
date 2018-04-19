@@ -11,6 +11,7 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.OssDataService;
+import com.treefinance.saas.management.console.common.domain.ConsoleStateCode;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.request.OssDataRequest;
@@ -19,8 +20,11 @@ import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryAppCallBackConfigByIdRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByAppName;
 import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
 import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackConfigResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseInfoResult;
@@ -71,7 +75,6 @@ public class OssDataServiceImpl implements OssDataService {
     private TaskAttributeMapper taskAttributeMapper;
     @Autowired
     private TaskCallbackLogMapper taskCallbackLogMapper;
-
     @Autowired
     private AppCallbackConfigFacade appCallbackConfigFacade;
     @Autowired

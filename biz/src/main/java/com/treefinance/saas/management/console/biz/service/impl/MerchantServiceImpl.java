@@ -11,6 +11,7 @@ import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantDao;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
@@ -26,6 +27,7 @@ import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.*;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.*;
+import com.treefinance.saas.merchant.center.facade.result.grapsever.AppLicenseResult;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -70,11 +72,20 @@ public class MerchantServiceImpl implements MerchantService {
             throw new BizException("不存在的商户");
         }
         MerchantBaseInfoResult infoResult = result.getData();
-
+        logger.info("商户中心返回数据：{}",infoResult);
         MerchantBaseVO baseVO = new MerchantBaseVO();
         BeanUtils.copyProperties(infoResult,baseVO);
 
-        logger.info(JSON.toJSONString(baseVO));
+        AppLicenseResult appLicenseResult = infoResult.getAppLicenseVO();
+        if(appLicenseResult == null){
+            logger.info("appLicense 为空");
+        }else {
+            AppLicenseVO appLicenseVO = new AppLicenseVO();
+            BeanUtils.convert(appLicenseResult,appLicenseVO);
+            baseVO.setAppLicenseVO(appLicenseVO);
+        }
+
+        logger.info("返回前端数据：{}",JSON.toJSONString(baseVO));
         return baseVO;
     }
 

@@ -17,6 +17,10 @@ import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
+import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
+import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.*;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
@@ -68,6 +72,20 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantBaseInfoResult infoResult = result.getData();
         logger.info("商户中心返回数据：{}",infoResult);
         MerchantBaseVO baseVO = new MerchantBaseVO();
+
+        appLicenseVOprocess(infoResult, baseVO);
+
+        List<MerchantBizLicense> list = infoResult.getAppBizLicenseList();
+
+        List<AppBizLicenseVO> appBizLicenseVOList = DataConverterUtils.convert(list,AppBizLicenseVO.class);
+
+        baseVO.setAppBizLicenseVOList(appBizLicenseVOList);
+
+        logger.info("返回前端数据：{}",JSON.toJSONString(baseVO));
+        return baseVO;
+    }
+
+    private void appLicenseVOprocess(MerchantBaseInfoResult infoResult, MerchantBaseVO baseVO) {
         BeanUtils.copyProperties(infoResult,baseVO);
 
         AppLicenseResult appLicenseResult = infoResult.getAppLicenseVO();
@@ -78,9 +96,6 @@ public class MerchantServiceImpl implements MerchantService {
             BeanUtils.convert(appLicenseResult,appLicenseVO);
             baseVO.setAppLicenseVO(appLicenseVO);
         }
-
-        logger.info("返回前端数据：{}",JSON.toJSONString(baseVO));
-        return baseVO;
     }
 
 

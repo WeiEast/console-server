@@ -17,6 +17,9 @@ public class AppBizLicenseVO implements Serializable {
     private Byte isShowLicense;
     private Byte isValid;
     private String licenseTemplate;
+    private Byte h5Access;
+    private Byte sdkAccess;
+    private Byte apiAccess;
 
 
     public Byte getBizType() {
@@ -83,6 +86,30 @@ public class AppBizLicenseVO implements Serializable {
         this.licenseTemplate = licenseTemplate;
     }
 
+    public Byte getH5Access() {
+        return h5Access;
+    }
+
+    public void setH5Access(Byte h5Access) {
+        this.h5Access = h5Access;
+    }
+
+    public Byte getSdkAccess() {
+        return sdkAccess;
+    }
+
+    public void setSdkAccess(Byte sdkAccess) {
+        this.sdkAccess = sdkAccess;
+    }
+
+    public Byte getApiAccess() {
+        return apiAccess;
+    }
+
+    public void setApiAccess(Byte apiAccess) {
+        this.apiAccess = apiAccess;
+    }
+
     @Override
     public String toString() {
         return "AppBizLicenseVO{" +
@@ -94,6 +121,9 @@ public class AppBizLicenseVO implements Serializable {
                 ", isShowLicense=" + isShowLicense +
                 ", isValid=" + isValid +
                 ", licenseTemplate='" + licenseTemplate + '\'' +
+                ", h5Access=" + h5Access +
+                ", sdkAccess=" + sdkAccess +
+                ", apiAccess=" + apiAccess +
                 '}';
     }
 }

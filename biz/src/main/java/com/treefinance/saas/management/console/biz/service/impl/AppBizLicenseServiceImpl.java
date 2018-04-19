@@ -39,10 +39,6 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
 
     @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
-    @Autowired
-    private AppBizTypeMapper appBizTypeMapper;
-    @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
     @Resource
     private AppBizLicenseFacade appBizLicenseFacade;

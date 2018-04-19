@@ -50,6 +50,11 @@ public class StatRequest extends PageRequest {
      */
     private Integer intervalMins = 10;
 
+    /**
+     *
+     */
+    private Byte saasEnv;
+
 
     public Integer getDateType() {
         return dateType;
@@ -113,5 +118,13 @@ public class StatRequest extends PageRequest {
 
     public void setIntervalMins(Integer intervalMins) {
         this.intervalMins = intervalMins;
+    }
+
+    public Byte getSaasEnv() {
+        return saasEnv;
+    }
+
+    public void setSaasEnv(Byte saasEnv) {
+        this.saasEnv = saasEnv;
     }
 }

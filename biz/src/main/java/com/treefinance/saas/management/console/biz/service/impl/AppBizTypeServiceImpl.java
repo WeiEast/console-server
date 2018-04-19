@@ -45,12 +45,6 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppBizTypeServiceImpl.class);
 
-
-    @Autowired
-    private AppBizTypeMapper appBizTypeMapper;
-    @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
-
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
     @Resource
@@ -133,7 +127,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         request.setIsValid((byte)1);
         MerchantResult<List<AppBizLicenseResult>> result;
         try {
-            result = appBizLicenseFacade.queryAppBizLicenseByAppId(request);
+            result = appBizLicenseFacade.queryAppBizLicense(request);
         }catch (RpcException e){
             logger.error("根据appId获取appBizLicense失败,{}",e.getMessage());
             return appBizTypeVOList;
@@ -226,7 +220,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
         //添加一个系统总访问量监控
         AppBizTypeVO appBizTypeVO = new AppBizTypeVO();
-        appBizTypeVO.setBizType(EBizType4Monitor.TOTAL.getCode());
+        appBizTypeVO.setBizType((byte) 0);
         appBizTypeVO.setBizName("系统总访问量监控");
         appBizTypeVOList.add(appBizTypeVO);
 
@@ -250,7 +244,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
         //添加一个系统总访问量监控
         AppBizTypeVO appBizTypeVO = new AppBizTypeVO();
-        appBizTypeVO.setBizType(EBizType4Monitor.TOTAL.getCode());
+        appBizTypeVO.setBizType((byte) 0);
         appBizTypeVO.setBizName("合计");
         appBizTypeVOList.add(appBizTypeVO);
 

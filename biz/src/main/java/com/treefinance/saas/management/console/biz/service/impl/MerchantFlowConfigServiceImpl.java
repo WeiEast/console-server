@@ -10,12 +10,9 @@ import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfi
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantFlowConfigMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.BatchUpdateFlowRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchantFlowRequest;
-import com.treefinance.saas.merchant.center.facade.request.gateway.GetMerchantFlowConfigByTaskIdRequest;
 import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
 import com.treefinance.saas.merchant.center.facade.result.console.BatchUpdateFlowResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
@@ -32,8 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,8 +58,8 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
         MerchantResult<List<MerchantFlowConfigResult>> rpcResult;
         try {
-            rpcResult = merchantFlowConfigFacade.selectMerchantFlowConfigByTaskId(new
-                    GetMerchantFlowConfigByTaskIdRequest());
+            rpcResult = merchantFlowConfigFacade.queryAllMerchantFlowConfig(new
+                    BaseRequest());
         } catch (RpcException e) {
             logger.error("获取merchantFlowConfig失败，{}", e.getMessage());
             return result;
@@ -134,8 +129,10 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
         List<BatchUpdateFlowResult> resultList = result.getData();
 
-        for(BatchUpdateFlowResult flowResult:resultList){
-            if(StringUtils.isEmpty(flowResult.getAppId())){continue;}
+        for (BatchUpdateFlowResult flowResult : resultList) {
+            if (StringUtils.isEmpty(flowResult.getAppId())) {
+                continue;
+            }
             variableMessageNotifyService.sendVariableMessage("merchant-flow", "update", flowResult.getAppId());
         }
 
@@ -147,20 +144,20 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
         MerchantResult<List<MerchantSimpleResult>> result = merchantBaseInfoFacade.querySimpleMerchantSimple(new
                 BaseRequest
                 ());
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             logger.error("init 失败");
             return;
         }
 
         List<MerchantSimpleResult> baseList = result.getData();
         if (CollectionUtils.isEmpty(baseList)) {
-            logger.error("init 失败,返回数据：{}",result);
+            logger.error("init 失败,返回数据：{}", result);
             return;
         }
         MerchantResult<List<MerchantFlowConfigResult>> listMerchantResult = merchantFlowConfigFacade
-                .selectMerchantFlowConfigByTaskId(new GetMerchantFlowConfigByTaskIdRequest());
-        if(!listMerchantResult.isSuccess()){
-            logger.error("init 失败,返回数据：{}",listMerchantResult);
+                .queryAllMerchantFlowConfig(new BaseRequest());
+        if (!listMerchantResult.isSuccess()) {
+            logger.error("init 失败,返回数据：{}", listMerchantResult);
             return;
         }
         List<MerchantFlowConfigResult> configList = listMerchantResult.getData();
@@ -183,13 +180,13 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
         BatchUpdateFlowRequest request = new BatchUpdateFlowRequest();
         request.setRequests(list);
-        try{
+        try {
             MerchantResult insertResult = merchantFlowConfigFacade.batchInsert(request);
-            if (insertResult.isSuccess()){
+            if (insertResult.isSuccess()) {
                 logger.info("init 成功");
             }
-        }catch (RpcException e){
-            logger.error("批量插入失败，{}",e.getMessage());
+        } catch (RpcException e) {
+            logger.error("批量插入失败，{}", e.getMessage());
         }
 
         logger.info("初始化商户流量分配配置,list={}", JSON.toJSONString(list));

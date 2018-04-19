@@ -7,12 +7,9 @@ import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEn
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
-import com.treefinance.saas.knife.request.PageRequest;
-import com.treefinance.saas.knife.result.Results;
-import com.treefinance.saas.knife.result.SaasResult;
+import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
-import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
@@ -21,11 +18,11 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataT
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.result.PageRequest;
+import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
-import com.treefinance.saas.management.console.dao.entity.AppCallbackConfig;
-import com.treefinance.saas.management.console.dao.entity.AppCallbackConfigBackup;
-import com.treefinance.saas.management.console.dao.entity.AppCallbackConfigBackupCriteria;
-import com.treefinance.saas.management.console.dao.entity.AppCallbackConfigCriteria;
+import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.AddAppCallbackBizRequest;
@@ -35,6 +32,7 @@ import com.treefinance.saas.merchant.center.facade.request.console.UpdateCallbac
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.*;
 import com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade;
+import com.treefinance.saas.merchant.center.facade.service.AppCallBackBizFacade;
 import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -50,6 +48,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by haojiahong on 2017/7/21.
@@ -64,20 +63,13 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
 
-    @Autowired
-    private AppCallbackConfigMapper appCallbackConfigMapper;
-    @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+
     @Autowired
     private AppLicenseService appLicenseService;
-    @Autowired
-    private AppCallbackBizMapper appCallbackBizMapper;
-    @Autowired
-    private AppBizTypeMapper appBizTypeMapper;
+
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
-    @Autowired
-    private AppCallbackConfigDao appCallbackConfigDao;
+
     @Autowired
     private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
     @Autowired
@@ -319,9 +311,10 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Override
     @Transactional
     public void initHistorySecretKey() {
-        AppCallbackConfigCriteria configCriteria = new AppCallbackConfigCriteria();
-        configCriteria.createCriteria().andIsNewKeyEqualTo((byte) 1);
-        List<AppCallbackConfig> configList = appCallbackConfigMapper.selectByExample(configCriteria);
+        GetAppCallBackConfigByIsNewKeyRequest request = new GetAppCallBackConfigByIsNewKeyRequest();
+        request.setIsNewKey((byte) 1);
+        MerchantResult<List<AppCallbackResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigByIsNewKey(request);
+        List<AppCallbackConfig> configList = DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
         for (AppCallbackConfig config : configList) {
             CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(config.getId());
             if (callbackLicenseDTO == null) {

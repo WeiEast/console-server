@@ -35,6 +35,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
 
     @Autowired
     EcommerceStatDivisionAccessFacade ecommerceStatDivisionAccessFacade;
+
     @Autowired
     EcommerceMonitorDao ecommerceMonitorDao;
 

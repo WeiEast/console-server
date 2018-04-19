@@ -11,13 +11,17 @@ import com.treefinance.saas.management.console.common.domain.request.OperatorSta
 import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseByBizTypeRequest;
+import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
+import com.treefinance.saas.merchant.center.facade.result.console.AppBizLicenseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.facade.domain.request.OperatorStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorAllStatAccessRO;
@@ -49,10 +53,12 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     private static final Logger logger = LoggerFactory.getLogger(OperatorStatService.class);
     @Autowired
     private OperatorStatAccessFacade operatorStatAccessFacade;
+
     @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
+    private AppBizLicenseFacade appBizLicenseFacade;
     @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
+
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -262,16 +268,20 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         totalVO.setAppId("virtual_total_stat_appId");
         totalVO.setAppName("所有商户");
         result.add(totalVO);
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(EBizType.OPERATOR.getCode());
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+
+
+        QueryAppBizLicenseByBizTypeRequest queryAppBizLicenseByBizTypeRequest = new QueryAppBizLicenseByBizTypeRequest();
+        queryAppBizLicenseByBizTypeRequest.setBizType(EBizType.OPERATOR.getCode());
+        MerchantResult<List<AppBizLicenseResult>> listMerchantBase = appBizLicenseFacade.queryAppBizLicenseByBizType(queryAppBizLicenseByBizTypeRequest);
+        List<AppBizLicense> appBizLicenseList = DataConverterUtils.convert(listMerchantBase.getData(), AppBizLicense.class);
         if (CollectionUtils.isEmpty(appBizLicenseList)) {
             return Results.newSuccessResult(result);
         }
         List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
+        queryMerchantByAppIdRequest.setAppIds(appIdList);
+        MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return Results.newSuccessResult(result);
         }

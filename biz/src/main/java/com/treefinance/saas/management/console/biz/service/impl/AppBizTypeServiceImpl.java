@@ -45,9 +45,6 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppBizTypeServiceImpl.class);
 
-
-
-
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
     @Resource

@@ -22,7 +22,6 @@ import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
-import com.treefinance.saas.merchant.center.facade.exception.BaseException;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.*;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
@@ -220,7 +219,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         if(!merchantResult.isSuccess()){
             logger.info("重置Key失败，错误信息：{}",merchantResult.getRetMsg());
-            throw new BaseException("重置key失败，错误信息："+merchantResult.getRetMsg());
+            throw new BizException("重置key失败，错误信息："+merchantResult.getRetMsg());
         }
 
     }

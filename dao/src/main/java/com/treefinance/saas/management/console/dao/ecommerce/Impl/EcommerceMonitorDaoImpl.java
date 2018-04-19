@@ -32,12 +32,10 @@ public class EcommerceMonitorDaoImpl implements EcommerceMonitorDao {
 
     private final static Logger logger = LoggerFactory.getLogger(EcommerceMonitorDaoImpl.class);
 
-    @Autowired
-    AppBizLicenseMapper appBizLicenseMapper;
+
     @Autowired
     AppBizLicenseFacade appBizLicenseFacade;
-    @Autowired
-    MerchantBaseMapper merchantBaseMapper;
+
     @Autowired
     MerchantBaseInfoFacade merchantBaseInfoFacade;
 

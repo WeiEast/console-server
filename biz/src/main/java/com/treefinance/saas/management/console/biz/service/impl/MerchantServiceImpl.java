@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,31 +50,14 @@ import java.util.regex.Pattern;
 public class MerchantServiceImpl implements MerchantService {
     private static final Logger logger = LoggerFactory.getLogger(MerchantServiceImpl.class);
 
-    private final MerchantBaseMapper merchantBaseMapper;
-    @Autowired
-    private MerchantUserMapper merchantUserMapper;
-    @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
-    @Autowired
-    private AppLicenseService appLicenseService;
-    @Autowired
+    @Resource
     private ISecurityCryptoService iSecurityCryptoService;
     @Autowired
     private DiamondConfig diamondConfig;
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
-    @Autowired
-    private MerchantDao merchantDao;
-    @Autowired
-    private AppBizTypeService appBizTypeService;
-    @Autowired
+    @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
-
-    @Autowired
-    public MerchantServiceImpl(MerchantBaseMapper merchantBaseMapper) {
-        this.merchantBaseMapper = merchantBaseMapper;
-    }
-
 
     @Override
     public MerchantBaseVO getMerchantById(Long id) {
@@ -227,14 +211,12 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public String autoGenerateAppId() {
         String prefix = diamondConfig.getAppIdEnvironmentPrefix();
-        String appId = prefix + "_" + CommonUtils.generateAppId();
-        return appId;
+        return prefix + "_" + CommonUtils.generateAppId();
     }
 
     @Override
     public String generateCipherTextPassword(String str) {
-        String text = iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
-        return text;
+        return iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
     }
 
 }

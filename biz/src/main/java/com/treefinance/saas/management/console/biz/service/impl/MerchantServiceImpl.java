@@ -74,6 +74,7 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantBaseVO baseVO = new MerchantBaseVO();
         BeanUtils.copyProperties(infoResult,baseVO);
 
+        logger.info(JSON.toJSONString(baseVO));
         return baseVO;
     }
 

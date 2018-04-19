@@ -9,23 +9,19 @@ import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
-import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
-import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
-import com.treefinance.saas.management.console.biz.service.dao.MerchantDao;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.*;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.*;
+import com.treefinance.saas.merchant.center.facade.result.grapsever.AppLicenseResult;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -69,22 +65,21 @@ public class MerchantServiceImpl implements MerchantService {
         if (!result.isSuccess()) {
             throw new BizException("不存在的商户");
         }
-
-        logger.info(result.toString());
-
         MerchantBaseInfoResult infoResult = result.getData();
-
+        logger.info("商户中心返回数据：{}",infoResult);
         MerchantBaseVO baseVO = new MerchantBaseVO();
-        BeanUtils.copyProperties(infoResult, baseVO);
+        BeanUtils.copyProperties(infoResult,baseVO);
 
-        List<MerchantBizLicense> list = infoResult.getAppBizLicenseList();
+        AppLicenseResult appLicenseResult = infoResult.getAppLicenseVO();
+        if(appLicenseResult == null){
+            logger.info("appLicense 为空");
+        }else {
+            AppLicenseVO appLicenseVO = new AppLicenseVO();
+            BeanUtils.convert(appLicenseResult,appLicenseVO);
+            baseVO.setAppLicenseVO(appLicenseVO);
+        }
 
-        List<AppBizLicenseVO> vos = BeanUtils.convertList(list, AppBizLicenseVO.class);
-
-        baseVO.setAppBizLicenseVOList(vos);
-
-        logger.info(JSON.toJSONString(baseVO));
-
+        logger.info("返回前端数据：{}",JSON.toJSONString(baseVO));
         return baseVO;
     }
 

@@ -132,7 +132,7 @@ public class MerchantControllerTest {
 
     @Test
     public void getMerchantById() throws Exception {
-        this.mockMvc.perform(get(baseUrl+"/get/44026148916563972").accept(MediaType.APPLICATION_JSON));
+        this.mockMvc.perform(get(baseUrl+"/get/171621292888698880").accept(MediaType.APPLICATION_JSON));
     }
 
     @Test

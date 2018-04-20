@@ -196,6 +196,7 @@ public class TaskServiceImpl implements TaskService {
         TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
         taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
         List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectByExample(taskCallbackLogCriteria);
+        logger.info("taskCallbackLog:{}",JSON.toJSONString(taskCallbackLogList));
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
         }
@@ -203,7 +204,9 @@ public class TaskServiceImpl implements TaskService {
         QueryAppCallBackConfigByIdRequest queryAppCallBackConfigByIdRequest = new QueryAppCallBackConfigByIdRequest();
         queryAppCallBackConfigByIdRequest.setId(configIdList);
         MerchantResult<List<AppCallbackConfigResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
+        logger.info("商户中心返回数据:{}",JSON.toJSONString(listMerchantResult));
         List<AppCallbackConfig> appCallbackConfigList = DataConverterUtils.convert(listMerchantResult.getData(),AppCallbackConfig.class);
+        logger.info("数据转换：{}",JSON.toJSONString(appCallbackConfigList));
         //<configId,AppCallbackConfig>
         Map<Integer, AppCallbackConfig> appCallbackConfigMap = appCallbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, t -> t));
 

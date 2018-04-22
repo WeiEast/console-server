@@ -28,5 +28,4 @@ public class ApplicationConfig {
         logger.info(key + " update to " + newValue + " end...");
     }
 
-
 }

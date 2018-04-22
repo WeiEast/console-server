@@ -112,9 +112,7 @@ public class RedisServiceImpl implements RedisService {
                 public Long doInRedis(RedisConnection connection) throws DataAccessException {
 
                     final Long count = connection.incr(key);
-                    if (count == 1) {
-                        connection.expire(key, timeUnit.toSeconds(time));
-                    }
+                    connection.expire(key, timeUnit.toSeconds(time));
                     return count;
                 }
             });

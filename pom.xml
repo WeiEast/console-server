@@ -64,6 +64,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.treefinance.saas</groupId>
+                <artifactId>merchant-center-facade</artifactId>
+                <version>1.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>21.0</version>
@@ -112,7 +118,7 @@
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>dubbo</artifactId>
-                <version>2.5.3</version>
+                <version>2.5.8</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.springframework</groupId>

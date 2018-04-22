@@ -156,4 +156,24 @@ public class MerchantBaseVO implements Serializable {
     public void setIsActive(Byte isActive) {
         this.isActive = isActive;
     }
+    @Override
+    public String toString() {
+        return "MerchantBaseVO{" +
+                "id=" + id +
+                ", appId='" + appId + '\'' +
+                ", appName='" + appName + '\'' +
+                ", contactPerson='" + contactPerson + '\'' +
+                ", contactValue='" + contactValue + '\'' +
+                ", loginName='" + loginName + '\'' +
+                ", password='" + password + '\'' +
+                ", company='" + company + '\'' +
+                ", chName='" + chName + '\'' +
+                ", bussiness='" + bussiness + '\'' +
+                ", bussiness2='" + bussiness2 + '\'' +
+                ", lastUpdateTime=" + lastUpdateTime +
+                ", isTest=" + isTest +
+                ", appBizLicenseVOList=" + appBizLicenseVOList +
+                ", appLicenseVO=" + appLicenseVO +
+                '}';
+    }
 }

@@ -8,9 +8,6 @@ import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +63,7 @@ public class MerchantController {
     }
 
     @RequestMapping(value = "toggle/active", method = RequestMethod.POST, produces = "application/json")
-    public Result<Boolean> disableMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
+    public SaasResult<Boolean> disableMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
         Byte zero = new Byte("0");
         Byte one = new Byte("1");
         if (StringUtils.isBlank(merchantBaseVO.getAppId())) {

@@ -31,6 +31,6 @@ public interface MerchantService {
 
     String generateCipherTextPassword(String str);
 
-    Result<Boolean> toggleMerchant(String appId,Byte isActive);
+    SaasResult<Boolean> toggleMerchant(String appId,Byte isActive);
 
 }

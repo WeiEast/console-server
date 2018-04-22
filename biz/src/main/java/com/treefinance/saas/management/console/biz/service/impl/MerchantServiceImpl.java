@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -16,13 +17,9 @@ import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.*;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.*;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
@@ -245,7 +242,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public Result<Boolean> toggleMerchant(String appId, Byte isActive) {
+    public SaasResult<Boolean> toggleMerchant(String appId, Byte isActive) {
 
         MerchantStatusChangeRequest request = new MerchantStatusChangeRequest();
         request.setOpType(new Integer(isActive));

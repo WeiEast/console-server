@@ -7,6 +7,11 @@ import com.treefinance.saas.management.console.biz.service.EcommerceMonitorServi
 import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.result.PageRequest;
+import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.result.Results;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +63,25 @@ public class MerchantController {
     public SaasResult<String> resetPassword(@PathVariable Long id) {
         String plainTextPwd = merchantService.resetPassWord(id);
         return Results.newSuccessResult(plainTextPwd);
+    }
 
+    @RequestMapping(value = "toggle/active", method = RequestMethod.POST, produces = "application/json")
+    public Result<Boolean> disableMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
+        Byte zero = new Byte("0");
+        Byte one = new Byte("1");
+        if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
+            throw new BizException("appId不能为空!");
+        }
+        if (merchantBaseVO.getIsActive() == null) {
+            throw new BizException("app名称不能为空!");
+        }
+        if ((!zero.equals(merchantBaseVO.getIsActive()) && !one.equals(merchantBaseVO.getIsActive()))) {
+            throw  new BizException("isActive不合法");
+        }
+
+
+
+        return merchantService.toggleMerchant(merchantBaseVO.getAppId(),merchantBaseVO.getIsActive());
     }
 
     /**

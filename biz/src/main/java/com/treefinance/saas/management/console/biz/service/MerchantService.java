@@ -30,4 +30,7 @@ public interface MerchantService {
     String autoGenerateAppId();
 
     String generateCipherTextPassword(String str);
+
+    Result<Boolean> toggleMerchant(String appId,Byte isActive);
+
 }

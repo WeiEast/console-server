@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
@@ -15,6 +16,7 @@ import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.result.*;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
@@ -242,4 +244,24 @@ public class MerchantServiceImpl implements MerchantService {
         return iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
     }
 
+    @Override
+    public Result<Boolean> toggleMerchant(String appId, Byte isActive) {
+
+        MerchantStatusChangeRequest request = new MerchantStatusChangeRequest();
+        request.setOpType(new Integer(isActive));
+        request.setAppId(appId);
+        try{
+            logger.info("{}，request：{}",isActive==0?"禁用商户":"启用商户",request);
+            MerchantResult<BaseResult> rpcResult= merchantBaseInfoFacade.merchantActiveChange(request);
+            logger.info("商户中心返回数据：{}",rpcResult);
+            if(rpcResult.isSuccess()){
+                return Results.newSuccessResult(true);
+            }
+            return Results.newFailedResult(false, CommonStateCode.FAILURE);
+        }catch (RpcException e){
+            logger.info("启用或禁用商户失败：{}",e.getMessage());
+            return Results.newFailedResult(false, CommonStateCode.FAILURE);
+        }
+
+    }
 }

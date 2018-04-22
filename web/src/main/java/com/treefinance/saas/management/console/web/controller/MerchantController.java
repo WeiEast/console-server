@@ -5,6 +5,7 @@ import com.treefinance.saas.management.console.biz.service.MerchantService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.PageRequest;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
@@ -61,7 +62,25 @@ public class MerchantController {
     public Result<String> resetPassword(@PathVariable Long id) {
         String plainTextPwd = merchantService.resetPassWord(id);
         return Results.newSuccessResult(plainTextPwd);
+    }
 
+    @RequestMapping(value = "toggle/active", method = RequestMethod.GET, produces = "application/json")
+    public Result<Boolean> disableMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
+        Byte zero = new Byte("0");
+        Byte one = new Byte("1");
+        if (StringUtils.isBlank(merchantBaseVO.getAppId())) {
+            throw new BizException("appId不能为空!");
+        }
+        if (merchantBaseVO.getIsActive() == null) {
+            throw new BizException("app名称不能为空!");
+        }
+        if ((!zero.equals(merchantBaseVO.getIsActive()) && !one.equals(merchantBaseVO.getIsActive()))) {
+            throw  new BizException("isActive不合法");
+        }
+
+
+
+        return merchantService.toggleMerchant(merchantBaseVO.getAppId(),merchantBaseVO.getIsActive());
     }
 
     /**
@@ -98,7 +117,7 @@ public class MerchantController {
 
     @RequestMapping(value = "stat/merchant/list", method = RequestMethod.GET)
     public Object queryAllEcommerceMonitor(Integer bizType) {
-        if (bizType == null ) {
+        if (bizType == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         logger.info("电商列表查询 Controller层  传入参数为{}", bizType);

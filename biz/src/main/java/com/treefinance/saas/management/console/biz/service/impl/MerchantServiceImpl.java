@@ -326,4 +326,9 @@ public class MerchantServiceImpl implements MerchantService {
         }
     }
 
+
+    @Override
+    public Result<Boolean> toggleMerchant(String appId, Byte isActive) {
+        return null;
+    }
 }

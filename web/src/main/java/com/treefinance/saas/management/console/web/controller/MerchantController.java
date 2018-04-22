@@ -63,7 +63,7 @@ public class MerchantController {
         return Results.newSuccessResult(plainTextPwd);
     }
 
-    @RequestMapping(value = "toggle/active", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "toggle/active", method = RequestMethod.POST, produces = "application/json")
     public Result<Boolean> disableMerchant(@RequestBody MerchantBaseVO merchantBaseVO) {
         Byte zero = new Byte("0");
         Byte one = new Byte("1");

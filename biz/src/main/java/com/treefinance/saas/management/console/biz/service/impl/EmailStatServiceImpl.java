@@ -1,10 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
-import com.alibaba.dubbo.rpc.RpcResult;
-import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.biz.service.EmailStatService;
 import com.treefinance.saas.management.console.common.domain.request.EmailStatRequest;
-import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatDayAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.EmailStatAccessVO;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
@@ -17,7 +14,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -611,15 +612,15 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         Map<Long, MerchantUser> userMap = new HashMap<>();
 
-        for(MerchantUser merchantUser:merchantUserList){
+        for (MerchantUser merchantUser : merchantUserList) {
 
 
-            if(userMap.keySet().contains(merchantUser.getMerchantId())){
-                logger.info("重复的merchantId：{}",merchantUser.getMerchantId());
+            if (userMap.keySet().contains(merchantUser.getMerchantId())) {
+                logger.info("重复的merchantId：{}", merchantUser.getMerchantId());
                 throw new BizException("重复的merchantId");
             }
 
-            userMap.put(merchantUser.getMerchantId(),merchantUser);
+            userMap.put(merchantUser.getMerchantId(), merchantUser);
         }
 
 
@@ -628,37 +629,47 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     private List<Long> findDuplicateElements(List<MerchantUser> merchantUserList) {
         return merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, merchantUser
-                            -> 1,
-                    Integer::sum))
-                    .entrySet().stream().filter(entry -> entry.getValue() > 1).map(Map.Entry::getKey).collect
-                            (Collectors.toList());
+                        -> 1,
+                Integer::sum))
+                .entrySet().stream().filter(entry -> entry.getValue() > 1).map(Map.Entry::getKey).collect
+                        (Collectors.toList());
     }
 
     private List<MerchantUser> getMerchantUsersById(List<MerchantBase> merchantBaseList) {
 
         List<Long> merchantIdList = merchantBaseList.stream().map(MerchantBase::getId).distinct().collect(Collectors.toList());
-        logger.info("通过MerchantId获取merchantUser：{}",JSON.toJSONString(merchantIdList));
+        logger.info("通过MerchantId获取merchantUser：{}", JSON.toJSONString(merchantIdList));
         List<List<Long>> merchantIdPartList = Lists.partition(merchantIdList, 50);
         List<MerchantUser> merchantUserList = Lists.newArrayList();
         for (List<Long> merchantIdParts : merchantIdPartList) {
             QueryMerchantByMerchantIdRequest queryMerchantByMerchantIdRequest = new QueryMerchantByMerchantIdRequest();
             queryMerchantByMerchantIdRequest.setMerchantId(merchantIdParts);
-            MerchantResult<List<MerchantUserResult>> listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
 
-            logger.info("商户中心返回数据：{}",JSON.toJSONString(listMerchantResult.getData()));
+
+            MerchantResult<List<MerchantUserResult>> listMerchantResult;
+
+            try{
+                listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
+                logger.info("商户中心放回数据:{}",listMerchantResult);
+            }catch (RpcException e){
+                logger.info("商户中心调用出错:{}",e.getMessage());
+                return new ArrayList<>();
+            }
+
+            logger.info("商户中心返回数据：{}", JSON.toJSONString(listMerchantResult.getData()));
 
             List<MerchantUser> merchantUserPartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantUser.class);
             merchantUserList.addAll(merchantUserPartList);
         }
 
-        logger.info("merchantUser列表数据：{}",JSON.toJSONString(merchantUserList));
+        logger.info("merchantUser列表数据：{}", JSON.toJSONString(merchantUserList));
 
         return merchantUserList;
     }
 
     private List<MerchantBase> getMerchantBasesByAppId(List<AppBizLicense> appBizLicenseList) {
         List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
-        logger.info("通过appId获取merchantBase：{}",JSON.toJSONString(appIdList));
+        logger.info("通过appId获取merchantBase：{}", JSON.toJSONString(appIdList));
 
         List<List<String>> appIdPartList = Lists.partition(appIdList, 50);
         List<MerchantBase> merchantBaseList = Lists.newArrayList();

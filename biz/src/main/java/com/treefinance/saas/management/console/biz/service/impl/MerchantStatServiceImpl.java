@@ -16,6 +16,7 @@ import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
@@ -49,10 +50,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -540,7 +538,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<Long> ids = findDuplicateElements(merchantUserList);
         logger.info("重复的merchantUser数据{}", JSON.toJSONString(ids));
 
-        Map<Long, MerchantUser> merchantUserMap = merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, m -> m));
+        Map<Long, MerchantUser> merchantUserMap = getLongMerchantUserMap(merchantUserList);
 
         Map<String, List<MerchantStatOverviewVO>> ovMap = overviewVOList.stream()
                 .filter(ov -> StringUtils.isNotBlank(ov.getAppId()))
@@ -609,6 +607,25 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return timeOverViewList;
     }
 
+    private Map<Long, MerchantUser> getLongMerchantUserMap(List<MerchantUser> merchantUserList) {
+
+        Map<Long, MerchantUser> userMap = new HashMap<>();
+
+        for(MerchantUser merchantUser:merchantUserList){
+
+
+            if(userMap.keySet().contains(merchantUser.getMerchantId())){
+                logger.info("重复的merchantId：{}",merchantUser.getMerchantId());
+                throw new BizException("重复的merchantId");
+            }
+
+            userMap.put(merchantUser.getMerchantId(),merchantUser);
+        }
+
+
+        return userMap;
+    }
+
     private List<Long> findDuplicateElements(List<MerchantUser> merchantUserList) {
         return merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, merchantUser
                             -> 1,
@@ -630,6 +647,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             List<MerchantUser> merchantUserPartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantUser.class);
             merchantUserList.addAll(merchantUserPartList);
         }
+
+        logger.info("merchantUser列表数据：{}",merchantUserList);
+
         return merchantUserList;
     }
 

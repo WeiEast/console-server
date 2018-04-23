@@ -519,85 +519,32 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Override
     public List<MerchantStatOverviewTimeVO> queryOverviewAccessList(StatRequest request) {
         Integer statType = request.getStatType();
-        MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
-        statRequest.setStartDate(this.getStartDate(request));
-        statRequest.setEndDate(this.getEndDate(request));
-        statRequest.setDataType(request.getBizType());
-        statRequest.setSaasEnv(request.getSaasEnv());
 
-        MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryAllDayAccessListNoPage(statRequest);
-        if (logger.isDebugEnabled()) {
-            logger.debug("merchantStatAccessFacade.queryDayAccessListNoPage() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
-        }
+        //获取时间的列表
+        List<String> dateList = getDateStrings(request);
+
+        //从monitor-server 获取数据
+        MerchantStatDayAccessRequest statRequest = new MerchantStatDayAccessRequest();
+        MonitorResult<List<MerchantStatDayAccessRO>> result = getListMonitorResult(request, statRequest);
         if (result == null || CollectionUtils.isEmpty(result.getData())) {
             logger.info("result of merchantStatAccessFacade.queryDayAccessListNoPage() is empty : request={}, result={}", statRequest, JSON.toJSONString(result));
             return Lists.newArrayList();
         }
-        List<String> dateList = DateUtils.getDayStrDateLists(this.getStartDate(request), this.getEndDate(request));
-        if (dateList.size() != 7) {
-            throw new IllegalArgumentException("请求参数startDate,endDate非法!");
-        }
-        List<MerchantStatOverviewVO> overviewVOList = Lists.newArrayList();
-        result.getData().forEach(ro -> {
-            MerchantStatOverviewVO vo = new MerchantStatOverviewVO();
-            vo.setAppId(ro.getAppId());
-            vo.setDateStr(DateUtils.date2Md(ro.getDataTime()));
-            vo.setDate(ro.getDataTime());
-            vo.setTotalCount(ro.getTotalCount());
-            if (statType == 1) {
-                BigDecimal successRate = BigDecimal.valueOf(ro.getSuccessCount())
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
-                vo.setRate(successRate);
-            } else if (statType == 2) {
-                BigDecimal failRate = BigDecimal.valueOf(ro.getFailCount())
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
-                vo.setRate(failRate);
-            } else {
-                BigDecimal cancelRate = BigDecimal.valueOf(ro.getCancelCount())
-                        .multiply(BigDecimal.valueOf(100))
-                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
-                vo.setRate(cancelRate);
-            }
-            overviewVOList.add(vo);
-        });
+        //将数据计算比率
+        List<MerchantStatOverviewVO> overviewVOList = getMerchantStatOverviewVOS(statType, result.getData());
+        //获取所有的appBizLicense 数据
+        List<AppBizLicense> appBizLicenseList = queryAllAppBizLicense(request);
 
+        //获取所有的appBizLicense的appId数据
+        List<MerchantBase> merchantBaseList = getMerchantBasesByAppId(appBizLicenseList);
 
-        MerchantResult<List<AppBizLicenseResult>> merchantResult;
-        QueryAppBizLicenseByBizTypeRequest queryAppBizLicenseByBizTypeRequest = new QueryAppBizLicenseByBizTypeRequest();
-        if (request.getBizType() != 0) {
-            queryAppBizLicenseByBizTypeRequest.setBizType(request.getBizType());
-            merchantResult = appBizLicenseFacade.queryAppBizLicenseByBizType(queryAppBizLicenseByBizTypeRequest);
-        } else {
-            merchantResult = appBizLicenseFacade.queryAllAppBizLicense(queryAppBizLicenseByBizTypeRequest);
-        }
+        //
+        List<MerchantUser> merchantUserList = getMerchantUsersById(merchantBaseList);
 
-        List<AppBizLicense> appBizLicenseList = DataConverterUtils.convert(merchantResult.getData(), AppBizLicense.class);
-
-        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
-        List<List<String>> appIdPartList = Lists.partition(appIdList, 50);
-        List<MerchantBase> merchantBaseList = Lists.newArrayList();
-        for (List<String> appIdParts : appIdPartList) {
-            QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
-            queryMerchantByAppIdRequest.setAppIds(appIdParts);
-            MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
-            List<MerchantBase> merchantBasePartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
-            merchantBaseList.addAll(merchantBasePartList);
-        }
-
-        List<Long> merchantIdList = merchantBaseList.stream().map(MerchantBase::getId).distinct().collect(Collectors.toList());
-        List<List<Long>> merchantIdPartList = Lists.partition(merchantIdList, 50);
-        List<MerchantUser> merchantUserList = Lists.newArrayList();
-        for (List<Long> merchantIdParts : merchantIdPartList) {
-            QueryMerchantByMerchantIdRequest queryMerchantByMerchantIdRequest = new QueryMerchantByMerchantIdRequest();
-            queryMerchantByMerchantIdRequest.setMerchantId(merchantIdParts);
-            MerchantResult<List<MerchantUserResult>> listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
-            List<MerchantUser> merchantUserPartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantUser.class);
-            merchantUserList.addAll(merchantUserPartList);
-        }
         //<merchantId,merchantUser>
+        List<Long> ids = findDuplicateElements(merchantUserList);
+        logger.info("重复的merchantUser数据{}", JSON.toJSONString(ids));
+
         Map<Long, MerchantUser> merchantUserMap = merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, m -> m));
 
         Map<String, List<MerchantStatOverviewVO>> ovMap = overviewVOList.stream()
@@ -665,6 +612,110 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 .collect(Collectors.toList());
 
         return timeOverViewList;
+    }
+
+    private List<Long> findDuplicateElements(List<MerchantUser> merchantUserList) {
+        return merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, merchantUser
+                            -> 1,
+                    Integer::sum))
+                    .entrySet().stream().filter(entry -> entry.getValue() > 1).map(Map.Entry::getKey).collect
+                            (Collectors.toList());
+    }
+
+    private List<MerchantUser> getMerchantUsersById(List<MerchantBase> merchantBaseList) {
+
+        List<Long> merchantIdList = merchantBaseList.stream().map(MerchantBase::getId).distinct().collect(Collectors.toList());
+        logger.info("通过MerchantId获取merchantUser：{}",JSON.toJSONString(merchantIdList));
+        List<List<Long>> merchantIdPartList = Lists.partition(merchantIdList, 50);
+        List<MerchantUser> merchantUserList = Lists.newArrayList();
+        for (List<Long> merchantIdParts : merchantIdPartList) {
+            QueryMerchantByMerchantIdRequest queryMerchantByMerchantIdRequest = new QueryMerchantByMerchantIdRequest();
+            queryMerchantByMerchantIdRequest.setMerchantId(merchantIdParts);
+            MerchantResult<List<MerchantUserResult>> listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
+            List<MerchantUser> merchantUserPartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantUser.class);
+            merchantUserList.addAll(merchantUserPartList);
+        }
+        return merchantUserList;
+    }
+
+    private List<MerchantBase> getMerchantBasesByAppId(List<AppBizLicense> appBizLicenseList) {
+        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
+        logger.info("通过appId获取merchantBase：{}",JSON.toJSONString(appIdList));
+
+        List<List<String>> appIdPartList = Lists.partition(appIdList, 50);
+        List<MerchantBase> merchantBaseList = Lists.newArrayList();
+        for (List<String> appIdParts : appIdPartList) {
+            QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
+            queryMerchantByAppIdRequest.setAppIds(appIdParts);
+            MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+            List<MerchantBase> merchantBasePartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
+            merchantBaseList.addAll(merchantBasePartList);
+        }
+        return merchantBaseList;
+    }
+
+    private List<AppBizLicense> queryAllAppBizLicense(StatRequest request) {
+        MerchantResult<List<AppBizLicenseResult>> merchantResult;
+        QueryAppBizLicenseByBizTypeRequest queryAppBizLicenseByBizTypeRequest = new QueryAppBizLicenseByBizTypeRequest();
+        if (request.getBizType() != 0) {
+            queryAppBizLicenseByBizTypeRequest.setBizType(request.getBizType());
+            merchantResult = appBizLicenseFacade.queryAppBizLicenseByBizType(queryAppBizLicenseByBizTypeRequest);
+        } else {
+            merchantResult = appBizLicenseFacade.queryAllAppBizLicense(queryAppBizLicenseByBizTypeRequest);
+        }
+
+        return DataConverterUtils.convert(merchantResult.getData(), AppBizLicense.class);
+    }
+
+    private List<MerchantStatOverviewVO> getMerchantStatOverviewVOS(Integer statType, List<MerchantStatDayAccessRO> result) {
+        List<MerchantStatOverviewVO> overviewVOList = Lists.newArrayList();
+        result.forEach(ro -> {
+            MerchantStatOverviewVO vo = new MerchantStatOverviewVO();
+            vo.setAppId(ro.getAppId());
+            vo.setDateStr(DateUtils.date2Md(ro.getDataTime()));
+            vo.setDate(ro.getDataTime());
+            vo.setTotalCount(ro.getTotalCount());
+            if (statType == 1) {
+                BigDecimal successRate = BigDecimal.valueOf(ro.getSuccessCount())
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
+                vo.setRate(successRate);
+            } else if (statType == 2) {
+                BigDecimal failRate = BigDecimal.valueOf(ro.getFailCount())
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
+                vo.setRate(failRate);
+            } else {
+                BigDecimal cancelRate = BigDecimal.valueOf(ro.getCancelCount())
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(BigDecimal.valueOf(ro.getTotalCount()), 2, BigDecimal.ROUND_HALF_UP);
+                vo.setRate(cancelRate);
+            }
+            overviewVOList.add(vo);
+        });
+        return overviewVOList;
+    }
+
+    private List<String> getDateStrings(StatRequest request) {
+        List<String> dateList = DateUtils.getDayStrDateLists(this.getStartDate(request), this.getEndDate(request));
+        if (dateList.size() != 7) {
+            throw new IllegalArgumentException("请求参数startDate,endDate非法!");
+        }
+        return dateList;
+    }
+
+    private MonitorResult<List<MerchantStatDayAccessRO>> getListMonitorResult(StatRequest request, MerchantStatDayAccessRequest statRequest) {
+        statRequest.setStartDate(this.getStartDate(request));
+        statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(request.getSaasEnv());
+
+        MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryAllDayAccessListNoPage(statRequest);
+        if (logger.isDebugEnabled()) {
+            logger.debug("merchantStatAccessFacade.queryDayAccessListNoPage() : statRequest={},result={}",
+                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+        }
+        return result;
     }
 
     @Override

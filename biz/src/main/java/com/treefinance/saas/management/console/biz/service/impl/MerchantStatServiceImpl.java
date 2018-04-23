@@ -587,7 +587,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             merchantBaseList.addAll(merchantBasePartList);
         }
 
-        List<Long> merchantIdList = merchantBaseList.stream().map(MerchantBase::getId).collect(Collectors.toList());
+        List<Long> merchantIdList = merchantBaseList.stream().map(MerchantBase::getId).distinct().collect(Collectors.toList());
         List<List<Long>> merchantIdPartList = Lists.partition(merchantIdList, 50);
         List<MerchantUser> merchantUserList = Lists.newArrayList();
         for (List<Long> merchantIdParts : merchantIdPartList) {

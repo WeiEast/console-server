@@ -20,8 +20,6 @@ import com.treefinance.saas.management.console.common.enumeration.EBizType4Monit
 import com.treefinance.saas.management.console.common.enumeration.ESaasEnv;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
@@ -52,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -64,18 +63,18 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
+    @Resource
     private MerchantStatAccessFacade merchantStatAccessFacade;
 
-    @Autowired
+    @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
-    @Autowired
+    @Resource
     private TaskLogMapper taskLogMapper;
-    @Autowired
+    @Resource
     private MerchantUserFacade merchantUserFacade;
-    @Autowired
+    @Resource
     private AppBizLicenseFacade appBizLicenseFacade;
-    @Autowired
+    @Resource
     private AppBizTypeFacade appBizTypeFacade;
     @Autowired
     private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;

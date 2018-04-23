@@ -644,11 +644,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             QueryMerchantByMerchantIdRequest queryMerchantByMerchantIdRequest = new QueryMerchantByMerchantIdRequest();
             queryMerchantByMerchantIdRequest.setMerchantId(merchantIdParts);
             MerchantResult<List<MerchantUserResult>> listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
+
+            logger.info("商户中心返回数据：{}",JSON.toJSONString(listMerchantResult.getData()));
+
             List<MerchantUser> merchantUserPartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantUser.class);
             merchantUserList.addAll(merchantUserPartList);
         }
 
-        logger.info("merchantUser列表数据：{}",merchantUserList);
+        logger.info("merchantUser列表数据：{}",JSON.toJSONString(merchantUserList));
 
         return merchantUserList;
     }

@@ -148,7 +148,7 @@ public class MerchantControllerTest {
     public void toggleMerchant() throws Exception {
         MerchantBaseVO merchantBase = new MerchantBaseVO();
         merchantBase.setAppId("test_6u0idX7yCWzA0JKD");
-        merchantBase.setIsActive((byte)0);
+        merchantBase.setIsActive((byte)1);
 
         this.mockMvc.perform(post(baseUrl+"/toggle/active").content(JSON.toJSONString(merchantBase)).accept(MediaType
                 .APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON));

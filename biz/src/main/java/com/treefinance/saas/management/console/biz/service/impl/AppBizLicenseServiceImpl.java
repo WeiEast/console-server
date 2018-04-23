@@ -88,6 +88,10 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             return false;
         }
 
+        if(result.isSuccess()){
+            // 发送配置变更消息
+            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
+        }
         return result.isSuccess();
     }
 

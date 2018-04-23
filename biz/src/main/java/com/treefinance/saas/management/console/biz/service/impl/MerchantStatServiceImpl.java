@@ -143,7 +143,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setAppId(request.getAppId());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
-        statRequest.setDataType(EBizType4Monitor.TOTAL.getMonitorCode());
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryDayAccessListNoPage(statRequest);
         if (logger.isDebugEnabled()) {

@@ -17,6 +17,7 @@ import com.treefinance.saas.management.console.common.domain.request.StatRequest
 import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
+import com.treefinance.saas.management.console.common.enumeration.ESaasEnv;
 import com.treefinance.saas.management.console.common.enumeration.ETaskErrorStep;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
@@ -91,7 +92,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setEndDate(this.getEndDate(request));
         statRequest.setPageNumber(request.getPageNumber());
         statRequest.setPageSize(request.getPageSize());
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryDayAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -141,7 +143,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setAppId(request.getAppId());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
-        statRequest.setDataType(EBizType4Monitor.TOTAL.getMonitorCode());
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryDayAccessListNoPage(statRequest);
         if (logger.isDebugEnabled()) {
@@ -163,7 +166,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setAppId(request.getAppId());
         statRequest.setStartDate(DateUtils.getFirstDayOfWeek(request.getStartDate()));
         statRequest.setEndDate(DateUtils.getLastDayOfWeek(request.getEndDate()));
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryDayAccessListNoPage(statRequest);
         if (logger.isDebugEnabled()) {
@@ -195,7 +199,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setAppId(request.getAppId());
         statRequest.setStartDate(DateUtils.getFirstDayOfMonth(request.getStartDate()));
         statRequest.setEndDate(DateUtils.getLastDayOfMonth(request.getEndDate()));
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
+        statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatDayAccessRO>> result = merchantStatAccessFacade.queryDayAccessListNoPage(statRequest);
         if (logger.isDebugEnabled()) {
@@ -225,10 +230,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<String, Object> wrapMap = Maps.newHashMap();
 
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
-        statRequest.setSaasEnv((byte) 0);
+        statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {
@@ -279,10 +284,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<String, Object> wrapMap = Maps.newHashMap();
 
         MerchantStatAccessRequest statRequest = new MerchantStatAccessRequest();
-        statRequest.setDataType(EBizType4Monitor.getMonitorCode(request.getBizType()));
+        statRequest.setDataType(request.getBizType());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
-        statRequest.setSaasEnv((byte) 0);
+        statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
         if (logger.isDebugEnabled()) {

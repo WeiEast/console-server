@@ -46,7 +46,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -76,9 +75,9 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     private AppBizLicenseFacade appBizLicenseFacade;
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
-    @Autowired
+    @Resource
     private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
-    @Autowired
+    @Resource
     private AppBizTypeService appBizTypeService;
 
 
@@ -650,11 +649,14 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             QueryMerchantByMerchantIdRequest queryMerchantByMerchantIdRequest = new QueryMerchantByMerchantIdRequest();
             queryMerchantByMerchantIdRequest.setMerchantId(merchantIdParts);
             MerchantResult<List<MerchantUserResult>> listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
+
+            logger.info("商户中心返回数据：{}",JSON.toJSONString(listMerchantResult.getData()));
+
             List<MerchantUser> merchantUserPartList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantUser.class);
             merchantUserList.addAll(merchantUserPartList);
         }
 
-        logger.info("merchantUser列表数据：{}",merchantUserList);
+        logger.info("merchantUser列表数据：{}",JSON.toJSONString(merchantUserList));
 
         return merchantUserList;
     }

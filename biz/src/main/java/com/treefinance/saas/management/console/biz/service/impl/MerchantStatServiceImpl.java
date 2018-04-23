@@ -45,10 +45,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,22 +61,22 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
+    @Resource
     private MerchantStatAccessFacade merchantStatAccessFacade;
 
-    @Autowired
+    @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
-    @Autowired
+    @Resource
     private TaskLogMapper taskLogMapper;
-    @Autowired
+    @Resource
     private MerchantUserFacade merchantUserFacade;
-    @Autowired
+    @Resource
     private AppBizLicenseFacade appBizLicenseFacade;
-    @Autowired
+    @Resource
     private AppBizTypeFacade appBizTypeFacade;
-    @Autowired
+    @Resource
     private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
-    @Autowired
+    @Resource
     private AppBizTypeService appBizTypeService;
 
 

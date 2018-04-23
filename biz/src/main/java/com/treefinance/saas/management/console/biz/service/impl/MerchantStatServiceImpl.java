@@ -542,7 +542,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         Map<Long, MerchantUser> merchantUserMap = merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, m -> m));
 
-
         Map<String, List<MerchantStatOverviewVO>> ovMap = overviewVOList.stream()
                 .filter(ov -> StringUtils.isNotBlank(ov.getAppId()))
                 .collect(Collectors.groupingBy(MerchantStatOverviewVO::getAppId));

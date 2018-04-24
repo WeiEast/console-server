@@ -92,7 +92,16 @@ public class MerchantStatControllerTest {
     }
 
     @Test
-    public void getOverview() {
+    public void getOverview() throws Exception {
+
+
+        this.mockMvc.perform(get(baseUrl + "/stataccess/all/overview?"+"bizType=0&startDate=2018-04-17&endDate=2018" +
+                "-04-23" +
+                "&statType=1&intervalMins=10&pageNumber=1&pageSize=7&saasEnv=0").contentType
+                (MediaType
+                        .APPLICATION_JSON).accept
+                (MediaType
+                        .APPLICATION_JSON));
     }
 
     @Test

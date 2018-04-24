@@ -8,6 +8,10 @@ import java.io.Serializable;
  */
 public class BasicDataVO implements Serializable {
     /**
+     * id
+     */
+    private Long id;
+    /**
      * 基础数据编码
      */
     private String dataCode;
@@ -34,6 +38,13 @@ public class BasicDataVO implements Serializable {
      */
     private String dataSourceConfigJson;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getDataCode() {
         return dataCode;
@@ -71,7 +82,21 @@ public class BasicDataVO implements Serializable {
         return dataSourceConfigJson;
     }
 
+    @Override
+    public String toString() {
+        return "BasicDataVO{" +
+                "id='" + id + '\'' +
+                ", dataCode='" + dataCode + '\'' +
+                ", dataName='" + dataName + '\'' +
+                ", dataJson='" + dataJson + '\'' +
+                ", dataSource=" + dataSource +
+                ", dataSourceConfigJson='" + dataSourceConfigJson + '\'' +
+                '}';
+    }
+
     public void setDataSourceConfigJson(String dataSourceConfigJson) {
         this.dataSourceConfigJson = dataSourceConfigJson;
+
+
     }
 }

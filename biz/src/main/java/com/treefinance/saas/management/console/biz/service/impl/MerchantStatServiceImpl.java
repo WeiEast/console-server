@@ -39,6 +39,7 @@ import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequ
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
+import com.treefinance.saas.monitor.facade.domain.ro.stat.BaseStatRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.SaasErrorStepDayStatRO;
@@ -178,16 +179,20 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         result.getData().forEach(ro -> {
             String timeStr = DateUtils.getWeekStrOfYear(ro.getDataTime());
             List<MerchantStatDayAccessRO> timeValueList = timeMap.get(timeStr);
-            if (CollectionUtils.isEmpty(timeValueList)) {
-                timeValueList = Lists.newArrayList();
-                timeValueList.add(ro);
-                timeMap.put(timeStr, timeValueList);
-            } else {
-                timeValueList.add(ro);
-            }
+            timeValueListAddElement(timeMap, ro, timeStr, timeValueList);
         });
         return wrapDataPageResult(request, timeMap);
 
+    }
+
+    private void timeValueListAddElement(Map<String, List<MerchantStatDayAccessRO>> timeMap, MerchantStatDayAccessRO ro, String timeStr, List<MerchantStatDayAccessRO> timeValueList) {
+        if (CollectionUtils.isEmpty(timeValueList)) {
+            timeValueList = Lists.newArrayList();
+            timeValueList.add(ro);
+            timeMap.put(timeStr, timeValueList);
+        } else {
+            timeValueList.add(ro);
+        }
     }
 
 
@@ -212,13 +217,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         result.getData().forEach(ro -> {
             String timeStr = DateUtils.date2SimpleYm(ro.getDataTime());
             List<MerchantStatDayAccessRO> timeValueList = timeMap.get(timeStr);
-            if (CollectionUtils.isEmpty(timeValueList)) {
-                timeValueList = Lists.newArrayList();
-                timeValueList.add(ro);
-                timeMap.put(timeStr, timeValueList);
-            } else {
-                timeValueList.add(ro);
-            }
+
+            timeValueListAddElement(timeMap, ro, timeStr, timeValueList);
         });
         return wrapDataPageResult(request, timeMap);
     }
@@ -256,13 +256,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<String, Map<Date, Integer>> dataMap = Maps.newHashMap();
         roList.forEach(ro -> {
             Map<Date, Integer> valueMap = dataMap.get(ro.getAppId());
-            if (valueMap == null || valueMap.isEmpty()) {
-                valueMap = Maps.newHashMap();
-                valueMap.put(ro.getDataTime(), ro.getTotalCount());
-                dataMap.put(ro.getAppId(), valueMap);
-            } else {
-                valueMap.put(ro.getDataTime(), ro.getTotalCount());
-            }
+            initMapAndPutData(dataMap, ro, valueMap);
         });
         //填充缺少的时间点的totalCount为0
         this.fillDataTime(dataMap, dataTimeList);
@@ -275,6 +269,16 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<String, List<ChartStatVO>> valuesMap = this.countTotalTask(appNameMap);
         wrapMap.put("values", valuesMap);
         return wrapMap;
+    }
+
+    private void initMapAndPutData(Map<String, Map<Date, Integer>> dataMap, MerchantStatAccessRO ro, Map<Date, Integer> valueMap) {
+        if (valueMap == null || valueMap.isEmpty()) {
+            valueMap = Maps.newHashMap();
+            valueMap.put(ro.getDataTime(), ro.getTotalCount());
+            dataMap.put(ro.getAppId(), valueMap);
+        } else {
+            valueMap.put(ro.getDataTime(), ro.getTotalCount());
+        }
     }
 
     @Override
@@ -309,7 +313,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         }
         Map<String, Integer> appNameDataMap = this.changeKey2AppName4Pie(dataMap);
         List<Integer> totalCountList = Lists.newArrayList(appNameDataMap.values());
-        int allTotalCount = totalCountList.stream().reduce(0, (sum, e) -> sum + e);//所有商户此段时间内的总任务量
+        //所有商户此段时间内的总任务量
+        int allTotalCount = totalCountList.stream().reduce(0, (sum, e) -> sum + e);
         List<PieChartStatRateVO> valueList = Lists.newArrayList();
         for (Map.Entry<String, Integer> entry : appNameDataMap.entrySet()) {
             BigDecimal value = BigDecimal.valueOf(entry.getValue())
@@ -355,35 +360,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Map<Date, Integer> valueFailMap = Maps.newHashMap();
         Map<Date, Integer> valueCancelMap = Maps.newHashMap();
 
-        roList.forEach(ro -> {
-            if (valueTotalMap.get(ro.getDataTime()) == null) {
-                valueTotalMap.put(ro.getDataTime(), ro.getTotalCount());
-            } else {
-                Integer newValue = valueTotalMap.get(ro.getDataTime()) + ro.getTotalCount();
-                valueTotalMap.put(ro.getDataTime(), newValue);
-            }
-
-            if (valueSuccessMap.get(ro.getDataTime()) == null) {
-                valueSuccessMap.put(ro.getDataTime(), ro.getSuccessCount());
-            } else {
-                Integer newValue = valueSuccessMap.get(ro.getDataTime()) + ro.getSuccessCount();
-                valueSuccessMap.put(ro.getDataTime(), newValue);
-            }
-
-            if (valueFailMap.get(ro.getDataTime()) == null) {
-                valueFailMap.put(ro.getDataTime(), ro.getFailCount());
-            } else {
-                Integer newValue = valueFailMap.get(ro.getDataTime()) + ro.getFailCount();
-                valueFailMap.put(ro.getDataTime(), newValue);
-            }
-
-            if (valueCancelMap.get(ro.getDataTime()) == null) {
-                valueCancelMap.put(ro.getDataTime(), ro.getCancelCount());
-            } else {
-                Integer newValue = valueCancelMap.get(ro.getDataTime()) + ro.getCancelCount();
-                valueCancelMap.put(ro.getDataTime(), newValue);
-            }
-        });
+        putDataIntoValueMap(roList, valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
 
         dataMap.put("总数", valueTotalMap);
         dataMap.put("成功数", valueSuccessMap);
@@ -396,9 +373,10 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return wrapMap;
     }
 
+
     private List<MerchantStatAccessRO> changeIntervalDataTime(List<MerchantStatAccessRO> list, final Integer intervalMins) {
         List<MerchantStatAccessRO> resultList = Lists.newArrayList();
-        Map<String, List<MerchantStatAccessRO>> appIdROMap = list.stream().collect(Collectors.groupingBy(ro -> ro.getAppId()));
+        Map<String, List<MerchantStatAccessRO>> appIdROMap = list.stream().collect(Collectors.groupingBy(BaseStatRO::getAppId));
         for (Map.Entry<String, List<MerchantStatAccessRO>> appIdROEntry : appIdROMap.entrySet()) {
             if (CollectionUtils.isEmpty(appIdROEntry.getValue())) {
                 continue;
@@ -440,7 +418,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 vo.setDataValue(entry.getValue());
                 voList.add(vo);
             }
-            voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            voList = voList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(voList)) {
                 voList.remove(voList.size() - 1);
             }
@@ -471,12 +449,27 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         List<MerchantStatAccessRO> roList = changeIntervalDataTime(result.getData(), request.getIntervalMins());
 
         //<key,<data,keyRate>>
-        Map<String, Map<Date, BigDecimal>> dataMap = Maps.newLinkedHashMap();
+        Map<String, Map<Date, BigDecimal>> dataMap;
+        //<dataTime,totalCount>
         Map<Date, Integer> valueTotalMap = Maps.newHashMap();
+        //<dataTime,succCount>
         Map<Date, Integer> valueSuccessMap = Maps.newHashMap();
+        //<dataTime,failCount>
         Map<Date, Integer> valueFailMap = Maps.newHashMap();
+        //<dataTime,cancelCount>
         Map<Date, Integer> valueCancelMap = Maps.newHashMap();
 
+        putDataIntoValueMap(roList, valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
+
+        dataMap = this.countRateTask(valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
+        List<String> keysList = Lists.newArrayList(dataMap.keySet());
+        wrapMap.put("keys", keysList);
+        Map<String, List<ChartStatRateVO>> valuesMap = this.wrapRateTaskChart(dataMap);
+        wrapMap.put("values", valuesMap);
+        return wrapMap;
+    }
+
+    private void putDataIntoValueMap(List<MerchantStatAccessRO> roList, Map<Date, Integer> valueTotalMap, Map<Date, Integer> valueSuccessMap, Map<Date, Integer> valueFailMap, Map<Date, Integer> valueCancelMap) {
         roList.forEach(ro -> {
             if (valueTotalMap.get(ro.getDataTime()) == null) {
                 valueTotalMap.put(ro.getDataTime(), ro.getTotalCount());
@@ -506,13 +499,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 valueCancelMap.put(ro.getDataTime(), newValue);
             }
         });
-
-        dataMap = this.countRateTask(valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
-        List<String> keysList = Lists.newArrayList(dataMap.keySet());
-        wrapMap.put("keys", keysList);
-        Map<String, List<ChartStatRateVO>> valuesMap = this.wrapRateTaskChart(dataMap);
-        wrapMap.put("values", valuesMap);
-        return wrapMap;
     }
 
     @Override
@@ -615,21 +601,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
     private Map<Long, MerchantUser> getLongMerchantUserMap(List<MerchantUser> merchantUserList) {
 
-        Map<Long, MerchantUser> userMap = new HashMap<>();
-
-        for (MerchantUser merchantUser : merchantUserList) {
-
-
-            if (userMap.keySet().contains(merchantUser.getMerchantId())) {
-                logger.info("重复的merchantId：{}", merchantUser.getMerchantId());
-                throw new BizException("重复的merchantId");
-            }
-
-            userMap.put(merchantUser.getMerchantId(), merchantUser);
-        }
-
-
-        return userMap;
+        return merchantUserList.stream().collect(Collectors.toMap(MerchantUser::getMerchantId, m -> m));
     }
 
     private List<Long> findDuplicateElements(List<MerchantUser> merchantUserList) {
@@ -980,7 +952,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 vo.setDataValue(entry.getValue());
                 voList.add(vo);
             }
-            voList = voList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            voList = voList.stream().sorted(Comparator.comparing(ChartStatRateVO::getDataTime)).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(voList)) {
                 voList.remove(voList.size() - 1);
             }
@@ -1058,9 +1030,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         for (Map.Entry<String, Map<Date, Integer>> entry : dataMap.entrySet()) {
             Map<Date, Integer> valueMap = entry.getValue();
             for (Date date : dataTimeList) {
-                if (valueMap.get(date) == null) {
-                    valueMap.put(date, 0);
-                }
+                valueMap.putIfAbsent(date, 0);
             }
         }
 

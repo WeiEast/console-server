@@ -143,6 +143,10 @@ public class MerchantControllerTest {
     public void resetKey() throws Exception {
         this.mockMvc.perform(get(baseUrl+"/reset/key/44026148916563977").accept(MediaType.APPLICATION_JSON));
     }
+    @Test
+    public void queryAllEcommerceMonitor() throws Exception {
+        this.mockMvc.perform(get(baseUrl+"/stat/merchant/list?bizType=3").accept(MediaType.APPLICATION_JSON));
+    }
 
     @Test
     public void toggleMerchant() throws Exception {

@@ -61,7 +61,7 @@ public class EcommerceMonitorDaoImpl implements EcommerceMonitorDao {
         }
 
         if(rpcResult.isSuccess()){
-            List<MerchantBaseResult> list = new ArrayList<>();
+            List<MerchantBaseResult> list = rpcResult.getData();
             return DataConverterUtils.convert(list,MerchantBase.class);
         }
         logger.error("请求商户中心，根据业务类型获取商户列表失败，{}",rpcResult.getRetMsg());

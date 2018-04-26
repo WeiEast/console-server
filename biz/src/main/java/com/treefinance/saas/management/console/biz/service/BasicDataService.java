@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
 import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
 import com.treefinance.saas.monitor.facade.domain.ro.BasicDataRO;
 import com.treefinance.saas.monitor.facade.service.BasicDataFacade;
@@ -22,5 +23,7 @@ public interface BasicDataService {
     Result<Boolean> updateBasciData(BasicDataVO basicDataVO);
 
 
+    Result<List<String>> querydataName(BaseRequest baseRequest);
 
+    Result<String> getdataNameById(BasicDataVO basicDataVO);
 }

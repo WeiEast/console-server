@@ -54,6 +54,10 @@
                      interface="com.treefinance.saas.monitor.facade.service.BasicDataFacade"
                      version="1.0.0"/>
 
+    <dubbo:reference id="templateStatFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.TemplateStatFacade"
+                     version="1.0.0"/>
+
 
 
     <dubbo:reference id="dataApiRawResultFacade"

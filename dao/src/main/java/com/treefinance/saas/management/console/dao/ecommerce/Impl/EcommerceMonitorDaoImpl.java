@@ -3,16 +3,8 @@ package com.treefinance.saas.management.console.dao.ecommerce.Impl;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.ecommerce.EcommerceMonitorDao;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseByBizTypeRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByBizTypeRequest;
-import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.AppBizLicenseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
@@ -22,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.plaf.basic.BasicIconFactory;
 import java.util.ArrayList;
 import java.util.List;
 

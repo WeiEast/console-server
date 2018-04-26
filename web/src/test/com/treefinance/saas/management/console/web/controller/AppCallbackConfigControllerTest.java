@@ -3,6 +3,8 @@ package com.treefinance.saas.management.console.web.controller;
 import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
+import com.treefinance.saas.management.console.common.domain.vo.DataTypeVO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,12 +47,12 @@ public class AppCallbackConfigControllerTest {
 
     @Test
     public void getAppCallbackConfigList() throws Exception {
-        this.mockMvc.perform(get(baseUrl+"/get/17").accept(MediaType.APPLICATION_JSON));
+        this.mockMvc.perform(get(baseUrl+"/get/120").accept(MediaType.APPLICATION_JSON));
     }
 
     @Test
     public void getConfigById() throws Exception {
-        this.mockMvc.perform(get(baseUrl+"/list").accept(MediaType.APPLICATION_JSON));
+        this.mockMvc.perform(get(baseUrl+"/list?pageSize=7").accept(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -86,14 +88,15 @@ public class AppCallbackConfigControllerTest {
     public void updateConfig() throws Exception {
         AppCallbackConfigVO appCallbackConfigVO = new AppCallbackConfigVO();
         appCallbackConfigVO.setUrl("https://www.baidu.com");
-        appCallbackConfigVO.setAppId("test_EasyToWin111");
+        appCallbackConfigVO.setId(120);
+        appCallbackConfigVO.setAppId("test_P7gNtF0WB0m38znV");
         appCallbackConfigVO.setAppName("么么哒");
         appCallbackConfigVO.setIsNewKey((byte)1);
         appCallbackConfigVO.setIsNotifyCancel((byte)1);
         appCallbackConfigVO.setIsNotifyFailure((byte)1);
         appCallbackConfigVO.setIsNotifySuccess((byte)1);
         appCallbackConfigVO.setNotifyModel((byte)1);
-        appCallbackConfigVO.setIsNewKey((byte)1);
+        appCallbackConfigVO.setIsNewKey((byte)0);
         appCallbackConfigVO.setReceiver("aasdasdasdasdasdas");
         appCallbackConfigVO.setUrl("https://www.baidu.com");
 
@@ -105,6 +108,10 @@ public class AppCallbackConfigControllerTest {
 
         appCallbackConfigVO.setBizTypes(bizTypes);
 
+        AppCallbackDataTypeVO dataTypeVO = new AppCallbackDataTypeVO();
+        dataTypeVO.setCode((byte)1);
+
+        appCallbackConfigVO.setDataTypeVO(dataTypeVO);
         this.mockMvc.perform(post(baseUrl+"/update").content(JSON.toJSONString(appCallbackConfigVO)).contentType
                 (MediaType
                 .APPLICATION_JSON).accept

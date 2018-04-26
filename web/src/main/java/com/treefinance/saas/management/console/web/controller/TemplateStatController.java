@@ -4,7 +4,6 @@ import com.treefinance.saas.management.console.biz.service.TemplateStatService;
 import com.treefinance.saas.management.console.common.domain.request.TemplateStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TemplateStatVO;
 import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

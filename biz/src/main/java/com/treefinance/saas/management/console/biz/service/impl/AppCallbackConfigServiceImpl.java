@@ -194,20 +194,37 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
     @Override
     public void update(AppCallbackConfigVO appCallbackConfigVO) {
-        logger.info("更新回调配置，{}", appCallbackConfigVO);
+        logger.info("更新回调配置，{}", JSON.toJSONString(appCallbackConfigVO));
         UpdateCallbackConfigRequest request = new UpdateCallbackConfigRequest();
 
         BeanUtils.copyProperties(appCallbackConfigVO, request);
 
-        List<AddAppCallbackBizRequest> list = new ArrayList<>();
 
-        for (AppCallbackBizVO vo : appCallbackConfigVO.getBizTypes()) {
-            AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
+        List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
 
-            BeanUtils.copyProperties(vo, callbackBizRequest);
-            list.add(callbackBizRequest);
+        if (bizVOList != null && !bizVOList.isEmpty()) {
+            List<AddAppCallbackBizRequest> list = new ArrayList<>();
+            for (AppCallbackBizVO vo : bizVOList) {
+                AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
+                BeanUtils.copyProperties(vo, callbackBizRequest);
+                list.add(callbackBizRequest);
+            }
+            request.setBizTypes(list);
+
         }
-        request.setBizTypes(list);
+
+
+        AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
+
+        if (dataTypeVO != null) {
+            AppCallbackDataTypeRequest dataType = new AppCallbackDataTypeRequest();
+            dataType.setCode(dataTypeVO.getCode());
+            dataType.setText(dataTypeVO.getText());
+
+            request.setDataTypeVO(dataType);
+        }
+
+
         MerchantResult<BaseResult> result;
         try {
             result = appCallbackConfigFacade.updateAppCallbackConfig(request);

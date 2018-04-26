@@ -172,15 +172,17 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         AddAppCallbackConfigRequest request = new AddAppCallbackConfigRequest();
         BeanUtils.copyProperties(appCallbackConfigVO, request);
 
-        List<AddAppCallbackBizRequest> list = new ArrayList<>();
 
-        for (AppCallbackBizVO vo : appCallbackConfigVO.getBizTypes()) {
-            AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
-
-            BeanUtils.copyProperties(vo, callbackBizRequest);
-            list.add(callbackBizRequest);
-        }
+        List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
+        List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
         request.setBizTypes(list);
+
+
+        AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
+        AppCallbackDataTypeRequest dataType = getAppCallbackDataTypeRequest(dataTypeVO);
+        request.setDataTypeVO(dataType);
+
+
 
         MerchantResult<AddAppCallbackConfigResult> result = appCallbackConfigFacade.addAppCallbackConfig(request);
 
@@ -201,29 +203,14 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
 
         List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
-
-        if (bizVOList != null && !bizVOList.isEmpty()) {
-            List<AddAppCallbackBizRequest> list = new ArrayList<>();
-            for (AppCallbackBizVO vo : bizVOList) {
-                AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
-                BeanUtils.copyProperties(vo, callbackBizRequest);
-                list.add(callbackBizRequest);
-            }
-            request.setBizTypes(list);
-
-        }
+        List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
+        request.setBizTypes(list);
 
 
         AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
 
-        if (dataTypeVO != null) {
-            AppCallbackDataTypeRequest dataType = new AppCallbackDataTypeRequest();
-            dataType.setCode(dataTypeVO.getCode());
-            dataType.setText(dataTypeVO.getText());
-
-            request.setDataTypeVO(dataType);
-        }
-
+        AppCallbackDataTypeRequest dataType = getAppCallbackDataTypeRequest(dataTypeVO);
+        request.setDataTypeVO(dataType);
 
         MerchantResult<BaseResult> result;
         try {
@@ -239,6 +226,27 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         }
 
         variableMessageNotifyService.sendVariableMessage("merchant-callback", "update", appCallbackConfigVO.getAppId());
+    }
+
+    private AppCallbackDataTypeRequest getAppCallbackDataTypeRequest(AppCallbackDataTypeVO dataTypeVO) {
+        AppCallbackDataTypeRequest dataType = new AppCallbackDataTypeRequest();
+        if (dataTypeVO != null) {
+            dataType.setCode(dataTypeVO.getCode());
+            dataType.setText(dataTypeVO.getText());
+        }
+        return dataType;
+    }
+
+    private List<AddAppCallbackBizRequest> getAddAppCallbackBizRequests(List<AppCallbackBizVO> bizVOList) {
+        List<AddAppCallbackBizRequest> list = new ArrayList<>();
+        if (bizVOList != null && !bizVOList.isEmpty()) {
+            for (AppCallbackBizVO vo : bizVOList) {
+                AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
+                BeanUtils.copyProperties(vo, callbackBizRequest);
+                list.add(callbackBizRequest);
+            }
+        }
+        return list;
     }
 
     @Override

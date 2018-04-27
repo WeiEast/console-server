@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author:guoguoyun
@@ -30,10 +31,10 @@ public class GroupStatServiceImpl implements GroupStatService{
     GroupStatFacade groupStatFacade;
 
     @Override
-    public Result<List<StatGroupVO>> queryStatGroupByTemplateId(Long templateId) {
+    public Result<List<StatGroupVO>> queryStatGroup(StatGroupVO statGroupVO ) {
         GroupStatRequest groupStatRequest =  new GroupStatRequest();
-        groupStatRequest.setTemplateId(templateId);
-        MonitorResult<List<StatGroupRO>> monitorResult =  groupStatFacade.queryStatGroupByTemplateId(groupStatRequest);
+        groupStatRequest.setTemplateId(statGroupVO.getTemplateId());
+        MonitorResult<List<StatGroupRO>> monitorResult =  groupStatFacade.queryStatGroup(groupStatRequest);
         if(monitorResult.getData()==null)
         {
             logger.info("找不到相关数据");
@@ -60,9 +61,9 @@ public class GroupStatServiceImpl implements GroupStatService{
     }
 
     @Override
-    public Result<List<Integer>> queryAllgroupIndex() {
+    public Result<Set<Integer>> queryAllgroupIndex() {
         BaseRequest baseRequest =  new BaseRequest();
-        MonitorResult<List<Integer>> monitorResult =  groupStatFacade.queryAllGroupIndex(baseRequest);
+        MonitorResult<Set<Integer>> monitorResult =  groupStatFacade.queryAllGroupIndex(baseRequest);
         if(monitorResult.getData()==null)
         {
             logger.info("找不到相关数据");

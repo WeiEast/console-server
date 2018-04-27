@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author:guoguoyun
@@ -27,15 +28,15 @@ public class GroupStatController {
     GroupStatService groupStatService;
 
 
-    @RequestMapping(value = "queryByTemplateId", method = RequestMethod.POST)
+    @RequestMapping(value = "query", method = RequestMethod.POST)
     public Result<List<StatGroupVO>> queryStatGroupByTemplateId(@RequestBody StatGroupVO statGroupVO) {
         if(statGroupVO.getTemplateId()==null)
         {
-            logger.error("统计分组根据模板ID查询，传入的ID为空");
+            logger.error("统计分组列表查询，传入的参数为空");
             throw new IllegalArgumentException("请求参数不合法");
         }
-        logger.info("统计分组根据模板ID查询，传入的ID为{}",statGroupVO.getTemplateId());
-        return groupStatService.queryStatGroupByTemplateId(statGroupVO.getTemplateId());
+        logger.info("统计分组列表查询，传入的参数为{}",statGroupVO.toString());
+        return groupStatService.queryStatGroup(statGroupVO);
 
 
     }
@@ -55,7 +56,7 @@ public class GroupStatController {
     }
 
     @RequestMapping(value = "queryAllgroupIndex", method = RequestMethod.GET)
-    public Result<List<Integer>> queryAllgroupIndex(BaseRequest baseRequest) {
+    public Result<Set<Integer>> queryAllgroupIndex(BaseRequest baseRequest) {
 
         logger.info("查询所有统计分组序号",baseRequest.toString());
         return groupStatService.queryAllgroupIndex();

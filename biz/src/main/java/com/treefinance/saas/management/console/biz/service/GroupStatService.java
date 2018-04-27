@@ -4,15 +4,16 @@ import com.treefinance.saas.management.console.common.domain.vo.StatGroupVO;
 import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author:guoguoyun
  * @date:Created in 2018/4/27上午11:08
  */
 public interface GroupStatService {
-    Result<List<StatGroupVO>> queryStatGroupByTemplateId(Long templateId);
+    Result<List<StatGroupVO>> queryStatGroup(StatGroupVO statGroupVO);
 
     Result<Boolean> addOrUpdateStatGroup(StatGroupVO statGroupVO);
 
-    Result<List<Integer>> queryAllgroupIndex();
+    Result<Set<Integer>> queryAllgroupIndex();
 }

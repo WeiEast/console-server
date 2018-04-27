@@ -5,6 +5,7 @@ import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
 import com.treefinance.saas.monitor.facade.domain.request.BasicDataRequest;
@@ -13,7 +14,6 @@ import com.treefinance.saas.monitor.facade.domain.ro.BasicDataRO;
 import com.treefinance.saas.monitor.facade.service.BasicDataFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -44,10 +44,11 @@ public class BasicDataServiceImpl implements BasicDataService {
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
 
         }
+        List<BasicDataVO>  basicDataVOList = BeanUtils.convertList(monitorResult.getData(),BasicDataVO.class);
         com.treefinance.saas.management.console.common.result.PageRequest pageRequests = new com.treefinance.saas.management.console.common.result.PageRequest();
         BeanUtils.copyProperties(pageRequest, pageRequests);
 
-        return Results.newSuccessPageResult(pageRequests, monitorResult.getTotalCount(), monitorResult.getData());
+        return Results.newSuccessPageResult(pageRequests, monitorResult.getTotalCount(), basicDataVOList);
 
 
     }

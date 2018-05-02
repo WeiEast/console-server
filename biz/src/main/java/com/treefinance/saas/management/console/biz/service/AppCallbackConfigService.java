@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ public interface AppCallbackConfigService {
      * @param request
      * @return
      */
-    Result<Map<String, Object>> getList(PageRequest request);
+    SaasResult<Map<String, Object>> getList(PageRequest request);
 
     /**
      * 根据id查询app_callback_config

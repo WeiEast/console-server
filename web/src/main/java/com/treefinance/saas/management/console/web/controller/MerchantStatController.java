@@ -2,13 +2,13 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.MerchantStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatDayRequest;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantStatOverviewTimeVO;
 import com.treefinance.saas.management.console.common.domain.vo.SourceTypeVO;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,17 +47,17 @@ public class MerchantStatController {
     }
 
     @RequestMapping(value = "/stataccess/all", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, Object>> getAll(StatRequest request) {
+    public SaasResult<Map<String, Object>> getAll(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryAllAccessList(request));
     }
 
     @RequestMapping(value = "/stataccess/all/pie", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, Object>> getAllPie(StatRequest request) {
+    public SaasResult<Map<String, Object>> getAllPie(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryAllAccessList4Pie(request));
     }
 
     @RequestMapping(value = "/stataccess/number", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, Object>> getNumber(StatRequest request) {
+    public SaasResult<Map<String, Object>> getNumber(StatRequest request) {
         logger.info("输入参数:request={}", JSON.toJSONString(request));
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -80,7 +80,7 @@ public class MerchantStatController {
     }
 
     @RequestMapping(value = "/stataccess/rate", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, Object>> getRate(StatRequest request) {
+    public SaasResult<Map<String, Object>> getRate(StatRequest request) {
         logger.info("输入参数:request={}", JSON.toJSONString(request));
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -103,7 +103,7 @@ public class MerchantStatController {
     }
 
     @RequestMapping(value = "/stataccess/all/overview", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<List<MerchantStatOverviewTimeVO>> getOverview(StatRequest request) {
+    public SaasResult<List<MerchantStatOverviewTimeVO>> getOverview(StatRequest request) {
         logger.info("输入参数:request={}", JSON.toJSONString(request));
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -141,12 +141,12 @@ public class MerchantStatController {
     }
 
     @RequestMapping(value = "/stataccess/taskstep/fail", method = RequestMethod.GET, produces = "application/json")
-    public Result<Map<String, Object>> getTaskStepFailInfo(StatRequest request) {
+    public SaasResult<Map<String, Object>> getTaskStepFailInfo(StatRequest request) {
         return Results.newSuccessResult(merchantStatService.queryTaskStepStatInfo(request));
     }
 
     @RequestMapping(value = "/source/list", method = RequestMethod.GET, produces = "application/json")
-    public Result<Object> getSourceTypeList() {
+    public SaasResult<Object> getSourceTypeList() {
         List<SourceTypeVO> list = Lists.newArrayList();
         SourceTypeVO sourceTypeVO1 = new SourceTypeVO();
         sourceTypeVO1.setId(0L);

@@ -1,13 +1,12 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.dataservice.dataserver.dataapiconfig.facade.DataApiConfigFacade;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.DataApiConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.DataTypeVO;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,7 @@ public class DataApiConfigServiceImpl implements DataApiConfigService {
     private DataApiConfigFacade dataApiConfigFacade;
 
     @Override
-    public Result<List<DataTypeVO>> getDsApiConfigType() {
+    public SaasResult<List<DataTypeVO>> getDsApiConfigType() {
         Map<String, String> resultMap = dataApiConfigFacade.getDataApiConfigType();
         List<DataTypeVO> voList = Lists.newArrayList();
         resultMap.forEach((k, v) -> {
@@ -35,7 +34,7 @@ public class DataApiConfigServiceImpl implements DataApiConfigService {
     }
 
     @Override
-    public Result<List<JSONObject>> getDsAppid(String dataApiNameType) {
+    public SaasResult<List<JSONObject>> getDsAppid(String dataApiNameType) {
         List<String> resultList = dataApiConfigFacade.getAppIdByNameAndType(dataApiNameType);
         List<JSONObject> jsonObjectList = resultList.stream()
                 .map(r -> {

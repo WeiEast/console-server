@@ -15,6 +15,7 @@ public class MerchantFlowConfigVO implements Serializable {
     private String appName;
     private String serviceTag;//关联服务
     private String serviceTagName;//关联服务名称
+    private Integer routeWeight;//请求路由权重
 
     public Long getId() {
         return id;
@@ -46,5 +47,13 @@ public class MerchantFlowConfigVO implements Serializable {
 
     public void setServiceTagName(String serviceTagName) {
         this.serviceTagName = serviceTagName;
+    }
+
+    public Integer getRouteWeight() {
+        return routeWeight;
+    }
+
+    public void setRouteWeight(Integer routeWeight) {
+        this.routeWeight = routeWeight;
     }
 }

@@ -3,6 +3,7 @@ package com.treefinance.saas.management.console.common.utils;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.exceptions.RequestFailedException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
@@ -303,6 +304,51 @@ public class HttpClientUtils {
      * @param params
      * @return
      */
+    public static HttpResponseResult doGetResult(String url, Map<String, Object> params) {
+        long start = System.currentTimeMillis();
+
+        List<String> paramList = Lists.newArrayList();
+        for (String key : params.keySet()) {
+            paramList.add(key + "=" + params.get(key));
+        }
+        String apiUrl = url + (url.contains("?") ? "&" : "?") + Joiner.on("&").join(paramList);
+        HttpResponseResult result = new HttpResponseResult();
+        String resultBody = null;
+        CloseableHttpClient httpclient = getClient();
+        CloseableHttpResponse response = null;
+        int statusCode = 0;
+        try {
+            HttpGet httpGet = new HttpGet(apiUrl);
+            httpGet.setConfig(getBaseConfig());
+            response = httpclient.execute(httpGet);
+            statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                resultBody = IOUtils.toString(instream, "UTF-8");
+            }
+            result.setResponseBody(resultBody);
+            result.setStatusCode(statusCode);
+        } catch (IOException e) {
+            throw new RequestFailedException(apiUrl, statusCode, resultBody, e);
+        } finally {
+            if (logger.isInfoEnabled()) {
+                logger.info(" doGet completed: url={}, params={}, statusCode={} , result={} , cost {} ms ",
+                        url, JSON.toJSONString(params), statusCode, result, (System.currentTimeMillis() - start));
+            }
+            closeResponse(response);
+        }
+        return result;
+    }
+
+
+    /**
+     * 发送 GET 请求（HTTP），K-V形式
+     *
+     * @param url
+     * @param params
+     * @return
+     */
     public static String doGetWithTimoutAndRetryTimes(String url, Byte timeOut, Byte retryTimes, Map<String, Object> params) {
         long start = System.currentTimeMillis();
 
@@ -551,6 +597,50 @@ public class HttpClientUtils {
             closeResponse(response);
         }
         return httpStr;
+    }
+
+
+    /**
+     * 发送 POST 请求（HTTP），JSON形式
+     *
+     * @param url
+     * @param json json对象
+     * @return
+     */
+    public static HttpResponseResult doPostResult(String url, Object json) {
+        long start = System.currentTimeMillis();
+        CloseableHttpClient httpClient = getClient();
+        HttpResponseResult result = new HttpResponseResult();
+        String httpStr = null;
+        HttpPost httpPost = new HttpPost(url);
+        CloseableHttpResponse response = null;
+
+        int statusCode = 0;
+        try {
+            httpPost.setConfig(getBaseConfig());
+            StringEntity stringEntity = new StringEntity(json.toString(), ContentType.APPLICATION_JSON);//解决中文乱码问题
+            stringEntity.setContentEncoding("UTF-8");
+            stringEntity.setContentType("application/json");
+            httpPost.setEntity(stringEntity);
+            response = httpClient.execute(httpPost);
+
+            statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                httpStr = EntityUtils.toString(entity, "UTF-8");
+            }
+            result.setStatusCode(statusCode);
+            result.setResponseBody(httpStr);
+        } catch (IOException e) {
+            throw new RequestFailedException(url, statusCode, null, e);
+        } finally {
+            if (logger.isInfoEnabled()) {
+                logger.info(" doPost completed: url={}, json={}, statusCode={} ,result={}, cost {} ms ",
+                        url, JSON.toJSONString(json), statusCode, httpStr, (System.currentTimeMillis() - start));
+            }
+            closeResponse(response);
+        }
+        return result;
     }
 
     /**

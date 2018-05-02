@@ -7,9 +7,11 @@ import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.OssDataService;
+import com.treefinance.saas.management.console.common.domain.ConsoleStateCode;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.request.OssDataRequest;
@@ -18,15 +20,25 @@ import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryAppCallBackConfigByIdRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByAppName;
+import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
+import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackConfigResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseInfoResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.result.grapsever.AppCallbackResult;
+import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.omg.PortableInterceptor.INACTIVE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +49,13 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.alibaba.fastjson.serializer.SerializerFeature.PrettyFormat;
+import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValue;
 
 /**
  * Created by haojiahong on 2017/11/21.
@@ -52,7 +68,7 @@ public class OssDataServiceImpl implements OssDataService {
     @Autowired
     private ISecurityCryptoService iSecurityCryptoService;
     @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
     private TaskMapper taskMapper;
     @Autowired
@@ -60,7 +76,7 @@ public class OssDataServiceImpl implements OssDataService {
     @Autowired
     private TaskCallbackLogMapper taskCallbackLogMapper;
     @Autowired
-    private AppCallbackConfigMapper appCallbackConfigMapper;
+    private AppCallbackConfigFacade appCallbackConfigFacade;
     @Autowired
     protected CallbackSecureHandler callbackSecureHandler;
     @Autowired
@@ -84,9 +100,11 @@ public class OssDataServiceImpl implements OssDataService {
             innerTaskCriteria.andIdEqualTo(request.getTaskId());
         }
         if (StringUtils.isNotBlank(request.getAppName())) {
-            MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-            merchantBaseCriteria.createCriteria().andAppNameLike("%" + request.getAppName() + "%");
-            List<MerchantBase> list = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+
+            QueryMerchantByAppName queryMerchantByAppName = new QueryMerchantByAppName();
+            queryMerchantByAppName.setAppName(request.getAppName());
+            MerchantResult<List<MerchantBaseInfoResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseByAppName(queryMerchantByAppName);
+            List<MerchantBase> list = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
             List<String> appIdList = Lists.newArrayList();
             if (CollectionUtils.isNotEmpty(list)) {
                 appIdList = list.stream().map(MerchantBase::getAppId).collect(Collectors.toList());
@@ -97,7 +115,7 @@ public class OssDataServiceImpl implements OssDataService {
         }
         List<Task> list = taskMapper.selectByExample(taskCriteria);
         if (CollectionUtils.isEmpty(list)) {
-            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+            return Results.newPageResult(request, 0, Lists.newArrayList());
         }
         List<Long> taskIdList = list.stream().map(Task::getId).collect(Collectors.toList());
         TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
@@ -106,11 +124,11 @@ public class OssDataServiceImpl implements OssDataService {
         taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
         long count = taskCallbackLogMapper.countByExample(taskCallbackLogCriteria);
         if (count <= 0) {
-            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+            return Results.newPageResult(request, 0, Lists.newArrayList());
         }
         List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectPaginationByExample(taskCallbackLogCriteria);
         List<OssCallbackDataVO> dataList = wrapperOssCallbackData(taskCallbackLogList, list, request);
-        return Results.newSuccessPageResult(request, count, dataList);
+        return Results.newPageResult(request, count, dataList);
     }
 
     @Override
@@ -118,28 +136,28 @@ public class OssDataServiceImpl implements OssDataService {
         TaskCallbackLog log = taskCallbackLogMapper.selectByPrimaryKey(id);
         if (log == null) {
             logger.error("oss数据下载,id={}的callbackLog记录不存在", id);
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+            return Results.newFailedResult(ConsoleStateCode.DOWNLOAD_ERROR);
         }
         JSONObject requestParamJsonObj;
         try {
             requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
         } catch (Exception e) {
             logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log={}", id, JSON.toJSONString(log));
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+            return Results.newFailedResult(ConsoleStateCode.DOWNLOAD_ERROR);
         }
         String dataUrl = requestParamJsonObj.getString("dataUrl");
         if (StringUtils.isBlank(dataUrl)) {
             logger.error("oss数据下载,id={}的记录requestParam有误,log={}", id, JSON.toJSONString(log));
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+            return Results.newFailedResult(ConsoleStateCode.DOWNLOAD_ERROR);
         }
         String ossData = this.getOssData(log, dataUrl);
         if (StringUtils.isBlank(ossData)) {
             logger.error("oss数据下载,id={}的记录从oss上下载并解密数据失败,log={}", id, JSON.toJSONString(log));
-            return Results.newFailedResult(CommonStateCode.DOWNLOAD_ERROR);
+            return Results.newFailedResult(ConsoleStateCode.DOWNLOAD_ERROR);
         }
 
         JSONObject jsonObject = JSON.parseObject(ossData);
-        ossData = JSON.toJSONString(jsonObject, true);
+        ossData = JSON.toJSONString(jsonObject, WriteMapNullValue, PrettyFormat);
         OutputStream outputStream = null;
         try {
             byte[] data = ossData.getBytes();
@@ -198,7 +216,14 @@ public class OssDataServiceImpl implements OssDataService {
         //后端回调
         if (log.getType() == 1) {
             Long callbackConfigId = log.getConfigId();
-            AppCallbackConfig callbackConfig = appCallbackConfigMapper.selectByPrimaryKey(callbackConfigId.intValue());
+            List<Integer> list = new ArrayList<>();
+            list.add(callbackConfigId.intValue());
+            QueryAppCallBackConfigByIdRequest queryAppCallBackConfigByIdRequest = new QueryAppCallBackConfigByIdRequest();
+            queryAppCallBackConfigByIdRequest.setId(list);
+
+            MerchantResult<List<AppCallbackConfigResult>> merchantResult = appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
+            List<AppCallbackConfig> appCallbackConfigList = DataConverterUtils.convert(merchantResult.getData(),AppCallbackConfig.class);
+            AppCallbackConfig callbackConfig = appCallbackConfigList.get(0);
             if (callbackConfig == null) {
                 logger.error("oss数据下载,log={}未查询到回调配置信息", JSON.toJSONString(log));
                 return null;
@@ -267,9 +292,13 @@ public class OssDataServiceImpl implements OssDataService {
         Map<Long, Task> taskMap = list.stream().collect(Collectors.toMap(Task::getId, task -> task));
 
         List<String> appIdList = list.stream().map(Task::getAppId).distinct().collect(Collectors.toList());
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+
+
+        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
+        queryMerchantByAppIdRequest.setAppIds(appIdList);
+
+        MerchantResult<List<MerchantBaseResult>>  listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
 
         //运营商需展示运营商名称
@@ -284,9 +313,11 @@ public class OssDataServiceImpl implements OssDataService {
         List<Long> callbackConfigIdList = taskCallbackLogList.stream().map(TaskCallbackLog::getConfigId).distinct().collect(Collectors.toList());
         List<Integer> configIdList = Lists.newArrayList();
         configIdList.addAll(callbackConfigIdList.stream().map(Long::intValue).collect(Collectors.toList()));
-        AppCallbackConfigCriteria appCallbackConfigCriteria = new AppCallbackConfigCriteria();
-        appCallbackConfigCriteria.createCriteria().andIdIn(configIdList);
-        List<AppCallbackConfig> callbackConfigList = appCallbackConfigMapper.selectByExample(appCallbackConfigCriteria);
+
+        QueryAppCallBackConfigByIdRequest queryAppCallBackConfigByIdRequest = new QueryAppCallBackConfigByIdRequest();
+        queryAppCallBackConfigByIdRequest.setId(configIdList);
+        MerchantResult<List<AppCallbackConfigResult>>  merchantResult =appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
+        List<AppCallbackConfig> callbackConfigList = DataConverterUtils.convert(merchantResult.getData(),AppCallbackConfig.class);
         Map<Integer, AppCallbackConfig> callbackConfigMap = callbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, appCallbackConfig -> appCallbackConfig));
 
 

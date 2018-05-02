@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.ApiStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.ApiStatAccessVO;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,37 +26,37 @@ public class ApiStatController {
     private ApiStatService apiStatService;
 
     @RequestMapping(value = "/all", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<Map<String, Object>> queryAll(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryAll(StatRequest request) {
         return Results.newSuccessResult(apiStatService.queryAllAccessList(request));
     }
 
     @RequestMapping(value = "/day", method = RequestMethod.GET, produces = "application/json")
-    public Result<Map<String, Object>> queryDay(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryDay(StatRequest request) {
         return Results.newSuccessResult(apiStatService.queryDayAccessList(request));
     }
 
     @RequestMapping(value = "/stataccess/total", method = RequestMethod.GET, produces = "application/json")
-    public Result<Map<String, Object>> queryStatAccessTotal(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryStatAccessTotal(StatRequest request) {
         return Results.newSuccessResult(apiStatService.queryStatAccessList(request, 1));
     }
 
     @RequestMapping(value = "/stataccess/responsetime", method = RequestMethod.GET, produces = "application/json")
-    public Result<Map<String, Object>> queryStatAccessResponseTime(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryStatAccessResponseTime(StatRequest request) {
         return Results.newSuccessResult(apiStatService.queryStatAccessList(request, 2));
     }
 
     @RequestMapping(value = "/stataccess/error", method = RequestMethod.GET, produces = "application/json")
-    public Result<Map<String, Object>> queryStatAccessError(StatRequest request) {
+    public SaasResult<Map<String, Object>> queryStatAccessError(StatRequest request) {
         return Results.newSuccessResult(apiStatService.queryStatAccessList(request, 3));
     }
 
     @RequestMapping(value = "/stataccess", method = RequestMethod.GET, produces = "application/json")
-    public Result<List<ApiStatAccessVO>> queryStatAccess(StatRequest request) {
+    public SaasResult<List<ApiStatAccessVO>> queryStatAccess(StatRequest request) {
         return Results.newSuccessResult(apiStatService.queryStatAccess(request));
     }
 
     @RequestMapping(value = "/stataccess/rank", method = RequestMethod.GET, produces = "application/json")
-    public Result<Map<String, Object>> queryStatAccessRank(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+    public SaasResult<Map<String, Object>> queryStatAccessRank(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
         return Results.newSuccessResult(apiStatService.queryStatAccessRank(date));
     }
 

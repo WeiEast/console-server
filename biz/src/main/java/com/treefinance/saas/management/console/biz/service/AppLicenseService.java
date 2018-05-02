@@ -16,28 +16,31 @@
 
 package com.treefinance.saas.management.console.biz.service;
 
+import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.datatrees.toolkits.util.crypto.AES;
 import com.datatrees.toolkits.util.crypto.RSA;
 import com.datatrees.toolkits.util.crypto.key.SimpleKeyPair;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigBackupMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppLicenseBackupMapper;
 import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.merchant.center.facade.result.console.AppLicenseVOResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.service.AppLicenseFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +76,8 @@ public class AppLicenseService {
     private AppLicenseBackupMapper appLicenseBackupMapper;
     @Autowired
     private ISecurityCryptoService iSecurityCryptoService;
-
+    @Resource
+    private AppLicenseFacade appLicenseFacade;
 
     /**
      * 根据传入的appId查找对应的app许可
@@ -97,7 +102,7 @@ public class AppLicenseService {
      * @param appId
      * @return
      */
-    public Result generateAppLicenseByAppId(String appId) {
+    public SaasResult generateAppLicenseByAppId(String appId) {
         // 验证是否已经含有license
         AppLicenseDTO appLicenseDTO = this.selectOneByAppId(appId);
         if (appLicenseDTO != null) {
@@ -120,7 +125,7 @@ public class AppLicenseService {
         return null;
     }
 
-    public Result removeAppLicenseByAppId(String appId) {
+    public SaasResult removeAppLicenseByAppId(String appId) {
         logger.info("根据appId={}删除秘钥key", appId);
         String key = APPID_SUFFIX + appId;
         if (stringRedisTemplate.hasKey(key)) {
@@ -129,66 +134,53 @@ public class AppLicenseService {
         return null;
     }
 
-    public Result<String> generateAppLicense() {
+    public SaasResult<String> generateAppLicense() {
         String appId = CommonUtils.generateAppId();
         AppLicenseDTO license = Helper.generateLicense(appId);
         String key = APPID_SUFFIX + appId;
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
-        Result<String> result = new Result<>();
+        SaasResult<String> result = new SaasResult<>();
         result.setData(appId);
         logger.info("generateAppLicense : key={}, license={}", key, JSON.toJSONString(license));
         return result;
     }
 
-    public Result<Map<String, Object>> getAppLicenseList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getAppLicenseList(PageRequest request) {
         List<AppLicenseVO> appLicenseVOList = Lists.newArrayList();
-        long total = merchantBaseMapper.countByExample(null);
-        if (Optional.fromNullable(total).or(Long.valueOf(0)) <= 0) {
-            return Results.newSuccessPageResult(request, total, appLicenseVOList);
-        }
-        MerchantBaseCriteria criteria = new MerchantBaseCriteria();
-        criteria.setOffset(request.getOffset());
-        criteria.setLimit(request.getPageSize());
-        criteria.setOrderByClause("CreateTime desc");
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectPaginationByExample(criteria);
-        if (CollectionUtils.isEmpty(merchantBaseList)) {
-            return Results.newSuccessPageResult(request, total, appLicenseVOList);
-        }
-        for (MerchantBase merchantBase : merchantBaseList) {
-            String key = APPID_SUFFIX + merchantBase.getAppId();
-            String result = stringRedisTemplate.opsForValue().get(key);
-            AppLicenseVO appLicenseVO = new AppLicenseVO();
-            if (result != null) {
-                AppLicenseDTO appLicenseDTO = JSON.parseObject(result, AppLicenseDTO.class);
-                appLicenseVO.setAppId(merchantBase.getAppId());
-                appLicenseVO.setAppName(merchantBase.getAppName());
-                appLicenseVO.setCreateTime(merchantBase.getCreateTime());
-                BeanUtils.copyProperties(appLicenseDTO, appLicenseVO);
-            } else {
-                appLicenseVO.setAppId(merchantBase.getAppId());
-                appLicenseVO.setAppName(merchantBase.getAppName());
-                appLicenseVO.setCreateTime(merchantBase.getCreateTime());
-                appLicenseVO.setSdkPublicKey("");
-                appLicenseVO.setSdkPrivateKey("");
-                appLicenseVO.setDataSecretKey("");
-                appLicenseVO.setServerPrivateKey("");
-                appLicenseVO.setServerPublicKey("");
-            }
-            appLicenseVOList.add(appLicenseVO);
 
-        }
-        return Results.newSuccessPageResult(request, total, appLicenseVOList);
+        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
+                .merchant.center.facade.request.common.PageRequest();
 
+        pageRequest.setPageNum(request.getPageNumber());
+        pageRequest.setPageSize(request.getPageSize());
+
+        MerchantResult<List<AppLicenseVOResult>> merchantResult;
+
+        try {
+            merchantResult = appLicenseFacade.queryAppLicenseVo(pageRequest);
+            logger.info("商户中心返回数据：{}",merchantResult);
+        } catch (RpcException e) {
+            logger.info("请求商户中心的appLicense列表失败：{}", e.getMessage());
+            return Results.newPageResult(request, 0, appLicenseVOList);
+        }
+
+        if(!merchantResult.isSuccess()){
+            logger.info("请求商户中心的appLicense列表失败：{}", merchantResult.getRetMsg());
+        }
+
+        appLicenseVOList = DataConverterUtils.convert(merchantResult.getData(),AppLicenseVO.class);
+
+        return Results.newPageResult(request, merchantResult.getTotalCount(), appLicenseVOList);
     }
 
     /**
      * 根据call_back的id生成"其他"通知类型时的DataSecretKey
      */
-    public Result<Integer> generateCallbackLicense(Integer id) {
+    public SaasResult<Integer> generateCallbackLicense(Integer id) {
         CallbackLicenseDTO licenseDTO = this.selectCallbackLicenseById(id);
         if (licenseDTO != null) {
             logger.info("根据Id={}查询回调的DataSecretKey已经存在 result={}", id, JSON.toJSONString(licenseDTO));
-            return new Result<>();
+            return new SaasResult<>();
         }
         CallbackLicenseDTO license = Helper.generateCallbackLicense(id);
         AppCallbackConfigBackup backup = new AppCallbackConfigBackup();
@@ -199,7 +191,7 @@ public class AppLicenseService {
 
         String key = CALLBACK_SUFFIX + id;
         stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(license));
-        Result<Integer> result = new Result<>();
+        SaasResult<Integer> result = new SaasResult<>();
         result.setData(id);
         logger.info("generateCallbackLicense : key={}, license={}", key, JSON.toJSONString(license));
         return result;
@@ -219,7 +211,7 @@ public class AppLicenseService {
         return result;
     }
 
-    public Result removeCallbackLicenseById(Integer id) {
+    public SaasResult removeCallbackLicenseById(Integer id) {
         logger.info("根据Id={}删除回调的DataSecretKey", id);
         String key = CALLBACK_SUFFIX + id;
         if (stringRedisTemplate.hasKey(key)) {

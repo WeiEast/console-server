@@ -1,32 +1,33 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.dubbo.rpc.RpcException;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
-import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
-import com.treefinance.saas.management.console.dao.entity.AppBizType;
-import com.treefinance.saas.management.console.dao.entity.AppBizTypeCriteria;
 import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
-import org.apache.commons.lang3.StringUtils;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.UpdateAppBizLicenseRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.UpdateLicenseQuotaRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.UpdateLicenseTrafficRequest;
+import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.AppBizLicenseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by haojiahong on 2017/7/4.
@@ -38,51 +39,37 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
 
     @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
-    @Autowired
-    private AppBizTypeMapper appBizTypeMapper;
-    @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
+    @Resource
+    private AppBizLicenseFacade appBizLicenseFacade;
+
 
     @Override
     public List<AppBizLicenseVO> selectBizLicenseByAppIdBizType(AppBizLicenseRequest request) {
         Assert.notNull(request.getAppId(), "appId不能为空!");
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        AppBizLicenseCriteria.Criteria criteria = appBizLicenseCriteria.createCriteria();
-        criteria.andAppIdEqualTo(request.getAppId());
-        if (request.getBizType() != null) {
-            criteria.andBizTypeEqualTo(request.getBizType());
-        }
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        //<bizType,AppBizLicense>
-        Map<Byte, AppBizLicense> appBizLicenseMap = appBizLicenseList
-                .stream()
-                .collect(Collectors.toMap(AppBizLicense::getBizType, appBizLicense -> appBizLicense, (key1, key2) -> key1));
-        AppBizTypeCriteria appBizTypeCriteria = new AppBizTypeCriteria();
-        AppBizTypeCriteria.Criteria criteria1 = appBizTypeCriteria.createCriteria();
-        if (request.getBizType() != null) {
-            criteria1.andBizTypeEqualTo(request.getBizType());
-        }
-        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(appBizTypeCriteria);
         List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
-        for (AppBizType appBizType : appBizTypeList) {
-            AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
-            AppBizLicense appBizLicense = appBizLicenseMap.get(appBizType.getBizType());
-            if (appBizLicense == null) {
-                appBizLicenseVO.setBizType(appBizType.getBizType());
-                appBizLicenseVO.setBizName(appBizType.getBizName());
-                appBizLicenseVO.setAppId(request.getAppId());
-                appBizLicenseVO.setIsShowLicense((byte) 0);
-                appBizLicenseVO.setIsValid((byte) 0);
-                appBizLicenseVO.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
-            } else {
-                BeanUtils.convert(appBizLicense, appBizLicenseVO);
-                appBizLicenseVO.setBizName(appBizType.getBizName());
-            }
-            appBizLicenseVOList.add(appBizLicenseVO);
+
+        QueryAppBizLicenseRequest queryAppBizLicenseRequest = new QueryAppBizLicenseRequest();
+        queryAppBizLicenseRequest.setAppId(request.getAppId());
+        queryAppBizLicenseRequest.setBizType(request.getBizType());
+        MerchantResult<List<AppBizLicenseResult>> result;
+
+        try {
+            result = appBizLicenseFacade.queryAppBizLicense(queryAppBizLicenseRequest);
+        } catch (RpcException e) {
+            logger.error("获取商户授权失败，错误信息：{}", e.getMessage());
+            return appBizLicenseVOList;
+        }
+
+        if (result.isSuccess()) {
+            List<AppBizLicenseResult> list = result.getData();
+
+            appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
 
         }
+
         return appBizLicenseVOList;
+
     }
 
     @Override
@@ -90,94 +77,50 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         Assert.notNull(request.getAppId(), "appId不能为空");
         Assert.notNull(request.getBizType(), "bizType不能为空");
 
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andAppIdEqualTo(request.getAppId()).andBizTypeEqualTo(request.getBizType());
 
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        if (CollectionUtils.isEmpty(appBizLicenseList)) {
-            AppBizLicense appBizLicense = new AppBizLicense();
-            appBizLicense.setId(UidGenerator.getId());
-            appBizLicense.setAppId(request.getAppId());
-            appBizLicense.setBizType(request.getBizType());
-            appBizLicense.setIsShowLicense(request.getIsShowLicense() == null ? 0 : request.getIsShowLicense());
-            appBizLicense.setIsValid(request.getIsValid() == null ? 0 : request.getIsValid());
-            if (StringUtils.isNotBlank(request.getLicenseTemplate())) {
-                appBizLicense.setLicenseTemplate(request.getLicenseTemplate());
-            } else {
-                appBizLicense.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
-            }
-            if (request.getIsValid() != null && request.getIsValid() == (byte) 1) {
-                appBizLicense.setDailyLimit(100000);
-            }
-            if (request.getIsValid() != null && request.getIsValid() == (byte) 0) {
-                appBizLicense.setDailyLimit(0);
-            }
-            appBizLicenseMapper.insertSelective(appBizLicense);
+        UpdateAppBizLicenseRequest updateAppBizLicenseRequest = new UpdateAppBizLicenseRequest();
+        BeanUtils.copyProperties(request, updateAppBizLicenseRequest);
+        MerchantResult<BaseResult> result;
+        try {
+            result = appBizLicenseFacade.updateAppBizLicense(updateAppBizLicenseRequest);
+        } catch (RpcException e) {
+            logger.error("更新appBizLicense失败，错误信息：{}", e.getMessage());
+            return false;
+        }
 
-            // 发送配置变更消息
-            variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
-        } else {
-            AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
-            AppBizLicense appBizLicense = new AppBizLicense();
-            appBizLicense.setId(srcAppBizLicense.getId());
-            if (request.getIsShowLicense() != null) {
-                appBizLicense.setIsShowLicense(request.getIsShowLicense());
-            }
-            if (StringUtils.isNotBlank(request.getLicenseTemplate())) {
-                appBizLicense.setLicenseTemplate(request.getLicenseTemplate());
-            } else {
-                appBizLicense.setLicenseTemplate(Constants.DEFAULT_LICENSE_TEMPLATE);
-            }
-            if (request.getIsValid() != null) {
-                appBizLicense.setIsValid(request.getIsValid());
-                if (request.getIsValid() == (byte) 1) {
-                    appBizLicense.setDailyLimit(100000);
-                }
-                if (request.getIsValid() == (byte) 0) {
-                    appBizLicense.setDailyLimit(0);
-                }
-            }
-            appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
-
+        if(result.isSuccess()){
             // 发送配置变更消息
             variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
         }
-        return Boolean.TRUE;
+        return result.isSuccess();
     }
 
     @Override
     public List<AppBizLicenseVO> selectQuotaByAppIdBizType(AppBizLicenseRequest request) {
         Assert.notNull(request.getAppId(), "appId不能为空!");
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        AppBizLicenseCriteria.Criteria criteria = appBizLicenseCriteria.createCriteria();
-        criteria.andAppIdEqualTo(request.getAppId()).andIsValidEqualTo((byte) 1);
-        if (request.getBizType() != null) {
-            criteria.andBizTypeEqualTo(request.getBizType());
-        }
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        AppBizTypeCriteria appBizTypeCriteria = new AppBizTypeCriteria();
-        AppBizTypeCriteria.Criteria criteria1 = appBizTypeCriteria.createCriteria();
-        if (request.getBizType() != null) {
-            criteria1.andBizTypeEqualTo(request.getBizType());
-        }
-        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(appBizTypeCriteria);
-        Map<Byte, AppBizType> appBizTypeMap = appBizTypeList.stream().collect(Collectors.toMap(AppBizType::getBizType, appBizType1 -> appBizType1));
-        List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
-        for (AppBizLicense appBizLicense : appBizLicenseList) {
-            AppBizType appBizType = appBizTypeMap.get(appBizLicense.getBizType());
-            if (appBizType == null) {
-                logger.info("appBizLicense中bizType={}的服务权限类型在app_biz_type中未配置", appBizLicense.getBizType());
-                continue;
-            }
-            AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
-            appBizLicenseVO.setBizType(appBizType.getBizType());
-            appBizLicenseVO.setBizName(appBizType.getBizName());
-            appBizLicenseVO.setAppId(request.getAppId());
-            appBizLicenseVO.setDailyLimit(appBizLicense.getDailyLimit() == null ? 0 : appBizLicense.getDailyLimit());
-            appBizLicenseVOList.add(appBizLicenseVO);
-        }
-        return appBizLicenseVOList;
 
+        List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
+
+        MerchantResult<List<AppBizLicenseResult>> result = null;
+        QueryAppBizLicenseRequest queryAppBizLicenseRequest = new QueryAppBizLicenseRequest();
+        queryAppBizLicenseRequest.setAppId(request.getAppId());
+        queryAppBizLicenseRequest.setBizType(request.getBizType());
+
+        try {
+            result = appBizLicenseFacade.queryAppBizLicenseQuota(queryAppBizLicenseRequest);
+        } catch (RpcException e) {
+            logger.error("获取商户额度列表失败，错误信息：{}", e.getMessage());
+            return appBizLicenseVOList;
+        }
+
+        if (result.isSuccess()) {
+            List<AppBizLicenseResult> list = result.getData();
+            appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
+        }
+
+        logger.info(JSON.toJSONString(appBizLicenseVOList));
+
+        return appBizLicenseVOList;
     }
 
 
@@ -185,57 +128,51 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
     public Boolean updateQuota(AppBizLicenseVO request) {
         Assert.notNull(request.getAppId(), "appId不能为空");
         Assert.notNull(request.getBizType(), "bizType不能为空");
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria()
-                .andAppIdEqualTo(request.getAppId())
-                .andBizTypeEqualTo(request.getBizType())
-                .andIsValidEqualTo((byte) 1);
+        Assert.notNull(request.getDailyLimit(), "dailyLimit不能为空");
 
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        if (CollectionUtils.isEmpty(appBizLicenseList)) {
-            logger.info("更新商户配额时,商户appId={}的服务权限bizType={}未开通", request.getAppId(), request.getBizType());
-            throw new BizException("商户此服务权限未开通!");
+        UpdateLicenseQuotaRequest updateLicenseQuotaRequest = new UpdateLicenseQuotaRequest();
+
+        BeanUtils.copyProperties(request, updateLicenseQuotaRequest);
+
+        MerchantResult<BaseResult> result;
+        try {
+            result = appBizLicenseFacade.updateAppBizLicenseQuota(updateLicenseQuotaRequest);
+        } catch (RpcException e) {
+            logger.error("更新商户每日限额失败，错误信息：{}", e.getMessage());
+            return false;
         }
-        AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
-        AppBizLicense appBizLicense = new AppBizLicense();
-        appBizLicense.setId(srcAppBizLicense.getId());
-        appBizLicense.setDailyLimit(request.getDailyLimit());
-        appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
-        return Boolean.TRUE;
+        return result.isSuccess();
+
     }
 
     @Override
     public List<AppBizLicenseVO> selectTrafficByAppIdBizType(AppBizLicenseRequest request) {
+
         Assert.notNull(request.getAppId(), "appId不能为空!");
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        AppBizLicenseCriteria.Criteria criteria = appBizLicenseCriteria.createCriteria();
-        criteria.andAppIdEqualTo(request.getAppId()).andIsValidEqualTo((byte) 1);
-        if (request.getBizType() != null) {
-            criteria.andBizTypeEqualTo(request.getBizType());
-        }
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        AppBizTypeCriteria appBizTypeCriteria = new AppBizTypeCriteria();
-        AppBizTypeCriteria.Criteria criteria1 = appBizTypeCriteria.createCriteria();
-        if (request.getBizType() != null) {
-            criteria1.andBizTypeEqualTo(request.getBizType());
-        }
-        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(appBizTypeCriteria);
-        Map<Byte, AppBizType> appBizTypeMap = appBizTypeList.stream().collect(Collectors.toMap(AppBizType::getBizType, appBizType1 -> appBizType1));
+
         List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
-        for (AppBizLicense appBizLicense : appBizLicenseList) {
-            AppBizType appBizType = appBizTypeMap.get(appBizLicense.getBizType());
-            if (appBizType == null) {
-                logger.info("appBizLicense中bizType={}的服务权限类型在app_biz_type中未配置", appBizLicense.getBizType());
-                continue;
-            }
-            AppBizLicenseVO appBizLicenseVO = new AppBizLicenseVO();
-            appBizLicenseVO.setBizType(appBizType.getBizType());
-            appBizLicenseVO.setBizName(appBizType.getBizName());
-            appBizLicenseVO.setAppId(request.getAppId());
-            appBizLicenseVO.setTrafficLimit(appBizLicense.getTrafficLimit());
-            appBizLicenseVOList.add(appBizLicenseVO);
+
+        MerchantResult<List<AppBizLicenseResult>> result;
+        QueryAppBizLicenseRequest queryAppBizLicenseRequest = new QueryAppBizLicenseRequest();
+        queryAppBizLicenseRequest.setAppId(request.getAppId());
+        queryAppBizLicenseRequest.setBizType(request.getBizType());
+
+        try {
+            result = appBizLicenseFacade.queryAppBizLicenseTraffic(queryAppBizLicenseRequest);
+        } catch (RpcException e) {
+            logger.error("获取商户额度列表失败，错误信息：{}", e.getMessage());
+            return appBizLicenseVOList;
         }
+
+        if (result.isSuccess()) {
+            List<AppBizLicenseResult> list = result.getData();
+            appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
+        }
+
+        logger.info(JSON.toJSONString(appBizLicenseVOList));
+
         return appBizLicenseVOList;
+
     }
 
     @Override
@@ -246,22 +183,17 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         if (request.getTrafficLimit().compareTo(new BigDecimal(100)) > 0 || request.getTrafficLimit().compareTo(new BigDecimal(0)) < 0) {
             throw new BizException("流量百分比设置有误!");
         }
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria()
-                .andAppIdEqualTo(request.getAppId())
-                .andBizTypeEqualTo(request.getBizType())
-                .andIsValidEqualTo((byte) 1);
+        UpdateLicenseTrafficRequest updateLicenseTrafficRequest = new UpdateLicenseTrafficRequest();
 
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
-        if (CollectionUtils.isEmpty(appBizLicenseList)) {
-            logger.info("更新商户流量限制时,商户appId={}的服务权限bizType={}未开通", request.getAppId(), request.getBizType());
-            throw new BizException("商户此服务权限未开通!");
+        BeanUtils.copyProperties(request, updateLicenseTrafficRequest);
+
+        MerchantResult<BaseResult> result;
+        try {
+            result = appBizLicenseFacade.updateAppBizLicenseTraffic(updateLicenseTrafficRequest);
+        } catch (RpcException e) {
+            logger.error("更新商户每日限额失败，错误信息：{}", e.getMessage());
+            return false;
         }
-        AppBizLicense srcAppBizLicense = appBizLicenseList.get(0);
-        AppBizLicense appBizLicense = new AppBizLicense();
-        appBizLicense.setId(srcAppBizLicense.getId());
-        appBizLicense.setTrafficLimit(request.getTrafficLimit());
-        appBizLicenseMapper.updateByPrimaryKeySelective(appBizLicense);
-        return Boolean.TRUE;
+        return result.isSuccess();
     }
 }

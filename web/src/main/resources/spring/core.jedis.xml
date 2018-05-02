@@ -7,7 +7,7 @@
 
     <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
         <property name="maxIdle" value="${core.redis.maxIdle:50}"/>
-        <property name="maxTotal" value="${core.redis.maxTotal:500}"/>
+        <property name="maxTotal" value="${core.redis.maxTotal:2000}"/>
         <property name="maxWaitMillis" value="${core.redis.maxWaitMillis:-1}"/>
         <property name="testOnBorrow" value="${core.redis.testOnBorrow:true}"/>
         <property name="minEvictableIdleTimeMillis" value="10"/>
@@ -16,8 +16,8 @@
 
     <bean id="connectionFactory"
           class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
-        <property name="hostName" value="${core.redis.hostName:192.168.5.24}"/>
-        <property name="port" value="${core.redis.port:6379}"/>
+        <property name="hostName" value="116.62.120.213"/>
+        <property name="port" value="16379"/>
         <property name="password" value="${core.redis.password:}"/>
         <property name="poolConfig" ref="poolConfig"/>
     </bean>

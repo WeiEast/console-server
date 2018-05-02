@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +60,19 @@ public class MerchantFlowConfigControllerTest {
         list.add(vo);
 
         this.mockMvc.perform(post(baseUrl + "update").content(JSON.toJSONString(list)).contentType(MediaType
+                .APPLICATION_JSON).accept
+                (MediaType
+                .APPLICATION_JSON));
+    }
+    @Test
+    public void getAllotList() throws Exception {
+        PageRequest request = new PageRequest();
+
+        request.setPageNumber(1);
+        request.setPageSize(20);
+
+
+        this.mockMvc.perform(post(baseUrl + "/allot/list").content(JSON.toJSONString(request)).contentType(MediaType
                 .APPLICATION_JSON).accept
                 (MediaType
                 .APPLICATION_JSON));

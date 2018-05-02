@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
@@ -72,21 +73,13 @@ public class MerchantFlowConfigController {
 
     @ApiOperation(value = "获取商户流量配置列表")
     @RequestMapping(value = "/allot/list",method = {RequestMethod.GET,RequestMethod.POST})
-    public SaasResult<List<MerchantFlowAllotVO>> getAllotList() {
-
-
-
-
-        return Results.newSuccessResult(new ArrayList<>());
+    public Object getAllotList(PageRequest pageRequest) {
+        return merchantFlowConfigService.queryMerchantAllotVO(pageRequest);
     }
     @ApiOperation(value = "获取商户流量配置列表")
     @RequestMapping(value = "/allot/update",method = {RequestMethod.POST})
     @ApiImplicitParam(name = "merchantFlowAllotVO",value = "",required = true)
-    public SaasResult<List<MerchantFlowAllotVO>> updateMerchantAllot(@RequestBody MerchantFlowAllotVO merchantFlowAllotVO) {
-
-
-
-
+    public Object updateMerchantAllot(@RequestBody MerchantFlowAllotVO merchantFlowAllotVO) {
 
         return Results.newSuccessResult(new ArrayList<>());
     }

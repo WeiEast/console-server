@@ -3,25 +3,32 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfigDao;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowEnvQuotaVO;
 import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
+import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.BatchUpdateFlowRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchantFlowAllotRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchantFlowAllotSubRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchantFlowRequest;
 import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.BatchUpdateFlowResult;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantSimpleResult;
+import com.treefinance.saas.merchant.center.facade.result.console.*;
 import com.treefinance.saas.merchant.center.facade.result.gateway.MerchantFlowConfigResult;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantFlowConfigFacade;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -193,13 +200,63 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
         logger.info("初始化商户流量分配配置,list={}", JSON.toJSONString(list));
     }
 
+    @Override
+    public SaasResult<Map<String, Object>> queryMerchantAllotVO(com.treefinance.saas.knife.request.PageRequest
+                                                                                  pageRequest) {
+
+        PageRequest request = new PageRequest();
+        request.setPageSize(pageRequest.getPageSize());
+        request.setPageNum(pageRequest.getPageNumber());
+
+        MerchantResult<List<MerchantFlowAllotResult>> result;
+        try {
+            result = merchantFlowConfigFacade.queryMerchantFlow(request);
+        } catch (Exception e) {
+            logger.info("获取列表失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE,e.getMessage());
+        }
+
+        if(!result.isSuccess()){
+            return Results.newFailedResult(CommonStateCode.FAILURE,result.getRetMsg());
+        }
+
+        List<MerchantFlowAllotResult> list = result.getData();
+
+        List<MerchantFlowAllotVO> merchantFlowAllotVOS = DataConverterUtils.convert(list,MerchantFlowAllotVO.class);
+
+        return Results.newPageResult(pageRequest,result.getTotalCount(),merchantFlowAllotVOS);
+    }
 
     @Override
-    public List<MerchantFlowAllotVO> queryMerchantAllotVO(MerchantFlowAllotVO merchantFlowAllotVO) {
+    public SaasResult updateMerchantAllot(MerchantFlowAllotVO merchantFlowAllotVO) {
+
+        UpdateMerchantFlowAllotRequest request = new UpdateMerchantFlowAllotRequest();
+
+        request.setAppId(merchantFlowAllotVO.getAppId());
+        List<MerchantFlowEnvQuotaVO> quotaVOList = merchantFlowAllotVO.getQuotaVOList();
 
 
+        List<UpdateMerchantFlowAllotSubRequest> subRequests = DataConverterUtils.convert(quotaVOList,
+                UpdateMerchantFlowAllotSubRequest.class);
+
+        request.setQuotas(subRequests);
+
+        MerchantResult  result;
+
+        try{
+           result = merchantFlowConfigFacade.updateMerchantFlow(request);
+           logger.info("商户中心返回数据：{}",result);
+        }catch (Exception e){
+            logger.info("更新商户流量配置失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE,e.getMessage());
+        }
+
+        if(!result.isSuccess()){
+            logger.info("更新商户流量配置失败：{}",result.getRetMsg());
+            return Results.newFailedResult(CommonStateCode.FAILURE,result.getRetMsg());
+        }
 
 
-        return null;
+        return Results.newSuccessResult(Boolean.TRUE);
     }
 }

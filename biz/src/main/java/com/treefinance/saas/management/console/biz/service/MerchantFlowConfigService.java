@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 
 import java.util.List;
@@ -14,5 +15,9 @@ public interface MerchantFlowConfigService {
     void batchUpdate(List<MerchantFlowConfigVO> list);
 
     void init();
+
+
+    List<MerchantFlowAllotVO> queryMerchantAllotVO(MerchantFlowAllotVO merchantFlowAllotVO);
+
 
 }

@@ -7,6 +7,7 @@ import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfigDao;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
@@ -190,5 +191,15 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
         }
 
         logger.info("初始化商户流量分配配置,list={}", JSON.toJSONString(list));
+    }
+
+
+    @Override
+    public List<MerchantFlowAllotVO> queryMerchantAllotVO(MerchantFlowAllotVO merchantFlowAllotVO) {
+
+
+
+
+        return null;
     }
 }

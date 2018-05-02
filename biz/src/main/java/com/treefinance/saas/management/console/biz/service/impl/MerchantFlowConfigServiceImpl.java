@@ -203,7 +203,6 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
     @Override
     public SaasResult<Map<String, Object>> queryMerchantAllotVO(com.treefinance.saas.knife.request.PageRequest
                                                                                   pageRequest) {
-
         PageRequest request = new PageRequest();
         request.setPageSize(pageRequest.getPageSize());
         request.setPageNum(pageRequest.getPageNumber());
@@ -228,7 +227,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
     }
 
     @Override
-    public SaasResult updateMerchantAllot(MerchantFlowAllotVO merchantFlowAllotVO) {
+    public SaasResult<Boolean> updateMerchantAllot(MerchantFlowAllotVO merchantFlowAllotVO) {
 
         UpdateMerchantFlowAllotRequest request = new UpdateMerchantFlowAllotRequest();
 

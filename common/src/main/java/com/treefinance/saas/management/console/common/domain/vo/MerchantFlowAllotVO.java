@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,19 +13,23 @@ import java.util.List;
  * 商户流量的配置列表返回
  *
  */
-
+@ApiModel()
 public class MerchantFlowAllotVO implements Serializable{
 
+    @ApiModelProperty(name = "编号")
     private Long id;
 
+    @ApiModelProperty(name = "商户编号")
     private String appId;
 
+    @ApiModelProperty(name = "商户类型")
     private String type;
 
+    @ApiModelProperty(name = "商户名称")
     private String appName;
 
+    @ApiModelProperty(name = "环境和对应的流量配置数据的列表")
     private List<MerchantFlowEnvQuotaVO> quotaVOList;
-
 
     public Long getId() {
         return id;

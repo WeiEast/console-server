@@ -22,6 +22,6 @@ public interface MerchantFlowConfigService {
     SaasResult<Map<String, Object>> queryMerchantAllotVO(com.treefinance.saas.knife.request.PageRequest
                                                                  pageRequest);
 
-    SaasResult updateMerchantAllot(MerchantFlowAllotVO merchantFlowAllotVO);
+    SaasResult<Boolean> updateMerchantAllot(MerchantFlowAllotVO merchantFlowAllotVO);
 
 }

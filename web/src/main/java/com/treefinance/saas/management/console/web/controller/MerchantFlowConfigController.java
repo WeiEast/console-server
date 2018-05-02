@@ -1,14 +1,13 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商户流量分配配置
@@ -72,16 +72,16 @@ public class MerchantFlowConfigController {
     }
 
     @ApiOperation(value = "获取商户流量配置列表")
-    @RequestMapping(value = "/allot/list",method = {RequestMethod.GET,RequestMethod.POST})
-    public Object getAllotList(PageRequest pageRequest) {
+    @RequestMapping(value = "/allot/list",method = {RequestMethod.POST})
+    @ApiResponses({@ApiResponse(code=200,message = "成功",response = MerchantFlowAllotVO.class,responseContainer =
+            "Map")})
+    public SaasResult<Map<String, Object>> getAllotList(@RequestBody @ApiParam PageRequest pageRequest) {
         return merchantFlowConfigService.queryMerchantAllotVO(pageRequest);
     }
     @ApiOperation(value = "获取商户流量配置列表")
     @RequestMapping(value = "/allot/update",method = {RequestMethod.POST})
-    @ApiImplicitParam(name = "merchantFlowAllotVO",value = "",required = true)
-    public Object updateMerchantAllot(@RequestBody MerchantFlowAllotVO merchantFlowAllotVO) {
-
-        return Results.newSuccessResult(new ArrayList<>());
+    public SaasResult<Boolean> updateMerchantAllot(@RequestBody @ApiParam MerchantFlowAllotVO merchantFlowAllotVO) {
+        return merchantFlowConfigService.updateMerchantAllot(merchantFlowAllotVO);
     }
 
 }

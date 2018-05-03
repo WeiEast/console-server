@@ -1,6 +1,5 @@
 package com.treefinance.saas.management.console.web.controller;
 
-import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +79,11 @@ public class MerchantFlowConfigController {
     @ApiOperation(value = "获取商户流量配置列表")
     @RequestMapping(value = "/allot/update",method = {RequestMethod.POST})
     public SaasResult<Boolean> updateMerchantAllot(@RequestBody @ApiParam MerchantFlowAllotVO merchantFlowAllotVO) {
+
+        if(merchantFlowAllotVO.getAppId() == null|| merchantFlowAllotVO.getQuotaVOList() ==null){
+            throw new IllegalArgumentException("appId或者quotaList不能为空");
+        }
+
         return merchantFlowConfigService.updateMerchantAllot(merchantFlowAllotVO);
     }
 

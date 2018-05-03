@@ -6,14 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
-import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
 import com.treefinance.saas.management.console.dao.entity.AppBizType;
-import com.treefinance.saas.management.console.dao.entity.AppBizTypeCriteria;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseByAppIdRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizTypeRequest;
@@ -23,11 +17,8 @@ import com.treefinance.saas.merchant.center.facade.result.console.AppBizTypeSimp
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
 import com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 

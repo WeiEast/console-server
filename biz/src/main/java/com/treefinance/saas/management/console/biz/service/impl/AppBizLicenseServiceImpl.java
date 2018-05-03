@@ -9,8 +9,6 @@ import com.treefinance.saas.management.console.common.domain.request.AppBizLicen
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateAppBizLicenseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateLicenseQuotaRequest;

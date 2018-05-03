@@ -253,6 +253,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
             return Results.newFailedResult(CommonStateCode.FAILURE,result.getRetMsg());
         }
 
+        variableMessageNotifyService.sendVariableMessage("merchant-flow", "update", merchantFlowAllotVO.getAppId());
 
         return Results.newSuccessResult(Boolean.TRUE);
     }

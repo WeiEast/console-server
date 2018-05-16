@@ -47,6 +47,8 @@
         <mybatis.version>3.4.4</mybatis.version>
         <mybatis-spring.version>1.3.1</mybatis-spring.version>
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+
+        <monitor-facade.version>1.0.7-SNAPSHOT</monitor-facade.version>
     </properties>
 
     <dependencyManagement>
@@ -67,6 +69,12 @@
                 <groupId>com.treefinance.saas</groupId>
                 <artifactId>merchant-center-facade</artifactId>
                 <version>1.0.3-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.treefinance.saas.monitor</groupId>
+                <artifactId>monitor-facade</artifactId>
+                <version>${monitor-facade.version}</version>
             </dependency>
 
             <dependency>

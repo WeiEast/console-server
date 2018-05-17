@@ -1,14 +1,12 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/saas/console/ecommerce/stat/")
-public class EcmmerceStatController {
+public class EcommerceStatController {
 
-    private static Logger logger = LoggerFactory.getLogger(EcmmerceStatController.class);
+    private static Logger logger = LoggerFactory.getLogger(EcommerceStatController.class);
 
     @Autowired
     EcommerceMonitorService ecommerceMonitorService;

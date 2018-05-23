@@ -1,6 +1,6 @@
 package com.treefinance.saas.management.console.web.controller;
 
-import com.treefinance.saas.management.console.biz.service.GroupStatService;
+import com.treefinance.saas.management.console.biz.service.StatGroupService;
 import com.treefinance.saas.management.console.common.domain.vo.StatGroupVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
@@ -21,11 +21,11 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/saas/console/monitor/stat/group/")
-public class GroupStatController {
-    private static  final Logger logger = LoggerFactory.getLogger(GroupStatController.class);
+public class StatGroupController {
+    private static  final Logger logger = LoggerFactory.getLogger(StatGroupController.class);
 
     @Autowired
-    GroupStatService groupStatService;
+    StatGroupService groupStatService;
 
 
     @RequestMapping(value = "query", method = RequestMethod.POST)

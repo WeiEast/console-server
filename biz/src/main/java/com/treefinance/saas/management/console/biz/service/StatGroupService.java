@@ -10,7 +10,7 @@ import java.util.Set;
  * @author:guoguoyun
  * @date:Created in 2018/4/27上午11:08
  */
-public interface GroupStatService {
+public interface StatGroupService {
     Result<List<StatGroupVO>> queryStatGroup(StatGroupVO statGroupVO);
 
     Result<Boolean> addOrUpdateStatGroup(StatGroupVO statGroupVO);

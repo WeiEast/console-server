@@ -6,6 +6,7 @@ import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autostat.BasicDataHistoryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,59 +33,61 @@ public class BasicDataController {
 
     /**
      * 基础数据列表查询（分页）
+     *
      * @param pageRequest
      * @return
      */
-    @RequestMapping(value="list",method = RequestMethod.GET)
-    public  Result<Map<String, Object>>   queryAllBasicData(PageRequest pageRequest){
+    @RequestMapping(value = "list", method = RequestMethod.GET)
+    public Result<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
         logger.info("基础数据列表查询接口，分页信息为{}", JSON.toJSON(pageRequest));
 
-       return  basicDataService.queryAllBasicData(pageRequest);
+        return basicDataService.queryAllBasicData(pageRequest);
 
     }
 
 
     /**
      * 新增基础数据
+     *
      * @param basicDataVO
      * @return
      */
-    @RequestMapping(value="add",method = RequestMethod.POST)
+    @RequestMapping(value = "add", method = RequestMethod.POST)
     public Result<Boolean> addBasicData(@RequestBody BasicDataVO basicDataVO) {
-        if(basicDataVO.getDataCode()==null||basicDataVO.getDataJson()==null||basicDataVO.getDataName()==null||basicDataVO.getDataSource()==null||basicDataVO.getDataSourceConfigJson()==null)
-        {
-            logger.error("新增数据，基础数据参数不能为空",basicDataVO.toString());
+        if (basicDataVO.getDataCode() == null || basicDataVO.getDataJson() == null || basicDataVO.getDataName() == null || basicDataVO.getDataSource() == null || basicDataVO.getDataSourceConfigJson() == null) {
+            logger.error("新增数据，基础数据参数不能为空", basicDataVO.toString());
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        logger.info("新增数据为{}",basicDataVO.toString());
+        logger.info("新增数据为{}", basicDataVO.toString());
 
-       return  basicDataService.addBasciData(basicDataVO);
+        return basicDataService.addBasciData(basicDataVO);
 
     }
 
     /**
      * 更新基础数据
+     *
      * @param basicDataVO
      * @return
      */
-    @RequestMapping(value="update",method = RequestMethod.POST)
+    @RequestMapping(value = "update", method = RequestMethod.POST)
     public Result<Boolean> updateBasicData(@RequestBody BasicDataVO basicDataVO) {
-        if(basicDataVO.getDataCode()==null||basicDataVO.getDataJson()==null||basicDataVO.getDataName()==null||basicDataVO.getDataSource()==null||basicDataVO.getDataSourceConfigJson()==null)
-        {
-            logger.error("更新数据列表，基础数据参数不能为空",basicDataVO.toString());
+        if (basicDataVO.getDataCode() == null || basicDataVO.getDataJson() == null || basicDataVO.getDataName() == null || basicDataVO.getDataSource() == null || basicDataVO.getDataSourceConfigJson() == null) {
+            logger.error("更新数据列表，基础数据参数不能为空", basicDataVO.toString());
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        logger.info("更新数据为{}",basicDataVO.toString());
-        return  basicDataService.updateBasciData(basicDataVO);
+        logger.info("更新数据为{}", basicDataVO.toString());
+        return basicDataService.updateBasciData(basicDataVO);
 
     }
 
     /**
      * 查询所有的基础数据名字
+     *
      * @param baseRequest
      * @return
      */
-    @RequestMapping(value="querydataName",method = RequestMethod.GET)
+    @RequestMapping(value = "querydataName", method = RequestMethod.GET)
     public Result<List<String>> querydataName(BaseRequest baseRequest) {
         return basicDataService.querydataName(baseRequest);
 
@@ -92,19 +95,19 @@ public class BasicDataController {
 
     /**
      * 根据ID返回基础数据名字
+     *
      * @param basicDataVO
      * @return
      */
-    @RequestMapping(value="getdataNameById",method = RequestMethod.POST)
+    @RequestMapping(value = "getdataNameById", method = RequestMethod.POST)
     public Result<String> getdataNameById(@RequestBody BasicDataVO basicDataVO) {
         return basicDataService.getdataNameById(basicDataVO);
 
     }
 
 
-
-
-
-
-
+    @RequestMapping(value = "getHistory", method = RequestMethod.POST)
+    public Object queryHistory(@RequestBody BasicDataHistoryRequest request) {
+        return basicDataService.queryHistory(request);
+    }
 }

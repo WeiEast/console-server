@@ -4,8 +4,7 @@ import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
 import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
-import com.treefinance.saas.monitor.facade.domain.ro.BasicDataRO;
-import com.treefinance.saas.monitor.facade.service.BasicDataFacade;
+import com.treefinance.saas.monitor.facade.domain.request.autostat.BasicDataHistoryRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -26,4 +25,12 @@ public interface BasicDataService {
     Result<List<String>> querydataName(BaseRequest baseRequest);
 
     Result<String> getdataNameById(BasicDataVO basicDataVO);
+
+    /**
+     * 查询历史
+     *
+     * @param request
+     * @return
+     */
+    Result<Map<String, Object>> queryHistory(BasicDataHistoryRequest request);
 }

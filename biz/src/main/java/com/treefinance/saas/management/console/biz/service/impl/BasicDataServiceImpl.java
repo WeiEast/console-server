@@ -1,6 +1,8 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.google.common.collect.Lists;
 import com.treefinance.saas.management.console.biz.service.BasicDataService;
+import com.treefinance.saas.management.console.common.domain.vo.BasicDataHistoryVO;
 import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
 import com.treefinance.saas.management.console.common.result.CommonStateCode;
 import com.treefinance.saas.management.console.common.result.Result;
@@ -9,9 +11,12 @@ import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
 import com.treefinance.saas.monitor.facade.domain.request.BasicDataRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autostat.BasicDataHistoryRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.BasicDataRO;
-import com.treefinance.saas.monitor.facade.service.BasicDataFacade;
+import com.treefinance.saas.monitor.facade.domain.ro.autostat.BasicDataHistoryRO;
+import com.treefinance.saas.monitor.facade.service.autostat.BasicDataFacade;
+import com.treefinance.saas.monitor.facade.service.autostat.BasicDataHistoryFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +38,9 @@ public class BasicDataServiceImpl implements BasicDataService {
     @Autowired
     BasicDataFacade basicDataFacade;
 
+    @Autowired
+    BasicDataHistoryFacade basicDataHistoryFacade;
+
 
     @Override
     public Result<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
@@ -44,7 +52,7 @@ public class BasicDataServiceImpl implements BasicDataService {
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
 
         }
-        List<BasicDataVO>  basicDataVOList = BeanUtils.convertList(monitorResult.getData(),BasicDataVO.class);
+        List<BasicDataVO> basicDataVOList = BeanUtils.convertList(monitorResult.getData(), BasicDataVO.class);
         com.treefinance.saas.management.console.common.result.PageRequest pageRequests = new com.treefinance.saas.management.console.common.result.PageRequest();
         BeanUtils.copyProperties(pageRequest, pageRequests);
 
@@ -114,5 +122,22 @@ public class BasicDataServiceImpl implements BasicDataService {
         logger.info("查询到的数据名字为{}", monitorResult.getData().getDataName());
         return Results.newSuccessResult(monitorResult.getData().getDataName());
 
+    }
+
+    /**
+     * 查询历史
+     * @param request
+     * @return
+     */
+    public Result<Map<String, Object>> queryHistory(BasicDataHistoryRequest request) {
+        MonitorResult<List<BasicDataHistoryRO>> result = basicDataHistoryFacade.queryList(request);
+        List<BasicDataHistoryVO> list = Lists.newArrayList();
+        if (result != null && !CollectionUtils.isEmpty(result.getData())) {
+            list = BeanUtils.convertList(result.getData(), BasicDataHistoryVO.class);
+        }
+        com.treefinance.saas.management.console.common.result.PageRequest pageRequest = new com.treefinance.saas.management.console.common.result.PageRequest();
+        pageRequest.setPageNumber(request.getPageNumber());
+        pageRequest.setPageSize(request.getPageSize());
+        return Results.newSuccessPageResult(pageRequest, result.getTotalCount(), list);
     }
 }

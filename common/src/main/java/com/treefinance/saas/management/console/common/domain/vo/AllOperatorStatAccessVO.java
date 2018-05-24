@@ -21,6 +21,7 @@ public class AllOperatorStatAccessVO implements Serializable {
      */
     private BigDecimal taskUserRatio;
     private Integer entryCount;
+    private Integer confirmMobileCount;
     private Integer oneClickLoginCount;
     private Integer startLoginCount;
     private Integer loginSuccessCount;
@@ -31,6 +32,7 @@ public class AllOperatorStatAccessVO implements Serializable {
      * 总转化率
      */
     private BigDecimal wholeConversionRate;
+    private BigDecimal confirmMobileConversionRate;
     private BigDecimal oneClickLoginConversionRate;
     private BigDecimal loginConversionRate;
     private BigDecimal loginSuccessRate;
@@ -175,5 +177,21 @@ public class AllOperatorStatAccessVO implements Serializable {
 
     public void setOneClickLoginConversionRate(BigDecimal oneClickLoginConversionRate) {
         this.oneClickLoginConversionRate = oneClickLoginConversionRate;
+    }
+
+    public Integer getConfirmMobileCount() {
+        return confirmMobileCount;
+    }
+
+    public void setConfirmMobileCount(Integer confirmMobileCount) {
+        this.confirmMobileCount = confirmMobileCount;
+    }
+
+    public BigDecimal getConfirmMobileConversionRate() {
+        return confirmMobileConversionRate;
+    }
+
+    public void setConfirmMobileConversionRate(BigDecimal confirmMobileConversionRate) {
+        this.confirmMobileConversionRate = confirmMobileConversionRate;
     }
 }

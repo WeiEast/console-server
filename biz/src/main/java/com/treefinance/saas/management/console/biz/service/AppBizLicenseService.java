@@ -11,7 +11,10 @@ import java.util.List;
 public interface AppBizLicenseService {
 
     List<AppBizLicenseVO> selectBizLicenseByAppIdBizType(AppBizLicenseRequest request);
-
+    /**
+     * 只能更新一下属性：
+     *  isShowLicense、isValid、template
+     * */
     Boolean updateAppBizLicense(AppBizLicenseVO request);
 
     List<AppBizLicenseVO> selectQuotaByAppIdBizType(AppBizLicenseRequest request);

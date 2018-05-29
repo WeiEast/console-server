@@ -15,7 +15,7 @@
         <dependency>
             <groupId>com.treefinance.saas.monitor</groupId>
             <artifactId>monitor-facade</artifactId>
-            <version>1.0.7-1-SNAPSHOT</version>
+            <version>1.1.0</version>
         </dependency>
 
         <dependency>
@@ -51,6 +51,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.treefinance.saas</groupId>
+            <artifactId>saas-knife</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.treefinance.saas.dataservice</groupId>
             <artifactId>data-server-facade</artifactId>
             <version>1.0.2-SNAPSHOT</version>
@@ -59,6 +64,10 @@
             <groupId>com.treefinance.saas.dataservice</groupId>
             <artifactId>data-monitor-facade</artifactId>
             <version>1.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.treefinance.saas</groupId>
+            <artifactId>merchant-center-facade</artifactId>
         </dependency>
 
     </dependencies>

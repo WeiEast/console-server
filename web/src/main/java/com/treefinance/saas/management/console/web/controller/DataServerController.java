@@ -1,11 +1,11 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.DataApiConfigService;
 import com.treefinance.saas.management.console.biz.service.DsDataApiRawResultSerivce;
 import com.treefinance.saas.management.console.biz.service.TpApiConfigService;
 import com.treefinance.saas.management.console.common.domain.request.DsDataApiRequest;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

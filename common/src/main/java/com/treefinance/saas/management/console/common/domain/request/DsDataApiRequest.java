@@ -1,11 +1,11 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
-import com.treefinance.saas.management.console.common.result.PageRequest;
+import com.treefinance.saas.knife.request.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-public class DsDataApiRequest extends PageRequest{
+public class DsDataApiRequest extends PageRequest {
 
     private String dataApiNameType;
 

@@ -1,14 +1,17 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.dubbo.rpc.RpcException;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
-import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
-import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
@@ -16,12 +19,19 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfi
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.*;
+import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.*;
+import com.treefinance.saas.merchant.center.facade.result.grapsever.AppCallbackResult;
+import com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade;
+import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +41,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,21 +55,18 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppCallbackConfigServiceImpl.class);
 
+    @Resource
+    private AppCallbackConfigFacade appCallbackConfigFacade;
+    @Resource
+    private AppBizTypeFacade appBizTypeFacade;
+
 
     @Autowired
-    private AppCallbackConfigMapper appCallbackConfigMapper;
-    @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
-    @Autowired
     private AppLicenseService appLicenseService;
-    @Autowired
-    private AppCallbackBizMapper appCallbackBizMapper;
-    @Autowired
-    private AppBizTypeMapper appBizTypeMapper;
+
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
-    @Autowired
-    private AppCallbackConfigDao appCallbackConfigDao;
+
     @Autowired
     private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
     @Autowired
@@ -65,181 +74,231 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
 
     @Override
-    public Result<Map<String, Object>> getList(PageRequest request) {
-        List<AppCallbackConfigVO> resultList = Lists.newArrayList();
-        long total = appCallbackConfigMapper.countByExample(null);
-        if (total <= 0) {
-            return Results.newSuccessPageResult(request, 0, resultList);
-        }
-        AppCallbackConfigCriteria configCriteria = new AppCallbackConfigCriteria();
-        configCriteria.setOrderByClause("CreateTime desc");
-        configCriteria.setOffset(request.getOffset());
-        configCriteria.setLimit(request.getPageSize());
-        List<AppCallbackConfig> configList = appCallbackConfigMapper.selectPaginationByExample(configCriteria);
-        if (CollectionUtils.isEmpty(configList)) {
-            return Results.newSuccessPageResult(request, total, resultList);
-        }
-        List<String> appIdList = configList.stream().map(AppCallbackConfig::getAppId).distinct().collect(Collectors.toList());
-        MerchantBaseCriteria baseCriteria = new MerchantBaseCriteria();
-        baseCriteria.createCriteria().andAppIdIn(appIdList);
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(baseCriteria);
-        Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
+    public SaasResult<Map<String, Object>> getList(PageRequest request) {
+        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
+                .merchant.center.facade.request.common.PageRequest();
 
-        List<Integer> callbackIdList = configList.stream().map(AppCallbackConfig::getId).collect(Collectors.toList());
-        AppCallbackBizCriteria relaCriteria = new AppCallbackBizCriteria();
-        relaCriteria.createCriteria().andCallbackIdIn(callbackIdList);
-        List<AppCallbackBiz> relaList = appCallbackBizMapper.selectByExample(relaCriteria);
-        Map<Integer, List<AppCallbackBiz>> relaMap = relaList.stream().collect(Collectors.groupingBy(AppCallbackBiz::getCallbackId));
+        pageRequest.setPageNum(request.getPageNumber());
+        pageRequest.setPageSize(request.getPageSize());
+        MerchantResult<List<AppCallbackConfigResult>> result = appCallbackConfigFacade.queryAppCallbackConfig
+                (pageRequest);
 
-        configList.forEach(config -> {
+        if (!result.isSuccess()) {
+            logger.error("获取配置列表失败，错误信息：{}", result.getRetMsg());
+        }
+
+        List<AppCallbackConfigResult> callbackConfigResults = result.getData();
+
+        List<AppCallbackConfigVO> returnList = Lists.newArrayList();
+
+        for (AppCallbackConfigResult callbackConfigResult : callbackConfigResults) {
             AppCallbackConfigVO vo = new AppCallbackConfigVO();
-            BeanUtils.copyProperties(config, vo);
-            MerchantBase base = merchantBaseMap.get(config.getAppId());
-            if (base == null) {
-                logger.error("app_callback_config表中appId={}的商户在merchant_base中未找到对应记录", config.getAppId());
-            } else {
-                vo.setAppName(base.getAppName());
-            }
-            vo.setNotifyModelName(wrapNotifyModelName(config.getNotifyModel()));
+            BeanUtils.copyProperties(callbackConfigResult, vo);
 
-            List<AppCallbackBiz> relas = relaMap.get(config.getId());
-            List<AppCallbackBizVO> relaVOs = Lists.newArrayList();
-            if (!CollectionUtils.isEmpty(relas)) {
-                for (AppCallbackBiz rela : relas) {
-                    AppCallbackBizVO relaVO = new AppCallbackBizVO();
-                    relaVO.setBizType(rela.getBizType());
-                    relaVO.setBizName(wrapBizTypeName(rela.getBizType()));
-                    relaVOs.add(relaVO);
-                }
+            completeBizTypes(vo, callbackConfigResult);
+            completeDataType(vo, callbackConfigResult);
 
-            }
-            relaVOs = relaVOs.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
-            vo.setBizTypes(relaVOs);
-            if (config.getIsNewKey() == 0) {
-                AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(config.getAppId());
-                if (appLicenseDTO == null) {
-                    logger.error("appId={}未查询到对应的appLicenseKey", config.getAppId());
-                } else {
-                    vo.setDataSecretKey(appLicenseDTO.getDataSecretKey());
-                }
-            } else {
-                CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(config.getId());
-                if (callbackLicenseDTO == null) {
-                    logger.error("Id={}未查询到对应的call_back配置的dataSecretKey", config.getId());
-                } else {
-                    vo.setDataSecretKey(callbackLicenseDTO.getDataSecretKey());
-                }
-            }
-            AppCallbackDataTypeVO dataTypeVO = new AppCallbackDataTypeVO();
-            dataTypeVO.setCode(config.getDataType());
-            dataTypeVO.setText(ECallBackDataType.getText(config.getDataType()));
-            vo.setDataTypeVO(dataTypeVO);
-            resultList.add(vo);
-
-        });
-        return Results.newSuccessPageResult(request, total, resultList);
+            returnList.add(vo);
+        }
+        logger.info("商户中心返回数据：{}", result);
+        return Results.newPageResult(request, result.getTotalCount(), returnList);
     }
 
     @Override
     public AppCallbackConfigVO getAppCallbackConfigById(Integer id) {
-        AppCallbackConfig config = appCallbackConfigMapper.selectByPrimaryKey(id);
-        if (config == null) {
+
+        GetAppCallbackConfigRequest request = new GetAppCallbackConfigRequest();
+        request.setId(id.longValue());
+
+        MerchantResult<AppCallbackConfigResult> result = appCallbackConfigFacade.getAppCallbackConfigResult(request);
+
+        if (!result.isSuccess()) {
+            logger.error("获取回调配置记录失败，错误信息：{}", result.getRetMsg());
             return null;
         }
-        MerchantBaseCriteria baseCriteria = new MerchantBaseCriteria();
-        baseCriteria.createCriteria().andAppIdEqualTo(config.getAppId());
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(baseCriteria);
-
-        AppCallbackBizCriteria relaCriteria = new AppCallbackBizCriteria();
-        relaCriteria.createCriteria().andCallbackIdEqualTo(config.getId());
-        List<AppCallbackBiz> relaList = appCallbackBizMapper.selectByExample(relaCriteria);
 
         AppCallbackConfigVO vo = new AppCallbackConfigVO();
-        BeanUtils.copyProperties(config, vo);
-        if (CollectionUtils.isEmpty(merchantBaseList)) {
-            logger.error("app_callback_config表中appId={}的商户在merchant_base中未找到对应记录", config.getAppId());
-        } else {
-            vo.setAppName(merchantBaseList.get(0).getAppName());
-        }
-        List<AppCallbackBizVO> relaVOList = Lists.newArrayList();
-        if (!CollectionUtils.isEmpty(relaList)) {
-            for (AppCallbackBiz rela : relaList) {
-                AppCallbackBizVO relaVO = new AppCallbackBizVO();
-                relaVO.setBizType(rela.getBizType());
-                relaVO.setBizName(wrapBizTypeName(rela.getBizType()));
-                relaVOList.add(relaVO);
-            }
-        }
-        vo.setBizTypes(relaVOList);
-        vo.setNotifyModelName(wrapNotifyModelName(config.getNotifyModel()));
-        if (config.getIsNewKey() == 0) {
-            AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(config.getAppId());
-            if (appLicenseDTO == null) {
-                logger.error("appId={}未查询到对应的appLicenseKey", config.getAppId());
-            } else {
-                vo.setDataSecretKey(appLicenseDTO.getDataSecretKey());
-            }
-        } else {
-            CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(config.getId());
-            if (callbackLicenseDTO == null) {
-                logger.error("Id={}未查询到对应的call_back配置的dataSecretKey", config.getId());
-            } else {
-                vo.setDataSecretKey(callbackLicenseDTO.getDataSecretKey());
-            }
-        }
-        AppCallbackDataTypeVO dataTypeVO = new AppCallbackDataTypeVO();
-        dataTypeVO.setCode(config.getDataType());
-        dataTypeVO.setText(ECallBackDataType.getText(config.getDataType()));
-        vo.setDataTypeVO(dataTypeVO);
+
+        AppCallbackConfigResult callbackConfigResult = result.getData();
+
+        BeanUtils.copyProperties(callbackConfigResult, vo);
+
+        logger.info(JSON.toJSONString(vo));
+
+        completeBizTypes(vo, callbackConfigResult);
+        completeDataType(vo, callbackConfigResult);
+
+        logger.info(JSON.toJSONString(vo));
+
         return vo;
+    }
+
+    /**
+     * 从merchant-center过来的数据不全，补全部分数据
+     */
+    private void completeDataType(AppCallbackConfigVO vo, AppCallbackConfigResult callbackConfigResult) {
+        AppCallbackDataTypeResult dataTypeResult = callbackConfigResult.getDataTypeVO();
+        AppCallbackDataTypeVO dataTypeVO = new AppCallbackDataTypeVO();
+        dataTypeVO.setText(ECallBackDataType.getText(dataTypeResult.getCode()));
+        dataTypeVO.setCode(dataTypeResult.getCode());
+        vo.setDataTypeVO(dataTypeVO);
+    }
+
+    private void completeBizTypes(AppCallbackConfigVO vo, AppCallbackConfigResult callbackConfigResult) {
+        List<AppCallbackBizVO> bizTypes = new ArrayList<>();
+        List<AppCallbackBizSimpleResult> simpleResults = callbackConfigResult.getBizTypes();
+        for (AppCallbackBizSimpleResult simpleResult : simpleResults) {
+            AppCallbackBizVO bizVO = new AppCallbackBizVO();
+            bizVO.setBizType(simpleResult.getBizType());
+            bizVO.setBizName(wrapBizTypeName(bizVO.getBizType()));
+            bizTypes.add(bizVO);
+        }
+        vo.setBizTypes(bizTypes);
     }
 
     @Override
     public Integer add(AppCallbackConfigVO appCallbackConfigVO) {
-        Integer configId = appCallbackConfigDao.addCallbackConfig(appCallbackConfigVO);
-        // 发送配置变更消息
-        variableMessageNotifyService.sendVariableMessage("merchant-callback", "create", appCallbackConfigVO.getAppId());
-        return configId;
+
+        if (StringUtils.isBlank(appCallbackConfigVO.getAppId())) {
+            throw new BizException("appId不能为空");
+        }
+        if (StringUtils.isBlank(appCallbackConfigVO.getUrl())) {
+            throw new BizException("回调地址URL不能为空");
+        }
+        if (CollectionUtils.isEmpty(appCallbackConfigVO.getBizTypes())) {
+            throw new BizException("业务类型不能为空");
+        }
+
+        AddAppCallbackConfigRequest request = new AddAppCallbackConfigRequest();
+        BeanUtils.copyProperties(appCallbackConfigVO, request);
+
+
+        List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
+        List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
+        request.setBizTypes(list);
+
+
+        AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
+        AppCallbackDataTypeRequest dataType = getAppCallbackDataTypeRequest(dataTypeVO);
+        request.setDataTypeVO(dataType);
+
+
+
+        MerchantResult<AddAppCallbackConfigResult> result = appCallbackConfigFacade.addAppCallbackConfig(request);
+
+        if (result.isSuccess()) {
+            variableMessageNotifyService.sendVariableMessage("merchant-callback", "create", appCallbackConfigVO.getAppId());
+            return result.getData().getConfigId();
+        }
+
+        return null;
     }
 
     @Override
     public void update(AppCallbackConfigVO appCallbackConfigVO) {
-        appCallbackConfigDao.updateCallbackConfig(appCallbackConfigVO);
-        AppCallbackConfigVO _appCallbackConfigVO = getAppCallbackConfigById(appCallbackConfigVO.getId());
+        logger.info("更新回调配置，{}", JSON.toJSONString(appCallbackConfigVO));
+        UpdateCallbackConfigRequest request = new UpdateCallbackConfigRequest();
 
-        if (_appCallbackConfigVO != null) {
-            variableMessageNotifyService.sendVariableMessage("merchant-callback", "update", _appCallbackConfigVO.getAppId());
+        BeanUtils.copyProperties(appCallbackConfigVO, request);
+
+
+        List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
+        List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
+        request.setBizTypes(list);
+
+
+        AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
+
+        AppCallbackDataTypeRequest dataType = getAppCallbackDataTypeRequest(dataTypeVO);
+        request.setDataTypeVO(dataType);
+
+        MerchantResult<BaseResult> result;
+        try {
+            result = appCallbackConfigFacade.updateAppCallbackConfig(request);
+
+            if (!result.isSuccess()) {
+                logger.error("更新回调配置信息失败，错误信息：{}", result);
+                return;
+            }
+        } catch (RpcException e) {
+            logger.error("调用商户中心失败，{}", e.getMessage());
+            return;
         }
+
+        variableMessageNotifyService.sendVariableMessage("merchant-callback", "update", appCallbackConfigVO.getAppId());
+    }
+
+    private AppCallbackDataTypeRequest getAppCallbackDataTypeRequest(AppCallbackDataTypeVO dataTypeVO) {
+        AppCallbackDataTypeRequest dataType = new AppCallbackDataTypeRequest();
+        if (dataTypeVO != null) {
+            dataType.setCode(dataTypeVO.getCode());
+            dataType.setText(dataTypeVO.getText());
+        }
+        return dataType;
+    }
+
+    private List<AddAppCallbackBizRequest> getAddAppCallbackBizRequests(List<AppCallbackBizVO> bizVOList) {
+        List<AddAppCallbackBizRequest> list = new ArrayList<>();
+        if (bizVOList != null && !bizVOList.isEmpty()) {
+            for (AppCallbackBizVO vo : bizVOList) {
+                AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
+                BeanUtils.copyProperties(vo, callbackBizRequest);
+                list.add(callbackBizRequest);
+            }
+        }
+        return list;
     }
 
     @Override
     public void deleteAppCallbackConfigById(Integer id) {
 
         AppCallbackConfigVO appCallbackConfigVO = getAppCallbackConfigById(id);
-        appCallbackConfigDao.deleteAppCallbackConfigById(id);
-        // 发送配置变更消息
-        if (appCallbackConfigVO != null) {
-            variableMessageNotifyService.sendVariableMessage("merchant-callback", "delete", appCallbackConfigVO.getAppId());
+        if (appCallbackConfigVO == null) {
+            logger.error("删除回调配置失败，该商户配置不存在");
+            return;
+        }
+        DeleteAppCallbackConfigRequest request = new DeleteAppCallbackConfigRequest();
+        request.setId(id.longValue());
 
+        MerchantResult<BaseResult> result;
+        try {
+            result = appCallbackConfigFacade.deleteAppCallbackConfigResult(request);
+
+            if (result.isSuccess()) {
+                variableMessageNotifyService.sendVariableMessage("merchant-callback", "delete", appCallbackConfigVO.getAppId());
+            }
+        } catch (RpcException e) {
+            logger.error("调用商户中心 删除回调配置接口失败，错误信息：{}", e.getMessage());
         }
     }
 
     @Override
     public List<AppBizTypeVO> getCallbackBizList() {
         List<AppBizTypeVO> appBizTypeVOList = Lists.newArrayList();
-        AppBizTypeCriteria criteria = new AppBizTypeCriteria();
-        criteria.setOrderByClause("bizType asc");
-        List<AppBizType> appBizTypeList = appBizTypeMapper.selectByExample(criteria);
-        if (CollectionUtils.isEmpty(appBizTypeList)) {
-            return appBizTypeVOList;
-        }
-        appBizTypeVOList = com.treefinance.saas.management.console.common.utils.BeanUtils.convertList(appBizTypeList, AppBizTypeVO.class);
-
-        //在回调中需要增加一个全部类型
         AppBizTypeVO allVO = new AppBizTypeVO();
         allVO.setBizType((byte) 0);
         allVO.setBizName("全部");
         appBizTypeVOList.add(0, allVO);
+        MerchantResult<List<AppBizTypeSimpleResult>> result = null;
+
+        try {
+            result = appBizTypeFacade.queryAppBizTypeSimple(new BaseRequest());
+        } catch (RpcException e) {
+            logger.error("获取回调配置业务类型列表失败：错误信息{}", e.getMessage());
+            return appBizTypeVOList;
+        }
+
+
+        if (result.isSuccess()) {
+            List<AppBizTypeSimpleResult> list = result.getData();
+            for (AppBizTypeSimpleResult simpleResult : list) {
+                AppBizTypeVO vo = new AppBizTypeVO();
+                BeanUtils.copyProperties(simpleResult, vo);
+                appBizTypeVOList.add(vo);
+            }
+        }
+        //在回调中需要增加一个全部类型
+
         return appBizTypeVOList;
     }
 
@@ -274,9 +333,10 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Override
     @Transactional
     public void initHistorySecretKey() {
-        AppCallbackConfigCriteria configCriteria = new AppCallbackConfigCriteria();
-        configCriteria.createCriteria().andIsNewKeyEqualTo((byte) 1);
-        List<AppCallbackConfig> configList = appCallbackConfigMapper.selectByExample(configCriteria);
+        GetAppCallBackConfigByIsNewKeyRequest request = new GetAppCallBackConfigByIsNewKeyRequest();
+        request.setIsNewKey((byte) 1);
+        MerchantResult<List<AppCallbackResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigByIsNewKey(request);
+        List<AppCallbackConfig> configList = DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
         for (AppCallbackConfig config : configList) {
             CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(config.getId());
             if (callbackLicenseDTO == null) {

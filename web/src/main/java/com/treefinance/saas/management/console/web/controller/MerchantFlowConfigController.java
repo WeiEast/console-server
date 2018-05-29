@@ -1,8 +1,12 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
+import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
-import com.treefinance.saas.management.console.common.result.Results;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商户流量分配配置
@@ -19,6 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/saas/console/merchant/flow")
+@Api(description = "商户流量配置相关文档")
 public class MerchantFlowConfigController {
 
     @Autowired
@@ -29,7 +35,7 @@ public class MerchantFlowConfigController {
      *
      * @return
      */
-    @RequestMapping(value = "/list", produces = "application/json")
+    @RequestMapping(value = "/list", produces = "application/json",method = {RequestMethod.GET,RequestMethod.POST})
     public Object getList() {
         List<MerchantFlowConfigVO> list = merchantFlowConfigService.getList();
         return Results.newSuccessResult(list);
@@ -57,11 +63,28 @@ public class MerchantFlowConfigController {
     /**
      * 初始化,将为配置的商户初始化为product的serviceTag
      */
-    @RequestMapping(value = "/init")
+    @RequestMapping(value = "/init",method = RequestMethod.GET)
     public Object init() {
         merchantFlowConfigService.init();
         return Results.newSuccessResult(true);
     }
 
+    @ApiOperation(value = "获取商户流量配置列表")
+    @RequestMapping(value = "/allot/list",method = {RequestMethod.POST})
+    @ApiResponses({@ApiResponse(code=200,message = "成功",response = MerchantFlowAllotVO.class,responseContainer =
+            "Map")})
+    public SaasResult<Map<String, Object>> getAllotList(@RequestBody @ApiParam PageRequest pageRequest) {
+        return merchantFlowConfigService.queryMerchantAllotVO(pageRequest);
+    }
+    @ApiOperation(value = "获取商户流量配置列表")
+    @RequestMapping(value = "/allot/update",method = {RequestMethod.POST})
+    public SaasResult<Boolean> updateMerchantAllot(@RequestBody @ApiParam MerchantFlowAllotVO merchantFlowAllotVO) {
+
+        if(merchantFlowAllotVO.getAppId() == null|| merchantFlowAllotVO.getQuotaVOList() ==null){
+            throw new IllegalArgumentException("appId或者quotaList不能为空");
+        }
+
+        return merchantFlowConfigService.updateMerchantAllot(merchantFlowAllotVO);
+    }
 
 }

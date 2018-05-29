@@ -22,7 +22,7 @@ public class AllEcommerceStatDayAccessVO implements Serializable {
      */
     private BigDecimal taskUserRatio;
     private Integer entryCount;
-    private Integer confirmMobileCount;
+    private Integer oneClickLoginCount;
     private Integer startLoginCount;
     private Integer loginSuccessCount;
     private Integer crawlSuccessCount;
@@ -32,7 +32,7 @@ public class AllEcommerceStatDayAccessVO implements Serializable {
      * 总转化率
      */
     private BigDecimal wholeConversionRate;
-    private BigDecimal confirmMobileConversionRate;
+    private BigDecimal oneClickLoginConversionRate;
     private BigDecimal loginConversionRate;
     private BigDecimal loginSuccessRate;
     private BigDecimal crawlSuccessRate;
@@ -72,14 +72,6 @@ public class AllEcommerceStatDayAccessVO implements Serializable {
 
     public void setEntryCount(Integer entryCount) {
         this.entryCount = entryCount;
-    }
-
-    public Integer getConfirmMobileCount() {
-        return confirmMobileCount;
-    }
-
-    public void setConfirmMobileCount(Integer confirmMobileCount) {
-        this.confirmMobileCount = confirmMobileCount;
     }
 
     public Integer getStartLoginCount() {
@@ -130,14 +122,6 @@ public class AllEcommerceStatDayAccessVO implements Serializable {
         this.wholeConversionRate = wholeConversionRate;
     }
 
-    public BigDecimal getConfirmMobileConversionRate() {
-        return confirmMobileConversionRate;
-    }
-
-    public void setConfirmMobileConversionRate(BigDecimal confirmMobileConversionRate) {
-        this.confirmMobileConversionRate = confirmMobileConversionRate;
-    }
-
     public BigDecimal getLoginConversionRate() {
         return loginConversionRate;
     }
@@ -178,27 +162,19 @@ public class AllEcommerceStatDayAccessVO implements Serializable {
         this.callbackSuccessRate = callbackSuccessRate;
     }
 
-    @Override
-    public String toString() {
-        return "AllOperatorStatAccessVO{" +
-                "dataTime=" + dataTime +
-                ", dataTimeStr='" + dataTimeStr + '\'' +
-                ", taskUserRatio=" + taskUserRatio +
-                ", entryCount=" + entryCount +
-                ", confirmMobileCount=" + confirmMobileCount +
-                ", startLoginCount=" + startLoginCount +
-                ", loginSuccessCount=" + loginSuccessCount +
-                ", crawlSuccessCount=" + crawlSuccessCount +
-                ", processSuccessCount=" + processSuccessCount +
-                ", callbackSuccessCount=" + callbackSuccessCount +
-                ", wholeConversionRate=" + wholeConversionRate +
-                ", confirmMobileConversionRate=" + confirmMobileConversionRate +
-                ", loginConversionRate=" + loginConversionRate +
-                ", loginSuccessRate=" + loginSuccessRate +
-                ", crawlSuccessRate=" + crawlSuccessRate +
-                ", processSuccessRate=" + processSuccessRate +
-                ", callbackSuccessRate=" + callbackSuccessRate +
-                '}';
+    public BigDecimal getOneClickLoginConversionRate() {
+        return oneClickLoginConversionRate;
     }
 
+    public void setOneClickLoginConversionRate(BigDecimal oneClickLoginConversionRate) {
+        this.oneClickLoginConversionRate = oneClickLoginConversionRate;
+    }
+
+    public Integer getOneClickLoginCount() {
+        return oneClickLoginCount;
+    }
+
+    public void setOneClickLoginCount(Integer oneClickLoginCount) {
+        this.oneClickLoginCount = oneClickLoginCount;
+    }
 }

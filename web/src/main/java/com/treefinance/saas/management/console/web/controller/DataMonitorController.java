@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.DmStatService;
 import com.treefinance.saas.management.console.common.domain.request.DmStatDsRequest;
 import com.treefinance.saas.management.console.common.domain.request.DmStatTpRequest;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class DataMonitorController {
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
         }
-        if(request.getStartDate().after(request.getEndDate())){
+        if (request.getStartDate().after(request.getEndDate())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
         }
         if (toLocalDataTime(request.getStartDate()).plusDays(30).isBefore(toLocalDataTime(request.getEndDate()))) {
@@ -56,7 +56,7 @@ public class DataMonitorController {
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
         }
-        if(request.getStartDate().after(request.getEndDate())){
+        if (request.getStartDate().after(request.getEndDate())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
         }
         if (toLocalDataTime(request.getStartDate()).plusYears(1).isBefore(toLocalDataTime(request.getEndDate()))) {
@@ -76,7 +76,7 @@ public class DataMonitorController {
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
         }
-        if(request.getStartDate().after(request.getEndDate())){
+        if (request.getStartDate().after(request.getEndDate())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
         }
         if (toLocalDataTime(request.getStartDate()).plusDays(30).isBefore(toLocalDataTime(request.getEndDate()))) {
@@ -97,7 +97,7 @@ public class DataMonitorController {
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "时间参数不能为空");
         }
-        if(request.getStartDate().after(request.getEndDate())){
+        if (request.getStartDate().after(request.getEndDate())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "开始时间不能晚于结束时间");
         }
         if (toLocalDataTime(request.getStartDate()).plusYears(1).isBefore(toLocalDataTime(request.getEndDate()))) {

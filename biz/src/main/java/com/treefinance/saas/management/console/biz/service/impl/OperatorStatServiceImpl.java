@@ -5,19 +5,23 @@ import com.datatrees.crawler.core.processor.format.unit.TimeUnit;
 import com.datatrees.toolkits.util.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.OperatorStatService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseByBizTypeRequest;
+import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
+import com.treefinance.saas.merchant.center.facade.result.console.AppBizLicenseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.facade.domain.request.OperatorStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorAllStatAccessRO;
@@ -49,10 +53,12 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     private static final Logger logger = LoggerFactory.getLogger(OperatorStatService.class);
     @Autowired
     private OperatorStatAccessFacade operatorStatAccessFacade;
+
     @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
+    private AppBizLicenseFacade appBizLicenseFacade;
     @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
+
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -67,10 +73,10 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessListWithPage(rpcRequest);
         List<AllOperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, result);
+            return Results.newPageResult(request, 0, result);
         }
         result = BeanUtils.convertList(rpcResult.getData(), AllOperatorStatDayAccessVO.class);
-        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
+        return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
     @Override
@@ -104,10 +110,10 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatHourAccessListWithPage(rpcRequest);
         List<OperatorStatAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, result);
+            return Results.newPageResult(request, 0, result);
         }
         result = BeanUtils.convertList(rpcResult.getData(), OperatorStatAccessVO.class);
-        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
+        return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
     @Override
@@ -123,10 +129,10 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         MonitorResult<List<OperatorStatDayAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatDayAccessListWithPage(rpcRequest);
         List<OperatorStatDayAccessVO> result = Lists.newArrayList();
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, result);
+            return Results.newPageResult(request, 0, result);
         }
         result = BeanUtils.convertList(rpcResult.getData(), OperatorStatDayAccessVO.class);
-        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
+        return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
     @Override
@@ -143,7 +149,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcDayRequest.setSaasEnv(request.getSaasEnv());
         MonitorResult<List<OperatorStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryOneOperatorStatDayAccessListWithPage(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+            return Results.newPageResult(request, 0, Lists.newArrayList());
         }
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
         rpcRequest.setGroupCode(request.getGroupCode());
@@ -156,7 +162,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         MonitorResult<List<OperatorStatAccessRO>> rpcResult = operatorStatAccessFacade.queryOperatorStatAccessList(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             logger.error("查询具体运营商详细信息有误,存在日统计数据,缺失小时统计数据,request={}", JSON.toJSONString(request));
-            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+            return Results.newPageResult(request, 0, Lists.newArrayList());
         }
         Map<String, List<OperatorStatDayAccessDetailVO>> map = Maps.newHashMap();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -186,7 +192,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             vo.setChildren(detailList);
             result.add(vo);
         }
-        return Results.newSuccessPageResult(request, rpcDayResult.getTotalCount(), result);
+        return Results.newPageResult(request, rpcDayResult.getTotalCount(), result);
     }
 
     @Override
@@ -209,7 +215,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcDayRequest.setAppId("virtual_total_stat_appId");
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
         if (CollectionUtils.isEmpty(rpcDayResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, Lists.newArrayList());
+            return Results.newPageResult(request, 0, Lists.newArrayList());
         }
 
         List<OperatorAllStatDayAccessRO> list = rpcDayResult.getData();
@@ -262,16 +268,20 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         totalVO.setAppId("virtual_total_stat_appId");
         totalVO.setAppName("所有商户");
         result.add(totalVO);
-        AppBizLicenseCriteria appBizLicenseCriteria = new AppBizLicenseCriteria();
-        appBizLicenseCriteria.createCriteria().andBizTypeEqualTo(EBizType.OPERATOR.getCode());
-        List<AppBizLicense> appBizLicenseList = appBizLicenseMapper.selectByExample(appBizLicenseCriteria);
+
+
+        QueryAppBizLicenseByBizTypeRequest queryAppBizLicenseByBizTypeRequest = new QueryAppBizLicenseByBizTypeRequest();
+        queryAppBizLicenseByBizTypeRequest.setBizType(EBizType.OPERATOR.getCode());
+        MerchantResult<List<AppBizLicenseResult>> listMerchantBase = appBizLicenseFacade.queryAppBizLicenseByBizType(queryAppBizLicenseByBizTypeRequest);
+        List<AppBizLicense> appBizLicenseList = DataConverterUtils.convert(listMerchantBase.getData(), AppBizLicense.class);
         if (CollectionUtils.isEmpty(appBizLicenseList)) {
             return Results.newSuccessResult(result);
         }
         List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
+        queryMerchantByAppIdRequest.setAppIds(appIdList);
+        MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return Results.newSuccessResult(result);
         }

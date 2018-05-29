@@ -9,7 +9,10 @@ import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEn
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
+import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.TaskService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -19,11 +22,19 @@ import com.treefinance.saas.management.console.common.domain.request.TaskRequest
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryAppCallBackConfigByIdRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByAppName;
+import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
+import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackConfigResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseInfoResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,14 +61,15 @@ public class TaskServiceImpl implements TaskService {
     private TaskMapper taskMapper;
     @Autowired
     private ISecurityCryptoService securityCryptoService;
+
     @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
     private TaskLogMapper taskLogMapper;
     @Autowired
     private TaskCallbackLogMapper taskCallbackLogMapper;
     @Autowired
-    private AppCallbackConfigMapper appCallbackConfigMapper;
+    private AppCallbackConfigFacade appCallbackConfigFacade;
     @Autowired
     private AppLicenseService appLicenseService;
     @Autowired
@@ -66,7 +78,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskAttributeMapper taskAttributeMapper;
 
     @Override
-    public Result<Map<String, Object>> findByExample(TaskRequest taskRequest) {
+    public SaasResult<Map<String, Object>> findByExample(TaskRequest taskRequest) {
         TaskCriteria taskCriteria = new TaskCriteria();
         taskCriteria.setOffset(taskRequest.getOffset());
         taskCriteria.setLimit(taskRequest.getPageSize());
@@ -87,7 +99,7 @@ public class TaskServiceImpl implements TaskService {
             if (CollectionUtils.isNotEmpty(appIdList)) {
                 criteria.andAppIdIn(appIdList);
             } else {//根据appName未查询到appId,则直接返回空集合
-                return Results.newSuccessPageResult(taskRequest, 0, Lists.newArrayList());
+                return Results.newPageResult(taskRequest, 0, Lists.newArrayList());
             }
         }
         criteria.andCreateTimeGreaterThanOrEqualTo(taskRequest.getStartDate());
@@ -98,7 +110,7 @@ public class TaskServiceImpl implements TaskService {
         long count = taskMapper.countByExample(taskCriteria);
         List<TaskVO> result = Lists.newArrayList();
         if (count <= 0) {
-            return Results.newSuccessPageResult(taskRequest, count, result);
+            return Results.newPageResult(taskRequest, count, result);
         }
         List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
         //<appId,MerchantBase>
@@ -141,7 +153,7 @@ public class TaskServiceImpl implements TaskService {
             }
             result.add(vo);
         }
-        return Results.newSuccessPageResult(taskRequest, count, result);
+        return Results.newPageResult(taskRequest, count, result);
     }
 
     private Boolean canDownload(String requestParam) {
@@ -184,13 +196,17 @@ public class TaskServiceImpl implements TaskService {
         TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
         taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
         List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectByExample(taskCallbackLogCriteria);
+        logger.info("taskCallbackLog:{}",JSON.toJSONString(taskCallbackLogList));
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
         }
         List<Integer> configIdList = taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).distinct().collect(Collectors.toList());
-        AppCallbackConfigCriteria appCallbackConfigCriteria = new AppCallbackConfigCriteria();
-        appCallbackConfigCriteria.createCriteria().andIdIn(configIdList);
-        List<AppCallbackConfig> appCallbackConfigList = appCallbackConfigMapper.selectByExample(appCallbackConfigCriteria);
+        QueryAppCallBackConfigByIdRequest queryAppCallBackConfigByIdRequest = new QueryAppCallBackConfigByIdRequest();
+        queryAppCallBackConfigByIdRequest.setId(configIdList);
+        MerchantResult<List<AppCallbackConfigResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
+        logger.info("商户中心返回数据:{}",JSON.toJSONString(listMerchantResult));
+        List<AppCallbackConfig> appCallbackConfigList = DataConverterUtils.convert(listMerchantResult.getData(),AppCallbackConfig.class);
+        logger.info("数据转换：{}",JSON.toJSONString(appCallbackConfigList));
         //<configId,AppCallbackConfig>
         Map<Integer, AppCallbackConfig> appCallbackConfigMap = appCallbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, t -> t));
 
@@ -299,9 +315,11 @@ public class TaskServiceImpl implements TaskService {
 
     private Map<String, MerchantBase> getMerchantBaseMap(List<Task> taskList) {
         List<String> appIdList = taskList.stream().map(Task::getAppId).distinct().collect(Collectors.toList());
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppIdIn(appIdList);
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+
+        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest =  new QueryMerchantByAppIdRequest();
+        queryMerchantByAppIdRequest.setAppIds(appIdList);
+        MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, m -> m));
         return merchantBaseMap;
     }
@@ -309,9 +327,10 @@ public class TaskServiceImpl implements TaskService {
     private List<String> getAppIdsLikeAppName(String appName) {
         appName = StringUtils.deleteWhitespace(appName);
         List<String> result = Lists.newArrayList();
-        MerchantBaseCriteria merchantBaseCriteria = new MerchantBaseCriteria();
-        merchantBaseCriteria.createCriteria().andAppNameLike("%" + appName + "%");
-        List<MerchantBase> merchantBaseList = merchantBaseMapper.selectByExample(merchantBaseCriteria);
+        QueryMerchantByAppName queryMerchantByAppName = new QueryMerchantByAppName();
+        queryMerchantByAppName.setAppName(appName);
+        MerchantResult<List<MerchantBaseInfoResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseByAppName(queryMerchantByAppName);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return result;
         }

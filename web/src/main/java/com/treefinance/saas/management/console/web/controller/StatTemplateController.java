@@ -36,7 +36,7 @@ public class StatTemplateController {
      */
     @RequestMapping(value = "query", method = RequestMethod.POST)
     public Result<Map<String, Object>> queryTemplateStat(@RequestBody StatTemplateRequest templateStatRequest) {
-        return templateStatService.queryTemplateStat(templateStatRequest);
+        return templateStatService.queryStatTemplate(templateStatRequest);
     }
 
     /**

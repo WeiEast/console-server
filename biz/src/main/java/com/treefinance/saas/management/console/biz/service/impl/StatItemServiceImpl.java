@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.StatItemService;
 import com.treefinance.saas.management.console.common.domain.vo.StatItemVO;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.autostat.StatItemRO;
@@ -24,7 +24,7 @@ public class StatItemServiceImpl implements StatItemService {
     private StatItemFacade statItemFacade;
 
     @Override
-    public Result<List<StatItemVO>> queryByTemplateId(Long templateId) {
+    public SaasResult<List<StatItemVO>> queryByTemplateId(Long templateId) {
         MonitorResult<List<StatItemRO>> result = statItemFacade.queryByTemplateId(templateId);
         if (result == null) {
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
@@ -37,7 +37,7 @@ public class StatItemServiceImpl implements StatItemService {
     }
 
     @Override
-    public Result<Long> saveStatItem(StatItemVO statItemVO) {
+    public SaasResult<Long> saveStatItem(StatItemVO statItemVO) {
         StatItemRO statItemRO = BeanUtils.convert(statItemVO, new StatItemRO());
         Long id = statItemRO.getId();
         if (id == null) {

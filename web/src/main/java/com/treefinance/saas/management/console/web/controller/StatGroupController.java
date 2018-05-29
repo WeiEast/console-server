@@ -1,8 +1,8 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.StatGroupService;
 import com.treefinance.saas.management.console.common.domain.vo.StatGroupVO;
-import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class StatGroupController {
 
 
     @RequestMapping(value = "query", method = RequestMethod.POST)
-    public Result<List<StatGroupVO>> queryStatGroupByTemplateId(@RequestBody StatGroupVO statGroupVO) {
+    public SaasResult<List<StatGroupVO>> queryStatGroupByTemplateId(@RequestBody StatGroupVO statGroupVO) {
         if(statGroupVO.getTemplateId()==null)
         {
             logger.error("统计分组列表查询，传入的参数为空");
@@ -43,7 +43,7 @@ public class StatGroupController {
 
 
     @RequestMapping(value = "addorupdate", method = RequestMethod.POST)
-    public Result<Boolean> addOrUpdateStatGroup(@RequestBody StatGroupVO statGroupVO) {
+    public SaasResult<Boolean> addOrUpdateStatGroup(@RequestBody StatGroupVO statGroupVO) {
         if(statGroupVO.getGroupCode()==null||statGroupVO.getGroupExpression()==null||statGroupVO.getGroupIndex()==null||statGroupVO.getGroupName()==null||statGroupVO.getTemplateId()==null)
         {
             logger.error("新增或更新统计分组，传入参数为空");
@@ -56,7 +56,7 @@ public class StatGroupController {
     }
 
     @RequestMapping(value = "queryAllgroupIndex", method = RequestMethod.GET)
-    public Result<Set<Integer>> queryAllgroupIndex(BaseRequest baseRequest) {
+    public SaasResult<Set<Integer>> queryAllgroupIndex(BaseRequest baseRequest) {
 
         logger.info("查询所有统计分组序号",baseRequest.toString());
         return groupStatService.queryAllgroupIndex();

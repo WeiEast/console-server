@@ -1,11 +1,11 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.StatTemplateService;
 import com.treefinance.saas.management.console.common.domain.request.StatTemplateRequest;
 import com.treefinance.saas.management.console.common.domain.request.TestExpressionRequest;
 import com.treefinance.saas.management.console.common.domain.request.TestRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TemplateStatVO;
-import com.treefinance.saas.management.console.common.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class StatTemplateController {
      * 统计模板列表查询
      */
     @RequestMapping(value = "query", method = RequestMethod.POST)
-    public Result<Map<String, Object>> queryTemplateStat(@RequestBody StatTemplateRequest templateStatRequest) {
+    public SaasResult<Map<String, Object>> queryTemplateStat(@RequestBody StatTemplateRequest templateStatRequest) {
         return templateStatService.queryStatTemplate(templateStatRequest);
     }
 
@@ -43,7 +43,7 @@ public class StatTemplateController {
      * 新增或更新统计模板数据
      */
     @RequestMapping(value = "addorupdate", method = RequestMethod.POST)
-    public Result<Boolean> queryTemplateStat(@RequestBody TemplateStatVO templateStatVO) {
+    public SaasResult<Boolean> queryTemplateStat(@RequestBody TemplateStatVO templateStatVO) {
         return templateStatService.addOrUpdateStatTemplate(templateStatVO);
     }
 

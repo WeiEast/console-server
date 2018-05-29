@@ -1,7 +1,7 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.vo.StatItemVO;
-import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface StatItemService {
      * @param templateId
      * @return
      */
-    Result<List<StatItemVO>> queryByTemplateId(Long templateId);
+    SaasResult<List<StatItemVO>> queryByTemplateId(Long templateId);
 
     /**
      * 数据项保存（新增、修改）
@@ -24,5 +24,5 @@ public interface StatItemService {
      * @param statItemVO
      * @return
      */
-    Result<Long> saveStatItem(StatItemVO statItemVO);
+    SaasResult<Long> saveStatItem(StatItemVO statItemVO);
 }

@@ -1,8 +1,8 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.StatItemService;
 import com.treefinance.saas.management.console.common.domain.vo.StatItemVO;
-import com.treefinance.saas.management.console.common.result.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +27,13 @@ public class StatItemController {
 
 
     @RequestMapping(value = "query", method = {RequestMethod.POST, RequestMethod.GET})
-    public Result<List<StatItemVO>> queryByTemplateId(@RequestBody StatItemVO statItemVO) {
+    public SaasResult<List<StatItemVO>> queryByTemplateId(@RequestBody StatItemVO statItemVO) {
         return statItemService.queryByTemplateId(statItemVO.getTemplateId());
     }
 
 
     @RequestMapping(value = "save", method = RequestMethod.POST)
-    public Result<Long> save(@RequestBody StatItemVO statItemVO) {
+    public SaasResult<Long> save(@RequestBody StatItemVO statItemVO) {
         return statItemService.saveStatItem(statItemVO);
     }
 }

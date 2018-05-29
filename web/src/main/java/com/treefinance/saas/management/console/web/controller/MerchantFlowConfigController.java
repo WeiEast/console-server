@@ -6,7 +6,6 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
-import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -24,7 +23,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/saas/console/merchant/flow")
-@Api(description = "商户流量配置相关文档")
 public class MerchantFlowConfigController {
 
     @Autowired
@@ -69,16 +67,14 @@ public class MerchantFlowConfigController {
         return Results.newSuccessResult(true);
     }
 
-    @ApiOperation(value = "获取商户流量配置列表")
     @RequestMapping(value = "/allot/list",method = {RequestMethod.POST})
-    @ApiResponses({@ApiResponse(code=200,message = "成功",response = MerchantFlowAllotVO.class,responseContainer =
-            "Map")})
-    public SaasResult<Map<String, Object>> getAllotList(@RequestBody @ApiParam PageRequest pageRequest) {
+    public SaasResult<Map<String, Object>> getAllotList(@RequestBody PageRequest pageRequest) {
         return merchantFlowConfigService.queryMerchantAllotVO(pageRequest);
     }
-    @ApiOperation(value = "获取商户流量配置列表")
+
+
     @RequestMapping(value = "/allot/update",method = {RequestMethod.POST})
-    public SaasResult<Boolean> updateMerchantAllot(@RequestBody @ApiParam MerchantFlowAllotVO merchantFlowAllotVO) {
+    public SaasResult<Boolean> updateMerchantAllot(@RequestBody MerchantFlowAllotVO merchantFlowAllotVO) {
 
         if(merchantFlowAllotVO.getAppId() == null|| merchantFlowAllotVO.getQuotaVOList() ==null){
             throw new IllegalArgumentException("appId或者quotaList不能为空");
@@ -86,5 +82,6 @@ public class MerchantFlowConfigController {
 
         return merchantFlowConfigService.updateMerchantAllot(merchantFlowAllotVO);
     }
+
 
 }

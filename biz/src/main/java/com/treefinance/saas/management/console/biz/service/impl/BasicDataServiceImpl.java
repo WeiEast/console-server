@@ -1,15 +1,15 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.BasicDataService;
 import com.treefinance.saas.management.console.common.domain.vo.BasicDataHistoryVO;
 import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
-import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
 import com.treefinance.saas.monitor.facade.domain.request.BasicDataRequest;
 import com.treefinance.saas.monitor.facade.domain.request.autostat.BasicDataHistoryRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
@@ -43,27 +43,25 @@ public class BasicDataServiceImpl implements BasicDataService {
 
 
     @Override
-    public Result<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
-
-
-        MonitorResult<List<BasicDataRO>> monitorResult = basicDataFacade.queryAllBasicData(pageRequest);
+    public SaasResult<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
+        com.treefinance.saas.monitor.facade.domain.base.PageRequest _pageRequest = new com.treefinance.saas.monitor.facade.domain.base.PageRequest();
+        BeanUtils.copyProperties(pageRequest, _pageRequest);
+        MonitorResult<List<BasicDataRO>> monitorResult = basicDataFacade.queryAllBasicData(_pageRequest);
         if (monitorResult.getData() == null) {
             logger.info("查询基础数据列表为空", monitorResult.getErrorMsg());
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
 
         }
         List<BasicDataVO> basicDataVOList = BeanUtils.convertList(monitorResult.getData(), BasicDataVO.class);
-        com.treefinance.saas.management.console.common.result.PageRequest pageRequests = new com.treefinance.saas.management.console.common.result.PageRequest();
-        BeanUtils.copyProperties(pageRequest, pageRequests);
 
-        return Results.newSuccessPageResult(pageRequests, monitorResult.getTotalCount(), basicDataVOList);
+        return Results.newPageResult(pageRequest, monitorResult.getTotalCount(), basicDataVOList);
 
 
     }
 
 
     @Override
-    public Result<Boolean> addBasciData(BasicDataVO basicDataVO) {
+    public SaasResult<Boolean> addBasciData(BasicDataVO basicDataVO) {
 
         BasicDataRequest basicDataRequest = new BasicDataRequest();
         BeanUtils.copyProperties(basicDataVO, basicDataRequest);
@@ -77,7 +75,7 @@ public class BasicDataServiceImpl implements BasicDataService {
     }
 
     @Override
-    public Result<Boolean> updateBasciData(BasicDataVO basicDataVO) {
+    public SaasResult<Boolean> updateBasciData(BasicDataVO basicDataVO) {
         BasicDataRequest basicDataRequest = new BasicDataRequest();
         BeanUtils.copyProperties(basicDataVO, basicDataRequest);
         MonitorResult<Boolean> monitorResult = basicDataFacade.updateBasicData(basicDataRequest);
@@ -91,7 +89,7 @@ public class BasicDataServiceImpl implements BasicDataService {
     }
 
     @Override
-    public Result<List<String>> querydataName(BaseRequest baseRequest) {
+    public SaasResult<List<String>> querydataName(BaseRequest baseRequest) {
 
         MonitorResult<List<String>> monitorResult = basicDataFacade.queryAllDataName(baseRequest);
         if (CollectionUtils.isEmpty(monitorResult.getData())) {
@@ -105,7 +103,7 @@ public class BasicDataServiceImpl implements BasicDataService {
 
 
     @Override
-    public Result<String> getdataNameById(BasicDataVO basicDataVO) {
+    public SaasResult<String> getdataNameById(BasicDataVO basicDataVO) {
         if (basicDataVO.getId() == null) {
             logger.info("查询基础数据  传入参数ID为空");
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -126,18 +124,19 @@ public class BasicDataServiceImpl implements BasicDataService {
 
     /**
      * 查询历史
+     *
      * @param request
      * @return
      */
-    public Result<Map<String, Object>> queryHistory(BasicDataHistoryRequest request) {
+    public SaasResult<Map<String, Object>> queryHistory(BasicDataHistoryRequest request) {
         MonitorResult<List<BasicDataHistoryRO>> result = basicDataHistoryFacade.queryList(request);
         List<BasicDataHistoryVO> list = Lists.newArrayList();
         if (result != null && !CollectionUtils.isEmpty(result.getData())) {
             list = BeanUtils.convertList(result.getData(), BasicDataHistoryVO.class);
         }
-        com.treefinance.saas.management.console.common.result.PageRequest pageRequest = new com.treefinance.saas.management.console.common.result.PageRequest();
+        PageRequest pageRequest = new PageRequest();
         pageRequest.setPageNumber(request.getPageNumber());
         pageRequest.setPageSize(request.getPageSize());
-        return Results.newSuccessPageResult(pageRequest, result.getTotalCount(), list);
+        return Results.newPageResult(pageRequest, result.getTotalCount(), list);
     }
 }

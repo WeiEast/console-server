@@ -1,11 +1,11 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.BasicDataService;
 import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
-import com.treefinance.saas.management.console.common.result.Result;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
-import com.treefinance.saas.monitor.facade.domain.base.PageRequest;
 import com.treefinance.saas.monitor.facade.domain.request.autostat.BasicDataHistoryRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class BasicDataController {
      * @return
      */
     @RequestMapping(value = "list", method = RequestMethod.GET)
-    public Result<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
+    public SaasResult<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
         logger.info("基础数据列表查询接口，分页信息为{}", JSON.toJSON(pageRequest));
 
         return basicDataService.queryAllBasicData(pageRequest);
@@ -53,7 +53,7 @@ public class BasicDataController {
      * @return
      */
     @RequestMapping(value = "add", method = RequestMethod.POST)
-    public Result<Boolean> addBasicData(@RequestBody BasicDataVO basicDataVO) {
+    public SaasResult<Boolean> addBasicData(@RequestBody BasicDataVO basicDataVO) {
         if (basicDataVO.getDataCode() == null || basicDataVO.getDataJson() == null || basicDataVO.getDataName() == null || basicDataVO.getDataSource() == null || basicDataVO.getDataSourceConfigJson() == null) {
             logger.error("新增数据，基础数据参数不能为空", basicDataVO.toString());
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -71,7 +71,7 @@ public class BasicDataController {
      * @return
      */
     @RequestMapping(value = "update", method = RequestMethod.POST)
-    public Result<Boolean> updateBasicData(@RequestBody BasicDataVO basicDataVO) {
+    public SaasResult<Boolean> updateBasicData(@RequestBody BasicDataVO basicDataVO) {
         if (basicDataVO.getDataCode() == null || basicDataVO.getDataJson() == null || basicDataVO.getDataName() == null || basicDataVO.getDataSource() == null || basicDataVO.getDataSourceConfigJson() == null) {
             logger.error("更新数据列表，基础数据参数不能为空", basicDataVO.toString());
             throw new IllegalArgumentException("请求参数不能为空！");
@@ -88,7 +88,7 @@ public class BasicDataController {
      * @return
      */
     @RequestMapping(value = "querydataName", method = RequestMethod.GET)
-    public Result<List<String>> querydataName(BaseRequest baseRequest) {
+    public SaasResult<List<String>> querydataName(BaseRequest baseRequest) {
         return basicDataService.querydataName(baseRequest);
 
     }
@@ -100,7 +100,7 @@ public class BasicDataController {
      * @return
      */
     @RequestMapping(value = "getdataNameById", method = RequestMethod.POST)
-    public Result<String> getdataNameById(@RequestBody BasicDataVO basicDataVO) {
+    public SaasResult<String> getdataNameById(@RequestBody BasicDataVO basicDataVO) {
         return basicDataService.getdataNameById(basicDataVO);
 
     }

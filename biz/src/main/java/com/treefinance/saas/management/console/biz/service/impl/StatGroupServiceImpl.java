@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.StatGroupService;
 import com.treefinance.saas.management.console.common.domain.vo.StatGroupVO;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import com.treefinance.saas.monitor.facade.domain.request.StatGroupRequest;
@@ -31,7 +31,7 @@ public class StatGroupServiceImpl implements StatGroupService {
     private StatGroupFacade statGroupFacade;
 
     @Override
-    public Result<List<StatGroupVO>> queryStatGroup(StatGroupVO statGroupVO) {
+    public SaasResult<List<StatGroupVO>> queryStatGroup(StatGroupVO statGroupVO) {
         StatGroupRequest groupStatRequest = BeanUtils.convert(statGroupVO, new StatGroupRequest());
         MonitorResult<List<StatGroupRO>> monitorResult = statGroupFacade.queryStatGroup(groupStatRequest);
         if (monitorResult.getData() == null) {
@@ -44,7 +44,7 @@ public class StatGroupServiceImpl implements StatGroupService {
     }
 
     @Override
-    public Result<Boolean> addOrUpdateStatGroup(StatGroupVO statGroupVO) {
+    public SaasResult<Boolean> addOrUpdateStatGroup(StatGroupVO statGroupVO) {
         StatGroupRequest groupStatRequest = new StatGroupRequest();
         BeanUtils.copyProperties(statGroupVO, groupStatRequest);
         MonitorResult<Boolean> monitorResult = statGroupFacade.addOrUpdateStatGroup(groupStatRequest);
@@ -56,7 +56,7 @@ public class StatGroupServiceImpl implements StatGroupService {
     }
 
     @Override
-    public Result<Set<Integer>> queryAllgroupIndex() {
+    public SaasResult<Set<Integer>> queryAllgroupIndex() {
         BaseRequest baseRequest = new BaseRequest();
         MonitorResult<Set<Integer>> monitorResult = statGroupFacade.queryAllGroupIndex(baseRequest);
         if (monitorResult.getData() == null) {

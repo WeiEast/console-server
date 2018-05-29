@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
-import com.treefinance.saas.management.console.common.result.PageRequest;
+
+import com.treefinance.saas.knife.request.PageRequest;
 
 /**
  * @author:guoguoyun

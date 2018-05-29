@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.StatTemplateRequest;
 import com.treefinance.saas.management.console.common.domain.request.TestExpressionRequest;
 import com.treefinance.saas.management.console.common.domain.request.TestRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TemplateStatVO;
-import com.treefinance.saas.management.console.common.result.Result;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public interface StatTemplateService {
      * @param templateStatRequest
      * @return
      */
-    Result<Map<String, Object>> queryStatTemplate(StatTemplateRequest templateStatRequest);
+    SaasResult<Map<String, Object>> queryStatTemplate(StatTemplateRequest templateStatRequest);
 
     /**
      * 添加或修改模板
@@ -28,7 +28,7 @@ public interface StatTemplateService {
      * @param templateStatVO
      * @return
      */
-    Result<Boolean> addOrUpdateStatTemplate(TemplateStatVO templateStatVO);
+    SaasResult<Boolean> addOrUpdateStatTemplate(TemplateStatVO templateStatVO);
 
     /**
      * 模板测试接口
@@ -36,7 +36,7 @@ public interface StatTemplateService {
      * @param request
      * @return
      */
-    Result<String> testExpression(TestExpressionRequest request);
+    SaasResult<String> testExpression(TestExpressionRequest request);
 
     /**
      *
@@ -45,5 +45,5 @@ public interface StatTemplateService {
      * @param request
      * @return
      */
-    Result<Object> test(TestRequest request);
+    SaasResult<Object> test(TestRequest request);
 }

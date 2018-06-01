@@ -4,7 +4,7 @@ package com.treefinance.saas.management.console.common.domain.vo;
  * @author chengtong
  * @date 18/5/31 17:31
  */
-public class AlarmWorkOrderVO {
+public class AlarmWorkOrderVO extends BaseVO{
 
     private Long id;
     private Long recordId;

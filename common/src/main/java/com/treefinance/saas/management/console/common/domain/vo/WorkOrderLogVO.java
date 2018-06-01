@@ -1,12 +1,10 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
-import java.io.Serializable;
-
 /**
  * @author chengtong
  * @date 18/5/31 17:47
  */
-public class WorkOrderLogVO implements Serializable {
+public class WorkOrderLogVO extends BaseVO {
 
     private Long id;
     private Long orderId;

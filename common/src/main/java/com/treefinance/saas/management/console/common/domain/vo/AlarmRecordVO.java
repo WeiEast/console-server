@@ -1,13 +1,12 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author chengtong
  * @date 18/5/31 17:06
  */
-public class AlarmRecordVO implements Serializable {
+public class AlarmRecordVO extends BaseVO {
 
     private Long id;
     private Date dataTime;

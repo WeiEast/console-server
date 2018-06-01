@@ -9,10 +9,7 @@ import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOr
 import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
@@ -37,7 +34,7 @@ public class AlarmRecordController {
      * @return 分页的数据列表
      */
     @RequestMapping(value = "/record/list", produces = "application/json", method = RequestMethod.POST)
-    public SaasResult queryAlarmList(AlarmRecordRequest alarmRecordRequest) {
+    public SaasResult queryAlarmList(@RequestBody AlarmRecordRequest alarmRecordRequest) {
 
         return alarmRecordService.queryAlarmRecord(alarmRecordRequest);
     }
@@ -50,7 +47,7 @@ public class AlarmRecordController {
      * @see AlarmWorkOrderRequest
      */
     @RequestMapping(value = "/workOrder/list", produces = "application/json", method = RequestMethod.POST)
-    public SaasResult queryWorkOrderList(AlarmWorkOrderRequest alarmRecordRequest) {
+    public SaasResult queryWorkOrderList(@RequestBody AlarmWorkOrderRequest alarmRecordRequest) {
 
 
         return alarmRecordService.queryAlarmRecordOrder(alarmRecordRequest);
@@ -85,7 +82,7 @@ public class AlarmRecordController {
      * @param request 更新工单处理人员 ;{@see UpdateWorkOrderRequest}
      */
     @RequestMapping(value = "/workOrder/update/processor", produces = "application/json", method = RequestMethod.POST)
-    public SaasResult updateWorkOrderProcessor(UpdateWorkOrderRequest request) {
+    public SaasResult updateWorkOrderProcessor(@RequestBody UpdateWorkOrderRequest request) {
 
         if(StringUtils.isEmpty(request.getProcessorName())|| Objects.isNull(request.getId())){
             return Results.newFailedResult(CommonStateCode.ILLEGAL_PARAMETER);
@@ -99,7 +96,7 @@ public class AlarmRecordController {
      * 工单更新状态
      */
     @RequestMapping(value = "/workOrder/update/status", produces = "application/json", method = RequestMethod.POST)
-    public SaasResult updateWorkOrderStatus(UpdateWorkOrderRequest request) {
+    public SaasResult updateWorkOrderStatus(@RequestBody UpdateWorkOrderRequest request) {
         if(Objects.isNull(request.getStatus())|| Objects.isNull(request.getId())){
             return Results.newFailedResult(CommonStateCode.ILLEGAL_PARAMETER);
         }

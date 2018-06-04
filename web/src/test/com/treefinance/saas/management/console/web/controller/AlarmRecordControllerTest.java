@@ -4,17 +4,23 @@ import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
 import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.io.UnsupportedEncodingException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -25,6 +31,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class AlarmRecordControllerTest {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String baseUrl = "/saas/console/alarm";
 
@@ -39,14 +47,19 @@ public class AlarmRecordControllerTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    private MvcResult result;
+
+    @After
+    public void after() throws UnsupportedEncodingException {
+        logger.info(JSON.toJSONString(result.getResponse().getContentAsString()));
+    }
 
     @Test
     public void queryAlarmList() throws Exception {
 
         AlarmRecordRequest alarmRecordRequest = new AlarmRecordRequest();
 
-        this.mockMvc.perform(post(baseUrl+"/record/list").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType
-                .APPLICATION_JSON));
+        result = this.mockMvc.perform(post(baseUrl+"/record/list").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
 
     }
 
@@ -54,22 +67,22 @@ public class AlarmRecordControllerTest {
     public void queryWorkOrderList() throws Exception {
         AlarmWorkOrderRequest alarmRecordRequest = new AlarmWorkOrderRequest();
 
-        this.mockMvc.perform(post(baseUrl+"/workOrder/list").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType
-                .APPLICATION_JSON));
+        result = this.mockMvc.perform(post(baseUrl+"/workOrder/list").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType
+                .APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
     @Test
     public void queryWorkOrderHistory() throws Exception {
 
-        this.mockMvc.perform(post(baseUrl+"/workOrder/history/186791617926033408").accept(MediaType
-                .APPLICATION_JSON));
+        result =  this.mockMvc.perform(post(baseUrl+"/workOrder/history/186791617926033408").accept(MediaType
+                .APPLICATION_JSON)).andReturn();
     }
 
     @Test
     public void querySaasWorkerList() throws Exception {
 
-        this.mockMvc.perform(post(baseUrl+"/saasWorker/list").accept(MediaType
-                .APPLICATION_JSON));
+        result = this.mockMvc.perform(post(baseUrl+"/saasWorker/list").accept(MediaType
+                .APPLICATION_JSON)).andReturn();
     }
 
     @Test
@@ -79,7 +92,7 @@ public class AlarmRecordControllerTest {
         alarmRecordRequest.setId(186791617926033409L);
         alarmRecordRequest.setProcessorName("程通");
 
-        this.mockMvc.perform(post(baseUrl+"/workOrder/update/processor").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON));
+        result = this.mockMvc.perform(post(baseUrl+"/workOrder/update/processor").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
     @Test
@@ -90,6 +103,6 @@ public class AlarmRecordControllerTest {
         request.setStatus(2);
         request.setProcessorName("程通");
 
-        this.mockMvc.perform(post(baseUrl+"/workOrder/update/status").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON));
+        result = this.mockMvc.perform(post(baseUrl+"/workOrder/update/status").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 }

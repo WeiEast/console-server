@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
+import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.knife.request.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -69,5 +70,10 @@ public class AlarmRecordRequest extends PageRequest {
 
     public void setAlarmType(String alarmType) {
         this.alarmType = alarmType;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
     }
 }

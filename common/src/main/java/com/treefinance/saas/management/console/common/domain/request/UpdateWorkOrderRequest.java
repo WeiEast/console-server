@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.Serializable;
 
 /**
@@ -56,5 +58,9 @@ public class UpdateWorkOrderRequest implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
     }
 }

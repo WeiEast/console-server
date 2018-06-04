@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
+import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.knife.request.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -59,5 +60,9 @@ public class AlarmWorkOrderRequest  extends PageRequest {
 
     public void setEndTime(String endTime) {
         this.endTime = endTime;
+    }
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
     }
 }

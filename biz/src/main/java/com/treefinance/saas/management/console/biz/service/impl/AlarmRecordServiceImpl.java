@@ -22,6 +22,7 @@ import com.treefinance.saas.monitor.facade.domain.ro.AlarmWorkOrderRO;
 import com.treefinance.saas.monitor.facade.domain.ro.SaasWorkerRO;
 import com.treefinance.saas.monitor.facade.domain.ro.WorkOrderLogRO;
 import com.treefinance.saas.monitor.facade.service.AlarmRecordFacade;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
     @Override
     public SaasResult<Map<String, Object>> queryAlarmRecord(com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest request){
+
         AlarmRecordRequest recordRequest = new AlarmRecordRequest();
 
         recordRequest.setSummary(request.getSummary());
@@ -123,6 +125,10 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
         request.setProcessorName(updateWorkOrderRequest.getProcessorName());
         request.setId(updateWorkOrderRequest.getId());
+        if(StringUtils.isNotEmpty(updateWorkOrderRequest.getOpName())){
+            request.setOpName(updateWorkOrderRequest.getOpName());
+        }
+
 
         MonitorResult<Boolean> result;
         try{
@@ -131,7 +137,9 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             logger.error("请求monitor-server失败：{}",e.getMessage());
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
-
+        if(StringUtils.isNotEmpty(result.getErrorMsg())){
+            return Results.newFailedResult(CommonStateCode.FAILURE,result.getErrorMsg());
+        }
         return  Results.newSuccessResult(result.getData());
     }
 
@@ -151,14 +159,14 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             logger.error("请求monitor-server失败：{}",e.getMessage());
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
-
+        if(StringUtils.isNotEmpty(result.getErrorMsg())){
+            return Results.newFailedResult(CommonStateCode.FAILURE,result.getErrorMsg());
+        }
         return  Results.newSuccessResult(result.getData());
     }
 
-
     @Override
     public SaasResult querySaasWorker(){
-
         MonitorResult<List<SaasWorkerRO>> result;
         try{
             result = alarmRecordFacade.querySaasWorker();
@@ -166,12 +174,8 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             logger.error("请求monitor-server失败：{}",e.getMessage());
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
-
         List<SaasWorkerVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),SaasWorkerVO.class);
-
         return  Results.newSuccessResult(alarmRecordVOS);
-
     }
-
 
 }

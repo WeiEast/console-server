@@ -89,7 +89,7 @@ public class AlarmRecordControllerTest {
     public void updateWorkOrderProcessor() throws Exception {
         UpdateWorkOrderRequest alarmRecordRequest = new UpdateWorkOrderRequest();
 
-        alarmRecordRequest.setId(186791617926033409L);
+        alarmRecordRequest.setId(188973703973859328L);
         alarmRecordRequest.setProcessorName("程通");
 
         result = this.mockMvc.perform(post(baseUrl+"/workOrder/update/processor").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -99,9 +99,10 @@ public class AlarmRecordControllerTest {
     public void updateWorkOrderStatus() throws Exception {
         UpdateWorkOrderRequest request = new UpdateWorkOrderRequest();
 
-        request.setId(186791617926033409L);
+        request.setId(188973703973859328L);
         request.setStatus(2);
         request.setProcessorName("程通");
+//        request.setOpName();
 
         result = this.mockMvc.perform(post(baseUrl+"/workOrder/update/status").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
     }

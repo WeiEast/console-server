@@ -6,11 +6,40 @@ package com.treefinance.saas.management.console.common.domain.vo;
  */
 public class SaasWorkerVO extends BaseVO{
 
+    /**
+     * 工作人员编号
+     * */
     private Long id;
+
+    /**
+     * 工作人员名字
+     * */
     private String name;
+
+    /**
+     * 联系手机
+     * */
     private String mobile;
+
+    /**
+     * 邮箱地址
+     * */
     private String email;
+
+    /**
+     * 工作值班日的corn表达式
+     * */
     private String dutyCorn;
+
+    /**
+     * 下一个值班日
+     * */
+    private String nextOnDuty;
+
+    /**
+     * 上一个值班日
+     * */
+    private String preOnDuty;
 
     public void setId(Long id) {
         this.id = id;
@@ -52,4 +81,19 @@ public class SaasWorkerVO extends BaseVO{
         return this.dutyCorn;
     }
 
+    public String getNextOnDuty() {
+        return nextOnDuty;
+    }
+
+    public void setNextOnDuty(String nextOnDuty) {
+        this.nextOnDuty = nextOnDuty;
+    }
+
+    public String getPreOnDuty() {
+        return preOnDuty;
+    }
+
+    public void setPreOnDuty(String preOnDuty) {
+        this.preOnDuty = preOnDuty;
+    }
 }

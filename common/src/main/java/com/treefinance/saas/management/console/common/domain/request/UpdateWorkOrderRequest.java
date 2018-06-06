@@ -14,11 +14,19 @@ public class UpdateWorkOrderRequest implements Serializable {
 
     private Integer status;
 
-    private String dutyName;
+    private String opName;
 
     private String processorName;
 
     private String remark;
+
+    public String getOpName() {
+        return opName;
+    }
+
+    public void setOpName(String opName) {
+        this.opName = opName;
+    }
 
     public Long getId() {
         return id;
@@ -34,14 +42,6 @@ public class UpdateWorkOrderRequest implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    public String getDutyName() {
-        return dutyName;
-    }
-
-    public void setDutyName(String dutyName) {
-        this.dutyName = dutyName;
     }
 
     public String getProcessorName() {

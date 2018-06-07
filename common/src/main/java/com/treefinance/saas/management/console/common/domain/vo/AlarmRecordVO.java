@@ -8,14 +8,36 @@ import java.util.Date;
  */
 public class AlarmRecordVO extends BaseVO {
 
+    /**记录编号*/
     private Long id;
+    /**预警的数据时间*/
     private Date dataTime;
-    private Boolean isProcessed;
+    /**记录状态*/
+    private Integer isProcessed;
+    /**处理状态描述*/
     private String processDesc;
+    /**预警等级*/
     private String level;
+    /**预警类型*/
     private String alarmType;
+    /**摘要信息*/
     private String summary;
+    /**预警内容*/
     private String content;
+    /**处理人员名称*/
+    private String processorName;
+    /**值班人员名字*/
+    private String dutyName;
+    /**预警工单状态*/
+    private Integer orderStatus;
+    /**工单状态描述*/
+    private String orderStatusDesc;
+    /**开始时间*/
+    private Date startTime;
+    /**结束时间*/
+    private Date endTime;
+    /**工单编号*/
+    private Long orderId;
 
 
     public Long getId() {
@@ -34,12 +56,12 @@ public class AlarmRecordVO extends BaseVO {
         this.dataTime = dataTime;
     }
 
-    public Boolean getProcessed() {
+    public Integer getIsProcessed() {
         return isProcessed;
     }
 
-    public void setProcessed(Boolean processed) {
-        isProcessed = processed;
+    public void setIsProcessed(Integer isProcessed) {
+        this.isProcessed = isProcessed;
     }
 
     public String getProcessDesc() {
@@ -80,5 +102,61 @@ public class AlarmRecordVO extends BaseVO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getProcessorName() {
+        return processorName;
+    }
+
+    public void setProcessorName(String processorName) {
+        this.processorName = processorName;
+    }
+
+    public String getDutyName() {
+        return dutyName;
+    }
+
+    public void setDutyName(String dutyName) {
+        this.dutyName = dutyName;
+    }
+
+    public Integer getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(Integer orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getOrderStatusDesc() {
+        return orderStatusDesc;
+    }
+
+    public void setOrderStatusDesc(String orderStatusDesc) {
+        this.orderStatusDesc = orderStatusDesc;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 }

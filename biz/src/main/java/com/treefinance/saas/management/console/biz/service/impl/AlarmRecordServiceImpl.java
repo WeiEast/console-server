@@ -151,6 +151,9 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
         request.setStatus(updateWorkOrderRequest.getStatus());
         request.setRemark(updateWorkOrderRequest.getRemark());
         request.setId(updateWorkOrderRequest.getId());
+        if(StringUtils.isNotEmpty(updateWorkOrderRequest.getOpName())){
+            request.setOpName(updateWorkOrderRequest.getOpName());
+        }
 
         MonitorResult<Boolean> result;
         try{

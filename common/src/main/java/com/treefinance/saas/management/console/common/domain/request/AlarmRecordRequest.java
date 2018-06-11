@@ -10,18 +10,40 @@ import org.springframework.format.annotation.DateTimeFormat;
  */
 public class AlarmRecordRequest extends PageRequest {
 
+    /**
+     * 记录编号
+     * */
     private Long id;
 
+    /**
+     * 对预警时间的筛选条件
+     * 格式"yyyy-MM-dd hh:mm:ss"
+     * */
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private String startTime;
 
+    /**
+     * 对预警时间的筛选条件
+     * 格式"yyyy-MM-dd hh:mm:ss"
+     * */
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private String endTime;
 
+    /**
+     * 对预警类型的筛选条件
+     * 目前只有 operator_alarm
+     * */
     private String alarmType;
 
+    /**
+     * 对预警记录摘要的筛选条件
+     * 支持模糊查询
+     * */
     private String summary;
-
+    /**
+     * 预警等级
+     * 取值只有三个 error、warning、info
+     * */
     private String level;
 
     public String getLevel() {

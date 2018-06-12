@@ -22,12 +22,16 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseRe
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
+import com.treefinance.saas.monitor.facade.domain.request.CallbackFailureReasonStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.OperatorStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
+import com.treefinance.saas.monitor.facade.domain.ro.stat.callback.CallbackFailureReasonStatAccessRO;
+import com.treefinance.saas.monitor.facade.domain.ro.stat.callback.CallbackFailureReasonStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorAllStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorAllStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatDayAccessRO;
+import com.treefinance.saas.monitor.facade.service.stat.CallbackFailureReasonStatAccessFacade;
 import com.treefinance.saas.monitor.facade.service.stat.OperatorStatAccessFacade;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -58,6 +62,8 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     private AppBizLicenseFacade appBizLicenseFacade;
     @Autowired
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
+    @Autowired
+    private CallbackFailureReasonStatAccessFacade callbackFailureReasonStatAccessFacade;
 
 
     @Override
@@ -406,5 +412,60 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setEndDate(request.getEndTime());
         MonitorResult<Boolean> rpcResult = operatorStatAccessFacade.initHistoryData4OperatorStatAccess(rpcRequest);
         return Results.newSuccessResult(rpcResult.getData());
+    }
+
+    @Override
+    public Object queryDayCallbackFailureReason(OperatorStatRequest request) {
+        CallbackFailureReasonStatAccessRequest rpcRequest = new CallbackFailureReasonStatAccessRequest();
+        rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setBizType(EBizType.OPERATOR.getCode());
+        rpcRequest.setDataType(request.getStatType());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
+        rpcRequest.setGroupCode(request.getGroupCode());
+        rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getDataDate()));
+        rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getDataDate()));
+        MonitorResult<List<CallbackFailureReasonStatDayAccessRO>> rpcResult =
+                callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatDayAccessList(rpcRequest);
+        List<CallbackFailureReasonVO> result = Lists.newArrayList();
+        List<CallbackFailureReasonStatDayAccessRO> rpcDataList = rpcResult.getData();
+        if (CollectionUtils.isEmpty(rpcDataList)) {
+            return Results.newSuccessResult(result);
+        }
+        for (CallbackFailureReasonStatDayAccessRO rpcData : rpcDataList) {
+            CallbackFailureReasonVO vo = new CallbackFailureReasonVO();
+            vo.setFailureTotalCount(rpcData.getTotalCount());
+            vo.setUnKnownReasonCount(rpcData.getUnKnownReasonCount());
+            vo.setPersonalReasonCount(rpcData.getPersonalReasonCount());
+            result.add(vo);
+        }
+        return Results.newSuccessResult(result);
+    }
+
+    @Override
+    public Object queryCallbackFailureReason(OperatorStatRequest request) {
+        CallbackFailureReasonStatAccessRequest rpcRequest = new CallbackFailureReasonStatAccessRequest();
+        rpcRequest.setAppId(request.getAppId());
+        rpcRequest.setBizType(EBizType.OPERATOR.getCode());
+        rpcRequest.setDataType(request.getStatType());
+        rpcRequest.setSaasEnv(request.getSaasEnv());
+        rpcRequest.setGroupCode(request.getGroupCode());
+        rpcRequest.setStartTime(request.getDataTime());
+        rpcRequest.setEndTime(org.apache.commons.lang3.time.DateUtils.addMinutes(request.getDataTime(), 30));
+        rpcRequest.setIntervalMins(30);
+        MonitorResult<List<CallbackFailureReasonStatAccessRO>> rpcResult =
+                callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatAccessList(rpcRequest);
+        List<CallbackFailureReasonVO> result = Lists.newArrayList();
+        List<CallbackFailureReasonStatAccessRO> rpcDataList = rpcResult.getData();
+        if (CollectionUtils.isEmpty(rpcDataList)) {
+            return Results.newSuccessResult(result);
+        }
+        for (CallbackFailureReasonStatAccessRO rpcData : rpcDataList) {
+            CallbackFailureReasonVO vo = new CallbackFailureReasonVO();
+            vo.setFailureTotalCount(rpcData.getTotalCount());
+            vo.setUnKnownReasonCount(rpcData.getUnKnownReasonCount());
+            vo.setPersonalReasonCount(rpcData.getPersonalReasonCount());
+            result.add(vo);
+        }
+        return Results.newSuccessResult(result);
     }
 }

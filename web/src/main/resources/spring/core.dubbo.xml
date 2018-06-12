@@ -116,6 +116,10 @@
     <dubbo:reference id="dmStatTpFacade"
                      interface="com.treefinance.saas.dataservice.monitor.stattp.facade.DmStatTpFacade"/>
 
+    <dubbo:reference id="callbackFailureReasonStatAccessFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.CallbackFailureReasonStatAccessFacade"
+                     version="1.0.0"/>
+
 
 
 

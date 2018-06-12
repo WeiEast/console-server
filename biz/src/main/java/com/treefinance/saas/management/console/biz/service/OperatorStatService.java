@@ -53,4 +53,19 @@ public interface OperatorStatService {
      */
     Object initAlarmHistoryData(OperatorStatRequest request);
 
+    /**
+     * 查询回调失败具体原因(按日)
+     *
+     * @param request
+     * @return
+     */
+    Object queryDayCallbackFailureReason(OperatorStatRequest request);
+
+    /**
+     * 查询回调失败具体原因(分时)
+     *
+     * @param request
+     * @return
+     */
+    Object queryCallbackFailureReason(OperatorStatRequest request);
 }

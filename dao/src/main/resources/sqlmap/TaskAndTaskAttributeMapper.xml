@@ -49,7 +49,7 @@
             )
         </if>
         <if test="startTime != null and endTime != null">
-            and task.createTime BETWEEN #{startTime} AND #{endTime}
+            and task.lastUpdateTime BETWEEN #{startTime} AND #{endTime}
         </if>
         <if test="webSite != null and value != null and name != null">
             and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )
@@ -84,7 +84,7 @@
             )
         </if>
         <if test="startTime != null and endTime != null">
-            and task.createTime BETWEEN #{startTime} AND #{endTime}
+            and task.lastUpdateTime BETWEEN #{startTime} AND #{endTime}
         </if>
         <if test="webSite != null and value != null">
             and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )

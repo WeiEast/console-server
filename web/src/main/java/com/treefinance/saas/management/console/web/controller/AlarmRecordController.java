@@ -6,6 +6,7 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
+import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,12 @@ public class AlarmRecordController {
     /**
      * 获取预警记录的列表
      *
-     * @param alarmRecordRequest {summary: 摘要信息 alarmType：预警类型 processorName dutyName }
+     * @param alarmRecordRequest 请求参数
+     * @see AlarmRecordRequest
      * @return 分页的数据列表
      */
     @RequestMapping(value = "/record/list", produces = "application/json", method = RequestMethod.POST)
     public SaasResult queryAlarmList(@RequestBody AlarmRecordRequest alarmRecordRequest) {
-
         return alarmRecordService.queryAlarmRecord(alarmRecordRequest);
     }
 
@@ -44,14 +45,11 @@ public class AlarmRecordController {
      *
      * @param alarmRecordRequest 查询参数
      * @return 工单数据列表
-     * @see AlarmWorkOrderRequest
      */
     @RequestMapping(value = "/workOrder/list", produces = "application/json", method = RequestMethod.POST)
     public SaasResult queryWorkOrderList(@RequestBody AlarmWorkOrderRequest alarmRecordRequest) {
 
-
         return alarmRecordService.queryAlarmRecordOrder(alarmRecordRequest);
-
     }
 
     /**
@@ -61,7 +59,7 @@ public class AlarmRecordController {
      * @return 工单的对应的历史更改记录列表
      */
     @RequestMapping(value = "/workOrder/history/{id}", produces = "application/json", method = RequestMethod.POST)
-    public SaasResult queryWorkOrderHistory(@PathVariable Long id) {
+    public SaasResult queryWorkOrderHistory(@PathVariable long id) {
         return alarmRecordService.queryWorkOrderLog(id);
     }
 
@@ -69,7 +67,6 @@ public class AlarmRecordController {
      * 工作人员列表
      *
      * @return 工作人员列表
-     * @see
      */
     @RequestMapping(value = "/saasWorker/list", produces = "application/json", method = RequestMethod.POST)
     public SaasResult querySaasWorkerList() {
@@ -84,24 +81,31 @@ public class AlarmRecordController {
     @RequestMapping(value = "/workOrder/update/processor", produces = "application/json", method = RequestMethod.POST)
     public SaasResult updateWorkOrderProcessor(@RequestBody UpdateWorkOrderRequest request) {
 
-        if(StringUtils.isEmpty(request.getProcessorName())|| Objects.isNull(request.getId())){
+        if (StringUtils.isEmpty(request.getProcessorName()) || Objects.isNull(request.getId())) {
             return Results.newFailedResult(CommonStateCode.ILLEGAL_PARAMETER);
         }
 
         return alarmRecordService.updateWorkerOrderProcessor(request);
     }
 
-
     /**
      * 工单更新状态
+     *
+     * @param request 请求参数
      */
     @RequestMapping(value = "/workOrder/update/status", produces = "application/json", method = RequestMethod.POST)
     public SaasResult updateWorkOrderStatus(@RequestBody UpdateWorkOrderRequest request) {
-        if(Objects.isNull(request.getStatus())|| Objects.isNull(request.getId())){
+        if (Objects.isNull(request.getStatus()) || Objects.isNull(request.getId())) {
             return Results.newFailedResult(CommonStateCode.ILLEGAL_PARAMETER);
         }
 
         return alarmRecordService.updateWorkerOrderStatus(request);
     }
+
+    @RequestMapping(value = "/saas/worker/list/page", produces = "application/json", method = RequestMethod.POST)
+    public SaasResult querySaasWorkerPage(@RequestBody SaasWorkerRequest request) {
+        return alarmRecordService.querySaasWorkerPage(request);
+    }
+
 
 }

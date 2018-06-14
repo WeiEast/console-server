@@ -13,6 +13,7 @@ public class SaasWorkerVO extends BaseVO{
 
     /**
      * 工作人员名字
+     *
      * */
     private String name;
 

@@ -41,6 +41,10 @@ public class SaasWorkerVO extends BaseVO{
      * */
     private String preOnDuty;
 
+    private String createTimeStr;
+
+    private String lastUpdateTimeStr;
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -95,5 +99,21 @@ public class SaasWorkerVO extends BaseVO{
 
     public void setPreOnDuty(String preOnDuty) {
         this.preOnDuty = preOnDuty;
+    }
+
+    public String getCreateTimeStr() {
+        return createTimeStr;
+    }
+
+    public void setCreateTimeStr(String createTimeStr) {
+        this.createTimeStr = createTimeStr;
+    }
+
+    public String getLastUpdateTimeStr() {
+        return lastUpdateTimeStr;
+    }
+
+    public void setLastUpdateTimeStr(String lastUpdateTimeStr) {
+        this.lastUpdateTimeStr = lastUpdateTimeStr;
     }
 }

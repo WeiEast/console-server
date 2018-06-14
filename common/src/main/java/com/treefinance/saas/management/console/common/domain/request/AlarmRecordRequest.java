@@ -13,7 +13,7 @@ public class AlarmRecordRequest extends PageRequest {
     /**
      * 记录编号
      * */
-    private Long id;
+    private String id;
 
     /**
      * 对预警时间的筛选条件
@@ -54,11 +54,11 @@ public class AlarmRecordRequest extends PageRequest {
         this.level = level;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

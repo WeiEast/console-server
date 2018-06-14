@@ -6,16 +6,14 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
+import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmRecordVO;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmWorkOrderVO;
 import com.treefinance.saas.management.console.common.domain.vo.SaasWorkerVO;
 import com.treefinance.saas.management.console.common.domain.vo.WorkOrderLogVO;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
-import com.treefinance.saas.monitor.facade.domain.request.AlarmRecordRequest;
-import com.treefinance.saas.monitor.facade.domain.request.UpdateWorkOrderRequest;
-import com.treefinance.saas.monitor.facade.domain.request.WorkOrderLogRequest;
-import com.treefinance.saas.monitor.facade.domain.request.WorkOrderRequest;
+import com.treefinance.saas.monitor.facade.domain.request.*;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.AlarmRecordRO;
 import com.treefinance.saas.monitor.facade.domain.ro.AlarmWorkOrderRO;
@@ -48,7 +46,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
     public SaasResult<Map<String, Object>> queryAlarmRecord(com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest request){
 
         AlarmRecordRequest recordRequest = new AlarmRecordRequest();
-
+        recordRequest.setId(request.getId());
         recordRequest.setSummary(request.getSummary());
         recordRequest.setPageSize(request.getPageSize());
         recordRequest.setPageNumber(request.getPageNumber());
@@ -181,4 +179,24 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
         return  Results.newSuccessResult(alarmRecordVOS);
     }
 
+    @Override
+    public SaasResult querySaasWorkerPage(SaasWorkerRequest request) {
+
+        com.treefinance.saas.monitor.facade.domain.request.SaasWorkerRequest saasWorkerRequest = new com.treefinance.saas.monitor.facade.domain.request.SaasWorkerRequest();
+
+        saasWorkerRequest.setName(request.getName());
+        saasWorkerRequest.setPageNumber(request.getPageNumber());
+        saasWorkerRequest.setPageSize(request.getPageSize());
+
+
+        MonitorResult<List<SaasWorkerRO>> result;
+        try{
+            result = alarmRecordFacade.querySaasWorkerPaginate(saasWorkerRequest);
+        }catch (Exception e){
+            logger.error("请求monitor-server失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        List<SaasWorkerVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),SaasWorkerVO.class);
+        return  Results.newPageResult(request,result.getTotalCount(),alarmRecordVOS);
+    }
 }

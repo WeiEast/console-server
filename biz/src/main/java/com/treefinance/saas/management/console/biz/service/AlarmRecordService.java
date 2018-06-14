@@ -3,6 +3,7 @@ package com.treefinance.saas.management.console.biz.service;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
+import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
 import com.treefinance.saas.management.console.common.domain.vo.WorkOrderLogVO;
 
@@ -26,5 +27,7 @@ public interface AlarmRecordService {
     SaasResult updateWorkerOrderStatus(UpdateWorkOrderRequest updateWorkOrderRequest);
 
     SaasResult querySaasWorker();
+
+    SaasResult querySaasWorkerPage(SaasWorkerRequest request);
 
 }

@@ -52,6 +52,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
         recordRequest.setPageNumber(request.getPageNumber());
         recordRequest.setAlarmType(request.getAlarmType());
         recordRequest.setLevel(request.getLevel());
+        recordRequest.setStatus(request.getStatus());
 
         recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(),"yyyy-MM-dd hh:mm:ss"));
         recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(),"yyyy-MM-dd hh:mm:ss"));

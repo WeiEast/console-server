@@ -46,6 +46,20 @@ public class AlarmRecordRequest extends PageRequest {
      * */
     private String level;
 
+    /**
+     *
+     * 0/2/4/6/8
+     * */
+    private Integer status;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     public String getLevel() {
         return level;
     }

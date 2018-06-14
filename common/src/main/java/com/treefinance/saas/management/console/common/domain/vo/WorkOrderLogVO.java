@@ -11,6 +11,15 @@ public class WorkOrderLogVO extends BaseVO {
     private Long recordId;
     private String opName;
     private String opDesc;
+    private String opTime;
+
+    public String getOpTime() {
+        return opTime;
+    }
+
+    public void setOpTime(String opTime) {
+        this.opTime = opTime;
+    }
 
     public Long getId() {
         return this.id;

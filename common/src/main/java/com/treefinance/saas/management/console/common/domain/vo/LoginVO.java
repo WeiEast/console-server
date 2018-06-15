@@ -29,4 +29,14 @@ public class LoginVO implements Serializable {
     private String username;
 
     private String password;
+
+    private Byte source;
+
+    public Byte getSource() {
+        return source;
+    }
+
+    public void setSource(Byte source) {
+        this.source = source;
+    }
 }

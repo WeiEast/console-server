@@ -97,8 +97,8 @@ public class ShiroConfiguration {
     }
 
     @Bean(name = "sessionManager")
-    public DefaultWebSessionManager defaultWebSessionManager() {
-        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+    public ConsoleWebSessionManager defaultWebSessionManager() {
+        ConsoleWebSessionManager sessionManager = new ConsoleWebSessionManager();
         sessionManager.setSessionDAO(redisSessionDAO());
         sessionManager.setCacheManager(redisCacheManager());
         sessionManager.setGlobalSessionTimeout(GLOBALSESSIONTIMEOU);

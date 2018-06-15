@@ -20,6 +20,11 @@ public class AuthUserDTO implements Serializable {
     private Boolean isActive;
 
     /**
+     * sessionId
+     */
+    private String jSessionId;
+
+    /**
      * 角色列表
      */
     private Set<String> roles;
@@ -58,5 +63,11 @@ public class AuthUserDTO implements Serializable {
         this.permissions = permissions;
     }
 
+    public String getjSessionId() {
+        return jSessionId;
+    }
 
+    public void setjSessionId(String jSessionId) {
+        this.jSessionId = jSessionId;
+    }
 }

@@ -54,6 +54,7 @@ public class UserRealm extends AuthorizingRealm {
 //        userDTO.setRoles(roles);
         Subject subject = SecurityUtils.getSubject();
         Session session = subject.getSession();
+        authUser.setjSessionId(session.getId().toString());
         session.setAttribute(Constants.USER_KEY, authUser);
 
         SimpleAuthenticationInfo authenticationInfo = new SimpleAuthenticationInfo(user.getLoginName(), user.getPassword(), getName());

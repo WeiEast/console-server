@@ -2,7 +2,7 @@ package com.treefinance.saas.management.console.biz.common.filter;
 
 import com.datatrees.toolkits.util.http.servlet.ServletRequestUtils;
 import com.treefinance.saas.management.console.common.domain.Constants;
-import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
+import com.treefinance.saas.management.console.common.domain.dto.AuthUserInfoDTO;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class LoggingRequestFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             logger.error("获取ip出错:url={},method={}", request.getRequestURI(), request.getMethod());
         }
-        AuthUserDTO user = (AuthUserDTO) request.getSession().getAttribute(Constants.USER_KEY);
+        AuthUserInfoDTO user = (AuthUserInfoDTO) request.getSession().getAttribute(Constants.USER_KEY);
         long start = System.currentTimeMillis();
         try {
             filterChain.doFilter(request, response);

@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.common.domain.dto;
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -7,9 +9,9 @@ import java.util.Set;
  * 用户登录信息
  * Created by haojiahong on 2017/6/23.
  */
-public class AuthUserDTO implements Serializable {
+public class AuthUserInfoDTO implements Serializable {
 
-    private static final long serialVersionUID = -312234886346061013L;
+    private static final long serialVersionUID = -6700062790963893908L;
     /**
      * 登陆用户名
      */
@@ -70,5 +72,10 @@ public class AuthUserDTO implements Serializable {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
     }
 }

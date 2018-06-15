@@ -74,6 +74,10 @@ public class AuthController {
             logger.info("对用户[{}]进行登录验证..验证开始", username);
             subject.login(userToken);
             logger.info("用户[{}]登录认证通过", username);
+            //设置app请求的session超时时间为1个月
+            if (loginVO.getSource() != null && loginVO.getSource() == 1) {
+                subject.getSession().setTimeout(1000 * 60 * 60 * 24 * 30);
+            }
             return Results.newSuccessResult(session.getAttribute(Constants.USER_KEY));
         } catch (UnknownAccountException e) {
             logger.warn(String.format("账号不存在，account=%s", username), e.getMessage());

@@ -22,9 +22,9 @@ public class RedisSessionDAO extends EnterpriseCacheSessionDAO {
     private static Logger logger = LoggerFactory.getLogger(RedisSessionDAO.class);
 
     /**
-     * session 在redis过期时间是12小时12*60*60
+     * session 在redis过期时间是30天
      */
-    private static int expireTime = 12 * 60 * 60;
+    private static int expireTime = 30 * 24 * 60 * 60;
 
     private static String prefix = "console-shiro-session:";
 

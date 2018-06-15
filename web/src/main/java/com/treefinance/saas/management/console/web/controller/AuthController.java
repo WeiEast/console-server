@@ -7,7 +7,7 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.annotations.RequestLimit;
 import com.treefinance.saas.management.console.common.domain.Constants;
-import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
+import com.treefinance.saas.management.console.common.domain.dto.AuthUserInfoDTO;
 import com.treefinance.saas.management.console.common.domain.vo.LoginVO;
 import com.treefinance.saas.management.console.common.domain.vo.PwdCryptVO;
 import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
@@ -97,7 +97,7 @@ public class AuthController {
     @RequestMapping(value = "/currentuser", method = {RequestMethod.GET}, produces = "application/json")
     public SaasResult<?> getLoginUser(HttpSession session) {
         try {
-            AuthUserDTO authUserBO = (AuthUserDTO) session.getAttribute(Constants.USER_KEY);
+            AuthUserInfoDTO authUserBO = (AuthUserInfoDTO) session.getAttribute(Constants.USER_KEY);
             return Results.newSuccessResult(authUserBO);
         } catch (Exception e) {
             logger.error("get currentuser error,", e);

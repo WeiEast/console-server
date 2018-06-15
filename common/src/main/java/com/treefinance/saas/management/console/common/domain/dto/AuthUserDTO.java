@@ -9,6 +9,7 @@ import java.util.Set;
  */
 public class AuthUserDTO implements Serializable {
 
+    private static final long serialVersionUID = -312234886346061013L;
     /**
      * 登陆用户名
      */

@@ -20,6 +20,8 @@ public class OperatorStatAccessVO implements Serializable {
 
     private Date dataTime;
 
+    private BigDecimal average;
+
     private String dataTimeStr;
 
     private Integer confirmMobileCount;
@@ -165,5 +167,13 @@ public class OperatorStatAccessVO implements Serializable {
 
     public void setTaskUserRatio(BigDecimal taskUserRatio) {
         this.taskUserRatio = taskUserRatio;
+    }
+
+    public BigDecimal getAverage() {
+        return average;
+    }
+
+    public void setAverage(BigDecimal average) {
+        this.average = average;
     }
 }

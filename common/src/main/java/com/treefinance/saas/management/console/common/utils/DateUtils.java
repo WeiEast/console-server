@@ -286,6 +286,16 @@ public class DateUtils {
         }
         return date;
     }
+    public static Date strToDateOrNull(String dateStr, String formatStr) {
+        DateFormat dd = new SimpleDateFormat(formatStr);
+        Date date = null;
+        try {
+            date = dd.parse(dateStr);
+        } catch (Exception e) {
+            return null;
+        }
+        return date;
+    }
 
 
     //获取今天凌晨的时间戳

@@ -128,5 +128,24 @@ public class OperatorStatController {
         return operatorStatService.initAlarmHistoryData(request);
     }
 
+    @RequestMapping(value = "/query/callback/failure/reason", method = RequestMethod.GET, produces = "application/json")
+    public Object queryCallbackFailureReason(OperatorStatRequest request) {
+        if (request == null || request.getDataTime() == null || request.getStatType() == null
+                || StringUtils.isBlank(request.getAppId()) || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数dataTime,statType,appId,saasEnv不能为空！");
+        }
+        return operatorStatService.queryCallbackFailureReason(request);
+    }
+
+
+    @RequestMapping(value = "/query/day/callback/failure/reason", method = RequestMethod.GET, produces = "application/json")
+    public Object queryDayCallbackFailureReason(OperatorStatRequest request) {
+        if (request == null || request.getDataDate() == null || request.getStatType() == null
+                || StringUtils.isBlank(request.getAppId()) || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数dataDate,statType,appId,saasEnv不能为空！");
+        }
+        return operatorStatService.queryDayCallbackFailureReason(request);
+    }
+
 
 }

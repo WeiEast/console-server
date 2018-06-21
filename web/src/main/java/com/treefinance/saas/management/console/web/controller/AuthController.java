@@ -7,7 +7,7 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.annotations.RequestLimit;
 import com.treefinance.saas.management.console.common.domain.Constants;
-import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
+import com.treefinance.saas.management.console.common.domain.dto.AuthUserInfoDTO;
 import com.treefinance.saas.management.console.common.domain.vo.LoginVO;
 import com.treefinance.saas.management.console.common.domain.vo.PwdCryptVO;
 import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
@@ -74,6 +74,10 @@ public class AuthController {
             logger.info("对用户[{}]进行登录验证..验证开始", username);
             subject.login(userToken);
             logger.info("用户[{}]登录认证通过", username);
+            //设置app请求的session超时时间为1个月
+            if (loginVO.getSource() != null && loginVO.getSource() == 1) {
+                subject.getSession().setTimeout(1000 * 60 * 60 * 24 * 30);
+            }
             return Results.newSuccessResult(session.getAttribute(Constants.USER_KEY));
         } catch (UnknownAccountException e) {
             logger.warn(String.format("账号不存在，account=%s", username), e.getMessage());
@@ -93,7 +97,7 @@ public class AuthController {
     @RequestMapping(value = "/currentuser", method = {RequestMethod.GET}, produces = "application/json")
     public SaasResult<?> getLoginUser(HttpSession session) {
         try {
-            AuthUserDTO authUserBO = (AuthUserDTO) session.getAttribute(Constants.USER_KEY);
+            AuthUserInfoDTO authUserBO = (AuthUserInfoDTO) session.getAttribute(Constants.USER_KEY);
             return Results.newSuccessResult(authUserBO);
         } catch (Exception e) {
             logger.error("get currentuser error,", e);

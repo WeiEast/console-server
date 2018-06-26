@@ -165,7 +165,7 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
     private Map<String, List<ChartStatVO>> changeValueMap(Map<String, List<ChartStatVO>> valueMap) {
         Map<String, List<ChartStatVO>> result = Maps.newHashMap();
         for (Map.Entry<String, List<ChartStatVO>> entry : valueMap.entrySet()) {
-            String stepCode = ETaskStatLink.getStepCodeByStatCode(entry.getKey());
+            String stepCode = ETaskStatLink.getDescByStatCode(entry.getKey());
             if (StringUtils.isBlank(stepCode)) {
                 continue;
             }

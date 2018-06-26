@@ -24,23 +24,23 @@
 
     <dubbo:reference id="merchantBaseInfoFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0" timeout="60000"/>
     <dubbo:reference id="merchantFlowConfigFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.MerchantFlowConfigFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0" timeout="60000"/>
     <dubbo:reference id="appBizTypeFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0" timeout="60000"/>
     <dubbo:reference id="appBizLicenseFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="appCallbackConfigFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0" timeout="60000"/>
     <dubbo:reference id="appLicenseFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppLicenseFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="merchantUserFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.MerchantUserFacade"
@@ -82,7 +82,8 @@
                      interface="com.treefinance.saas.monitor.facade.service.autostat.BasicDataFacade"
                      version="1.0.0"/>
 
-    <dubbo:reference id="basicDataHistoryFacade" interface="com.treefinance.saas.monitor.facade.service.autostat.BasicDataHistoryFacade"
+    <dubbo:reference id="basicDataHistoryFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.autostat.BasicDataHistoryFacade"
                      version="1.0.0"/>
 
     <dubbo:reference id="statTemplateFacade"
@@ -97,8 +98,6 @@
     <dubbo:reference id="statItemFacade"
                      interface="com.treefinance.saas.monitor.facade.service.autostat.StatItemFacade"
                      version="1.0.0"/>
-
-
 
 
     <dubbo:reference id="dataApiRawResultFacade"
@@ -120,7 +119,9 @@
                      interface="com.treefinance.saas.monitor.facade.service.stat.CallbackFailureReasonStatAccessFacade"
                      version="1.0.0"/>
 
-
+    <dubbo:reference id="realTimeStatAccessFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.RealTimeStatAccessFacade"
+                     version="1.0.0"/>
 
 
 </beans>

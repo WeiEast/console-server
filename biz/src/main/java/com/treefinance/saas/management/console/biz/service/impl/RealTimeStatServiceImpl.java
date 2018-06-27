@@ -12,8 +12,8 @@ import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.RealTimeStatAccessRO;
 import com.treefinance.saas.monitor.facade.service.stat.RealTimeStatAccessFacade;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,20 +52,14 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         rpcRequest.setStartTime(this.getStartDate(request));
         rpcRequest.setEndTime(this.getEndDate(request));
         rpcRequest.setIntervalMins(request.getIntervalMins());
-        List<String> nameKeyList = Lists.newArrayList();
-        Map<String, List<ChartStatVO>> nameValueMap = Maps.newHashMap();
         MonitorResult<List<RealTimeStatAccessRO>> rpcResult = realTimeStatAccessFacade.queryRealTimeStatAccess(rpcRequest);
         List<RealTimeStatAccessRO> rpcList = rpcResult.getData();
-        if (CollectionUtils.isEmpty(rpcList)) {
-            resultMap.put("keys", nameKeyList);
-            resultMap.put("values", nameValueMap);
-            return resultMap;
-        }
-        nameKeyList = this.getNameKeysList();
+
+        List<String> nameKeyList = this.getNameKeysList();
         List<String> statCodeKeyList = this.getStatCodeKeysList();
         Map<String, List<ChartStatVO>> valueMap = this.getValueMap(rpcList, statCodeKeyList);
 
-        nameValueMap = this.changeValueMap(valueMap);
+        Map<String, List<ChartStatVO>> nameValueMap = this.changeValueMap(valueMap);
         resultMap.put("keys", nameKeyList);
         resultMap.put("values", nameValueMap);
         return resultMap;
@@ -90,17 +84,19 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         rpcRequest.setStartTime(this.getStartDate(request));
         rpcRequest.setEndTime(this.getEndDate(request));
         rpcRequest.setIntervalMins(request.getIntervalMins());
+
         MonitorResult<List<RealTimeStatAccessRO>> rpcResult = realTimeStatAccessFacade.queryRealTimeStatAccess(rpcRequest);
         List<RealTimeStatAccessRO> rpcList = rpcResult.getData();
-        if (CollectionUtils.isEmpty(rpcList)) {
-            resultMap.put("keys", nameKeyList);
-            resultMap.put("values", nameValueMap);
-            return resultMap;
-        }
-
         nameKeyList.add("当前成功率");
         List<ChartStatRateVO> rateValueList = this.getRateValueList(rpcList);
         nameValueMap.put("当前成功率", rateValueList);
+
+        MonitorResult<List<RealTimeStatAccessRO>> avgRpcResult = realTimeStatAccessFacade.queryAvgRealTimeStatAccess(rpcRequest);
+        List<RealTimeStatAccessRO> avgRpcList = avgRpcResult.getData();
+        nameKeyList.add("平均成功率(前7天)");
+        List<ChartStatRateVO> avgRateValueList = this.getRateValueList(avgRpcList);
+        nameValueMap.put("平均成功率(前7天)", avgRateValueList);
+
         resultMap.put("keys", nameKeyList);
         resultMap.put("values", nameValueMap);
         return resultMap;
@@ -111,9 +107,6 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         for (RealTimeStatAccessRO realTimeStatAccessRO : rpcList) {
             Date dataTime = realTimeStatAccessRO.getDataTime();
             Map<String, Integer> statDataMap = realTimeStatAccessRO.getStatDataMap();
-            if (MapUtils.isEmpty(statDataMap)) {
-                continue;
-            }
 
             ChartStatRateVO chartStatRateVO = new ChartStatRateVO();
             chartStatRateVO.setDataTime(dataTime);
@@ -138,9 +131,6 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         for (RealTimeStatAccessRO realTimeStatAccessRO : rpcList) {
             Date dataTime = realTimeStatAccessRO.getDataTime();
             Map<String, Integer> statDataMap = realTimeStatAccessRO.getStatDataMap();
-            if (MapUtils.isEmpty(statDataMap)) {
-                continue;
-            }
 
             for (String statCodeKey : statCodeKeyList) {
                 ChartStatVO vo = new ChartStatVO();
@@ -210,9 +200,9 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
             case 0:
                 return request.getStartDate();
             case 1:
-                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24);
+                return DateUtils.addHours(new Date(), -24);
             case 2:
-                return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 3);
+                return DateUtils.addHours(new Date(), -24 * 3);
             default:
         }
         return null;
@@ -228,7 +218,12 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         Integer dateType = request.getDateType();
         switch (dateType) {
             case 0:
-                return org.apache.commons.lang.time.DateUtils.addDays(request.getEndDate(), 1);
+                Date now = new Date();
+                Date endDate = com.treefinance.saas.management.console.common.utils.DateUtils.getTodayEndDate(request.getEndDate());
+                if (endDate.compareTo(now) > 0) {
+                    return now;
+                }
+                return endDate;
             default:
         }
         return new Date();

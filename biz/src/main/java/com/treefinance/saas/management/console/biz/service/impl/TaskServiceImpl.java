@@ -329,6 +329,7 @@ public class TaskServiceImpl implements TaskService {
         taskBuryPointLogList = taskBuryPointLogMapper.selectByExample(taskBuryPointLogCriteria);
         for(TaskBuryPointLog taskBuryPointLog:taskBuryPointLogList){
             TaskBuryPointLogVO taskBuryPointLogVO =  new TaskBuryPointLogVO();
+            taskBuryPointLogVO.setTaskId(taskBuryPointLog.getTaskId());
             taskBuryPointLogVO.setAppId(taskBuryPointLog.getAppId());
             taskBuryPointLogVO.setCode(taskBuryPointLog.getCode());
             taskBuryPointLogVO.setCreateTime(taskBuryPointLog.getCreateTime());

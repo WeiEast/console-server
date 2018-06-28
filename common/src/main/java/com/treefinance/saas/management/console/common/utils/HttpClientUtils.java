@@ -666,6 +666,7 @@ public class HttpClientUtils {
         CloseableHttpClient httpclient = getClient();
         CloseableHttpResponse response = null;
         int statusCode = 0;
+        String responseStr = null;
         try {
             HttpGet httpGet = new HttpGet(apiUrl);
             httpGet.setConfig(getBaseConfig());
@@ -679,12 +680,13 @@ public class HttpClientUtils {
             }
             OutputStream outputStream = httpResponse.getOutputStream();
             entity.writeTo(outputStream);
+            outputStream.flush();
         } catch (IOException e) {
             throw new RequestFailedException(apiUrl, statusCode, null, e);
         } finally {
             if (logger.isInfoEnabled()) {
-                logger.info(" doGetForward completed: url={}, statusCode={},cost {} ms ",
-                        url, statusCode, System.currentTimeMillis() - start);
+                logger.info(" doGetForward completed: apiUrl={}, statusCode={},cost {} ms ",
+                        apiUrl, statusCode, System.currentTimeMillis() - start);
             }
             closeResponse(response);
         }
@@ -722,6 +724,7 @@ public class HttpClientUtils {
             }
             OutputStream outputStream = httpResponse.getOutputStream();
             entity.writeTo(outputStream);
+            outputStream.flush();
 
         } catch (IOException e) {
             throw new RequestFailedException(url, statusCode, null, e);
@@ -760,14 +763,14 @@ public class HttpClientUtils {
 
             httpPost.setEntity(reqEntity);
             response = httpClient.execute(httpPost);
-
-            statusCode = response.getStatusLine().getStatusCode();
-            HttpEntity entity = response.getEntity();
             for (Header header : response.getAllHeaders()) {
                 httpResponse.setHeader(header.getName(), header.getValue());
             }
+            statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity entity = response.getEntity();
             OutputStream outputStream = httpResponse.getOutputStream();
             entity.writeTo(outputStream);
+            outputStream.flush();
         } catch (IOException e) {
             throw new RequestFailedException(url, statusCode, null, e);
         } finally {

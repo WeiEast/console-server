@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.common.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,7 +45,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -667,26 +667,26 @@ public class HttpClientUtils {
         CloseableHttpResponse response = null;
         int statusCode = 0;
         String responseStr = null;
+        String contentType = null;
         try {
             HttpGet httpGet = new HttpGet(apiUrl);
             httpGet.setConfig(getBaseConfig());
             response = httpclient.execute(httpGet);
+            HttpEntity entity = response.getEntity();
 
             statusCode = response.getStatusLine().getStatusCode();
-
-            HttpEntity entity = response.getEntity();
+            contentType = entity.getContentType().getValue();
+            responseStr = EntityUtils.toString(entity, "utf-8");
             for (Header header : response.getAllHeaders()) {
                 httpResponse.setHeader(header.getName(), header.getValue());
             }
-            OutputStream outputStream = httpResponse.getOutputStream();
-            entity.writeTo(outputStream);
-            outputStream.flush();
+            ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
         } catch (IOException e) {
             throw new RequestFailedException(apiUrl, statusCode, null, e);
         } finally {
             if (logger.isInfoEnabled()) {
-                logger.info(" doGetForward completed: apiUrl={}, statusCode={},cost {} ms ",
-                        apiUrl, statusCode, System.currentTimeMillis() - start);
+                logger.info(" doGetForward completed: apiUrl={}, statusCode={},contentType={},response={},cost {} ms ",
+                        apiUrl, statusCode, contentType, responseStr, System.currentTimeMillis() - start);
             }
             closeResponse(response);
         }
@@ -708,30 +708,35 @@ public class HttpClientUtils {
         CloseableHttpResponse response = null;
 
         int statusCode = 0;
+        String json = null;
+        String responseStr = null;
+        String contentType = null;
         try {
             httpPost.setConfig(getBaseConfig());
+            json = IOUtils.toString(httpRequest.getInputStream(), "UTF-8");
             //解决中文乱码问题
-            StringEntity stringEntity = new StringEntity(IOUtils.toString(httpRequest.getInputStream(), "UTF-8"), ContentType.APPLICATION_JSON);
+            StringEntity stringEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
             stringEntity.setContentEncoding("UTF-8");
             stringEntity.setContentType("application/json");
             httpPost.setEntity(stringEntity);
             response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
 
             statusCode = response.getStatusLine().getStatusCode();
-            HttpEntity entity = response.getEntity();
+            contentType = entity.getContentType().getValue();
+            responseStr = EntityUtils.toString(entity, "utf-8");
+
             for (Header header : response.getAllHeaders()) {
                 httpResponse.setHeader(header.getName(), header.getValue());
             }
-            OutputStream outputStream = httpResponse.getOutputStream();
-            entity.writeTo(outputStream);
-            outputStream.flush();
+            ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
 
         } catch (IOException e) {
             throw new RequestFailedException(url, statusCode, null, e);
         } finally {
             if (logger.isInfoEnabled()) {
-                logger.info(" doPostForward completed: url={},statusCode={},cost {} ms ",
-                        url, statusCode, System.currentTimeMillis() - start);
+                logger.info(" doPostForward completed: url={}, request={},statusCode={},contentType={},response={},cost {} ms ",
+                        url, json, statusCode, contentType, responseStr, System.currentTimeMillis() - start);
             }
             closeResponse(response);
         }
@@ -745,6 +750,8 @@ public class HttpClientUtils {
         long start = System.currentTimeMillis();
         CloseableHttpResponse response = null;
         int statusCode = 0;
+        String responseStr = null;
+        String contentType = null;
         try {
             CloseableHttpClient httpClient = getClient();
             HttpPost httpPost = new HttpPost(url);
@@ -763,20 +770,22 @@ public class HttpClientUtils {
 
             httpPost.setEntity(reqEntity);
             response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+
+            statusCode = response.getStatusLine().getStatusCode();
+            contentType = entity.getContentType().getValue();
+            responseStr = EntityUtils.toString(entity, "utf-8");
+
             for (Header header : response.getAllHeaders()) {
                 httpResponse.setHeader(header.getName(), header.getValue());
             }
-            statusCode = response.getStatusLine().getStatusCode();
-            HttpEntity entity = response.getEntity();
-            OutputStream outputStream = httpResponse.getOutputStream();
-            entity.writeTo(outputStream);
-            outputStream.flush();
+            ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
         } catch (IOException e) {
             throw new RequestFailedException(url, statusCode, null, e);
         } finally {
             if (logger.isInfoEnabled()) {
-                logger.info(" doPostMutiForward completed: url={},statusCode={},cost {} ms ",
-                        url, statusCode, System.currentTimeMillis() - start);
+                logger.info(" doPostMutiForward completed: url={}, statusCode={},contentType={},response={},cost {} ms ",
+                        url, statusCode, contentType, responseStr, System.currentTimeMillis() - start);
             }
             closeResponse(response);
         }

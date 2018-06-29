@@ -2,27 +2,26 @@ package com.treefinance.saas.management.console.biz.common.filter;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
-import com.google.common.collect.Maps;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.common.domain.config.RawdataDomainConfig;
-import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,28 +56,35 @@ public class RawDataRequestFilter extends OncePerRequestFilter {
             }
         }
         try {
-            HttpResponseResult result = new HttpResponseResult();
             if (StringUtils.isNotBlank(url)) {
                 String method = request.getMethod();
                 if ("GET".equals(method)) {
-                    Map<String, Object> paramMap = Maps.newHashMap();
-                    Enumeration<String> paramNames = request.getParameterNames();
-                    while (paramNames.hasMoreElements()) {
-                        String paramName = paramNames.nextElement();
-                        paramMap.put(paramName, request.getParameter(paramName));
-                    }
-                    result = HttpClientUtils.doGetResult(url, paramMap);
+                    HttpClientUtils.doGetForward(url, request, response);
                 }
                 if (StringUtils.equalsIgnoreCase("post", request.getMethod())) {
-                    InputStream is = request.getInputStream();
-                    String body = IOUtils.toString(is, "utf-8");
-                    result = HttpClientUtils.doPostResult(url, body);
+                    CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+                            request.getSession().getServletContext());
+
+                    if (multipartResolver.isMultipart(request)) {
+                        Collection<Part> parts = request.getParts();
+                        InputStream in;
+                        for (Part part : parts) {
+                            //获取原始文件名
+                            String fileName = part.getSubmittedFileName();
+                            String fieldName = part.getName();
+                            //获取文件流，可以进行处理
+                            in = part.getInputStream();
+                            HttpClientUtils.doPostMutiForward(url, request, response, fieldName, fileName, in);
+                        }
+                    } else {
+                        HttpClientUtils.doPostForward(url, request, response);
+                    }
                 }
-                ServletResponseUtils.responseJson(response, result.getStatusCode(), result.getResponseBody());
                 return;
             }
             filterChain.doFilter(request, response);
         } catch (Exception ex) {
+            logger.error("转发器异常", ex);
             responseException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR, response);
         }
     }

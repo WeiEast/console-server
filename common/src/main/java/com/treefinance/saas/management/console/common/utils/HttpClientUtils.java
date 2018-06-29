@@ -683,7 +683,7 @@ public class HttpClientUtils {
             for (Header header : headers) {
                 httpResponse.setHeader(header.getName(), header.getValue());
             }
-            if (StringUtils.isNotBlank(contentType) && StringUtils.equalsIgnoreCase(contentType, ContentType.APPLICATION_JSON.getMimeType())) {
+            if (StringUtils.isNotBlank(contentType) && !StringUtils.equalsIgnoreCase(contentType, ContentType.APPLICATION_JSON.getMimeType())) {
                 httpResponse.setContentType(contentType);
                 OutputStream outputStream = new BufferedOutputStream(httpResponse.getOutputStream());
                 entity.writeTo(outputStream);

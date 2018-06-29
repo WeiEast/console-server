@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.exceptions.RequestFailedException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
@@ -43,8 +44,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -677,11 +680,18 @@ public class HttpClientUtils {
             statusCode = response.getStatusLine().getStatusCode();
             contentType = entity.getContentType().getValue();
             Header[] headers = response.getHeaders("Content-Disposition");
-            responseStr = EntityUtils.toString(entity, "utf-8");
             for (Header header : headers) {
                 httpResponse.setHeader(header.getName(), header.getValue());
             }
-            ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
+            if (StringUtils.isNotBlank(contentType) && contentType.contains("octet-stream")) {
+                httpResponse.setContentType(contentType);
+                OutputStream outputStream = new BufferedOutputStream(httpResponse.getOutputStream());
+                entity.writeTo(outputStream);
+                outputStream.flush();
+            } else {
+                responseStr = EntityUtils.toString(entity, "utf-8");
+                ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
+            }
         } catch (IOException e) {
             throw new RequestFailedException(apiUrl, statusCode, null, e);
         } finally {

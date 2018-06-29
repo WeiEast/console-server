@@ -3,13 +3,11 @@ package com.treefinance.saas.management.console.common.utils;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.exceptions.RequestFailedException;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
+import org.apache.http.*;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -25,11 +23,16 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +40,11 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -641,6 +647,139 @@ public class HttpClientUtils {
             closeResponse(response);
         }
         return result;
+    }
+
+
+    public static void doGetForward(String url, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        long start = System.currentTimeMillis();
+        Map<String, Object> paramMap = Maps.newHashMap();
+        Enumeration<String> paramNames = httpRequest.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            String paramName = paramNames.nextElement();
+            paramMap.put(paramName, httpRequest.getParameter(paramName));
+        }
+        List<String> paramList = Lists.newArrayList();
+        for (String key : paramMap.keySet()) {
+            paramList.add(key + "=" + paramMap.get(key));
+        }
+        String apiUrl = url + (url.contains("?") ? "&" : "?") + Joiner.on("&").join(paramList);
+        CloseableHttpClient httpclient = getClient();
+        CloseableHttpResponse response = null;
+        int statusCode = 0;
+        String responseStr = null;
+        try {
+            HttpGet httpGet = new HttpGet(apiUrl);
+            httpGet.setConfig(getBaseConfig());
+            response = httpclient.execute(httpGet);
+
+            statusCode = response.getStatusLine().getStatusCode();
+
+            HttpEntity entity = response.getEntity();
+            for (Header header : response.getAllHeaders()) {
+                httpResponse.setHeader(header.getName(), header.getValue());
+            }
+            OutputStream outputStream = httpResponse.getOutputStream();
+            entity.writeTo(outputStream);
+            outputStream.flush();
+        } catch (IOException e) {
+            throw new RequestFailedException(apiUrl, statusCode, null, e);
+        } finally {
+            if (logger.isInfoEnabled()) {
+                logger.info(" doGetForward completed: apiUrl={}, statusCode={},cost {} ms ",
+                        apiUrl, statusCode, System.currentTimeMillis() - start);
+            }
+            closeResponse(response);
+        }
+    }
+
+
+    /**
+     * 发送 POST 请求（HTTP），JSON形式
+     *
+     * @param url
+     * @param httpRequest
+     * @param httpResponse
+     */
+    public static void doPostForward(String url, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+
+        long start = System.currentTimeMillis();
+        CloseableHttpClient httpClient = getClient();
+        HttpPost httpPost = new HttpPost(url);
+        CloseableHttpResponse response = null;
+
+        int statusCode = 0;
+        try {
+            httpPost.setConfig(getBaseConfig());
+            //解决中文乱码问题
+            StringEntity stringEntity = new StringEntity(IOUtils.toString(httpRequest.getInputStream(), "UTF-8"), ContentType.APPLICATION_JSON);
+            stringEntity.setContentEncoding("UTF-8");
+            stringEntity.setContentType("application/json");
+            httpPost.setEntity(stringEntity);
+            response = httpClient.execute(httpPost);
+
+            statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity entity = response.getEntity();
+            for (Header header : response.getAllHeaders()) {
+                httpResponse.setHeader(header.getName(), header.getValue());
+            }
+            OutputStream outputStream = httpResponse.getOutputStream();
+            entity.writeTo(outputStream);
+            outputStream.flush();
+
+        } catch (IOException e) {
+            throw new RequestFailedException(url, statusCode, null, e);
+        } finally {
+            if (logger.isInfoEnabled()) {
+                logger.info(" doPostForward completed: url={},statusCode={},cost {} ms ",
+                        url, statusCode, System.currentTimeMillis() - start);
+            }
+            closeResponse(response);
+        }
+
+    }
+
+
+    public static void doPostMutiForward(String url, HttpServletRequest httpRequest,
+                                         HttpServletResponse httpResponse, String fieldName,
+                                         String fileName, InputStream targetIn) {
+        long start = System.currentTimeMillis();
+        CloseableHttpResponse response = null;
+        int statusCode = 0;
+        try {
+            CloseableHttpClient httpClient = getClient();
+            HttpPost httpPost = new HttpPost(url);
+            //解决中文乱码问题
+            StringEntity stringEntity = new StringEntity(IOUtils.toString(httpRequest.getInputStream(), "UTF-8"), ContentType.APPLICATION_JSON);
+            httpPost.setEntity(stringEntity);
+
+            InputStreamBody bin = new InputStreamBody(targetIn, fileName);
+            StringBody uploadFileName = new StringBody(fileName,
+                    ContentType.create("text/plain", Consts.UTF_8));
+
+            HttpEntity reqEntity = MultipartEntityBuilder.create()
+                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                    .addPart(fieldName, bin).addPart("fileName", uploadFileName).addPart("fieldName", uploadFileName)
+                    .setCharset(CharsetUtils.get("UTF-8")).build();
+
+            httpPost.setEntity(reqEntity);
+            response = httpClient.execute(httpPost);
+            for (Header header : response.getAllHeaders()) {
+                httpResponse.setHeader(header.getName(), header.getValue());
+            }
+            statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity entity = response.getEntity();
+            OutputStream outputStream = httpResponse.getOutputStream();
+            entity.writeTo(outputStream);
+            outputStream.flush();
+        } catch (IOException e) {
+            throw new RequestFailedException(url, statusCode, null, e);
+        } finally {
+            if (logger.isInfoEnabled()) {
+                logger.info(" doPostMutiForward completed: url={},statusCode={},cost {} ms ",
+                        url, statusCode, System.currentTimeMillis() - start);
+            }
+            closeResponse(response);
+        }
     }
 
     /**

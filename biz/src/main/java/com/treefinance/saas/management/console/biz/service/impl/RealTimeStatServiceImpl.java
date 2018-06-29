@@ -194,14 +194,20 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
      * @return
      */
     protected Date getStartDate(StatRequest request) {
-        // 0-自选日期，1-过去1天，2-过去3天，3-过去7天
+        // 0-自选日期，1-过去1小时，2-过去3小时，3-过去半天,4-过去一天,5-过去三天
         Integer dateType = request.getDateType();
         switch (dateType) {
             case 0:
                 return request.getStartDate();
             case 1:
-                return DateUtils.addHours(new Date(), -24);
+                return DateUtils.addHours(new Date(), -1);
             case 2:
+                return DateUtils.addHours(new Date(), -3);
+            case 3:
+                return DateUtils.addHours(new Date(), -12);
+            case 4:
+                return DateUtils.addHours(new Date(), -24);
+            case 5:
                 return DateUtils.addHours(new Date(), -24 * 3);
             default:
         }

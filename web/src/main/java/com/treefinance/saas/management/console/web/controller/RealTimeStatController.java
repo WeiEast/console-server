@@ -39,7 +39,7 @@ public class RealTimeStatController {
         if (request.getBizType() == null) {
             throw new IllegalArgumentException("请求参数bizType不能为空！");
         }
-        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 2) {
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 5) {
             throw new IllegalArgumentException("请求参数dateType为空或非法!");
         }
         if (request.getDateType() == 0) {
@@ -62,7 +62,7 @@ public class RealTimeStatController {
         if (request.getBizType() == null) {
             throw new IllegalArgumentException("请求参数bizType不能为空！");
         }
-        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 2) {
+        if (request.getDateType() == null || request.getDateType() < 0 || request.getDateType() > 5) {
             throw new IllegalArgumentException("请求参数dateType为空或非法!");
         }
         if (request.getDateType() == 0) {

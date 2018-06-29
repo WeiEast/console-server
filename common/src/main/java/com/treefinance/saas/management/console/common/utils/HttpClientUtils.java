@@ -677,9 +677,9 @@ public class HttpClientUtils {
             statusCode = response.getStatusLine().getStatusCode();
             contentType = entity.getContentType().getValue();
             responseStr = EntityUtils.toString(entity, "utf-8");
-            for (Header header : response.getAllHeaders()) {
-                httpResponse.setHeader(header.getName(), header.getValue());
-            }
+//            for (Header header : response.getAllHeaders()) {
+//                httpResponse.setHeader(header.getName(), header.getValue());
+//            }
             ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
         } catch (IOException e) {
             throw new RequestFailedException(apiUrl, statusCode, null, e);
@@ -726,9 +726,9 @@ public class HttpClientUtils {
             contentType = entity.getContentType().getValue();
             responseStr = EntityUtils.toString(entity, "utf-8");
 
-            for (Header header : response.getAllHeaders()) {
-                httpResponse.setHeader(header.getName(), header.getValue());
-            }
+//            for (Header header : response.getAllHeaders()) {
+//                httpResponse.setHeader(header.getName(), header.getValue());
+//            }
             ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
 
         } catch (IOException e) {
@@ -776,9 +776,9 @@ public class HttpClientUtils {
             contentType = entity.getContentType().getValue();
             responseStr = EntityUtils.toString(entity, "utf-8");
 
-            for (Header header : response.getAllHeaders()) {
-                httpResponse.setHeader(header.getName(), header.getValue());
-            }
+//            for (Header header : response.getAllHeaders()) {
+//                httpResponse.setHeader(header.getName(), header.getValue());
+//            }
             ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
         } catch (IOException e) {
             throw new RequestFailedException(url, statusCode, null, e);

@@ -19,8 +19,10 @@ import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
+import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
+import com.treefinance.saas.management.console.common.enumeration.ETaskBuryPoint;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
@@ -45,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -59,6 +62,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskMapper taskMapper;
+    @Autowired
+    private TaskBuryPointLogMapper taskBuryPointLogMapper;
     @Autowired
     private ISecurityCryptoService securityCryptoService;
 
@@ -311,6 +316,29 @@ public class TaskServiceImpl implements TaskService {
         taskLogCriteria.createCriteria().andTaskIdEqualTo(taskId);
         taskLogCriteria.setOrderByClause("OccurTime desc, Id desc");
         return taskLogMapper.selectByExample(taskLogCriteria);
+    }
+
+
+    @Override
+    public List<TaskBuryPointLogVO> findBuryPointByTaskId(Long taskId) {
+        TaskBuryPointLogCriteria taskBuryPointLogCriteria = new TaskBuryPointLogCriteria();
+        taskBuryPointLogCriteria.createCriteria().andTaskIdEqualTo(taskId);
+        taskBuryPointLogCriteria.setOrderByClause("createTime desc, Id desc");
+        List<TaskBuryPointLog> taskBuryPointLogList = new ArrayList<>();
+        List<TaskBuryPointLogVO> taskBuryPointLogVOList = new ArrayList<>();
+        taskBuryPointLogList = taskBuryPointLogMapper.selectByExample(taskBuryPointLogCriteria);
+        for(TaskBuryPointLog taskBuryPointLog:taskBuryPointLogList){
+            TaskBuryPointLogVO taskBuryPointLogVO =  new TaskBuryPointLogVO();
+            taskBuryPointLogVO.setTaskId(taskBuryPointLog.getTaskId());
+            taskBuryPointLogVO.setAppId(taskBuryPointLog.getAppId());
+            taskBuryPointLogVO.setCode(taskBuryPointLog.getCode());
+            taskBuryPointLogVO.setCreateTime(taskBuryPointLog.getCreateTime());
+            taskBuryPointLogVO.setLastUpdateTime(taskBuryPointLog.getLastUpdateTime());
+            taskBuryPointLogVO.setCodeMessage(ETaskBuryPoint.getText(Integer.parseInt(taskBuryPointLog.getCode())));
+            taskBuryPointLogVOList.add(taskBuryPointLogVO);
+        }
+        return taskBuryPointLogVOList;
+
     }
 
     private Map<String, MerchantBase> getMerchantBaseMap(List<Task> taskList) {

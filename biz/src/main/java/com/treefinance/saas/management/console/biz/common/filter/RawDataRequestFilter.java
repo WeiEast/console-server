@@ -84,6 +84,7 @@ public class RawDataRequestFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (Exception ex) {
+            logger.error("转发器异常", ex);
             responseException(request, ex, HttpStatus.INTERNAL_SERVER_ERROR, response);
         }
     }

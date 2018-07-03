@@ -68,7 +68,7 @@
             <dependency>
                 <groupId>com.treefinance.saas</groupId>
                 <artifactId>merchant-center-facade</artifactId>
-                <version>1.0.3-SNAPSHOT</version>
+                <version>1.0.6-SNAPSHOT</version>
             </dependency>
 
             <dependency>

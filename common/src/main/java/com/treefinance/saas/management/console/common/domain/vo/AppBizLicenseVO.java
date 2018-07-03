@@ -21,6 +21,9 @@ public class AppBizLicenseVO implements Serializable {
     private Byte sdkAccess;
     private Byte apiAccess;
 
+    /**商户问卷比例0-100*/
+    private Integer questionaireRate;
+
 
     public Byte getBizType() {
         return bizType;
@@ -108,6 +111,14 @@ public class AppBizLicenseVO implements Serializable {
 
     public void setApiAccess(Byte apiAccess) {
         this.apiAccess = apiAccess;
+    }
+
+    public Integer getQuestionaireRate() {
+        return questionaireRate;
+    }
+
+    public void setQuestionaireRate(Integer questionaireRate) {
+        this.questionaireRate = questionaireRate;
     }
 
     @Override

@@ -113,12 +113,13 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
 
             Integer taskSuccessCount = statDataMap.get(ETaskStatLink.TASK_SUCCESS.getStatCode());
             Integer taskCreateCount = statDataMap.get(ETaskStatLink.TASK_CREATE.getStatCode());
-            if (taskCreateCount == null || taskCreateCount == 0) {
+
+            if (taskSuccessCount == null || taskSuccessCount == 0) {
+                chartStatRateVO.setDataValue(BigDecimal.ZERO);
+            } else if (taskCreateCount == null || taskCreateCount == 0) {
                 double fakeTaskCreateCount = 0.01;
                 BigDecimal value = BigDecimal.valueOf(taskSuccessCount * 100).divide(BigDecimal.valueOf(fakeTaskCreateCount), 2, BigDecimal.ROUND_HALF_UP);
                 chartStatRateVO.setDataValue(value);
-            } else if (taskSuccessCount == null || taskSuccessCount == 0) {
-                chartStatRateVO.setDataValue(BigDecimal.ZERO);
             } else {
                 BigDecimal value = BigDecimal.valueOf(taskSuccessCount * 100).divide(BigDecimal.valueOf(taskCreateCount), 2, BigDecimal.ROUND_HALF_UP);
                 chartStatRateVO.setDataValue(value);

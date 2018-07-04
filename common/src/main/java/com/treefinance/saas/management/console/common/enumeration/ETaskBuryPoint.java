@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
  * @date:Created in 2018/6/27上午11:33
  */
 public enum ETaskBuryPoint {
+    E_COMMERCE_SDK_ZERO(100001,"用户选择电商，进入电商列表页"),
+
 
     E_COMMERCE_SDK_FIRST(100101,"电商列表页，点击淘宝或支付宝"),
     E_COMMERCE_SDK_SECOND(100102,"电商列表页，点击淘宝或支付宝"),

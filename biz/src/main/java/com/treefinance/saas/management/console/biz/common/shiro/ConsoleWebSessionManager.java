@@ -93,13 +93,14 @@ public class ConsoleWebSessionManager extends DefaultSessionManager implements W
 
     private Serializable getReferencedSessionId(ServletRequest request, ServletResponse response) {
 
-        String id = getSessionIdCookieValue(request, response);
+        //Android会带一个额外的未知cookie信息,这里首先从request header里拿jSessionId
+        String id = getRequestHeaderParamValue(request);
 
         if (id == null) {
-            id = getUriPathSegmentParamValue(request, ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
+            id = getSessionIdCookieValue(request, response);
         }
         if (id == null) {
-            id = getRequestHeaderParamValue(request);
+            id = getUriPathSegmentParamValue(request, ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
         }
         if (id == null) {
             id = getRequestParameterParamValue(request);

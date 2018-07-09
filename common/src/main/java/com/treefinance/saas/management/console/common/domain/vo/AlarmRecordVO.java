@@ -28,6 +28,8 @@ public class AlarmRecordVO extends BaseVO {
     private String processorName;
     /**值班人员名字*/
     private String dutyName;
+    /**处理描述*/
+    private String desc;
     /**预警工单状态*/
     private Integer orderStatus;
     /**工单状态描述*/
@@ -158,5 +160,13 @@ public class AlarmRecordVO extends BaseVO {
 
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 }

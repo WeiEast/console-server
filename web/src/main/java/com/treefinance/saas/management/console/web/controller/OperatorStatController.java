@@ -48,7 +48,11 @@ public class OperatorStatController {
         return operatorStatService.queryAllOperatorStatAccessSomeTimeList(request);
     }
 
-
+    /**
+     * 运营商监控的报表页面table的数据源
+     *
+     *
+     * */
     @RequestMapping(value = "/each/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDayList(OperatorStatRequest request) {
         if (request.getDataDate() == null || request.getStatType() == null

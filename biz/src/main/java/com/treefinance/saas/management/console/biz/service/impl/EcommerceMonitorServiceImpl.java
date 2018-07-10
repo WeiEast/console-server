@@ -48,6 +48,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         ecommerceDetailAccessRequest.setSourceType(request.getSourceType());
         ecommerceDetailAccessRequest.setDataDate(request.getDataDate());
         ecommerceDetailAccessRequest.setStatType(request.getStatType());
+        ecommerceDetailAccessRequest.setSaasEnv(request.getSaasEnv());
 
         MonitorResult<List<EcommerceAllDetailRO>> monitorResult =
                 ecommerceStatDivisionAccessFacade.queryEcommerceAllDetailAccessList(ecommerceDetailAccessRequest);
@@ -75,6 +76,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         ecommerceDetailAccessRequest.setPageNumber(request.getPageNumber());
         ecommerceDetailAccessRequest.setPageSize(request.getPageSize());
         ecommerceDetailAccessRequest.setStatType(request.getStatType());
+        ecommerceDetailAccessRequest.setSaasEnv(request.getSaasEnv());
 
         MonitorResult<List<EcommerceAllDetailRO>> monitorResult =
                 ecommerceStatDivisionAccessFacade.queryEcommerceAllAccessList(ecommerceDetailAccessRequest);

@@ -33,7 +33,7 @@
                      version="1.0.0" timeout="60000" />
     <dubbo:reference id="appBizLicenseFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0"  timeout="60000" />
 
     <dubbo:reference id="appCallbackConfigFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade"

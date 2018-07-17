@@ -382,7 +382,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 continue;
             }
             Map<Date, List<MerchantStatAccessRO>> map = appIdROEntry.getValue().stream()
-                    .collect(Collectors.groupingBy(ro -> DateUtils.getIntervalDateTime(ro.getDataTime(), intervalMins)));
+                    .collect(Collectors.groupingBy(ro -> DateUtils.getLaterIntervalDateTime(ro.getDataTime(), intervalMins)));
             for (Map.Entry<Date, List<MerchantStatAccessRO>> entry : map.entrySet()) {
                 if (CollectionUtils.isEmpty(entry.getValue())) {
                     continue;
@@ -419,9 +419,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(voList)) {
-                voList.remove(voList.size() - 1);
-            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;
@@ -625,11 +622,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
             MerchantResult<List<MerchantUserResult>> listMerchantResult;
 
-            try{
+            try {
                 listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
-                logger.info("商户中心放回数据:{}",listMerchantResult);
-            }catch (RpcException e){
-                logger.info("商户中心调用出错:{}",e.getMessage());
+                logger.info("商户中心放回数据:{}", listMerchantResult);
+            } catch (RpcException e) {
+                logger.info("商户中心调用出错:{}", e.getMessage());
                 return new ArrayList<>();
             }
 
@@ -953,9 +950,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted(Comparator.comparing(ChartStatRateVO::getDataTime)).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(voList)) {
-                voList.remove(voList.size() - 1);
-            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;

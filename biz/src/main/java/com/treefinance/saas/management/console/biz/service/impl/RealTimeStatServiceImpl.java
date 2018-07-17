@@ -52,6 +52,7 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         rpcRequest.setStartTime(this.getStartDate(request));
         rpcRequest.setEndTime(this.getEndDate(request));
         rpcRequest.setIntervalMins(request.getIntervalMins());
+        rpcRequest.setHiddenRecentPoint(request.getHiddenRecentPoint());
         MonitorResult<List<RealTimeStatAccessRO>> rpcResult = realTimeStatAccessFacade.queryRealTimeStatAccess(rpcRequest);
         List<RealTimeStatAccessRO> rpcList = rpcResult.getData();
 
@@ -84,6 +85,7 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         rpcRequest.setStartTime(this.getStartDate(request));
         rpcRequest.setEndTime(this.getEndDate(request));
         rpcRequest.setIntervalMins(request.getIntervalMins());
+        rpcRequest.setHiddenRecentPoint(request.getHiddenRecentPoint());
 
         MonitorResult<List<RealTimeStatAccessRO>> rpcResult = realTimeStatAccessFacade.queryRealTimeStatAccess(rpcRequest);
         List<RealTimeStatAccessRO> rpcList = rpcResult.getData();

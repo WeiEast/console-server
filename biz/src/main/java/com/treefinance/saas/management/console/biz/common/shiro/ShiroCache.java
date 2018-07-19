@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * 实现shiro的Cache
  */
 public class ShiroCache<K, V> implements Cache<K, V> {
-    private static final String REDIS_SHIRO_CACHE = "console-shiro-cache:";
+    private static final String REDIS_SHIRO_CACHE = "console-shiro-session-cache:";
     private String cacheKey;
     private RedisTemplate<K, V> redisTemplate;
     private long globExpire = 60 * 12;

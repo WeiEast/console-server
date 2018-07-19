@@ -132,7 +132,7 @@ public class MerchantControllerTest {
 
     @Test
     public void getMerchantById() throws Exception {
-        this.mockMvc.perform(get(baseUrl+"/get/44026148916563972").accept(MediaType.APPLICATION_JSON));
+        this.mockMvc.perform(get(baseUrl+"/get/171621292888698880").accept(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -142,6 +142,20 @@ public class MerchantControllerTest {
     @Test
     public void resetKey() throws Exception {
         this.mockMvc.perform(get(baseUrl+"/reset/key/44026148916563977").accept(MediaType.APPLICATION_JSON));
+    }
+    @Test
+    public void queryAllEcommerceMonitor() throws Exception {
+        this.mockMvc.perform(get(baseUrl+"/stat/merchant/list?bizType=3").accept(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    public void toggleMerchant() throws Exception {
+        MerchantBaseVO merchantBase = new MerchantBaseVO();
+        merchantBase.setAppId("test_6u0idX7yCWzA0JKD");
+        merchantBase.setIsActive((byte)1);
+
+        this.mockMvc.perform(post(baseUrl+"/toggle/active").content(JSON.toJSONString(merchantBase)).accept(MediaType
+                .APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON));
     }
 
 

@@ -1,45 +1,40 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
-import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
-import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.MerchantService;
-import com.treefinance.saas.management.console.biz.service.dao.MerchantDao;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.MerchantBaseCriteria;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantBaseMapper;
-import com.treefinance.saas.management.console.dao.mapper.MerchantUserMapper;
-import com.treefinance.saas.merchant.center.facade.exception.BaseException;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.*;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.*;
+import com.treefinance.saas.merchant.center.facade.result.grapsever.AppLicenseResult;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,31 +49,14 @@ import java.util.regex.Pattern;
 public class MerchantServiceImpl implements MerchantService {
     private static final Logger logger = LoggerFactory.getLogger(MerchantServiceImpl.class);
 
-    private final MerchantBaseMapper merchantBaseMapper;
-    @Autowired
-    private MerchantUserMapper merchantUserMapper;
-    @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
-    @Autowired
-    private AppLicenseService appLicenseService;
-    @Autowired
+    @Resource
     private ISecurityCryptoService iSecurityCryptoService;
     @Autowired
     private DiamondConfig diamondConfig;
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
-    @Autowired
-    private MerchantDao merchantDao;
-    @Autowired
-    private AppBizTypeService appBizTypeService;
-    @Autowired
+    @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
-
-    @Autowired
-    public MerchantServiceImpl(MerchantBaseMapper merchantBaseMapper) {
-        this.merchantBaseMapper = merchantBaseMapper;
-    }
-
 
     @Override
     public MerchantBaseVO getMerchantById(Long id) {
@@ -87,20 +65,41 @@ public class MerchantServiceImpl implements MerchantService {
 
         MerchantResult<MerchantBaseInfoResult> result = merchantBaseInfoFacade.getBaseInfoById(request);
 
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             throw new BizException("不存在的商户");
         }
         MerchantBaseInfoResult infoResult = result.getData();
-
+        logger.info("商户中心返回数据：{}",infoResult);
         MerchantBaseVO baseVO = new MerchantBaseVO();
+
+        appLicenseVOprocess(infoResult, baseVO);
+
+        List<MerchantBizLicense> list = infoResult.getAppBizLicenseList();
+
+        List<AppBizLicenseVO> appBizLicenseVOList = DataConverterUtils.convert(list,AppBizLicenseVO.class);
+
+        baseVO.setAppBizLicenseVOList(appBizLicenseVOList);
+
+        logger.info("返回前端数据：{}",JSON.toJSONString(baseVO));
+        return baseVO;
+    }
+
+    private void appLicenseVOprocess(MerchantBaseInfoResult infoResult, MerchantBaseVO baseVO) {
         BeanUtils.copyProperties(infoResult,baseVO);
 
-        return baseVO;
+        AppLicenseResult appLicenseResult = infoResult.getAppLicenseVO();
+        if(appLicenseResult == null){
+            logger.info("appLicense 为空");
+        }else {
+            AppLicenseVO appLicenseVO = new AppLicenseVO();
+            BeanUtils.convert(appLicenseResult,appLicenseVO);
+            baseVO.setAppLicenseVO(appLicenseVO);
+        }
     }
 
 
     @Override
-    public Result<Map<String, Object>> getMerchantList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getMerchantList(PageRequest request) {
         List<MerchantBaseVO> merchantBaseVOList = Lists.newArrayList();
 
         com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
@@ -111,14 +110,14 @@ public class MerchantServiceImpl implements MerchantService {
 
 
         MerchantResult<List<MerchantBaseResult>> result = merchantBaseInfoFacade.queryMerchantBaseList(pageRequest);
-        if(!result.isSuccess()) {
+        if (!result.isSuccess()) {
             logger.error("获取商户列表失败：错误信息：{}", result.getRetMsg());
         }
-        if(!CollectionUtils.isEmpty(result.getData())){
-            merchantBaseVOList = BeanUtils.convertList(result.getData(),MerchantBaseVO.class);
+        if (!CollectionUtils.isEmpty(result.getData())) {
+            merchantBaseVOList = BeanUtils.convertList(result.getData(), MerchantBaseVO.class);
         }
 
-        return Results.newSuccessPageResult(request, result.getTotalCount(), merchantBaseVOList);
+        return Results.newPageResult(request, result.getTotalCount(), merchantBaseVOList);
     }
 
     @Override
@@ -138,26 +137,26 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         AddMerchantBaseRequest request = new AddMerchantBaseRequest();
-        BeanUtils.copyProperties(merchantBaseVO,request);
+        BeanUtils.copyProperties(merchantBaseVO, request);
         List<AddAppBizLicenseRequest> licenseRequests = new ArrayList<>();
-        for(AppBizLicenseVO vo:merchantBaseVO.getAppBizLicenseVOList()){
+        for (AppBizLicenseVO vo : merchantBaseVO.getAppBizLicenseVOList()) {
             AddAppBizLicenseRequest addAppBizLicenseRequest = new AddAppBizLicenseRequest();
-            BeanUtils.copyProperties(vo,addAppBizLicenseRequest);
+            BeanUtils.copyProperties(vo, addAppBizLicenseRequest);
             licenseRequests.add(addAppBizLicenseRequest);
         }
         request.setAppBizLicenseVOList(licenseRequests);
-        logger.info("更新信息：{}",request);
+        logger.info("更新信息：{}", request);
         MerchantResult<AddMerchantResult> result;
         try {
             result = merchantBaseInfoFacade.addMerchant(request);
-            if(result.isSuccess()){
-                Map<String,Object> map = new HashMap<>(2);
+            if (result.isSuccess()) {
+                Map<String, Object> map = new HashMap<>(2);
                 map.put("merchantId", result.getData().getMerchantId());
                 map.put("plainTextPassword", result.getData().getPlainTextPassword());
                 return map;
             }
-        }catch (Exception e){
-            logger.error("新增商户失败，错误信息：{}",e.getMessage());
+        } catch (Exception e) {
+            logger.error("新增商户失败，错误信息：{}", e.getMessage());
         }
 
 
@@ -173,12 +172,12 @@ public class MerchantServiceImpl implements MerchantService {
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
 
         AddMerchantBaseRequest request = new AddMerchantBaseRequest();
-        BeanUtils.copyProperties(merchantBaseVO,request);
-        logger.info("更新商户信息，更新信息：{}",request);
+        BeanUtils.copyProperties(merchantBaseVO, request);
+        logger.info("更新商户信息，更新信息：{}", request);
 
         MerchantResult<UpdateMerchantResult> result = merchantBaseInfoFacade.updateMerchant(request);
 
-        if(result.isSuccess()){
+        if (result.isSuccess()) {
             variableMessageNotifyService.sendVariableMessage("merchant", "update", result.getData().getAppId());
         }
     }
@@ -192,8 +191,8 @@ public class MerchantServiceImpl implements MerchantService {
         resetPwdRequest.setId(id);
         resetPwdRequest.setNewPwd(newPwd);
         MerchantResult<ResetPwdResult> result = merchantBaseInfoFacade.resetPwd(resetPwdRequest);
-        if(!result.isSuccess()){
-            logger.info("重置密码失败，错误信息{}",result.getRetMsg());
+        if (!result.isSuccess()) {
+            logger.info("重置密码失败，错误信息{}", result.getRetMsg());
         }
 
         return result.getData().getPlainTextPwd();
@@ -207,8 +206,10 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantResult<List<MerchantSimpleResult>> result = merchantBaseInfoFacade.querySimpleMerchantSimple(new
                 BaseRequest());
 
-        if(!result.isSuccess()){
-            logger.error("获取简单列表失败，错误信息：{}",result.getRetMsg());
+        logger.info(result.toString());
+
+        if (!result.isSuccess()) {
+            logger.error("获取简单列表失败，错误信息：{}", result.getRetMsg());
             return merchantSimpleVOList;
         }
 
@@ -224,7 +225,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         if(!merchantResult.isSuccess()){
             logger.info("重置Key失败，错误信息：{}",merchantResult.getRetMsg());
-            throw new BaseException("重置key失败，错误信息："+merchantResult.getRetMsg());
+            throw new BizException("重置key失败，错误信息："+merchantResult.getRetMsg());
         }
 
     }
@@ -232,14 +233,32 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public String autoGenerateAppId() {
         String prefix = diamondConfig.getAppIdEnvironmentPrefix();
-        String appId = prefix + "_" + CommonUtils.generateAppId();
-        return appId;
+        return prefix + "_" + CommonUtils.generateAppId();
     }
 
     @Override
     public String generateCipherTextPassword(String str) {
-        String text = iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
-        return text;
+        return iSecurityCryptoService.encrypt(str, EncryptionIntensityEnum.NORMAL);
     }
 
+    @Override
+    public SaasResult<Boolean> toggleMerchant(String appId, Byte isActive) {
+
+        MerchantStatusChangeRequest request = new MerchantStatusChangeRequest();
+        request.setOpType(new Integer(isActive));
+        request.setAppId(appId);
+        try{
+            logger.info("{}，request：{}",isActive==0?"禁用商户":"启用商户",request);
+            MerchantResult<BaseResult> rpcResult= merchantBaseInfoFacade.merchantActiveChange(request);
+            logger.info("商户中心返回数据：{}",rpcResult);
+            if(rpcResult.isSuccess()){
+                return Results.newSuccessResult(true);
+            }
+            return Results.newFailedResult(false, CommonStateCode.FAILURE);
+        }catch (RpcException e){
+            logger.info("启用或禁用商户失败：{}",e.getMessage());
+            return Results.newFailedResult(false, CommonStateCode.FAILURE);
+        }
+
+    }
 }

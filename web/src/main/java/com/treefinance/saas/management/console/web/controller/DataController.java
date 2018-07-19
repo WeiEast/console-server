@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +34,8 @@ public class DataController {
      * @return
      */
     @RequestMapping(value = "download", produces = "application/json", method = RequestMethod.POST)
-    public Result<String> downloadData(@RequestParam("dataUrl") String dataUrl,
-                                       @RequestParam("key") String key) {
+    public SaasResult<String> downloadData(@RequestParam("dataUrl") String dataUrl,
+                                           @RequestParam("key") String key) {
         // oss 下载数据
         byte[] result = new byte[0];
         try {
@@ -50,8 +50,8 @@ public class DataController {
     }
 
     @RequestMapping(value = "/rsa/decrypt", produces = "application/json", method = RequestMethod.POST)
-    public Result<Object> decryptRSAData(@RequestParam("data") String data,
-                                         @RequestParam("key") String key) {
+    public SaasResult<Object> decryptRSAData(@RequestParam("data") String data,
+                                             @RequestParam("key") String key) {
         try {
             data = URLDecoder.decode(data, "utf-8");
             data = callbackSecureHandler.decrypt(data, key);
@@ -63,11 +63,11 @@ public class DataController {
     }
 
     @RequestMapping(value = "/rsa/encrypt", produces = "application/json", method = RequestMethod.POST)
-    public Result<Object> encryptRSAData(@RequestParam("data") String data,
-                                         @RequestParam("key") String key) {
+    public SaasResult<Object> encryptRSAData(@RequestParam("data") String data,
+                                             @RequestParam("key") String key) {
         try {
             data = callbackSecureHandler.encrypt(data, key);
-            return Results.newSuccessResult(URLEncoder.encode(data,"utf-8"));
+            return Results.newSuccessResult(URLEncoder.encode(data, "utf-8"));
         } catch (Exception e) {
             logger.error("encryptRSAData failed", e);
             return Results.newFailedResult(e.getMessage(), CommonStateCode.FAILURE);

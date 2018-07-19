@@ -1,8 +1,8 @@
 package com.treefinance.saas.management.console.web.controller.common;
 
 import com.google.common.collect.Lists;
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.common.domain.vo.common.SaasEnvVO;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;

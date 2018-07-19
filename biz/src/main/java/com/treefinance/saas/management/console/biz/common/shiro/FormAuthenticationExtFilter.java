@@ -5,8 +5,8 @@ package com.treefinance.saas.management.console.biz.common.shiro;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 public class FormAuthenticationExtFilter extends FormAuthenticationFilter {
     private static final Logger log = LoggerFactory.getLogger(FormAuthenticationExtFilter.class);
 
+    @Override
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
         if (isLoginRequest(request, response)) {
             if (isLoginSubmission(request, response)) {

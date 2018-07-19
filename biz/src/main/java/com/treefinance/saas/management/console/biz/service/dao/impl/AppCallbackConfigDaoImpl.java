@@ -3,8 +3,8 @@ package com.treefinance.saas.management.console.biz.service.dao.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Optional;
 import com.treefinance.commonservice.uid.UidGenerator;
-import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
+import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
@@ -15,7 +15,6 @@ import com.treefinance.saas.management.console.dao.entity.AppCallbackConfigBacku
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackBizMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigBackupMapper;
 import com.treefinance.saas.management.console.dao.mapper.AppCallbackConfigMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

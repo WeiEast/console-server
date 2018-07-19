@@ -48,7 +48,11 @@ public class OperatorStatController {
         return operatorStatService.queryAllOperatorStatAccessSomeTimeList(request);
     }
 
-
+    /**
+     * 运营商监控的报表页面table的数据源
+     *
+     *
+     * */
     @RequestMapping(value = "/each/day/list", method = {RequestMethod.GET}, produces = "application/json")
     public Object queryEachDayList(OperatorStatRequest request) {
         if (request.getDataDate() == null || request.getStatType() == null
@@ -100,7 +104,7 @@ public class OperatorStatController {
             throw new IllegalArgumentException("选取的时间范围过大");
         }
         if (end <= start) {
-            throw new IllegalArgumentException("开始时间需小于结束时间且差值不能小于所选时间间隔");
+            throw new IllegalArgumentException("开始时间需小于结束时间");
         }
         request.setStatType(request.getStatType() == null ? (byte) 0 : request.getStatType());
         request.setAppId(request.getAppId() == null ? "virtual_total_stat_appId" : request.getAppId());
@@ -122,6 +126,25 @@ public class OperatorStatController {
         }
 
         return operatorStatService.initAlarmHistoryData(request);
+    }
+
+    @RequestMapping(value = "/query/callback/failure/reason", method = RequestMethod.GET, produces = "application/json")
+    public Object queryCallbackFailureReason(OperatorStatRequest request) {
+        if (request == null || request.getDataTime() == null || request.getStatType() == null
+                || StringUtils.isBlank(request.getAppId()) || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数dataTime,statType,appId,saasEnv不能为空！");
+        }
+        return operatorStatService.queryCallbackFailureReason(request);
+    }
+
+
+    @RequestMapping(value = "/query/day/callback/failure/reason", method = RequestMethod.GET, produces = "application/json")
+    public Object queryDayCallbackFailureReason(OperatorStatRequest request) {
+        if (request == null || request.getDataDate() == null || request.getStatType() == null
+                || StringUtils.isBlank(request.getAppId()) || request.getSaasEnv() == null) {
+            throw new IllegalArgumentException("请求参数dataDate,statType,appId,saasEnv不能为空！");
+        }
+        return operatorStatService.queryDayCallbackFailureReason(request);
     }
 
 

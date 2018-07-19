@@ -6,14 +6,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
-import com.treefinance.saas.management.console.common.enumeration.EBizType4Monitor;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicenseCriteria;
 import com.treefinance.saas.management.console.dao.entity.AppBizType;
-import com.treefinance.saas.management.console.dao.entity.AppBizTypeCriteria;
-import com.treefinance.saas.management.console.dao.mapper.AppBizLicenseMapper;
-import com.treefinance.saas.management.console.dao.mapper.AppBizTypeMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseByAppIdRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizTypeRequest;
@@ -23,11 +17,8 @@ import com.treefinance.saas.merchant.center.facade.result.console.AppBizTypeSimp
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
 import com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -44,12 +35,6 @@ import java.util.stream.Collectors;
 public class AppBizTypeServiceImpl implements AppBizTypeService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppBizTypeServiceImpl.class);
-
-
-    @Autowired
-    private AppBizTypeMapper appBizTypeMapper;
-    @Autowired
-    private AppBizLicenseMapper appBizLicenseMapper;
 
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
@@ -133,7 +118,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         request.setIsValid((byte)1);
         MerchantResult<List<AppBizLicenseResult>> result;
         try {
-            result = appBizLicenseFacade.queryAppBizLicenseByAppId(request);
+            result = appBizLicenseFacade.queryAppBizLicense(request);
         }catch (RpcException e){
             logger.error("根据appId获取appBizLicense失败,{}",e.getMessage());
             return appBizTypeVOList;
@@ -202,7 +187,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
         //添加一个系统总任务量监控
         AppBizTypeVO appBizTypeVO = new AppBizTypeVO();
-        appBizTypeVO.setBizType(EBizType4Monitor.TOTAL.getCode());
+        appBizTypeVO.setBizType((byte)0);
         appBizTypeVO.setBizName("系统总任务量监控");
         appBizTypeVOList.add(appBizTypeVO);
 

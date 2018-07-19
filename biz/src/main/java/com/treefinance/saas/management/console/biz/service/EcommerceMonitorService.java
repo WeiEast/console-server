@@ -1,9 +1,6 @@
 package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-
-import java.util.Map;
 
 /**
  * @author:guoguoyun

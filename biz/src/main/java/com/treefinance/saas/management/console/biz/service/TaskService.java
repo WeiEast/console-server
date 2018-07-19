@@ -1,7 +1,9 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
-import com.treefinance.saas.management.console.common.result.Result;
+import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
+import com.treefinance.saas.management.console.dao.entity.TaskBuryPointLog;
 import com.treefinance.saas.management.console.dao.entity.TaskLog;
 
 import java.util.List;
@@ -18,7 +20,7 @@ public interface TaskService {
      * @param request
      * @return
      */
-    Result<Map<String, Object>> findByExample(TaskRequest request);
+    SaasResult<Map<String, Object>> findByExample(TaskRequest request);
 
     /**
      * 根据taskId查询task_log信息
@@ -27,4 +29,13 @@ public interface TaskService {
      * @return
      */
     List<TaskLog> findByTaskId(Long taskId);
+
+
+    /**
+     * 根据taskId查询task_bury_point_log信息
+     *
+     * @param taskId
+     * @return
+     */
+    List<TaskBuryPointLogVO> findBuryPointByTaskId(Long taskId);
 }

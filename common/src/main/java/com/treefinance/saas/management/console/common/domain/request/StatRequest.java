@@ -1,6 +1,6 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
-import com.treefinance.saas.management.console.common.result.PageRequest;
+import com.treefinance.saas.knife.request.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
@@ -55,6 +55,19 @@ public class StatRequest extends PageRequest {
      */
     private Byte saasEnv;
 
+    /**
+     * 曲线图是否隐藏最近一个点的数据
+     */
+    private Byte hiddenRecentPoint = 1;
+
+
+    public Byte getHiddenRecentPoint() {
+        return hiddenRecentPoint;
+    }
+
+    public void setHiddenRecentPoint(Byte hiddenRecentPoint) {
+        this.hiddenRecentPoint = hiddenRecentPoint;
+    }
 
     public Integer getDateType() {
         return dateType;

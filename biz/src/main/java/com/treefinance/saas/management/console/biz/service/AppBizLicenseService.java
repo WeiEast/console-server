@@ -1,9 +1,13 @@
 package com.treefinance.saas.management.console.biz.service;
 
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppCrawlerConfigParamVO;
+import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by haojiahong on 2017/7/4.
@@ -24,4 +28,6 @@ public interface AppBizLicenseService {
     List<AppBizLicenseVO> selectTrafficByAppIdBizType(AppBizLicenseRequest request);
 
     Boolean updateTraffic(AppBizLicenseVO request);
+
+    SaasResult<Map<String, Object>> selectBizLicenseWithpaging(PageRequest request);
 }

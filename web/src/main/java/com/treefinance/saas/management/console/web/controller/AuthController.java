@@ -2,14 +2,14 @@ package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.annotations.RequestLimit;
 import com.treefinance.saas.management.console.common.domain.Constants;
-import com.treefinance.saas.management.console.common.domain.dto.AuthUserDTO;
+import com.treefinance.saas.management.console.common.domain.dto.AuthUserInfoDTO;
 import com.treefinance.saas.management.console.common.domain.vo.LoginVO;
 import com.treefinance.saas.management.console.common.domain.vo.PwdCryptVO;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +43,7 @@ public class AuthController {
     private ISecurityCryptoService iSecurityCryptoService;
 
     @RequestMapping(value = "/logout", method = {RequestMethod.POST}, produces = "application/json")
-    public Result<?> logout() {
+    public SaasResult<?> logout() {
         Subject subject = SecurityUtils.getSubject();
         logger.info("用户退出：", subject.getPrincipal());
         subject.logout();
@@ -51,13 +51,13 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<?> login() throws ForbiddenException {
+    public SaasResult<?> login() throws ForbiddenException {
         logger.info("用户未登录");
         return Results.newFailedResult(CommonStateCode.NOT_LOGGED_IN);
     }
 
     @RequestMapping(value = "/forbidden", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<?> forbidden() throws ForbiddenException {
+    public SaasResult<?> forbidden() throws ForbiddenException {
         logger.info("用户无权限");
         return Results.newFailedResult(CommonStateCode.NO_PERMISSION);
     }
@@ -65,7 +65,7 @@ public class AuthController {
     @RequestMapping(value = "/login", method = {RequestMethod.POST}, produces = "application/json", consumes = "application/json")
     @RequestLimit(counts = {5, 30, 40}, times = {1, 30, 1},
             timeUnits = {TimeUnit.SECONDS, TimeUnit.SECONDS, TimeUnit.MINUTES})
-    public Result<?> doLogin(@RequestBody LoginVO loginVO, HttpSession session) throws ForbiddenException {
+    public SaasResult<?> doLogin(@RequestBody LoginVO loginVO, HttpSession session) throws ForbiddenException {
         String username = loginVO.getUsername();
         String password = loginVO.getPassword();
         try {
@@ -74,6 +74,10 @@ public class AuthController {
             logger.info("对用户[{}]进行登录验证..验证开始", username);
             subject.login(userToken);
             logger.info("用户[{}]登录认证通过", username);
+            //设置app请求的session超时时间为1个月
+            if (loginVO.getSource() != null && loginVO.getSource() == 1) {
+                subject.getSession().setTimeout(1000 * 60 * 60 * 24 * 30L);
+            }
             return Results.newSuccessResult(session.getAttribute(Constants.USER_KEY));
         } catch (UnknownAccountException e) {
             logger.warn(String.format("账号不存在，account=%s", username), e.getMessage());
@@ -91,9 +95,9 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/currentuser", method = {RequestMethod.GET}, produces = "application/json")
-    public Result<?> getLoginUser(HttpSession session) {
+    public SaasResult<?> getLoginUser(HttpSession session) {
         try {
-            AuthUserDTO authUserBO = (AuthUserDTO) session.getAttribute(Constants.USER_KEY);
+            AuthUserInfoDTO authUserBO = (AuthUserInfoDTO) session.getAttribute(Constants.USER_KEY);
             return Results.newSuccessResult(authUserBO);
         } catch (Exception e) {
             logger.error("get currentuser error,", e);
@@ -104,7 +108,7 @@ public class AuthController {
 
 
     @RequestMapping(value = "/pwd/encrypt", method = {RequestMethod.POST}, produces = "application/json")
-    public Result<String> encryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+    public SaasResult<String> encryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
         if (pwdCryptVO == null || StringUtils.isBlank(pwdCryptVO.getPwd())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
         }
@@ -113,7 +117,7 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/pwd/decrypt", method = {RequestMethod.POST}, produces = "application/json")
-    public Result<String> decryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+    public SaasResult<String> decryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
         if (pwdCryptVO == null || StringUtils.isBlank(pwdCryptVO.getPwd())
                 || StringUtils.isBlank(pwdCryptVO.getKey()) || !PWD_KEY.equals(pwdCryptVO.getKey())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
@@ -123,7 +127,7 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/pwd/batch/encrypt", method = {RequestMethod.POST}, produces = "application/json")
-    public Result<Map<String, String>> batchEncryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+    public SaasResult<Map<String, String>> batchEncryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
         if (pwdCryptVO == null || CollectionUtils.isEmpty(pwdCryptVO.getPwds())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);
         }
@@ -132,7 +136,7 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/pwd/batch/decrypt", method = {RequestMethod.POST}, produces = "application/json")
-    public Result<Map<String, String>> batchDecryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
+    public SaasResult<Map<String, String>> batchDecryptPwd(@RequestBody PwdCryptVO pwdCryptVO) {
         if (pwdCryptVO == null || CollectionUtils.isEmpty(pwdCryptVO.getPwds())
                 || StringUtils.isBlank(pwdCryptVO.getKey()) || !PWD_KEY.equals(pwdCryptVO.getKey())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK);

@@ -7,7 +7,9 @@ import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEn
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
-import com.treefinance.saas.management.console.biz.service.dao.AppCallbackConfigDao;
+import com.treefinance.saas.knife.request.PageRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
@@ -18,21 +20,16 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataT
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.result.PageRequest;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.AddAppCallbackBizRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.AddAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.GetAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.UpdateCallbackConfigRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.*;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.*;
+import com.treefinance.saas.merchant.center.facade.result.grapsever.AppCallbackResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade;
-import com.treefinance.saas.merchant.center.facade.service.AppCallBackBizFacade;
 import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -63,20 +60,13 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
 
-    @Autowired
-    private AppCallbackConfigMapper appCallbackConfigMapper;
-    @Autowired
-    private MerchantBaseMapper merchantBaseMapper;
+
     @Autowired
     private AppLicenseService appLicenseService;
-    @Autowired
-    private AppCallbackBizMapper appCallbackBizMapper;
-    @Autowired
-    private AppBizTypeMapper appBizTypeMapper;
+
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
-    @Autowired
-    private AppCallbackConfigDao appCallbackConfigDao;
+
     @Autowired
     private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
     @Autowired
@@ -84,7 +74,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
 
     @Override
-    public Result<Map<String, Object>> getList(PageRequest request) {
+    public SaasResult<Map<String, Object>> getList(PageRequest request) {
         com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
                 .merchant.center.facade.request.common.PageRequest();
 
@@ -111,7 +101,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             returnList.add(vo);
         }
         logger.info("商户中心返回数据：{}", result);
-        return Results.newSuccessPageResult(request, result.getTotalCount(), returnList);
+        return Results.newPageResult(request, result.getTotalCount(), returnList);
     }
 
     @Override
@@ -182,15 +172,17 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         AddAppCallbackConfigRequest request = new AddAppCallbackConfigRequest();
         BeanUtils.copyProperties(appCallbackConfigVO, request);
 
-        List<AddAppCallbackBizRequest> list = new ArrayList<>();
 
-        for (AppCallbackBizVO vo : appCallbackConfigVO.getBizTypes()) {
-            AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
-
-            BeanUtils.copyProperties(vo, callbackBizRequest);
-            list.add(callbackBizRequest);
-        }
+        List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
+        List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
         request.setBizTypes(list);
+
+
+        AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
+        AppCallbackDataTypeRequest dataType = getAppCallbackDataTypeRequest(dataTypeVO);
+        request.setDataTypeVO(dataType);
+
+
 
         MerchantResult<AddAppCallbackConfigResult> result = appCallbackConfigFacade.addAppCallbackConfig(request);
 
@@ -204,20 +196,22 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
     @Override
     public void update(AppCallbackConfigVO appCallbackConfigVO) {
-        logger.info("更新回调配置，{}", appCallbackConfigVO);
+        logger.info("更新回调配置，{}", JSON.toJSONString(appCallbackConfigVO));
         UpdateCallbackConfigRequest request = new UpdateCallbackConfigRequest();
 
         BeanUtils.copyProperties(appCallbackConfigVO, request);
 
-        List<AddAppCallbackBizRequest> list = new ArrayList<>();
 
-        for (AppCallbackBizVO vo : appCallbackConfigVO.getBizTypes()) {
-            AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
-
-            BeanUtils.copyProperties(vo, callbackBizRequest);
-            list.add(callbackBizRequest);
-        }
+        List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
+        List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
         request.setBizTypes(list);
+
+
+        AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
+
+        AppCallbackDataTypeRequest dataType = getAppCallbackDataTypeRequest(dataTypeVO);
+        request.setDataTypeVO(dataType);
+
         MerchantResult<BaseResult> result;
         try {
             result = appCallbackConfigFacade.updateAppCallbackConfig(request);
@@ -232,6 +226,27 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         }
 
         variableMessageNotifyService.sendVariableMessage("merchant-callback", "update", appCallbackConfigVO.getAppId());
+    }
+
+    private AppCallbackDataTypeRequest getAppCallbackDataTypeRequest(AppCallbackDataTypeVO dataTypeVO) {
+        AppCallbackDataTypeRequest dataType = new AppCallbackDataTypeRequest();
+        if (dataTypeVO != null) {
+            dataType.setCode(dataTypeVO.getCode());
+            dataType.setText(dataTypeVO.getText());
+        }
+        return dataType;
+    }
+
+    private List<AddAppCallbackBizRequest> getAddAppCallbackBizRequests(List<AppCallbackBizVO> bizVOList) {
+        List<AddAppCallbackBizRequest> list = new ArrayList<>();
+        if (bizVOList != null && !bizVOList.isEmpty()) {
+            for (AppCallbackBizVO vo : bizVOList) {
+                AddAppCallbackBizRequest callbackBizRequest = new AddAppCallbackBizRequest();
+                BeanUtils.copyProperties(vo, callbackBizRequest);
+                list.add(callbackBizRequest);
+            }
+        }
+        return list;
     }
 
     @Override
@@ -276,9 +291,9 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
         if (result.isSuccess()) {
             List<AppBizTypeSimpleResult> list = result.getData();
-            for(AppBizTypeSimpleResult simpleResult : list){
+            for (AppBizTypeSimpleResult simpleResult : list) {
                 AppBizTypeVO vo = new AppBizTypeVO();
-                BeanUtils.copyProperties(simpleResult,vo);
+                BeanUtils.copyProperties(simpleResult, vo);
                 appBizTypeVOList.add(vo);
             }
         }
@@ -318,9 +333,10 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Override
     @Transactional
     public void initHistorySecretKey() {
-        AppCallbackConfigCriteria configCriteria = new AppCallbackConfigCriteria();
-        configCriteria.createCriteria().andIsNewKeyEqualTo((byte) 1);
-        List<AppCallbackConfig> configList = appCallbackConfigMapper.selectByExample(configCriteria);
+        GetAppCallBackConfigByIsNewKeyRequest request = new GetAppCallBackConfigByIsNewKeyRequest();
+        request.setIsNewKey((byte) 1);
+        MerchantResult<List<AppCallbackResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigByIsNewKey(request);
+        List<AppCallbackConfig> configList = DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
         for (AppCallbackConfig config : configList) {
             CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(config.getId());
             if (callbackLicenseDTO == null) {

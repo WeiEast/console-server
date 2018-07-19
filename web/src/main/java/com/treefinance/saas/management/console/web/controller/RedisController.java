@@ -1,9 +1,9 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.knife.common.CommonStateCode;
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.RedisDataService;
 import com.treefinance.saas.management.console.common.domain.request.RedisRequest;
-import com.treefinance.saas.management.console.common.result.CommonStateCode;
-import com.treefinance.saas.management.console.common.result.Results;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.web.bind.annotation.RequestBody;

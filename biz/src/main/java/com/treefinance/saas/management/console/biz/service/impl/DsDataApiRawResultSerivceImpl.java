@@ -3,18 +3,21 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.dto.DataApiRawResultDTO;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.facade.DataApiRawResultFacade;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.request.DataApiRawResultRequest;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.DsDataApiRawResultSerivce;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.request.DsDataApiRequest;
 import com.treefinance.saas.management.console.common.domain.vo.DataApiRawResultVO;
-import com.treefinance.saas.management.console.common.result.Result;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -40,12 +43,12 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
 
 
     @Override
-    public Result<Map<String, Object>> findPageByExample(DsDataApiRequest request) {
+    public SaasResult<Map<String, Object>> findPageByExample(DsDataApiRequest request) {
         DataApiRawResultRequest dataApiRawResultRequest = new DataApiRawResultRequest();
         BeanUtils.copyProperties(request, dataApiRawResultRequest);
         List<DataApiRawResultDTO> dtoList = dataApiRawResultFacade.query(dataApiRawResultRequest);
         List<DataApiRawResultVO> voList = dtoList.stream().map(dto -> convert2VO(dto)).collect(Collectors.toList());
-        return Results.newSuccessPageResult(request, dataApiRawResultFacade.count(dataApiRawResultRequest), voList);
+        return Results.newPageResult(request, dataApiRawResultFacade.count(dataApiRawResultRequest), voList);
     }
 
 

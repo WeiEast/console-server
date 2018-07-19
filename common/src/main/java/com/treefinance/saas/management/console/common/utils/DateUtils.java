@@ -287,6 +287,17 @@ public class DateUtils {
         return date;
     }
 
+    public static Date strToDateOrNull(String dateStr, String formatStr) {
+        DateFormat dd = new SimpleDateFormat(formatStr);
+        Date date = null;
+        try {
+            date = dd.parse(dateStr);
+        } catch (Exception e) {
+            return null;
+        }
+        return date;
+    }
+
 
     //获取今天凌晨的时间戳
     public static Integer getTodayBeginTimeStamp() {
@@ -594,49 +605,12 @@ public class DateUtils {
     }
 
     public static void main(String[] args) throws ParseException {
-//        System.out.println(DateUtils.getWeekOfYear(new Date()));
-//        System.out.println(DateUtils.getFirstDayOfWeek(new Date()));
-//        System.out.println(DateUtils.getLastDayOfWeek(new Date()));
-//        System.out.println(DateUtils.getFirstDayOfMonth(new Date()));
-//        System.out.println(DateUtils.getLastDayOfMonth(new Date()));
-//        System.out.println(DateUtils.getWeekStrOfYear(new Date()));
-//        System.out.println(DateUtils.date2SimpleYm(new Date()));
-//        System.out.println(DateUtils.getDayStrDateLists(DateUtils.ymdString2Date("2017-07-01"), DateUtils.ymdString2Date("2017-07-08")));
-//        LocalDate localDate = LocalDate.now();
-//        System.out.println("localDate:" + localDate);
-//
-//        LocalDate tomorrow = LocalDate.now().plusDays(1);
-//        System.out.println("tomorrow:" + tomorrow);
-//
-//        LocalDate yesterday = LocalDate.now().minusDays(1);
-//        System.out.println("yesterday:" + yesterday);
-//
-//        LocalDateTime now = LocalDateTime.now();
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        System.out.println("默认格式化: " + now);
-//        System.out.println("自定义格式化: " + now.format(dateTimeFormatter));
-//        LocalDateTime localDateTime = LocalDateTime.parse("2017-07-20 15:27:44", dateTimeFormatter);
-//        System.out.println("字符串转LocalDateTime: " + localDateTime);
-//        Date date = org.apache.commons.lang3.time.DateUtils.parseDate("2017-11-24 19:01:00", "yyyy-MM-dd HH:mm:ss");
-        //8,16,24,32,40,48,56
-//        System.out.println(DateUtils.date2Hms(DateUtils.getIntervalDateTime(date, 8)));
+        Date date = DateUtils.string2Date("2018-07-16 19:41:33");
+        Date startDate = DateUtils.getIntervalDateTime(date, 5);
+        System.out.println(DateUtils.date2Hms(startDate));
 
-//        System.out.println(DateUtils.getTodayEndDate(new Date()));
-//        System.err.println(date2Ymd(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH)));
-
-
-//        List<String> list = DateUtils.getIntervalDateStrRegion(new Date(), org.apache.commons.lang3.time.DateUtils.addMinutes(new Date(), 100), 5);
-//        System.out.println(JSON.toJSONString(list, true));
-//
-//
-//        System.err.println(date2Ymd(getLastDayOfMonth(new Date())));
-//        System.err.println(date2Ymd(getFirstDayOfMonth(new Date())));
-//        System.err.println(date2Ymd(getFirstDayOfMonth(getSpecificDayDate(new Date(), -3, TimeUnit.MONTH))));
-
-        Date d1 = new Date();
-        Date d2 = org.apache.commons.lang3.time.DateUtils.addDays(new Date(), 3);
-        System.out.println(DateUtils.getDayDateRegion(d1, d2, 1));
-
+        Date endDate = DateUtils.getLaterIntervalDateTime(date, 5);
+        System.out.println(DateUtils.date2Hms(endDate));
     }
 
 

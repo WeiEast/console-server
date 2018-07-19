@@ -15,13 +15,10 @@ public class OperatorStatDayAccessVO implements Serializable {
     private static final long serialVersionUID = 5314057593105667410L;
 
     private String groupCode;
-
     private String groupName;
-
     private Date dataTime;
-
     private String dataTimeStr;
-
+    private BigDecimal dayAverage;
     private Integer confirmMobileCount;
     private Integer startLoginCount;
     private Integer loginSuccessCount;
@@ -165,5 +162,13 @@ public class OperatorStatDayAccessVO implements Serializable {
 
     public void setTaskUserRatio(BigDecimal taskUserRatio) {
         this.taskUserRatio = taskUserRatio;
+    }
+
+    public BigDecimal getDayAverage() {
+        return dayAverage;
+    }
+
+    public void setDayAverage(BigDecimal dayAverage) {
+        this.dayAverage = dayAverage;
     }
 }

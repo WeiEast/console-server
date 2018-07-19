@@ -15,7 +15,6 @@
         <dependency>
             <groupId>com.treefinance.saas.monitor</groupId>
             <artifactId>monitor-facade</artifactId>
-            <version>1.0.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -27,7 +26,6 @@
         <dependency>
             <groupId>com.treefinance.saas</groupId>
             <artifactId>grap-server-facade</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -48,6 +46,11 @@
         <dependency>
             <groupId>com.treefinance.saas</groupId>
             <artifactId>assistant-variable-notify</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.treefinance.saas</groupId>
+            <artifactId>saas-knife</artifactId>
         </dependency>
 
         <dependency>

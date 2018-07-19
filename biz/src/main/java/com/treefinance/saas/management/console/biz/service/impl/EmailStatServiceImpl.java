@@ -1,12 +1,9 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
-import com.alibaba.dubbo.rpc.RpcResult;
-import com.google.common.collect.Lists;
+import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.EmailStatService;
 import com.treefinance.saas.management.console.common.domain.request.EmailStatRequest;
-import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatDayAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.EmailStatAccessVO;
-import com.treefinance.saas.management.console.common.result.Results;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.monitor.facade.domain.request.EmailStatAccessRequest;
@@ -17,7 +14,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,12 +42,12 @@ public class EmailStatServiceImpl implements EmailStatService {
         rpcRequest.setEmail(request.getEmail());
         MonitorResult<List<EmailStatAccessBaseRO>> rpcResult = emailStatAccessFacade.queryEmailStatDayAccessList(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, rpcResult.getData());
+            return Results.newPageResult(request, 0, rpcResult.getData());
         }
 
         List<EmailStatAccessVO> result = BeanUtils.convertList(rpcResult.getData(), EmailStatAccessVO.class);
         result.stream().sorted();
-        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
+        return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
     @Override
@@ -71,13 +67,13 @@ public class EmailStatServiceImpl implements EmailStatService {
         rpcRequest.setEmail(request.getEmail());
         MonitorResult<List<EmailStatAccessBaseRO>> rpcResult = emailStatAccessFacade.queryEmailStatDayAccessListDetail(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, rpcResult.getData());
+            return Results.newPageResult(request, 0, rpcResult.getData());
         }
 
         List<EmailStatAccessVO> result = BeanUtils.convertList(rpcResult.getData(), EmailStatAccessVO.class);
 
 
-        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), result);
+        return Results.newPageResult(request, rpcResult.getTotalCount(), result);
 
     }
 
@@ -86,8 +82,8 @@ public class EmailStatServiceImpl implements EmailStatService {
         MonitorResult<List<String>> rpcResult = emailStatAccessFacade
                 .queryEmailSupportList(new EmailStatAccessRequest());
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
-            return Results.newSuccessPageResult(request, 0, rpcResult.getData());
+            return Results.newPageResult(request, 0, rpcResult.getData());
         }
-        return Results.newSuccessPageResult(request, rpcResult.getTotalCount(), rpcResult.getData());
+        return Results.newPageResult(request, rpcResult.getTotalCount(), rpcResult.getData());
     }
 }

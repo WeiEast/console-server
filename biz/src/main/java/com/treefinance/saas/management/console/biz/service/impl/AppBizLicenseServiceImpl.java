@@ -9,6 +9,7 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
+import com.treefinance.saas.management.console.common.domain.config.RawdataDomainConfig;
 import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
@@ -41,8 +42,10 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by haojiahong on 2017/7/4.
@@ -223,9 +226,18 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         if (StringUtils.isEmpty(merchantResult.getData())) {
             logger.error("分页查找商户户及商户相关信息失败，错误信息:{}", merchantResult.getRetMsg());
         }
-        String url = diamondConfig.getRawDataDomainConfigList().get(2).getDomian() + "app/crawler/getList";
+        List<RawdataDomainConfig> list = diamondConfig.getRawDataDomainConfigList();
+        Map<String, RawdataDomainConfig> appleMap =  new HashMap<>();
+        for(RawdataDomainConfig rawdataDomainConfig:list)
+        {
+            appleMap.put(rawdataDomainConfig.getSystemSymbol(),rawdataDomainConfig);
+        }
+
+        String url = appleMap.get("rawdatacentral").getDomian() + "app/crawler/getList";
+
         HttpResponseResult httpResponseResult = HttpClientUtils.doPostResult(url, merchantResult.getData());
         logger.info("调用http请求，传回的结果为{}，状态码为{}", httpResponseResult.getResponseBody(), httpResponseResult.getStatusCode());
+
         JSONArray array = JSONArray.fromObject((JSONObject.parseObject(httpResponseResult.getResponseBody())).getString("data"));
         String js = JSONObject.toJSONString(array);
         com.treefinance.saas.knife.request.PageRequest pageRequest = new com.treefinance.saas.knife.request.PageRequest();

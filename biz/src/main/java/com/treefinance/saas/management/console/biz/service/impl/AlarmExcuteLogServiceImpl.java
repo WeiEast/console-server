@@ -12,6 +12,7 @@ import com.treefinance.saas.monitor.facade.service.autoalarm.AlarmBasicConfigura
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ import java.util.List;
  * @author:guoguoyun
  * @date:Created in 2018/7/19下午3:12
  */
+@Service
 public class AlarmExcuteLogServiceImpl implements AlarmExcuteLogService {
     private  static  final Logger logger = LoggerFactory.getLogger(AlarmExcuteLogService.class);
 

@@ -230,10 +230,10 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         Map<String, RawdataDomainConfig> appleMap =  new HashMap<>();
         for(RawdataDomainConfig rawdataDomainConfig:list)
         {
-            appleMap.put(rawdataDomainConfig.getRemovePath(),rawdataDomainConfig);
+            appleMap.put(rawdataDomainConfig.getSystemSymbol(),rawdataDomainConfig);
         }
 
-        String url = appleMap.get("/saas/console/rawdata/rawdatacentral").getDomian() + "app/crawler/getList";
+        String url = appleMap.get("rawdatacentral").getDomian() + "app/crawler/getList";
 
         HttpResponseResult httpResponseResult = HttpClientUtils.doPostResult(url, merchantResult.getData());
         logger.info("调用http请求，传回的结果为{}，状态码为{}", httpResponseResult.getResponseBody(), httpResponseResult.getStatusCode());

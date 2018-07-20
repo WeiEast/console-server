@@ -17,6 +17,8 @@ public class AlarmConfigVO extends BaseVO {
      * 预警执行环境(0-所有，1-生产，2-预发布)
      */
     private Byte runEnv;
+
+    private String runEnvDesc;
     /**
      * 预警开关
      */
@@ -100,5 +102,13 @@ public class AlarmConfigVO extends BaseVO {
 
     public void setBodyTemplate(String bodyTemplate) {
         this.bodyTemplate = bodyTemplate;
+    }
+
+    public String getRunEnvDesc() {
+        return runEnvDesc;
+    }
+
+    public void setRunEnvDesc(String runEnvDesc) {
+        this.runEnvDesc = runEnvDesc;
     }
 }

@@ -5,6 +5,8 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmConfigService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AlarmBasicConfigurationRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.autoalarm.AsAlarmRO;
@@ -50,6 +52,8 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
 
         List<AsAlarmRO> list = result.getData();
 
-        return Results.newPageResult(request, list.size(), list);
+        List<AlarmConfigVO> returnList = DataConverterUtils.convert(list, AlarmConfigVO.class);
+
+        return Results.newPageResult(request, returnList.size(), returnList);
     }
 }

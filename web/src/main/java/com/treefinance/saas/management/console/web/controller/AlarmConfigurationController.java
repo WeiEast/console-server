@@ -39,7 +39,7 @@ public class AlarmConfigurationController {
     }
 
     @RequestMapping(value="/list",produces = "application/json",method = RequestMethod.POST)
-    public SaasResult<List<AlarmConfigVO>> queryAlarmConfigList(AlarmConfigRequest request){
+    public SaasResult<List<AlarmConfigVO>> queryAlarmConfigList(@RequestBody AlarmConfigRequest request){
         if(request.getRunEnv() != null){
             if(request.getRunEnv().intValue() >2 ||request.getRunEnv().intValue() <0  ){
                 throw new IllegalArgumentException("请求参数runEnv为空或非法!");

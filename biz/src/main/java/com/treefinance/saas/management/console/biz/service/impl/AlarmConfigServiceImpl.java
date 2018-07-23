@@ -71,7 +71,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         try {
             rpcResult = alarmBasicConfigurationFacade.queryAlarmConfigurationDetailById(id);
         } catch (Exception e) {
-            throw new BizException("调用saas-monitor失败", e);
+            throw new BizException("调用saas-monitor异常", e);
         }
         AlarmConfigDetailVO alarmConfigDetailVO = new AlarmConfigDetailVO();
         AsAlarmBasicConfigurationDetailRO rpcData = rpcResult.getData();
@@ -145,12 +145,12 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         try {
             rpcResult = alarmBasicConfigurationFacade.addOrUpdate(rpcRequest);
         } catch (Exception e) {
-            throw new BizException("调用saas-monitor失败", e);
+            throw new BizException("调用saas-monitor异常", e);
         }
 
         if (StringUtils.isNotBlank(rpcResult.getErrorMsg())) {
             logger.info("调用saas-monitor异常,error={}", rpcResult.getErrorMsg());
-            throw new BizException("调用saas-monitor异常");
+            throw new BizException("调用saas-monitor失败");
         }
         return Results.newSuccessResult(Boolean.TRUE);
     }

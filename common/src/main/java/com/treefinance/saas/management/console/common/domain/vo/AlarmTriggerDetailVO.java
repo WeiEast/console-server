@@ -17,7 +17,6 @@ public class AlarmTriggerDetailVO implements Serializable {
     private String errorTrigger;
     private String recoveryTrigger;
     private String recoveryMessageTemplate;
-    private Byte toDelete;
 
     public Long getId() {
         return id;
@@ -83,11 +82,4 @@ public class AlarmTriggerDetailVO implements Serializable {
         this.recoveryMessageTemplate = recoveryMessageTemplate;
     }
 
-    public Byte getToDelete() {
-        return toDelete;
-    }
-
-    public void setToDelete(Byte toDelete) {
-        this.toDelete = toDelete;
-    }
 }

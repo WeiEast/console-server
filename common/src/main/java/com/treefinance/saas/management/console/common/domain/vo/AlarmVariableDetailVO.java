@@ -14,7 +14,6 @@ public class AlarmVariableDetailVO implements Serializable {
     private String code;
     private String value;
     private String description;
-    private Byte toDelete;
 
     public Long getId() {
         return id;
@@ -56,11 +55,4 @@ public class AlarmVariableDetailVO implements Serializable {
         this.description = description;
     }
 
-    public Byte getToDelete() {
-        return toDelete;
-    }
-
-    public void setToDelete(Byte toDelete) {
-        this.toDelete = toDelete;
-    }
 }

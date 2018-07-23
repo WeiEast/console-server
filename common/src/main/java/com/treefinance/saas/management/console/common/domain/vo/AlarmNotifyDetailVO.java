@@ -16,7 +16,6 @@ public class AlarmNotifyDetailVO implements Serializable {
     private String emailSwitch;
     private String ivrSwitch;
     private Byte receiverType;
-    private Byte toDelete;
 
     public Long getId() {
         return id;
@@ -74,12 +73,5 @@ public class AlarmNotifyDetailVO implements Serializable {
         this.receiverType = receiverType;
     }
 
-    public Byte getToDelete() {
-        return toDelete;
-    }
-
-    public void setToDelete(Byte toDelete) {
-        this.toDelete = toDelete;
-    }
 }
 

@@ -13,7 +13,6 @@ public class AlarmQueryDetailVO implements Serializable {
     private String resultCode;
     private String querySql;
     private String description;
-    private Byte toDelete;
 
     public Long getId() {
         return id;
@@ -47,11 +46,4 @@ public class AlarmQueryDetailVO implements Serializable {
         this.description = description;
     }
 
-    public Byte getToDelete() {
-        return toDelete;
-    }
-
-    public void setToDelete(Byte toDelete) {
-        this.toDelete = toDelete;
-    }
 }

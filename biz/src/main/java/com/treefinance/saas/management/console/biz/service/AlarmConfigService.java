@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigDetailVO;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
 
 import java.util.List;
@@ -13,5 +14,9 @@ import java.util.List;
 public interface AlarmConfigService {
 
     SaasResult<List<AlarmConfigVO>> queryAlarmConfigList(AlarmConfigRequest request);
+
+    SaasResult<AlarmConfigDetailVO> queryAlarmConfigDetailById(Long id);
+
+    SaasResult<Boolean> saveAlarmConfigDetail(AlarmConfigDetailVO alarmConfigDetailVO);
 
 }

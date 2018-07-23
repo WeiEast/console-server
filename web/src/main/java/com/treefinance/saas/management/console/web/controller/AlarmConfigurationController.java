@@ -6,6 +6,7 @@ import com.treefinance.saas.management.console.biz.service.AlarmExcuteLogService
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
 import com.treefinance.saas.management.console.common.domain.request.AsAlarmRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigExpressionTestVO;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -57,5 +58,11 @@ public class AlarmConfigurationController {
     public Object saveAlarmConfigDetail(@RequestBody AlarmConfigDetailVO alarmConfigDetailVO) {
         return alarmConfigService.saveAlarmConfigDetail(alarmConfigDetailVO);
     }
+
+    @RequestMapping(value = "/test", produces = "application/json", method = RequestMethod.POST)
+    public Object testAlarmConfigDetail(@RequestBody AlarmConfigExpressionTestVO alarmConfigExpressionTestVO) {
+        return null;
+    }
+
 
 }

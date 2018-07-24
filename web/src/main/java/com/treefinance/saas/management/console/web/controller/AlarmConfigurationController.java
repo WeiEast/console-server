@@ -5,12 +5,14 @@ import com.treefinance.saas.management.console.biz.service.AlarmConfigService;
 import com.treefinance.saas.management.console.biz.service.AlarmExcuteLogService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
 import com.treefinance.saas.management.console.common.domain.request.AsAlarmRequest;
+import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigDetailVO;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigExpressionTestVO;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -68,4 +70,15 @@ public class AlarmConfigurationController {
     public Object cronCompute(String cron) {
         return alarmConfigService.cronCompute(cron);
     }
+
+    /**
+     * 根据日期返回值班人员信息
+     * @param saasWorkerRequest
+     * @return
+     */
+    @RequestMapping(value = "/saasworker", produces = "application/json", method = RequestMethod.POST)
+    public Object queryWorkerByDate(@RequestBody SaasWorkerRequest saasWorkerRequest) {
+        return alarmConfigService.queryWorkerByDate(saasWorkerRequest);
+    }
+
 }

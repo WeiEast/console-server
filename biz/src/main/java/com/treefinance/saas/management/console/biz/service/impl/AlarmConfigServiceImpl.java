@@ -5,12 +5,14 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmConfigService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
+import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.monitor.facade.domain.request.autoalarm.*;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
+import com.treefinance.saas.monitor.facade.domain.ro.SaasWorkerRO;
 import com.treefinance.saas.monitor.facade.domain.ro.autoalarm.AsAlarmBasicConfigurationDetailRO;
 import com.treefinance.saas.monitor.facade.domain.ro.autoalarm.AsAlarmRO;
 import com.treefinance.saas.monitor.facade.service.autoalarm.AlarmBasicConfigurationFacade;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -207,4 +210,20 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         }
         return Results.newSuccessResult(rpcResult.getData());
     }
+
+    @Override
+    public SaasResult<List<SaasWorkerVO>> queryWorkerByDate(SaasWorkerRequest saasWorkerRequest) {
+        if (saasWorkerRequest.getNowdate() == null) {
+            throw new BizException("值班日期不能为空");
+        }
+        MonitorResult<List<SaasWorkerRO>> monitorResult = alarmBasicConfigurationFacade.queryWorkerNameByDate(saasWorkerRequest.getNowdate());
+        if (monitorResult.getData() == null) {
+            logger.error("返回值班人员的数据为空{}", monitorResult.getErrorMsg());
+            return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA, monitorResult.getErrorMsg());
+        }
+        List<SaasWorkerVO> list = DataConverterUtils.convert(monitorResult.getData(), SaasWorkerVO.class);
+        return Results.newSuccessResult(list);
+    }
+
+
 }

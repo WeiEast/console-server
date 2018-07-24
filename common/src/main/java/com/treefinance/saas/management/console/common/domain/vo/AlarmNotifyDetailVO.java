@@ -16,6 +16,7 @@ public class AlarmNotifyDetailVO implements Serializable {
     private String emailSwitch;
     private String ivrSwitch;
     private Byte receiverType;
+    private String receiverIds;
 
     public Long getId() {
         return id;
@@ -73,5 +74,12 @@ public class AlarmNotifyDetailVO implements Serializable {
         this.receiverType = receiverType;
     }
 
+    public String getReceiverIds() {
+        return receiverIds;
+    }
+
+    public void setReceiverIds(String receiverIds) {
+        this.receiverIds = receiverIds;
+    }
 }
 

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author chengtong
@@ -192,5 +193,14 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
             }
         }
 
+    }
+
+    @Override
+    public SaasResult<Map<String, String>> cronCompute(String cronExpression) {
+        if (StringUtils.isBlank(cronExpression)) {
+            throw new BizException("cron表达式不能为空");
+        }
+
+        return null;
     }
 }

@@ -6,6 +6,7 @@ import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigDetai
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author chengtong
@@ -19,4 +20,5 @@ public interface AlarmConfigService {
 
     SaasResult<Boolean> saveAlarmConfigDetail(AlarmConfigDetailVO alarmConfigDetailVO);
 
+    SaasResult<Map<String, String>> cronCompute(String cronExpression);
 }

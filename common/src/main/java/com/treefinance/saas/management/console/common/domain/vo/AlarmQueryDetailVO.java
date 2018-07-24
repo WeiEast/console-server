@@ -10,6 +10,7 @@ public class AlarmQueryDetailVO implements Serializable {
     private static final long serialVersionUID = 1637221013430205960L;
 
     private Long id;
+    private Integer queryIndex;
     private String resultCode;
     private String querySql;
     private String description;
@@ -46,4 +47,11 @@ public class AlarmQueryDetailVO implements Serializable {
         this.description = description;
     }
 
+    public Integer getQueryIndex() {
+        return queryIndex;
+    }
+
+    public void setQueryIndex(Integer queryIndex) {
+        this.queryIndex = queryIndex;
+    }
 }

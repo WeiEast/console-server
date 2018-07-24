@@ -10,6 +10,7 @@ public class AlarmTriggerDetailVO implements Serializable {
     private static final long serialVersionUID = -6160622307522672633L;
 
     private Long id;
+    private Integer triggerIndex;
     private String name;
     private Byte status;
     private String infoTrigger;
@@ -82,4 +83,11 @@ public class AlarmTriggerDetailVO implements Serializable {
         this.recoveryMessageTemplate = recoveryMessageTemplate;
     }
 
+    public Integer getTriggerIndex() {
+        return triggerIndex;
+    }
+
+    public void setTriggerIndex(Integer triggerIndex) {
+        this.triggerIndex = triggerIndex;
+    }
 }

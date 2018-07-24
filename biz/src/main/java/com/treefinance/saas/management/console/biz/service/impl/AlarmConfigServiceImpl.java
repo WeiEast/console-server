@@ -150,7 +150,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
 
         if (StringUtils.isNotBlank(rpcResult.getErrorMsg())) {
             logger.info("调用saas-monitor异常,error={}", rpcResult.getErrorMsg());
-            throw new BizException("调用saas-monitor失败");
+            throw new BizException(rpcResult.getErrorMsg());
         }
         return Results.newSuccessResult(Boolean.TRUE);
     }

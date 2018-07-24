@@ -10,6 +10,7 @@ public class AlarmVariableDetailVO implements Serializable {
     private static final long serialVersionUID = -3679257604752003285L;
 
     private Long id;
+    private Integer varIndex;
     private String name;
     private String code;
     private String value;
@@ -55,4 +56,11 @@ public class AlarmVariableDetailVO implements Serializable {
         this.description = description;
     }
 
+    public Integer getVarIndex() {
+        return varIndex;
+    }
+
+    public void setVarIndex(Integer varIndex) {
+        this.varIndex = varIndex;
+    }
 }

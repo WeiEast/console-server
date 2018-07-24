@@ -10,6 +10,7 @@ public class AlarmConstantDetailVO implements Serializable {
     private static final long serialVersionUID = -5953017975007597412L;
 
     private Long id;
+    private Integer constIndex;
     private String name;
     private String code;
     private String value;
@@ -55,4 +56,11 @@ public class AlarmConstantDetailVO implements Serializable {
         this.description = description;
     }
 
+    public Integer getConstIndex() {
+        return constIndex;
+    }
+
+    public void setConstIndex(Integer constIndex) {
+        this.constIndex = constIndex;
+    }
 }

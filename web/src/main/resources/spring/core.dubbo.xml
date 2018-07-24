@@ -124,8 +124,8 @@
                      version="1.0.0"/>
 
     <dubbo:reference id="alarmBasicConfigurationFacade"
-                   interface="com.treefinance.saas.monitor.facade.service.autoalarm.AlarmBasicConfigurationFacade"
-                   url="localhost:20292" version="1.0.0"/>
+                     interface="com.treefinance.saas.monitor.facade.service.autoalarm.AlarmBasicConfigurationFacade"
+                     version="1.0.0"/>
 
 
 </beans>

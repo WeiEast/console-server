@@ -14,6 +14,15 @@ public class ChartStatVO implements Serializable {
 
     private Integer dataValue;//统计量 y轴
 
+    public ChartStatVO() {
+
+    }
+
+    public ChartStatVO(Date dataTime, Integer dataValue) {
+        this.dataTime = dataTime;
+        this.dataValue = dataValue;
+    }
+
     public Date getDataTime() {
         return dataTime;
     }

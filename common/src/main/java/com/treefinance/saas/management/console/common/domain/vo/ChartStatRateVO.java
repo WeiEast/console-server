@@ -11,6 +11,14 @@ public class ChartStatRateVO implements Serializable {
 
     private static final long serialVersionUID = -4734492990487958188L;
 
+    public ChartStatRateVO() {
+    }
+
+    public ChartStatRateVO(Date dataTime, BigDecimal dataValue) {
+        this.dataTime = dataTime;
+        this.dataValue = dataValue;
+    }
+
     private Date dataTime;//时间 x轴
 
     private BigDecimal dataValue;//统计量 y轴

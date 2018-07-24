@@ -55,6 +55,19 @@ public class StatRequest extends PageRequest {
      */
     private Byte saasEnv;
 
+    /**
+     * 曲线图是否隐藏最近一个点的数据
+     */
+    private Byte hiddenRecentPoint = 1;
+
+
+    public Byte getHiddenRecentPoint() {
+        return hiddenRecentPoint;
+    }
+
+    public void setHiddenRecentPoint(Byte hiddenRecentPoint) {
+        this.hiddenRecentPoint = hiddenRecentPoint;
+    }
 
     public Integer getDateType() {
         return dateType;

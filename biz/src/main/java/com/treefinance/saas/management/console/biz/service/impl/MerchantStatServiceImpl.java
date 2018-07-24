@@ -232,13 +232,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setDataType(request.getBizType());
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
+        statRequest.setIntervalMins(request.getIntervalMins());
         statRequest.setSaasEnv(ESaasEnv.ALL.getCode());
 
         MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
-        if (logger.isDebugEnabled()) {
-            logger.debug("merchantStatAccessFacade.queryAllAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
-        }
+
         if (CollectionUtils.isEmpty(result.getData())) {
             return wrapMap;
         }
@@ -340,37 +338,46 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
         statRequest.setSaasEnv(request.getSaasEnv());
+        statRequest.setIntervalMins(request.getIntervalMins());
         statRequest.setAppId(Constants.VIRTUAL_TOTAL_STAT_APPID);
 
-        MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
-        if (logger.isDebugEnabled()) {
-            logger.debug("merchantStatAccessFacade.queryAllAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
-        }
+        MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllSuccessAccessList(statRequest);
+
         if (CollectionUtils.isEmpty(result.getData())) {
             return wrapMap;
         }
 
-        List<MerchantStatAccessRO> roList = changeIntervalDataTime(result.getData(), request.getIntervalMins());
-
-        //<key,<data,keyCount>>
-        Map<String, Map<Date, Integer>> dataMap = Maps.newLinkedHashMap();
-        Map<Date, Integer> valueTotalMap = Maps.newHashMap();
-        Map<Date, Integer> valueSuccessMap = Maps.newHashMap();
-        Map<Date, Integer> valueFailMap = Maps.newHashMap();
-        Map<Date, Integer> valueCancelMap = Maps.newHashMap();
-
-        putDataIntoValueMap(roList, valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
-
-        dataMap.put("总数", valueTotalMap);
-        dataMap.put("成功数", valueSuccessMap);
-        dataMap.put("失败数", valueFailMap);
-        dataMap.put("取消数", valueCancelMap);
-        List<String> keysList = Lists.newArrayList(dataMap.keySet());
+        List<String> keysList = Lists.newArrayList("总数", "成功数", "失败数", "取消数");
         wrapMap.put("keys", keysList);
-        Map<String, List<ChartStatVO>> valuesMap = this.wrapNumberTaskChart(dataMap);
+        Map<String, List<ChartStatVO>> valuesMap = this.getNumberTaskChart(result.getData());
         wrapMap.put("values", valuesMap);
         return wrapMap;
+    }
+
+    private Map<String, List<ChartStatVO>> getNumberTaskChart(List<MerchantStatAccessRO> data) {
+        Map<String, List<ChartStatVO>> result = Maps.newHashMap();
+        List<ChartStatVO> totalList = Lists.newArrayList();
+        List<ChartStatVO> successList = Lists.newArrayList();
+        List<ChartStatVO> failList = Lists.newArrayList();
+        List<ChartStatVO> cancelList = Lists.newArrayList();
+
+        for (MerchantStatAccessRO ro : data) {
+            Date dataTime = ro.getDataTime();
+            ChartStatVO total = new ChartStatVO(dataTime, ro.getTotalCount());
+            ChartStatVO success = new ChartStatVO(dataTime, ro.getSuccessCount());
+            ChartStatVO fail = new ChartStatVO(dataTime, ro.getFailCount());
+            ChartStatVO cancel = new ChartStatVO(dataTime, ro.getCancelCount());
+
+            totalList.add(total);
+            successList.add(success);
+            failList.add(fail);
+            cancelList.add(cancel);
+        }
+        result.put("总数", totalList);
+        result.put("成功数", successList);
+        result.put("失败数", failList);
+        result.put("取消数", cancelList);
+        return result;
     }
 
 
@@ -382,7 +389,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 continue;
             }
             Map<Date, List<MerchantStatAccessRO>> map = appIdROEntry.getValue().stream()
-                    .collect(Collectors.groupingBy(ro -> DateUtils.getIntervalDateTime(ro.getDataTime(), intervalMins)));
+                    .collect(Collectors.groupingBy(ro -> DateUtils.getLaterIntervalDateTime(ro.getDataTime(), intervalMins)));
             for (Map.Entry<Date, List<MerchantStatAccessRO>> entry : map.entrySet()) {
                 if (CollectionUtils.isEmpty(entry.getValue())) {
                     continue;
@@ -419,9 +426,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(voList)) {
-                voList.remove(voList.size() - 1);
-            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;
@@ -435,38 +439,40 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         statRequest.setStartDate(this.getStartDate(request));
         statRequest.setEndDate(this.getEndDate(request));
         statRequest.setSaasEnv(request.getSaasEnv());
+        statRequest.setIntervalMins(request.getIntervalMins());
         statRequest.setAppId(Constants.VIRTUAL_TOTAL_STAT_APPID);
 
-        MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllAccessList(statRequest);
-        if (logger.isDebugEnabled()) {
-            logger.debug("merchantStatAccessFacade.queryAllAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
-        }
+        MonitorResult<List<MerchantStatAccessRO>> result = merchantStatAccessFacade.queryAllSuccessAccessList(statRequest);
         if (CollectionUtils.isEmpty(result.getData())) {
             return wrapMap;
         }
 
-        List<MerchantStatAccessRO> roList = changeIntervalDataTime(result.getData(), request.getIntervalMins());
-
-        //<key,<data,keyRate>>
-        Map<String, Map<Date, BigDecimal>> dataMap;
-        //<dataTime,totalCount>
-        Map<Date, Integer> valueTotalMap = Maps.newHashMap();
-        //<dataTime,succCount>
-        Map<Date, Integer> valueSuccessMap = Maps.newHashMap();
-        //<dataTime,failCount>
-        Map<Date, Integer> valueFailMap = Maps.newHashMap();
-        //<dataTime,cancelCount>
-        Map<Date, Integer> valueCancelMap = Maps.newHashMap();
-
-        putDataIntoValueMap(roList, valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
-
-        dataMap = this.countRateTask(valueTotalMap, valueSuccessMap, valueFailMap, valueCancelMap);
-        List<String> keysList = Lists.newArrayList(dataMap.keySet());
-        wrapMap.put("keys", keysList);
-        Map<String, List<ChartStatRateVO>> valuesMap = this.wrapRateTaskChart(dataMap);
+        wrapMap.put("keys", Lists.newArrayList("转化率", "失败率", "取消率"));
+        Map<String, List<ChartStatRateVO>> valuesMap = this.getRateTaskChart(result.getData());
         wrapMap.put("values", valuesMap);
         return wrapMap;
+    }
+
+    private Map<String, List<ChartStatRateVO>> getRateTaskChart(List<MerchantStatAccessRO> data) {
+        Map<String, List<ChartStatRateVO>> result = Maps.newHashMap();
+        List<ChartStatRateVO> successList = Lists.newArrayList();
+        List<ChartStatRateVO> failList = Lists.newArrayList();
+        List<ChartStatRateVO> cancelList = Lists.newArrayList();
+
+        for (MerchantStatAccessRO ro : data) {
+            Date dataTime = ro.getDataTime();
+            ChartStatRateVO success = new ChartStatRateVO(dataTime, ro.getSuccessRate());
+            ChartStatRateVO fail = new ChartStatRateVO(dataTime, ro.getFailRate());
+            ChartStatRateVO cancel = new ChartStatRateVO(dataTime, ro.getCancelRate());
+
+            successList.add(success);
+            failList.add(fail);
+            cancelList.add(cancel);
+        }
+        result.put("转化率", successList);
+        result.put("失败率", failList);
+        result.put("取消率", cancelList);
+        return result;
     }
 
     private void putDataIntoValueMap(List<MerchantStatAccessRO> roList, Map<Date, Integer> valueTotalMap, Map<Date, Integer> valueSuccessMap, Map<Date, Integer> valueFailMap, Map<Date, Integer> valueCancelMap) {
@@ -625,11 +631,11 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
             MerchantResult<List<MerchantUserResult>> listMerchantResult;
 
-            try{
+            try {
                 listMerchantResult = merchantUserFacade.queryMerchantUserByMerchantId(queryMerchantByMerchantIdRequest);
-                logger.info("商户中心放回数据:{}",listMerchantResult);
-            }catch (RpcException e){
-                logger.info("商户中心调用出错:{}",e.getMessage());
+                logger.info("商户中心放回数据:{}", listMerchantResult);
+            } catch (RpcException e) {
+                logger.info("商户中心调用出错:{}", e.getMessage());
                 return new ArrayList<>();
             }
 
@@ -953,9 +959,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 voList.add(vo);
             }
             voList = voList.stream().sorted(Comparator.comparing(ChartStatRateVO::getDataTime)).collect(Collectors.toList());
-            if (!CollectionUtils.isEmpty(voList)) {
-                voList.remove(voList.size() - 1);
-            }
             valuesMap.put(dataEntry.getKey(), voList);
         }
         return valuesMap;
@@ -1209,7 +1212,13 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         Integer dateType = request.getDateType();
         switch (dateType) {
             case 0:
-                return org.apache.commons.lang.time.DateUtils.addSeconds(request.getEndDate(), 24 * 60 * 60 - 1);
+                Date now = new Date();
+                Date endDate = com.treefinance.saas.management.console.common.utils.DateUtils.getTodayEndDate(request.getEndDate());
+                if (endDate.compareTo(now) > 0) {
+                    return now;
+                }
+                return endDate;
+            default:
         }
         return new Date();
     }

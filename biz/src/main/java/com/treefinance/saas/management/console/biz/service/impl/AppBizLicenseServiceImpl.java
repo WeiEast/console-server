@@ -2,30 +2,50 @@ package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.knife.result.SaasResult;
+import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
+import com.treefinance.saas.management.console.common.domain.config.RawdataDomainConfig;
+import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.management.console.common.domain.vo.AppCrawlerConfigParamVO;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
+import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateAppBizLicenseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateLicenseQuotaRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateLicenseTrafficRequest;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.AppBizLicenseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantAppLicenseResult;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
+import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
+
+
+import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
+import net.sf.json.JSONArray;
+import net.sf.json.JsonConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by haojiahong on 2017/7/4.
@@ -40,6 +60,10 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
     private VariableMessageNotifyService variableMessageNotifyService;
     @Resource
     private AppBizLicenseFacade appBizLicenseFacade;
+    @Resource
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
+    @Autowired
+    DiamondConfig diamondConfig;
 
 
     @Override
@@ -86,7 +110,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             return false;
         }
 
-        if(result.isSuccess()){
+        if (result.isSuccess()) {
             // 发送配置变更消息
             variableMessageNotifyService.sendVariableMessage("merchant-license", "update", request.getAppId());
         }
@@ -193,5 +217,32 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             return false;
         }
         return result.isSuccess();
+    }
+
+    @Override
+    public SaasResult<Map<String, Object>> selectBizLicenseWithpaging(PageRequest request) {
+
+        MerchantResult<List<MerchantAppLicenseResult>> merchantResult = merchantBaseInfoFacade.queryAllMerchantAppLicensePagination(request);
+        if (StringUtils.isEmpty(merchantResult.getData())) {
+            logger.error("分页查找商户户及商户相关信息失败，错误信息:{}", merchantResult.getRetMsg());
+        }
+        List<RawdataDomainConfig> list = diamondConfig.getRawDataDomainConfigList();
+        Map<String, RawdataDomainConfig> appleMap =  new HashMap<>();
+        for(RawdataDomainConfig rawdataDomainConfig:list)
+        {
+            appleMap.put(rawdataDomainConfig.getSystemSymbol(),rawdataDomainConfig);
+        }
+
+        String url = appleMap.get("rawdatacentral").getDomian() + "app/crawler/getList";
+
+        HttpResponseResult httpResponseResult = HttpClientUtils.doPostResult(url, merchantResult.getData());
+        logger.info("调用http请求，传回的结果为{}，状态码为{}", httpResponseResult.getResponseBody(), httpResponseResult.getStatusCode());
+
+        JSONArray array = JSONArray.fromObject((JSONObject.parseObject(httpResponseResult.getResponseBody())).getString("data"));
+        String js = JSONObject.toJSONString(array);
+        com.treefinance.saas.knife.request.PageRequest pageRequest = new com.treefinance.saas.knife.request.PageRequest();
+        pageRequest.setPageNumber(request.getPageNum());
+        pageRequest.setPageSize(request.getPageSize());
+        return Results.newPageResult(pageRequest, merchantResult.getTotalCount(), JSONObject.parseArray(js, AppCrawlerConfigParamVO.class));
     }
 }

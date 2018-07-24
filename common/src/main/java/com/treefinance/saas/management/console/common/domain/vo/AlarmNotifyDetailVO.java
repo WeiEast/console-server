@@ -1,6 +1,11 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author haojiahong
@@ -16,7 +21,9 @@ public class AlarmNotifyDetailVO implements Serializable {
     private String emailSwitch;
     private String ivrSwitch;
     private Byte receiverType;
+    @JsonIgnore
     private String receiverIds;
+    private List<String> receiverIdList;
 
     public Long getId() {
         return id;
@@ -75,11 +82,25 @@ public class AlarmNotifyDetailVO implements Serializable {
     }
 
     public String getReceiverIds() {
+        if (receiverIds == null) {
+            receiverIds = Joiner.on(",").join(receiverIdList);
+        }
         return receiverIds;
     }
 
     public void setReceiverIds(String receiverIds) {
         this.receiverIds = receiverIds;
+    }
+
+    public List<String> getReceiverIdList() {
+        if (receiverIdList == null) {
+            receiverIdList = Splitter.on(",").splitToList(receiverIds);
+        }
+        return receiverIdList;
+    }
+
+    public void setReceiverIdList(List<String> receiverIdList) {
+        this.receiverIdList = receiverIdList;
     }
 }
 

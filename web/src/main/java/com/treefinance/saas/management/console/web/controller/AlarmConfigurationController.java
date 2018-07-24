@@ -65,7 +65,7 @@ public class AlarmConfigurationController {
     }
 
     @RequestMapping(value = "/cron/compute", produces = "application/json")
-    public Object cronCompute(String cronExpression) {
-        return alarmConfigService.cronCompute(cronExpression);
+    public Object cronCompute(String cron) {
+        return alarmConfigService.cronCompute(cron);
     }
 }

@@ -200,7 +200,11 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         if (StringUtils.isBlank(cronExpression)) {
             throw new BizException("cron表达式不能为空");
         }
-
-        return null;
+        MonitorResult<Map<String, String>> rpcResult = alarmBasicConfigurationFacade.getCronComputeValue(cronExpression);
+        if (StringUtils.isNotBlank(rpcResult.getErrorMsg())) {
+            logger.info("调用saas-monitor异常,error={}", rpcResult.getErrorMsg());
+            throw new BizException(rpcResult.getErrorMsg());
+        }
+        return Results.newSuccessResult(rpcResult.getData());
     }
 }

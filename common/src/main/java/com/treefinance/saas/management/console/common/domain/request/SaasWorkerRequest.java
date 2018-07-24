@@ -14,7 +14,7 @@ public class SaasWorkerRequest extends PageRequest{
     private String name;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
-    private Date nowdate;
+    private Date date;
 
     public String getName() {
         return name;
@@ -24,11 +24,11 @@ public class SaasWorkerRequest extends PageRequest{
         this.name = name;
     }
 
-    public Date getNowdate() {
-        return nowdate;
+    public Date getDate() {
+        return date;
     }
 
-    public void setNowdate(Date date) {
-        this.nowdate = date;
+    public void setDate(Date date) {
+        this.date = date;
     }
 }

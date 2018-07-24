@@ -213,10 +213,10 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
 
     @Override
     public SaasResult<List<SaasWorkerVO>> queryWorkerByDate(SaasWorkerRequest saasWorkerRequest) {
-        if (saasWorkerRequest.getNowdate() == null) {
+        if (saasWorkerRequest.getDate() == null) {
             throw new BizException("值班日期不能为空");
         }
-        MonitorResult<List<SaasWorkerRO>> monitorResult = alarmBasicConfigurationFacade.queryWorkerNameByDate(saasWorkerRequest.getNowdate());
+        MonitorResult<List<SaasWorkerRO>> monitorResult = alarmBasicConfigurationFacade.queryWorkerNameByDate(saasWorkerRequest.getDate());
         if (monitorResult.getData() == null) {
             logger.error("返回值班人员的数据为空{}", monitorResult.getErrorMsg());
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA, monitorResult.getErrorMsg());

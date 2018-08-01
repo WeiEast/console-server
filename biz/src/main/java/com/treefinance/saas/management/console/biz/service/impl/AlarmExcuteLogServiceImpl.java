@@ -32,8 +32,7 @@ public class AlarmExcuteLogServiceImpl implements AlarmExcuteLogService {
 
     @Override
     public SaasResult queryAlarmLogList(AsAlarmRequest asAlarmRequest) {
-        if(asAlarmRequest.getId()==0)
-        {
+        if(asAlarmRequest.getId()==0) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK,"预警配置ID不能为空");
         }
         AlarmExcuteLogRequest alarmExcuteLogRequest = new AlarmExcuteLogRequest();

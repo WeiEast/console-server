@@ -63,7 +63,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
 
         List<AlarmConfigVO> returnList = DataConverterUtils.convert(list, AlarmConfigVO.class);
 
-        return Results.newPageResult(request, returnList.size(), returnList);
+        return Results.newPageResult(request, result.getTotalCount(), returnList);
     }
 
     @Override

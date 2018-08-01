@@ -4,6 +4,7 @@ import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmConfigService;
+import com.treefinance.saas.management.console.biz.service.OperatorStatService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
@@ -223,6 +224,21 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         }
         List<SaasWorkerVO> list = DataConverterUtils.convert(monitorResult.getData(), SaasWorkerVO.class);
         return Results.newSuccessResult(list);
+    }
+
+    @Override
+    public SaasResult<Boolean> updateAlarmSwitch(Long id) {
+        if (id == null) {
+            throw new BizException("预警信息ID不能为空");
+        }
+        MonitorResult<Object> monitorResult = alarmBasicConfigurationFacade.updateAlarmSwitch(id);
+        if(StringUtils.isNoneBlank(monitorResult.getErrorMsg()))
+        {
+            logger.info("调用saas-monitor异常,error={}", monitorResult.getErrorMsg());
+            throw new BizException(monitorResult.getErrorMsg());
+        }
+        return Results.newSuccessResult(true);
+
     }
 
 

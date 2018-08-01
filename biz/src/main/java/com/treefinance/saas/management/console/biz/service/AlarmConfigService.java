@@ -26,4 +26,6 @@ public interface AlarmConfigService {
     SaasResult<Map<String, String>> cronCompute(String cronExpression);
 
     SaasResult<List<SaasWorkerVO>> queryWorkerByDate(SaasWorkerRequest saasWorkerRequest);
+
+    SaasResult<Boolean> updateAlarmSwitch(Long id);
 }

@@ -81,4 +81,14 @@ public class AlarmConfigurationController {
         return alarmConfigService.queryWorkerByDate(saasWorkerRequest);
     }
 
+    /**
+     * 更改预警开关
+     * @param id
+     * @returnp
+     */
+    @RequestMapping(value = "/update/alarmswitch/{id}", produces = "application/json", method = RequestMethod.GET)
+    public Object updateAlarmSwitch(@PathVariable Long id) {
+        return alarmConfigService.updateAlarmSwitch(id);
+    }
+
 }

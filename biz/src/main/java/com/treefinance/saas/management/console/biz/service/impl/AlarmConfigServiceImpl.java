@@ -199,11 +199,14 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
 
     @Override
     public SaasResult<Object> testAlarmConfigDetail(AlarmConfigExpressionTestVO request) {
-        if (StringUtils.isBlank(request.getExpressionCode())) {
-            throw new BizException("expressionCode不能为空");
-        }
         if (request.getExpressionType() == null) {
             throw new BizException("expressionType不能为空");
+        }
+        Byte type = request.getExpressionType();
+        if (type >= 1 || type <= 3) {
+            if (StringUtils.isBlank(request.getExpressionCode())) {
+                throw new BizException("expressionCode不能为空");
+            }
         }
 
         AlarmBasicConfigurationTestRequest rpcRequest = new AlarmBasicConfigurationTestRequest();

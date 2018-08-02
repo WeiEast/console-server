@@ -129,17 +129,17 @@
         </table>
 -->
 
-        <table tableName="task_bury_point_log" domainObjectName="TaskBuryPointLog">
-        <property name="useActualColumnNames" value="true"/>
-        </table>
+        <!--<table tableName="task_bury_point_log" domainObjectName="TaskBuryPointLog">-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--</table>-->
 
         <!--<table tableName="task_sub_log" domainObjectName="TaskSubLog">-->
         <!--<property name="useActualColumnNames" value="true"/>-->
         <!--</table>-->
 
-        <!--<table tableName="task_next_directive" domainObjectName="TaskNextDirective">-->
-        <!--<property name="useActualColumnNames" value="true"/>-->
-        <!--</table>-->
+        <table tableName="task_next_directive" domainObjectName="TaskNextDirective">
+        <property name="useActualColumnNames" value="true"/>
+        </table>
 
         <!--<table tableName="task_support" domainObjectName="TaskSupport">-->
         <!--<property name="useActualColumnNames" value="true"/>-->

@@ -4,7 +4,6 @@ import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmConfigService;
-import com.treefinance.saas.management.console.biz.service.OperatorStatService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -200,6 +198,55 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
     }
 
     @Override
+    public SaasResult<Object> testAlarmConfigDetail(AlarmConfigExpressionTestVO request) {
+        if (StringUtils.isBlank(request.getExpressionCode())) {
+            throw new BizException("expressionCode不能为空");
+        }
+        if (request.getExpressionType() == null) {
+            throw new BizException("expressionType不能为空");
+        }
+
+        AlarmBasicConfigurationTestRequest rpcRequest = new AlarmBasicConfigurationTestRequest();
+
+        rpcRequest.setTestCode(request.getExpressionCode());
+        rpcRequest.setTestType(request.getExpressionType());
+
+        AsAlarmInfoRequest alarmInfoRequest = DataConverterUtils.convert(request.getAlarmInfo(), AsAlarmInfoRequest.class);
+        rpcRequest.setAsAlarmInfoRequest(alarmInfoRequest);
+
+        List<AsAlarmConstantInfoRequest> constantInfoRequestList
+                = DataConverterUtils.convert(request.getAlarmConstantList(), AsAlarmConstantInfoRequest.class);
+        rpcRequest.setAsAlarmConstantInfoRequestList(constantInfoRequestList);
+
+        List<AsAlarmQueryInfoRequest> queryInfoRequestList
+                = DataConverterUtils.convert(request.getAlarmQueryList(), AsAlarmQueryInfoRequest.class);
+        rpcRequest.setAsAlarmQueryInfoRequestList(queryInfoRequestList);
+
+        List<AsAlarmVariableInfoRequest> variableInfoRequestList
+                = DataConverterUtils.convert(request.getAlarmVariableList(), AsAlarmVariableInfoRequest.class);
+        rpcRequest.setAsAlarmVariableInfoRequestList(variableInfoRequestList);
+
+        List<AsAlarmNotifyInfoRequest> notifyInfoRequestList
+                = DataConverterUtils.convert(request.getAlarmNotifyList(), AsAlarmNotifyInfoRequest.class);
+        rpcRequest.setAsAlarmNotifyInfoRequestList(notifyInfoRequestList);
+
+        AsAlarmMsgInfoRequest alarmMsgInfoRequest
+                = DataConverterUtils.convert(request.getAlarmMsg(), AsAlarmMsgInfoRequest.class);
+        rpcRequest.setAsAlarmMsgInfoRequest(alarmMsgInfoRequest);
+
+        List<AsAlarmTriggerInfoRequest> triggerInfoRequestList
+                = DataConverterUtils.convert(request.getAlarmTriggerList(), AsAlarmTriggerInfoRequest.class);
+        rpcRequest.setAsAlarmTriggerInfoRequestList(triggerInfoRequestList);
+
+        MonitorResult<Object> rpcResult = alarmBasicConfigurationFacade.testAlarmConfiguration(rpcRequest);
+        if (StringUtils.isNotBlank(rpcResult.getErrorMsg())) {
+            logger.error("调用saas-monitor异常,error={}", rpcResult.getErrorMsg());
+            throw new BizException(rpcResult.getErrorMsg());
+        }
+        return Results.newSuccessResult(rpcResult.getData());
+    }
+
+    @Override
     public SaasResult<Map<String, String>> cronCompute(String cronExpression) {
         if (StringUtils.isBlank(cronExpression)) {
             throw new BizException("cron表达式不能为空");
@@ -211,6 +258,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         }
         return Results.newSuccessResult(rpcResult.getData());
     }
+
 
     @Override
     public SaasResult<List<SaasWorkerVO>> queryWorkerByDate(SaasWorkerRequest saasWorkerRequest) {
@@ -232,8 +280,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
             throw new BizException("预警信息ID不能为空");
         }
         MonitorResult<Object> monitorResult = alarmBasicConfigurationFacade.updateAlarmSwitch(id);
-        if(StringUtils.isNoneBlank(monitorResult.getErrorMsg()))
-        {
+        if (StringUtils.isNoneBlank(monitorResult.getErrorMsg())) {
             logger.info("调用saas-monitor异常,error={}", monitorResult.getErrorMsg());
             throw new BizException(monitorResult.getErrorMsg());
         }

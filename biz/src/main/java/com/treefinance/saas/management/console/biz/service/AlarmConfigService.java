@@ -4,10 +4,10 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigExpressionTestVO;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
 import com.treefinance.saas.management.console.common.domain.vo.SaasWorkerVO;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -28,4 +28,7 @@ public interface AlarmConfigService {
     SaasResult<List<SaasWorkerVO>> queryWorkerByDate(SaasWorkerRequest saasWorkerRequest);
 
     SaasResult<Boolean> updateAlarmSwitch(Long id);
+
+    SaasResult<Object> testAlarmConfigDetail(AlarmConfigExpressionTestVO alarmConfigExpressionTestVO);
+
 }

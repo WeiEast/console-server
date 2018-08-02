@@ -3,6 +3,7 @@ package com.treefinance.saas.management.console.biz.service;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
+import com.treefinance.saas.management.console.common.domain.vo.TaskNextDirectiveVO;
 import com.treefinance.saas.management.console.dao.entity.TaskBuryPointLog;
 import com.treefinance.saas.management.console.dao.entity.TaskLog;
 
@@ -38,4 +39,11 @@ public interface TaskService {
      * @return
      */
     List<TaskBuryPointLogVO> findBuryPointByTaskId(Long taskId);
+
+    /**
+     * 根据taskId查询task_next_directive信息
+     * @param taskId
+     * @return
+     */
+    List<TaskNextDirectiveVO> findtaskNextDirectiveByTaskId(Long taskId);
 }

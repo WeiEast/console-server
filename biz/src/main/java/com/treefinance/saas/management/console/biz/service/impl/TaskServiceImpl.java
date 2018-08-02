@@ -20,6 +20,7 @@ import com.treefinance.saas.management.console.common.domain.dto.CallbackLicense
 import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
+import com.treefinance.saas.management.console.common.domain.vo.TaskNextDirectiveVO;
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.enumeration.ETaskBuryPoint;
@@ -81,6 +82,8 @@ public class TaskServiceImpl implements TaskService {
     private CallbackSecureHandler callbackSecureHandler;
     @Autowired
     private TaskAttributeMapper taskAttributeMapper;
+    @Autowired
+    private TaskNextDirectiveMapper taskNextDirectiveMapper;
 
     @Override
     public SaasResult<Map<String, Object>> findByExample(TaskRequest taskRequest) {
@@ -201,7 +204,7 @@ public class TaskServiceImpl implements TaskService {
         TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
         taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
         List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectByExample(taskCallbackLogCriteria);
-        logger.info("taskCallbackLog:{}",JSON.toJSONString(taskCallbackLogList));
+        logger.info("taskCallbackLog:{}", JSON.toJSONString(taskCallbackLogList));
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
         }
@@ -209,9 +212,9 @@ public class TaskServiceImpl implements TaskService {
         QueryAppCallBackConfigByIdRequest queryAppCallBackConfigByIdRequest = new QueryAppCallBackConfigByIdRequest();
         queryAppCallBackConfigByIdRequest.setId(configIdList);
         MerchantResult<List<AppCallbackConfigResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
-        logger.info("商户中心返回数据:{}",JSON.toJSONString(listMerchantResult));
-        List<AppCallbackConfig> appCallbackConfigList = DataConverterUtils.convert(listMerchantResult.getData(),AppCallbackConfig.class);
-        logger.info("数据转换：{}",JSON.toJSONString(appCallbackConfigList));
+        logger.info("商户中心返回数据:{}", JSON.toJSONString(listMerchantResult));
+        List<AppCallbackConfig> appCallbackConfigList = DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
+        logger.info("数据转换：{}", JSON.toJSONString(appCallbackConfigList));
         //<configId,AppCallbackConfig>
         Map<Integer, AppCallbackConfig> appCallbackConfigMap = appCallbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, t -> t));
 
@@ -327,8 +330,8 @@ public class TaskServiceImpl implements TaskService {
         List<TaskBuryPointLog> taskBuryPointLogList = new ArrayList<>();
         List<TaskBuryPointLogVO> taskBuryPointLogVOList = new ArrayList<>();
         taskBuryPointLogList = taskBuryPointLogMapper.selectByExample(taskBuryPointLogCriteria);
-        for(TaskBuryPointLog taskBuryPointLog:taskBuryPointLogList){
-            TaskBuryPointLogVO taskBuryPointLogVO =  new TaskBuryPointLogVO();
+        for (TaskBuryPointLog taskBuryPointLog : taskBuryPointLogList) {
+            TaskBuryPointLogVO taskBuryPointLogVO = new TaskBuryPointLogVO();
             taskBuryPointLogVO.setTaskId(taskBuryPointLog.getTaskId());
             taskBuryPointLogVO.setAppId(taskBuryPointLog.getAppId());
             taskBuryPointLogVO.setCode(taskBuryPointLog.getCode());
@@ -341,13 +344,23 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    @Override
+    public List<TaskNextDirectiveVO> findtaskNextDirectiveByTaskId(Long taskId) {
+        TaskNextDirectiveCriteria taskNextDirectiveCriteria = new TaskNextDirectiveCriteria();
+        taskNextDirectiveCriteria.createCriteria().andTaskIdEqualTo(taskId);
+        taskNextDirectiveCriteria.setOrderByClause("createTime desc, Id desc");
+        List<TaskNextDirective> taskNextDirectiveList = taskNextDirectiveMapper.selectByExample(taskNextDirectiveCriteria);
+        List<TaskNextDirectiveVO> taskNextDirectiveVOList = DataConverterUtils.convert(taskNextDirectiveList, TaskNextDirectiveVO.class);
+        return taskNextDirectiveVOList;
+    }
+
     private Map<String, MerchantBase> getMerchantBaseMap(List<Task> taskList) {
         List<String> appIdList = taskList.stream().map(Task::getAppId).distinct().collect(Collectors.toList());
 
-        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest =  new QueryMerchantByAppIdRequest();
+        QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
         queryMerchantByAppIdRequest.setAppIds(appIdList);
         MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
-        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, m -> m));
         return merchantBaseMap;
     }
@@ -358,7 +371,7 @@ public class TaskServiceImpl implements TaskService {
         QueryMerchantByAppName queryMerchantByAppName = new QueryMerchantByAppName();
         queryMerchantByAppName.setAppName(appName);
         MerchantResult<List<MerchantBaseInfoResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseByAppName(queryMerchantByAppName);
-        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(),MerchantBase.class);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return result;
         }

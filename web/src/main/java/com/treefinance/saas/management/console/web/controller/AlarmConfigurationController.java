@@ -12,7 +12,6 @@ import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -63,7 +62,7 @@ public class AlarmConfigurationController {
 
     @RequestMapping(value = "/test", produces = "application/json", method = RequestMethod.POST)
     public Object testAlarmConfigDetail(@RequestBody AlarmConfigExpressionTestVO alarmConfigExpressionTestVO) {
-        return null;
+        return alarmConfigService.testAlarmConfigDetail(alarmConfigExpressionTestVO);
     }
 
     @RequestMapping(value = "/cron/compute", produces = "application/json")
@@ -73,6 +72,7 @@ public class AlarmConfigurationController {
 
     /**
      * 根据日期返回值班人员信息
+     *
      * @param saasWorkerRequest
      * @return
      */

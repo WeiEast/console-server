@@ -27,7 +27,7 @@ import java.util.Map;
 @Configuration
 public class ShiroConfiguration {
 
-    private static final long GLOBALSESSIONTIMEOU = 30 * 24 * 60 * 60 * 1000L;
+    private static final long GLOBALSESSIONTIMEOU = 14 * 24 * 60 * 60 * 1000L;
 
     @Bean(name = "lifecycleBeanPostProcessor")
     public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {

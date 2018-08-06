@@ -77,6 +77,8 @@ public class AuthController {
             //设置app请求的session超时时间为1个月
             if (loginVO.getSource() != null && loginVO.getSource() == 1) {
                 subject.getSession().setTimeout(1000 * 60 * 60 * 24 * 30L);
+            } else {
+                subject.getSession().setTimeout(1000 * 60 * 60 * 12L);
             }
             return Results.newSuccessResult(session.getAttribute(Constants.USER_KEY));
         } catch (UnknownAccountException e) {

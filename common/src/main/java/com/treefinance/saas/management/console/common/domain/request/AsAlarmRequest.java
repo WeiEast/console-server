@@ -15,7 +15,7 @@ public class AsAlarmRequest extends PageRequest {
     /**
      * 预警配置ID
      */
-    private  long id ;
+    private  Long id ;
     /**
      * 预警名称
      */
@@ -48,11 +48,11 @@ public class AsAlarmRequest extends PageRequest {
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date endDate;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

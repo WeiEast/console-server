@@ -203,7 +203,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
             throw new BizException("expressionType不能为空");
         }
         Byte type = request.getExpressionType();
-        if (type >= 1 || type <= 3) {
+        if (type >= 1 && type <= 3) {
             if (StringUtils.isBlank(request.getExpressionCode())) {
                 throw new BizException("expressionCode不能为空");
             }

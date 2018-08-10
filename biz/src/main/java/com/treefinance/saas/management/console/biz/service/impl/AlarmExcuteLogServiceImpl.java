@@ -39,6 +39,8 @@ public class AlarmExcuteLogServiceImpl implements AlarmExcuteLogService {
         alarmExcuteLogRequest.setId(asAlarmRequest.getId());
         alarmExcuteLogRequest.setStartDate(asAlarmRequest.getStartDate());
         alarmExcuteLogRequest.setEndDate(asAlarmRequest.getEndDate());
+        alarmExcuteLogRequest.setPageNumber(asAlarmRequest.getPageNumber());
+        alarmExcuteLogRequest.setPageSize(asAlarmRequest.getPageSize());
         MonitorResult<List<AlarmExecuteLogRO>> monitorResult = alarmBasicConfigurationFacade.queryAlaramExecuteLogList(alarmExcuteLogRequest);
         if(monitorResult.getData()==null){
             logger.error("取的数据为空{}",monitorResult.getErrorMsg());

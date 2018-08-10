@@ -34,6 +34,5 @@
     </root>
 
     <logger name="com.treefinance" level="DEBUG"/>
-    <logger name="org.springframework.web" level="DEBUG"/>
 
 </configuration>

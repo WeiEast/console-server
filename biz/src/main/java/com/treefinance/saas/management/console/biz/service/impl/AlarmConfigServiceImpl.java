@@ -166,15 +166,58 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         if (alarmInfo.getRunEnv() == null) {
             throw new BizException("预警基本信息中,执行环境必填");
         }
+        if (StringUtils.isBlank(alarmInfo.getName())) {
+            throw new BizException("预警基本信息中,预警名称必填");
+        }
+        if (StringUtils.isBlank(alarmInfo.getAlarmSwitch())) {
+            throw new BizException("预警基本信息中,预警开关必填");
+        }
+        if (StringUtils.isBlank(alarmInfo.getRunInterval())) {
+            throw new BizException("预警基本信息中,预警执行时间必填");
+        }
 
+        List<AlarmConstantDetailVO> alarmConstantList = alarmConfigDetailVO.getAlarmConstantList();
+        if (CollectionUtils.isNotEmpty(alarmConstantList)) {
+            for (AlarmConstantDetailVO alarmConstant : alarmConstantList) {
+                if (StringUtils.isBlank(alarmConstant.getName())) {
+                    throw new BizException("预警常量中,常量名称必填");
+                }
+                if (StringUtils.isBlank(alarmConstant.getCode())) {
+                    throw new BizException("预警常量中,常量编码必填");
+                }
+                if (StringUtils.isBlank(alarmConstant.getValue())) {
+                    throw new BizException("预警常量中,常量值必填");
+                }
+
+            }
+        }
         List<AlarmQueryDetailVO> alarmQueryList = alarmConfigDetailVO.getAlarmQueryList();
         if (!CollectionUtils.isEmpty(alarmQueryList)) {
             for (AlarmQueryDetailVO alarmQuery : alarmQueryList) {
                 if (StringUtils.isBlank(alarmQuery.getQuerySql())) {
                     throw new BizException("预警数据查询中,查询语句必填");
                 }
+                if (StringUtils.isBlank(alarmQuery.getResultCode())) {
+                    throw new BizException("预警数据查询中,查询结果编码必填");
+                }
             }
         }
+
+        List<AlarmVariableDetailVO> alarmVariableList = alarmConfigDetailVO.getAlarmVariableList();
+        if (CollectionUtils.isNotEmpty(alarmVariableList)) {
+            for (AlarmVariableDetailVO alarmVariable : alarmVariableList) {
+                if (StringUtils.isBlank(alarmVariable.getName())) {
+                    throw new BizException("预警变量中,变量名称必填");
+                }
+                if (StringUtils.isBlank(alarmVariable.getCode())) {
+                    throw new BizException("预警变量中,变量编码必填");
+                }
+                if (StringUtils.isBlank(alarmVariable.getValue())) {
+                    throw new BizException("预警变量中,变量值必填");
+                }
+            }
+        }
+
         AlarmMsgDetailVO alarmMsg = alarmConfigDetailVO.getAlarmMsg();
         if (alarmMsg == null) {
             throw new BizException("预警消息模板必填");
@@ -189,6 +232,9 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         List<AlarmTriggerDetailVO> alarmTriggerList = alarmConfigDetailVO.getAlarmTriggerList();
         if (CollectionUtils.isNotEmpty(alarmTriggerList)) {
             for (AlarmTriggerDetailVO alarmTrigger : alarmTriggerList) {
+                if (StringUtils.isBlank(alarmTrigger.getName())) {
+                    throw new BizException("预警触发条件中,名称必填");
+                }
                 if (alarmTrigger.getStatus() == null) {
                     throw new BizException("预警触发条件中,状态必填");
                 }

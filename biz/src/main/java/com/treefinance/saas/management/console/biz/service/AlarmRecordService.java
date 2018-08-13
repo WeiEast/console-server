@@ -30,4 +30,5 @@ public interface AlarmRecordService {
 
     SaasResult querySaasWorkerPage(SaasWorkerRequest request);
 
+    SaasResult queryStatList(AlarmRecordRequest request);
 }

@@ -7,18 +7,12 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
-import com.treefinance.saas.management.console.common.domain.vo.AlarmRecordVO;
-import com.treefinance.saas.management.console.common.domain.vo.AlarmWorkOrderVO;
-import com.treefinance.saas.management.console.common.domain.vo.SaasWorkerVO;
-import com.treefinance.saas.management.console.common.domain.vo.WorkOrderLogVO;
+import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.monitor.facade.domain.request.*;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.AlarmRecordRO;
-import com.treefinance.saas.monitor.facade.domain.ro.AlarmWorkOrderRO;
-import com.treefinance.saas.monitor.facade.domain.ro.SaasWorkerRO;
-import com.treefinance.saas.monitor.facade.domain.ro.WorkOrderLogRO;
+import com.treefinance.saas.monitor.facade.domain.ro.*;
 import com.treefinance.saas.monitor.facade.service.AlarmRecordFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -199,5 +193,28 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
         }
         List<SaasWorkerVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),SaasWorkerVO.class);
         return  Results.newPageResult(request,result.getTotalCount(),alarmRecordVOS);
+    }
+
+    @Override
+    public SaasResult queryStatList(com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest request) {
+
+        AlarmRecordStatRequest recordRequest = new AlarmRecordStatRequest();
+
+        recordRequest.setStartTime(DateUtils.strToDate(request.getStartTime(), "yyyy-mm-dd hh:mm:ss"));
+        recordRequest.setEndTime(DateUtils.strToDate(request.getEndTime(), "yyyy-mm-dd hh:mm:ss"));
+        recordRequest.setName(request.getName());
+
+
+        MonitorResult<List<AlarmRecordStatisticRO>> result;
+        try{
+            result = alarmRecordFacade.queryAlarmStatistic(recordRequest);
+        }catch (Exception e){
+            logger.error("请求monitor-server失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+
+        List<AlarmRecordStatVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),AlarmRecordStatVO.class);
+        return  Results.newSuccessResult(alarmRecordVOS);
+
     }
 }

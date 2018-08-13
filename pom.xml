@@ -48,7 +48,7 @@
         <mybatis-spring.version>1.3.1</mybatis-spring.version>
         <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 
-        <saas-monitor-facade.version>1.2.1-SNAPSHOT</saas-monitor-facade.version>
+        <saas-monitor-facade.version>1.2.2-SNAPSHOT</saas-monitor-facade.version>
         <grap-server-facade.version>1.1.0-SNAPSHOT</grap-server-facade.version>
     </properties>
 

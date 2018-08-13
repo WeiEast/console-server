@@ -108,4 +108,13 @@ public class AlarmRecordController {
     }
 
 
+    @RequestMapping(value = "error/stat/list", produces = "application/json",method = RequestMethod.POST)
+    public SaasResult queryStatList(@RequestBody AlarmRecordRequest request){
+        return alarmRecordService.queryStatList(request);
+    }
+
+
+
+
+
 }

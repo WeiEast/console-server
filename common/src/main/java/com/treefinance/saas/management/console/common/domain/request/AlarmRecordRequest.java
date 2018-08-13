@@ -47,6 +47,11 @@ public class AlarmRecordRequest extends PageRequest {
     private String level;
 
     /**
+     * 预警名称
+     * */
+    private String name;
+
+    /**
      *
      * 0/2/4/6/8
      * */
@@ -111,5 +116,13 @@ public class AlarmRecordRequest extends PageRequest {
     @Override
     public String toString() {
         return JSON.toJSONString(this);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

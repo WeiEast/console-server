@@ -22,6 +22,8 @@ public interface AlarmRecordService {
 
     SaasResult queryAlarmRecordOrder(AlarmWorkOrderRequest alarmWorkOrderRequest);
 
+    SaasResult<Map<String, Object>> queryAlarmListAndhandleMessge(AlarmRecordRequest request);
+
     SaasResult updateWorkerOrderProcessor(UpdateWorkOrderRequest updateWorkOrderRequest);
 
     SaasResult updateWorkerOrderStatus(UpdateWorkOrderRequest updateWorkOrderRequest);

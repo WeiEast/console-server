@@ -65,6 +65,36 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
         return  Results.newPageResult(request,result.getTotalCount(),alarmRecordVOS);
     }
 
+
+    @Override
+    public SaasResult<Map<String, Object>> queryAlarmListAndhandleMessge(com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest request){
+        AlarmRecordRequest recordRequest = new AlarmRecordRequest();
+        recordRequest.setId(request.getId());
+        recordRequest.setSummary(request.getSummary());
+        recordRequest.setPageSize(request.getPageSize());
+        recordRequest.setPageNumber(request.getPageNumber());
+        recordRequest.setAlarmType(request.getAlarmType());
+        recordRequest.setLevel(request.getLevel());
+        recordRequest.setStatus(request.getStatus());
+
+        recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(),"yyyy-MM-dd hh:mm:ss"));
+        recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(),"yyyy-MM-dd hh:mm:ss"));
+
+
+        MonitorResult<List<AlarmRecordRO>> result;
+        try{
+            result = alarmRecordFacade.queryAlarmListAndhandleMessge(recordRequest);
+            logger.info("获取monitor返回结果：{}", JSON.toJSONString(result));
+        }catch (Exception e){
+            logger.error("请求monitor-server失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+
+        List<AlarmRecordVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),AlarmRecordVO.class);
+
+        return  Results.newPageResult(request,result.getTotalCount(),alarmRecordVOS);
+    }
+
     @Override
     public SaasResult<List<WorkOrderLogVO>> queryWorkOrderLog(Long id){
         WorkOrderLogRequest recordRequest = new WorkOrderLogRequest();

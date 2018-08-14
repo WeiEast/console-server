@@ -38,6 +38,8 @@ public class AlarmRecordVO extends BaseVO {
     private Date startTime;
     /**结束时间*/
     private Date endTime;
+    /**持续时间*/
+    private Date continueTime;
     /**工单编号*/
     private Long orderId;
 
@@ -152,6 +154,14 @@ public class AlarmRecordVO extends BaseVO {
 
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
+    }
+
+    public Date getContinueTime() {
+        return continueTime;
+    }
+
+    public void setContinueTime(Date continueTime) {
+        this.continueTime = continueTime;
     }
 
     public Long getOrderId() {

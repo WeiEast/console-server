@@ -41,6 +41,19 @@ public class AlarmRecordController {
     }
 
     /**
+     * 获取预警记录的列表（增加记录开始时间 持续时间等返回结果）
+     *
+     * @param alarmRecordRequest 请求参数
+     * @see AlarmRecordRequest
+     * @return 分页的数据列表
+     */
+    @RequestMapping(value = "/record/handleMessgeList", produces = "application/json", method = RequestMethod.POST)
+    public SaasResult queryAlarmListAndhandleMessge(@RequestBody AlarmRecordRequest alarmRecordRequest) {
+        return alarmRecordService.queryAlarmListAndhandleMessge(alarmRecordRequest);
+    }
+
+
+    /**
      * 工单列表
      *
      * @param alarmRecordRequest 查询参数

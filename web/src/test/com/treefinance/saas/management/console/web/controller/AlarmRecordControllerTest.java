@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -106,4 +108,25 @@ public class AlarmRecordControllerTest {
 
         result = this.mockMvc.perform(post(baseUrl+"/workOrder/update/status").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
+
+    @Test
+    public void queryAlarmListAndhandleMessge()
+    {
+        SimpleDateFormat simpleDateFormat =  new SimpleDateFormat("yy-mm-dd HH-MM-SS");
+        AlarmRecordRequest alarmRecordRequest = new AlarmRecordRequest();
+        alarmRecordRequest.setAlarmType("operator_alarm");
+        alarmRecordRequest.setStartTime("2018-06-15 14:23:11");
+        alarmRecordRequest.setEndTime("2018-07-02 11:05:56");
+
+        try {
+            result = this.mockMvc.perform(post(baseUrl+"/record/handleMessgeList").content(JSON.toJSONString(alarmRecordRequest)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        } catch (Exception e) {
+            logger.error("{}",e);
+        }
+
+
+    }
+
+
+
 }

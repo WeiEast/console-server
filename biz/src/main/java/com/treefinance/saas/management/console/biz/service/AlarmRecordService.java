@@ -22,7 +22,7 @@ public interface AlarmRecordService {
 
     SaasResult queryAlarmRecordOrder(AlarmWorkOrderRequest alarmWorkOrderRequest);
 
-    SaasResult<Map<String, Object>> queryAlarmListAndhandleMessge(AlarmRecordRequest request);
+    SaasResult queryAlarmListAndHandleMessage(AlarmRecordRequest request);
 
     SaasResult updateWorkerOrderProcessor(UpdateWorkOrderRequest updateWorkOrderRequest);
 

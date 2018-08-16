@@ -47,11 +47,10 @@ public class AlarmRecordController {
      * @see AlarmRecordRequest
      * @return 分页的数据列表
      */
-    @RequestMapping(value = "/record/handleMessgeList", produces = "application/json", method = RequestMethod.POST)
-    public SaasResult queryAlarmListAndhandleMessge(@RequestBody AlarmRecordRequest alarmRecordRequest) {
-        return alarmRecordService.queryAlarmListAndhandleMessge(alarmRecordRequest);
+    @RequestMapping(value = "/record/handleMessageList", produces = "application/json", method = RequestMethod.POST)
+    public SaasResult queryAlarmListAndHandleMessage(@RequestBody AlarmRecordRequest alarmRecordRequest) {
+        return alarmRecordService.queryAlarmListAndHandleMessage(alarmRecordRequest);
     }
-
 
     /**
      * 工单列表
@@ -120,14 +119,9 @@ public class AlarmRecordController {
         return alarmRecordService.querySaasWorkerPage(request);
     }
 
-
     @RequestMapping(value = "error/stat/list", produces = "application/json",method = RequestMethod.POST)
     public SaasResult queryStatList(@RequestBody AlarmRecordRequest request){
         return alarmRecordService.queryStatList(request);
     }
-
-
-
-
 
 }

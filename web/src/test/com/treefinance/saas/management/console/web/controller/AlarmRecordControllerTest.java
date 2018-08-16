@@ -129,4 +129,13 @@ public class AlarmRecordControllerTest {
 
 
 
+
+
+    @Test
+    public void queryStatList() throws Exception {
+        AlarmRecordRequest request = new AlarmRecordRequest();
+
+        result = this.mockMvc.perform(post(baseUrl+"/error/stat/list").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
+
 }

@@ -39,7 +39,7 @@ public class AlarmRecordVO extends BaseVO {
     /**结束时间*/
     private Date endTime;
     /**持续时间*/
-    private Date continueTime;
+    private Double continueTime;
     /**工单编号*/
     private Long orderId;
 
@@ -156,11 +156,11 @@ public class AlarmRecordVO extends BaseVO {
         this.endTime = endTime;
     }
 
-    public Date getContinueTime() {
+    public Double getContinueTime() {
         return continueTime;
     }
 
-    public void setContinueTime(Date continueTime) {
+    public void setContinueTime(Double continueTime) {
         this.continueTime = continueTime;
     }
 

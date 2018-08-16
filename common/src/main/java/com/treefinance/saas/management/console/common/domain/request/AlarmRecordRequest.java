@@ -51,6 +51,8 @@ public class AlarmRecordRequest extends PageRequest {
      * */
     private String name;
 
+    private Integer dateType;
+
     /**
      *
      * 0/2/4/6/8
@@ -124,5 +126,13 @@ public class AlarmRecordRequest extends PageRequest {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getDateType() {
+        return dateType;
+    }
+
+    public void setDateType(Integer dateType) {
+        this.dateType = dateType;
     }
 }

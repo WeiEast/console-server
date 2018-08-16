@@ -67,23 +67,17 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
 
     @Override
-    public SaasResult<Map<String, Object>> queryAlarmListAndhandleMessge(com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest request){
-        AlarmRecordRequest recordRequest = new AlarmRecordRequest();
-        recordRequest.setId(request.getId());
-        recordRequest.setSummary(request.getSummary());
-        recordRequest.setPageSize(request.getPageSize());
-        recordRequest.setPageNumber(request.getPageNumber());
-        recordRequest.setAlarmType(request.getAlarmType());
-        recordRequest.setLevel(request.getLevel());
-        recordRequest.setStatus(request.getStatus());
+    public SaasResult queryAlarmListAndHandleMessage(com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest request){
+        AlarmRecordStatRequest recordRequest = new AlarmRecordStatRequest();
 
         recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(),"yyyy-MM-dd hh:mm:ss"));
         recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(),"yyyy-MM-dd hh:mm:ss"));
-
+        recordRequest.setDateType(request.getDateType());
+        recordRequest.setName(request.getName());
 
         MonitorResult<List<AlarmRecordRO>> result;
         try{
-            result = alarmRecordFacade.queryAlarmListAndhandleMessge(recordRequest);
+            result = alarmRecordFacade.queryAlarmListAndHandleMessage(recordRequest);
             logger.info("获取monitor返回结果：{}", JSON.toJSONString(result));
         }catch (Exception e){
             logger.error("请求monitor-server失败：{}",e.getMessage());
@@ -92,7 +86,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
         List<AlarmRecordVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),AlarmRecordVO.class);
 
-        return  Results.newPageResult(request,result.getTotalCount(),alarmRecordVOS);
+        return  Results.newSuccessResult(alarmRecordVOS);
     }
 
     @Override
@@ -230,10 +224,10 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
         AlarmRecordStatRequest recordRequest = new AlarmRecordStatRequest();
 
-        recordRequest.setStartTime(DateUtils.strToDate(request.getStartTime(), "yyyy-mm-dd hh:mm:ss"));
-        recordRequest.setEndTime(DateUtils.strToDate(request.getEndTime(), "yyyy-mm-dd hh:mm:ss"));
+        recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
+        recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
+        recordRequest.setDateType(request.getDateType());
         recordRequest.setName(request.getName());
-
 
         MonitorResult<List<AlarmRecordStatisticRO>> result;
         try{
@@ -245,6 +239,5 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
         List<AlarmRecordStatVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),AlarmRecordStatVO.class);
         return  Results.newSuccessResult(alarmRecordVOS);
-
     }
 }

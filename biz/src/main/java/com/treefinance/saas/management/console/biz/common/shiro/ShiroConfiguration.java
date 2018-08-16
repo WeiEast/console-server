@@ -10,7 +10,6 @@ import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +27,7 @@ import java.util.Map;
 @Configuration
 public class ShiroConfiguration {
 
-    private static final int GLOBALSESSIONTIMEOU = 12 * 60 * 60 * 1000;
+    private static final long GLOBALSESSIONTIMEOU = 30 * 24 * 60 * 60 * 1000L;
 
     @Bean(name = "lifecycleBeanPostProcessor")
     public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {

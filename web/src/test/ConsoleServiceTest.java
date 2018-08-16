@@ -10,8 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Created by haojiahong on 2017/12/27.
@@ -45,5 +48,11 @@ public class ConsoleServiceTest {
         System.out.println(total);
         System.out.println(list);
     }
+    @Test
+    public void testStream() {
+        Stream.iterate(0,x->x+1).limit(10).forEach(System.out::println);
+        Stream.generate(()->2).limit(10).forEach(System.out::println);
+    }
+
 
 }

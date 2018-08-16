@@ -1,15 +1,18 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
+import com.treefinance.saas.gateway.servicefacade.model.DirectiveDTO;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.TaskService;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
 import com.treefinance.saas.management.console.common.domain.vo.TaskLogVO;
+import com.treefinance.saas.management.console.common.domain.vo.TaskNextDirectiveVO;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.dao.entity.TaskBuryPointLog;
 import com.treefinance.saas.management.console.dao.entity.TaskLog;
+import com.treefinance.saas.management.console.dao.entity.TaskNextDirective;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,5 +69,10 @@ public class TaskController {
     public Object taskBuryPoint(@PathVariable Long taskId) {
         List<TaskBuryPointLogVO> taskBuryPointLogs = taskService.findBuryPointByTaskId(taskId);
         return Results.newSuccessResult(taskBuryPointLogs);
+    }
+    @RequestMapping(value = "/task/nextdirective/{taskId}", method = {RequestMethod.GET})
+    public Object taskNextDirective(@PathVariable Long taskId) {
+        List<TaskNextDirectiveVO> taskNextDirectives = taskService.findtaskNextDirectiveByTaskId(taskId);
+        return Results.newSuccessResult(taskNextDirectives);
     }
 }

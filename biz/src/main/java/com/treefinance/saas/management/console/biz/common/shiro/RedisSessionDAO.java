@@ -72,9 +72,7 @@ public class RedisSessionDAO extends EnterpriseCacheSessionDAO {
         super.doUpdate(session);
         logger.debug("获取session:{}", session.getId());
         String key = prefix + session.getId().toString();
-        if (!redisTemplate.hasKey(key)) {
-            redisTemplate.opsForValue().set(key, session);
-        }
+        redisTemplate.opsForValue().set(key, session);
         redisTemplate.expire(key, expireTime, TimeUnit.SECONDS);
     }
 

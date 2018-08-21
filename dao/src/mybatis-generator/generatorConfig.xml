@@ -103,13 +103,13 @@
         <!--<generatedKey column="Id" sqlStatement="MySql" identity="true"/>-->
         <!--</table>-->
 
-        <!--<table tableName="task_callback_log" domainObjectName="TaskCallbackLog"-->
-        <!--enableSelectPaginationByExample="true"-->
-        <!--enableBatchInsert="true"-->
-        <!--enableBatchUpdateByPrimaryKey="true"-->
-        <!--enableBatchUpdateByPrimaryKeySelective="true">-->
-        <!--<property name="useActualColumnNames" value="true"/>-->
-        <!--</table>-->
+        <table tableName="task_callback_log" domainObjectName="TaskCallbackLog"
+        enableSelectPaginationByExample="true"
+        enableBatchInsert="true"
+        enableBatchUpdateByPrimaryKey="true"
+        enableBatchUpdateByPrimaryKeySelective="true">
+        <property name="useActualColumnNames" value="true"/>
+        </table>
 
         <!--<table tableName="task_log" domainObjectName="TaskLog"-->
         <!--enableSelectPaginationByExample="true"-->
@@ -137,9 +137,9 @@
         <!--<property name="useActualColumnNames" value="true"/>-->
         <!--</table>-->
 
-        <table tableName="task_next_directive" domainObjectName="TaskNextDirective">
-        <property name="useActualColumnNames" value="true"/>
-        </table>
+        <!--<table tableName="task_next_directive" domainObjectName="TaskNextDirective">-->
+        <!--<property name="useActualColumnNames" value="true"/>-->
+        <!--</table>-->
 
         <!--<table tableName="task_support" domainObjectName="TaskSupport">-->
         <!--<property name="useActualColumnNames" value="true"/>-->

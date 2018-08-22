@@ -103,7 +103,6 @@ public class MerchantController {
     public SaasResult<String> generateAppId() {
         String result = merchantService.autoGenerateAppId();
         return Results.newSuccessResult(result);
-
     }
 
     @RequestMapping(value = "generate/pwd/{str}", method = RequestMethod.GET, produces = "application/json")
@@ -120,7 +119,6 @@ public class MerchantController {
         }
         logger.info("根据bizType电商列表查询   传入参数为{}", bizType);
         return ecommerceMonitorService.queryAllEcommerceListByBizType(bizType);
-
     }
 
 

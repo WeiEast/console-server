@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author:guoguoyun
  * @date:Created in 2018/8/21下午2:02
@@ -23,6 +26,11 @@ public class QuestionnaireStatController {
     @RequestMapping(value = "/stat/list",method = RequestMethod.POST)
     public  Object  queryAppQuestionnaireStatistics(QueryAppQuestionnaireStatisticsRequest request){
         return questionnaireStatService.queryAppQuestionnaireStatistics(request);
+    }
+
+    @RequestMapping(value = "/stat/list/download",method = RequestMethod.GET)
+    public  void  downloadAppQuestionnaireStatistics(QueryAppQuestionnaireStatisticsRequest queryAppQuestionnaireStatisticsRequest, HttpServletRequest request, HttpServletResponse response){
+         questionnaireStatService.downloadAppQuestionnaireStatistics(queryAppQuestionnaireStatisticsRequest,request,response);
     }
 
 

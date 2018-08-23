@@ -20,9 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.treefinance.saas.knife.common.CommonStateCode.NO_RELATED_DATA;
 
@@ -41,7 +39,7 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
 
 
     @Override
-    public SaasResult<List> queryAppQuestionnaireStatistics(QueryAppQuestionnaireStatisticsRequest request) {
+    public SaasResult<Map<String,List>> queryAppQuestionnaireStatistics(QueryAppQuestionnaireStatisticsRequest request) {
 
 
         MerchantResult<List<AppQuestionnaireStatisticsResult>> listMerchantResult = appQuestionnaireFacade.queryAppQuestionnaireStatistics(request);
@@ -51,11 +49,11 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
             return Results.newFailedResult(NO_RELATED_DATA, (listMerchantResult.getRetMsg() + listMerchantResult1.getRetMsg()));
         }
 
-        List<Object> list = new ArrayList<>();
-        list.addAll(listMerchantResult.getData());
-        list.addAll(listMerchantResult1.getData());
+        Map<String,List> map = new Hashtable<>();
+        map.put("result",listMerchantResult.getData());
+        map.put("detailResult",listMerchantResult1.getData());
 
-        return Results.newSuccessResult(list);
+        return Results.newSuccessResult(map);
 
 
     }
@@ -132,6 +130,7 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
 
     }

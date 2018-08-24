@@ -31,9 +31,21 @@ public class AppQuestionnaireController {
         return appQuestionnaireService.addAppQuestionnaire(request);
     }
 
+    @RequestMapping(value = "/get",method = RequestMethod.POST,produces = "application/json")
+    public SaasResult getAppQuestionnaire(@RequestBody AppQuestionnaireRequest request) {
+        if(request.getAppId() == null){
+            throw new IllegalArgumentException("请求参数appId不能为空");
+        }
+
+        return appQuestionnaireService.addAppQuestionnaire(request);
+    }
+
     @RequestMapping(value = "/update",method = RequestMethod.POST,produces = "application/json")
     public SaasResult updateAppQuestionnaire(@RequestBody AppQuestionnaireRequest request) {
         return appQuestionnaireService.updateAppQuestionnaire(request);
     }
+
+
+
 
 }

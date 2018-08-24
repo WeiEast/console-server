@@ -11,9 +11,11 @@ import com.treefinance.saas.management.console.common.domain.request.QueryQuesti
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.center.facade.request.console.AddAppQuestDetailRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.AddAppQuestionnaireRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.GetQuestionnaireRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppQuestionnaireRequest;
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.result.grapsever.AppQuestionListRO;
+import com.treefinance.saas.merchant.center.facade.result.grapsever.AppQuestionnaireRO;
 import com.treefinance.saas.merchant.center.facade.service.AppQuestionnaireFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +80,29 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
         }
 
         logger.info("从merchant-center获取数据：{}", result);
+        return Results.newSuccessResult(result.getData());
+    }
+
+    @Override
+    public SaasResult getAppQuestionnaire(AppQuestionnaireRequest request) {
+        GetQuestionnaireRequest rpcRequest = new GetQuestionnaireRequest();
+
+        rpcRequest.setId(request.getId());
+
+        MerchantResult<AppQuestionnaireRO> result;
+
+        try {
+            result = appQuestionnaireFacade.getQuestionnaireById(rpcRequest);
+        } catch (Exception e) {
+            logger.info("从merchant-center获取数据失败，错误：{}", e);
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        logger.info("从merchant-center获取数据：{}", result);
+
+        if(!result.isSuccess()){
+            return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA, result.getRetMsg());
+        }
+
         return Results.newSuccessResult(result.getData());
     }
 

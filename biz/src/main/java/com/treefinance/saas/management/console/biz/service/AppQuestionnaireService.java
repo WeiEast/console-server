@@ -14,6 +14,8 @@ public interface AppQuestionnaireService {
 
     SaasResult addAppQuestionnaire(AppQuestionnaireRequest request);
 
+    SaasResult getAppQuestionnaire(AppQuestionnaireRequest request);
+
     SaasResult updateAppQuestionnaire(AppQuestionnaireRequest request);
 
 }

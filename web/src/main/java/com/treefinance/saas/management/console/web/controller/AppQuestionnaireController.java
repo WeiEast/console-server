@@ -33,11 +33,11 @@ public class AppQuestionnaireController {
 
     @RequestMapping(value = "/get",method = RequestMethod.POST,produces = "application/json")
     public SaasResult getAppQuestionnaire(@RequestBody AppQuestionnaireRequest request) {
-        if(request.getAppId() == null){
+        if(request.getId() == null){
             throw new IllegalArgumentException("请求参数appId不能为空");
         }
 
-        return appQuestionnaireService.addAppQuestionnaire(request);
+        return appQuestionnaireService.getAppQuestionnaire(request);
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST,produces = "application/json")

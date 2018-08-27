@@ -8,6 +8,7 @@ import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigSer
 import com.treefinance.saas.management.console.common.domain.request.AppQuestionnaireDetailRequest;
 import com.treefinance.saas.management.console.common.domain.request.AppQuestionnaireRequest;
 import com.treefinance.saas.management.console.common.domain.request.QueryQuestionnaireRequest;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.center.facade.request.console.AddAppQuestDetailRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.AddAppQuestionnaireRequest;
@@ -43,6 +44,8 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
 
         QueryAppQuestionnaireRequest rpcRequest = new QueryAppQuestionnaireRequest();
         rpcRequest.setAppId(appId);
+        rpcRequest.setPageNum(request.getPageNumber());
+        rpcRequest.setPageSize(request.getPageSize());
 
         MerchantResult<List<AppQuestionListRO>> result;
 
@@ -50,7 +53,11 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
             result = appQuestionnaireFacade.queryAppQuestionList(rpcRequest);
         } catch (Exception e) {
             logger.info("从merchant-center获取数据失败，错误：{}", e);
-            return Results.newFailedResult(CommonStateCode.FAILURE);
+            throw new BizException(e.getMessage());
+        }
+
+        if(!result.isSuccess()){
+            throw new BizException(result.getRetMsg());
         }
 
         logger.info("从merchant-center获取数据：{}", result);
@@ -76,8 +83,13 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
             result = appQuestionnaireFacade.saveAppQuestionnaire(rpcRequest);
         } catch (Exception e) {
             logger.info("从merchant-center获取数据失败，错误：{}", e);
-            return Results.newFailedResult(CommonStateCode.FAILURE);
+            throw new BizException(e.getMessage());
         }
+
+        if(!result.isSuccess()){
+            throw new BizException(result.getRetMsg());
+        }
+
 
         logger.info("从merchant-center获取数据：{}", result);
         return Results.newSuccessResult(result.getData());
@@ -95,12 +107,12 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
             result = appQuestionnaireFacade.getQuestionnaireById(rpcRequest);
         } catch (Exception e) {
             logger.info("从merchant-center获取数据失败，错误：{}", e);
-            return Results.newFailedResult(CommonStateCode.FAILURE);
+            throw new BizException(e.getMessage());
         }
         logger.info("从merchant-center获取数据：{}", result);
 
         if(!result.isSuccess()){
-            return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA, result.getRetMsg());
+            throw new BizException(result.getRetMsg());
         }
 
         return Results.newSuccessResult(result.getData());
@@ -122,7 +134,11 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
             result = appQuestionnaireFacade.updateAppQuestionnaire(rpcRequest);
         } catch (Exception e) {
             logger.info("从merchant-center获取数据失败，错误：{}", e);
-            return Results.newFailedResult(CommonStateCode.FAILURE);
+            throw new BizException(e.getMessage());
+        }
+
+        if(!result.isSuccess()){
+            throw new BizException(result.getRetMsg());
         }
 
         logger.info("从merchant-center获取数据：{}", result);

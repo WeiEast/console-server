@@ -40,7 +40,9 @@ public class QuestionnaireStatController {
         queryAppQuestionnaireStatisticsRequest.setBizType(bizType);
         queryAppQuestionnaireStatisticsRequest.setEndDate(endDate);
         queryAppQuestionnaireStatisticsRequest.setStartDate(startDate);
-        queryAppQuestionnaireStatisticsRequest.setStep(step);
+        if (!("undefined").equals(step)) {
+            queryAppQuestionnaireStatisticsRequest.setStep(step);
+        }
         questionnaireStatService.downloadAppQuestionnaireStatistics(queryAppQuestionnaireStatisticsRequest, request, response);
     }
 

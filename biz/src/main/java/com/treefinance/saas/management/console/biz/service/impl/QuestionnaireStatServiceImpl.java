@@ -97,7 +97,7 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
             content1[i][0] = appQuestionnaireDetailStatisticsResult.getStep();
             content1[i][1] = appQuestionnaireDetailStatisticsResult.getContent();
             content1[i][2] = appQuestionnaireDetailStatisticsResult.getUserCounts().toString();
-            content1[i][3] = appQuestionnaireDetailStatisticsResult.getPercentage().toString();
+            content1[i][3] = appQuestionnaireDetailStatisticsResult.getPercentage();
         }
 
 
@@ -110,7 +110,7 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
             content2[i][3] = appQuestionnaireDetailResult.getTaskId().toString();
             content2[i][4] = appQuestionnaireDetailResult.getUniqueId();
             content2[i][5] = appQuestionnaireDetailResult.getContent();
-            content2[i][6] = appQuestionnaireDetailResult.getCreateTime().toString();
+            content2[i][6] = appQuestionnaireDetailResult.getCreateTime();
         }
         ExcelUtil excelUtil = new ExcelUtil();
         HSSFWorkbook hssfWorkbook = new HSSFWorkbook();

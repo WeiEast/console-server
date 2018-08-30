@@ -318,9 +318,21 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
                 = DataConverterUtils.convert(request.getAlarmNotifyList(), AsAlarmNotifyInfoRequest.class);
         rpcRequest.setAsAlarmNotifyInfoRequestList(notifyInfoRequestList);
 
-        AsAlarmMsgInfoRequest alarmMsgInfoRequest
-                = DataConverterUtils.convert(request.getAlarmMsg(), AsAlarmMsgInfoRequest.class);
-        rpcRequest.setAsAlarmMsgInfoRequest(alarmMsgInfoRequest);
+
+        List<AsAlarmMsgInfoRequest> alarmNotifyMsgInfoRequestList
+                = DataConverterUtils.convert(request.getAlarmNotifyMsgList(), AsAlarmMsgInfoRequest.class);
+        for (AsAlarmMsgInfoRequest asAlarmMsgInfoRequest : alarmNotifyMsgInfoRequestList) {
+            asAlarmMsgInfoRequest.setMsgType((byte) 1);
+        }
+        rpcRequest.setAsAlarmNotifyMsgInfoRequestList(alarmNotifyMsgInfoRequestList);
+
+        List<AsAlarmMsgInfoRequest> alarmRecoveryMsgInfoRequestList =
+                DataConverterUtils.convert(request.getAlarmRecoveryMsgList(), AsAlarmMsgInfoRequest.class);
+        for (AsAlarmMsgInfoRequest asAlarmMsgInfoRequest : alarmRecoveryMsgInfoRequestList) {
+            asAlarmMsgInfoRequest.setMsgType((byte) 2);
+        }
+        rpcRequest.setAsAlarmRecoveryMsgInfoRequestList(alarmRecoveryMsgInfoRequestList);
+
 
         List<AsAlarmTriggerInfoRequest> triggerInfoRequestList
                 = DataConverterUtils.convert(request.getAlarmTriggerList(), AsAlarmTriggerInfoRequest.class);

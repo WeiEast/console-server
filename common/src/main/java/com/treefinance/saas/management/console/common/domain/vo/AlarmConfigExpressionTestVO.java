@@ -20,7 +20,8 @@ public class AlarmConfigExpressionTestVO implements Serializable {
     private List<AlarmQueryDetailVO> alarmQueryList;
     private List<AlarmVariableDetailVO> alarmVariableList;
     private List<AlarmNotifyDetailVO> alarmNotifyList;
-    private AlarmMsgDetailVO alarmMsg;
+    private List<AlarmMsgDetailVO> alarmNotifyMsgList;
+    private List<AlarmMsgDetailVO> alarmRecoveryMsgList;
     private List<AlarmTriggerDetailVO> alarmTriggerList;
 
     public Byte getExpressionType() {
@@ -95,12 +96,20 @@ public class AlarmConfigExpressionTestVO implements Serializable {
         this.alarmNotifyList = alarmNotifyList;
     }
 
-    public AlarmMsgDetailVO getAlarmMsg() {
-        return alarmMsg;
+    public List<AlarmMsgDetailVO> getAlarmNotifyMsgList() {
+        return alarmNotifyMsgList;
     }
 
-    public void setAlarmMsg(AlarmMsgDetailVO alarmMsg) {
-        this.alarmMsg = alarmMsg;
+    public void setAlarmNotifyMsgList(List<AlarmMsgDetailVO> alarmNotifyMsgList) {
+        this.alarmNotifyMsgList = alarmNotifyMsgList;
+    }
+
+    public List<AlarmMsgDetailVO> getAlarmRecoveryMsgList() {
+        return alarmRecoveryMsgList;
+    }
+
+    public void setAlarmRecoveryMsgList(List<AlarmMsgDetailVO> alarmRecoveryMsgList) {
+        this.alarmRecoveryMsgList = alarmRecoveryMsgList;
     }
 
     public List<AlarmTriggerDetailVO> getAlarmTriggerList() {

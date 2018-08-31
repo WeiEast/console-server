@@ -15,7 +15,8 @@ public class AlarmConfigDetailVO implements Serializable {
     private List<AlarmQueryDetailVO> alarmQueryList;
     private List<AlarmVariableDetailVO> alarmVariableList;
     private List<AlarmNotifyDetailVO> alarmNotifyList;
-    private AlarmMsgDetailVO alarmMsg;
+    private List<AlarmMsgDetailVO> alarmNotifyMsgList;
+    private List<AlarmMsgDetailVO> alarmRecoveryMsgList;
     private List<AlarmTriggerDetailVO> alarmTriggerList;
 
     public AlarmInfoDetailVO getAlarmInfo() {
@@ -58,19 +59,27 @@ public class AlarmConfigDetailVO implements Serializable {
         this.alarmNotifyList = alarmNotifyList;
     }
 
-    public AlarmMsgDetailVO getAlarmMsg() {
-        return alarmMsg;
-    }
-
-    public void setAlarmMsg(AlarmMsgDetailVO alarmMsg) {
-        this.alarmMsg = alarmMsg;
-    }
-
     public List<AlarmTriggerDetailVO> getAlarmTriggerList() {
         return alarmTriggerList;
     }
 
     public void setAlarmTriggerList(List<AlarmTriggerDetailVO> alarmTriggerList) {
         this.alarmTriggerList = alarmTriggerList;
+    }
+
+    public List<AlarmMsgDetailVO> getAlarmNotifyMsgList() {
+        return alarmNotifyMsgList;
+    }
+
+    public void setAlarmNotifyMsgList(List<AlarmMsgDetailVO> alarmNotifyMsgList) {
+        this.alarmNotifyMsgList = alarmNotifyMsgList;
+    }
+
+    public List<AlarmMsgDetailVO> getAlarmRecoveryMsgList() {
+        return alarmRecoveryMsgList;
+    }
+
+    public void setAlarmRecoveryMsgList(List<AlarmMsgDetailVO> alarmRecoveryMsgList) {
+        this.alarmRecoveryMsgList = alarmRecoveryMsgList;
     }
 }

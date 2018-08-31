@@ -26,7 +26,7 @@ public class AppFeedbackController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public Object queryList(AppFeedbackRequest request) {
-        if (request != null && request.getBizType() == 0) {
+        if (request != null && request.getBizType() != null && request.getBizType() == 0) {
             request.setBizType(null);
         }
         return appFeedbackService.queryList(request);

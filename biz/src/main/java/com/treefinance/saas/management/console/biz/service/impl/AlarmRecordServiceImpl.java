@@ -13,12 +13,12 @@ import com.treefinance.saas.management.console.common.domain.vo.SaasWorkerVO;
 import com.treefinance.saas.management.console.common.domain.vo.WorkOrderLogVO;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
-import com.treefinance.saas.monitor.facade.domain.request.*;
+import com.treefinance.saas.monitor.facade.domain.request.AlarmRecordRequest;
+import com.treefinance.saas.monitor.facade.domain.request.UpdateWorkOrderRequest;
+import com.treefinance.saas.monitor.facade.domain.request.WorkOrderLogRequest;
+import com.treefinance.saas.monitor.facade.domain.request.WorkOrderRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.AlarmRecordRO;
-import com.treefinance.saas.monitor.facade.domain.ro.AlarmWorkOrderRO;
-import com.treefinance.saas.monitor.facade.domain.ro.SaasWorkerRO;
-import com.treefinance.saas.monitor.facade.domain.ro.WorkOrderLogRO;
+import com.treefinance.saas.monitor.facade.domain.ro.*;
 import com.treefinance.saas.monitor.facade.service.AlarmRecordFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -199,5 +199,17 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
         }
         List<SaasWorkerVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),SaasWorkerVO.class);
         return  Results.newPageResult(request,result.getTotalCount(),alarmRecordVOS);
+    }
+
+    @Override
+    public SaasResult queryAlarmType() {
+        MonitorResult<List<AlarmTypeListRO>> result;
+        try{
+            result = alarmRecordFacade.queryAlarmTypeList();
+        }catch (Exception e){
+            logger.error("请求monitor-server失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        return  Results.newSuccessResult(result.getData());
     }
 }

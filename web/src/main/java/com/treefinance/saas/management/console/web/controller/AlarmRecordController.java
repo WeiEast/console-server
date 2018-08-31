@@ -3,9 +3,11 @@ package com.treefinance.saas.management.console.web.controller;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
-import com.treefinance.saas.management.console.biz.service.AlarmExcuteLogService;
 import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
-import com.treefinance.saas.management.console.common.domain.request.*;
+import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
+import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
+import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
+import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,11 @@ public class AlarmRecordController {
     @RequestMapping(value = "/record/list", produces = "application/json", method = RequestMethod.POST)
     public SaasResult queryAlarmList(@RequestBody AlarmRecordRequest alarmRecordRequest) {
         return alarmRecordService.queryAlarmRecord(alarmRecordRequest);
+    }
+
+    @RequestMapping(value = "/type/list", produces = "application/json", method = RequestMethod.POST)
+    public SaasResult queryAlarmTypeList() {
+        return alarmRecordService.queryAlarmType();
     }
 
     /**

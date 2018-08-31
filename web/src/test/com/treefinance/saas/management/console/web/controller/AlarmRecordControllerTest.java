@@ -65,6 +65,13 @@ public class AlarmRecordControllerTest {
 
     }
 
+
+    @Test
+    public void queryAlarmType() throws Exception {
+        result = this.mockMvc.perform(post(baseUrl+"/type/list").accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+    }
+
     @Test
     public void queryWorkOrderList() throws Exception {
         AlarmWorkOrderRequest alarmRecordRequest = new AlarmWorkOrderRequest();

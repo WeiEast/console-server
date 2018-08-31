@@ -21,6 +21,8 @@ public interface AlarmRecordService {
 
     SaasResult queryAlarmListAndHandleMessage(AlarmRecordRequest request);
 
+    SaasResult queryAlarmType();
+
     SaasResult updateWorkerOrderProcessor(UpdateWorkOrderRequest updateWorkOrderRequest);
 
     SaasResult updateWorkerOrderStatus(UpdateWorkOrderRequest updateWorkOrderRequest);

@@ -7,10 +7,16 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
-import com.treefinance.saas.management.console.common.domain.vo.*;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmRecordVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmWorkOrderVO;
+import com.treefinance.saas.management.console.common.domain.vo.SaasWorkerVO;
+import com.treefinance.saas.management.console.common.domain.vo.WorkOrderLogVO;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
-import com.treefinance.saas.monitor.facade.domain.request.*;
+import com.treefinance.saas.monitor.facade.domain.request.AlarmRecordRequest;
+import com.treefinance.saas.monitor.facade.domain.request.UpdateWorkOrderRequest;
+import com.treefinance.saas.monitor.facade.domain.request.WorkOrderLogRequest;
+import com.treefinance.saas.monitor.facade.domain.request.WorkOrderRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.*;
 import com.treefinance.saas.monitor.facade.service.AlarmRecordFacade;
@@ -239,5 +245,17 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
         List<AlarmRecordStatVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(),AlarmRecordStatVO.class);
         return  Results.newSuccessResult(alarmRecordVOS);
+    }
+
+    @Override
+    public SaasResult queryAlarmType() {
+        MonitorResult<List<AlarmTypeListRO>> result;
+        try{
+            result = alarmRecordFacade.queryAlarmTypeList();
+        }catch (Exception e){
+            logger.error("请求monitor-server失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        return  Results.newSuccessResult(result.getData());
     }
 }

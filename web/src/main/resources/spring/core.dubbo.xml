@@ -35,9 +35,9 @@
                      interface="com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade"
                      version="1.0.0" timeout="60000"/>
 
-    <dubbo:reference id="appQuestionnaireFacade" interface="com.treefinance.saas.merchant.center.facade.service.AppQuestionnaireFacade"
-                     version="1.0.0" timeout="60000" />
-
+    <dubbo:reference id="appQuestionnaireFacade"
+                     interface="com.treefinance.saas.merchant.center.facade.service.AppQuestionnaireFacade"
+                     version="1.0.0" timeout="60000"/>
 
 
     <dubbo:reference id="appCallbackConfigFacade"
@@ -50,8 +50,6 @@
     <dubbo:reference id="merchantUserFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.MerchantUserFacade"
                      version="1.0.0" timeout="60000"/>
-
-
 
 
     <dubbo:reference id="apiStatAccessFacade"
@@ -105,7 +103,9 @@
     <dubbo:reference id="statItemFacade"
                      interface="com.treefinance.saas.monitor.facade.service.autostat.StatItemFacade"
                      version="1.0.0"/>
-
+    <dubbo:reference id="dashBoardFacade"
+                     interface="com.treefinance.saas.monitor.facade.service.stat.DashBoardFacade"
+                     version="1.0.0"/>
 
     <dubbo:reference id="dataApiRawResultFacade"
                      interface="com.treefinance.saas.dataservice.dataserver.dataapirawresult.facade.DataApiRawResultFacade"/>
@@ -137,7 +137,6 @@
     <dubbo:reference id="appFeedbackFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppFeedbackFacade"
                      version="1.0.0"/>
-
 
 
 </beans>

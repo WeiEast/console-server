@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
 import com.treefinance.saas.management.console.common.domain.request.DashboardRequest;
@@ -23,7 +24,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -146,12 +146,19 @@ public class AlarmRecordControllerTest {
     public void queryDashBoardAlarmRecord() throws Exception {
         DashboardRequest request = new DashboardRequest();
 
-        request.setBizType((byte)3);
-        request.setSaasEnv((byte)1);
-        request.setStartDate(new Date());
-        request.setEndDate(new Date());
+//        request.setBizType((byte)3);
+//        request.setSaasEnv((byte)1);
+//        request.setStartDate("");
+//        request.setEndDate(new Date());
 
-        result = this.mockMvc.perform(post(baseUrl+"/error/list/dashboard").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
+        JSONObject object = new JSONObject();
+
+        object.put("bizType", 3);
+        object.put("saasEnv", 1);
+        object.put("startDate", "2018-01-01");
+        object.put("endDate", "2018-08-10");
+
+        result = this.mockMvc.perform(post(baseUrl+"/error/list/dashboard").content(JSON.toJSONString(object)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
 
     }
 }

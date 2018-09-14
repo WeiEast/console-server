@@ -261,8 +261,8 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
         statRequest.setSaasEnv(request.getSaasEnv());
         statRequest.setBizType(request.getBizType());
 
-        statRequest.setStartTime(request.getStartDate());
-        statRequest.setEndTime(request.getEndDate());
+        statRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartDate(), "yyyy-MM-dd"));
+        statRequest.setEndTime(DateUtils.strToDateOrNull(request.getStartDate(), "yyyy-MM-dd"));
 
         statRequest.setPageNumber(request.getPageNumber());
         statRequest.setPageSize(request.getPageSize());

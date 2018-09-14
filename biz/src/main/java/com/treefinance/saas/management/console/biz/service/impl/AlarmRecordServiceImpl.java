@@ -6,6 +6,7 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
+import com.treefinance.saas.management.console.common.domain.request.DashboardRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.*;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
@@ -251,5 +252,35 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
         return  Results.newSuccessResult(result.getData());
+    }
+
+    @Override
+    public SaasResult queryErrorRecords(DashboardRequest request) {
+        AlarmRecordDashBoardRequest statRequest = new AlarmRecordDashBoardRequest();
+
+        statRequest.setSaasEnv(request.getSaasEnv());
+        statRequest.setBizType(request.getBizType());
+
+        statRequest.setStartTime(request.getStartDate());
+        statRequest.setEndTime(request.getEndDate());
+
+        statRequest.setPageNumber(request.getPageNumber());
+        statRequest.setPageSize(request.getPageSize());
+
+
+        MonitorResult result;
+
+        try{
+            result = alarmRecordFacade.queryAlarmRecordInDashBoard(statRequest);
+        }catch (Exception e){
+            logger.error("请求monitor-server失败：{}",e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+
+        logger.info("monitor获取数据：{}",result);
+
+        return Results.newPageResult(request,result.getTotalCount() , result.getData());
+
+
     }
 }

@@ -3,6 +3,7 @@ package com.treefinance.saas.management.console.web.controller;
 import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
+import com.treefinance.saas.management.console.common.domain.request.DashboardRequest;
 import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
 import org.junit.After;
 import org.junit.Before;
@@ -134,10 +135,6 @@ public class AlarmRecordControllerTest {
 
     }
 
-
-
-
-
     @Test
     public void queryStatList() throws Exception {
         AlarmRecordRequest request = new AlarmRecordRequest();
@@ -145,4 +142,16 @@ public class AlarmRecordControllerTest {
         result = this.mockMvc.perform(post(baseUrl+"/error/stat/list").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
+    @Test
+    public void queryDashBoardAlarmRecord() throws Exception {
+        DashboardRequest request = new DashboardRequest();
+
+        request.setBizType((byte)3);
+        request.setSaasEnv((byte)1);
+        request.setStartDate(new Date());
+        request.setEndDate(new Date());
+
+        result = this.mockMvc.perform(post(baseUrl+"/error/list/dashboard").content(JSON.toJSONString(request)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+    }
 }

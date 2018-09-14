@@ -1,20 +1,23 @@
 package com.treefinance.saas.management.console.common.domain.request;
 
-import java.io.Serializable;
+import com.treefinance.saas.knife.request.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * @author chengtong
  * @date 18/9/13 11:05
  */
-public class DashboardRequest implements Serializable {
+public class DashboardRequest extends PageRequest {
 
     private Byte bizType;
 
     private Byte saasEnv;
-
-    private String startTime;
-
-    private String endTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date startDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date endDate;
 
     public Byte getBizType() {
         return bizType;
@@ -32,19 +35,20 @@ public class DashboardRequest implements Serializable {
         this.saasEnv = saasEnv;
     }
 
-    public String getStartTime() {
-        return startTime;
+
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public String getEndTime() {
-        return endTime;
+    public Date getEndDate() {
+        return endDate;
     }
 
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 }

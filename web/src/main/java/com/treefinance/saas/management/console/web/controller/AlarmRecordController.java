@@ -4,10 +4,7 @@ import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
-import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
-import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
-import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
-import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
+import com.treefinance.saas.management.console.common.domain.request.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -131,5 +128,11 @@ public class AlarmRecordController {
     public SaasResult queryStatList(@RequestBody AlarmRecordRequest request){
         return alarmRecordService.queryStatList(request);
     }
+
+    @RequestMapping(value = "error/list/dashboard", produces = "application/json",method = RequestMethod.POST)
+    public SaasResult queryDashBoardAlarmRecord(@RequestBody DashboardRequest request){
+        return alarmRecordService.queryErrorRecords(request);
+    }
+
 
 }

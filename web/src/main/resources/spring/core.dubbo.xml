@@ -104,8 +104,7 @@
                      interface="com.treefinance.saas.monitor.facade.service.autostat.StatItemFacade"
                      version="1.0.0"/>
     <dubbo:reference id="dashBoardFacade"
-                     interface="com.treefinance.saas.monitor.facade.service.stat.DashBoardFacade"
-                     version="1.0.0"/>
+                     interface="com.treefinance.saas.monitor.facade.service.stat.DashBoardFacade" version="1.0.0"/>
 
     <dubbo:reference id="dataApiRawResultFacade"
                      interface="com.treefinance.saas.dataservice.dataserver.dataapirawresult.facade.DataApiRawResultFacade"/>

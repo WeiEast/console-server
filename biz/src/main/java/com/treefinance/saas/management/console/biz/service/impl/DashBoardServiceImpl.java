@@ -8,6 +8,7 @@ import com.treefinance.saas.management.console.common.domain.request.DashboardRe
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.monitor.facade.domain.request.DashboardStatRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
+import com.treefinance.saas.monitor.facade.domain.ro.DashBoardResult;
 import com.treefinance.saas.monitor.facade.service.stat.DashBoardFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +32,10 @@ public class DashBoardServiceImpl implements DashBoardService {
 
         DashboardStatRequest statRequest = new DashboardStatRequest();
 
-        statRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(), "yyyy-MM-dd HH:mm:ss"));
-        statRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(), "yyyy-MM-dd HH:mm:ss"));
         statRequest.setBizType(request.getBizType());
         statRequest.setSaasEnv(request.getSaasEnv());
 
-        MonitorResult result = null;
+        MonitorResult<DashBoardResult> result = null;
 
         try{
             result = dashBoardFacade.queryDashboardResult(statRequest);

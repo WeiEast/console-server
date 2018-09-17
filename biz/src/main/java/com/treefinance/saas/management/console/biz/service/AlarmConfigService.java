@@ -33,4 +33,6 @@ public interface AlarmConfigService {
 
     SaasResult<Boolean> copyAlarm(Long id);
 
+    SaasResult<Boolean> deleteAlarmConfig(Long id);
+
 }

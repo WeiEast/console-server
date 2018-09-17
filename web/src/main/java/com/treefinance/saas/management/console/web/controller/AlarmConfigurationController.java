@@ -91,4 +91,10 @@ public class AlarmConfigurationController {
         return alarmConfigService.updateAlarmSwitch(id);
     }
 
+    @RequestMapping(value = "/copy",method = RequestMethod.GET)
+    public Object copyAlarmConfig(Long id){
+        return alarmConfigService.copyAlarm(id);
+    }
+
+
 }

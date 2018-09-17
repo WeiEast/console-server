@@ -388,5 +388,17 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
 
     }
 
+    @Override
+    public SaasResult<Boolean> copyAlarm(Long id) {
 
+        MonitorResult<Boolean> result = alarmBasicConfigurationFacade.depulicateConfig(id);
+
+        logger.info("从monitor获取的数据：{}", result);
+
+        if(StringUtils.isNotEmpty(result.getErrorMsg())){
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+
+        return Results.newSuccessResult(result.getData());
+    }
 }

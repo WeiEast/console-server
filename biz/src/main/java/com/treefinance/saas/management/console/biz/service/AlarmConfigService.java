@@ -31,4 +31,6 @@ public interface AlarmConfigService {
 
     SaasResult<Object> testAlarmConfigDetail(AlarmConfigExpressionTestVO alarmConfigExpressionTestVO);
 
+    SaasResult<Boolean> copyAlarm(Long id);
+
 }

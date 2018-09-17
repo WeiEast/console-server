@@ -83,6 +83,7 @@ public class AlarmConfigurationController {
 
     /**
      * 更改预警开关
+     *
      * @param id
      * @returnp
      */
@@ -91,9 +92,20 @@ public class AlarmConfigurationController {
         return alarmConfigService.updateAlarmSwitch(id);
     }
 
-    @RequestMapping(value = "/copy",method = RequestMethod.GET)
-    public Object copyAlarmConfig(Long id){
+    @RequestMapping(value = "/copy", method = RequestMethod.GET)
+    public Object copyAlarmConfig(Long id) {
         return alarmConfigService.copyAlarm(id);
+    }
+
+    /**
+     * 删除预警配置
+     *
+     * @param id
+     * @returnp
+     */
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public Object deleteAlarmConfig(Long id) {
+        return alarmConfigService.deleteAlarmConfig(id);
     }
 
 

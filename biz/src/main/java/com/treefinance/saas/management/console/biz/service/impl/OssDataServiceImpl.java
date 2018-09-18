@@ -85,6 +85,25 @@ public class OssDataServiceImpl implements OssDataService {
 
     @Override
     public Object getOssCallbackDataList(OssDataRequest request) {
+        List<Task> list = getTaskList(request);
+        if (CollectionUtils.isEmpty(list)) {
+            return Results.newPageResult(request, 0, Lists.newArrayList());
+        }
+        List<Long> taskIdList = list.stream().map(Task::getId).collect(Collectors.toList());
+        TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
+        taskCallbackLogCriteria.setOffset(request.getOffset());
+        taskCallbackLogCriteria.setLimit(request.getPageSize());
+        taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
+        long count = taskCallbackLogMapper.countByExample(taskCallbackLogCriteria);
+        if (count <= 0) {
+            return Results.newPageResult(request, 0, Lists.newArrayList());
+        }
+        List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectPaginationByExample(taskCallbackLogCriteria);
+        List<OssCallbackDataVO> dataList = wrapperOssCallbackData(taskCallbackLogList, list, request);
+        return Results.newPageResult(request, count, dataList);
+    }
+
+    private List<Task> getTaskList(OssDataRequest request) {
         TaskCriteria taskCriteria = new TaskCriteria();
         TaskCriteria.Criteria innerTaskCriteria = taskCriteria.createCriteria();
         if (request.getType() != null) {
@@ -113,22 +132,7 @@ public class OssDataServiceImpl implements OssDataService {
                 innerTaskCriteria.andAppIdIn(appIdList);
             }
         }
-        List<Task> list = taskMapper.selectByExample(taskCriteria);
-        if (CollectionUtils.isEmpty(list)) {
-            return Results.newPageResult(request, 0, Lists.newArrayList());
-        }
-        List<Long> taskIdList = list.stream().map(Task::getId).collect(Collectors.toList());
-        TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
-        taskCallbackLogCriteria.setOffset(request.getOffset());
-        taskCallbackLogCriteria.setLimit(request.getPageSize());
-        taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
-        long count = taskCallbackLogMapper.countByExample(taskCallbackLogCriteria);
-        if (count <= 0) {
-            return Results.newPageResult(request, 0, Lists.newArrayList());
-        }
-        List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectPaginationByExample(taskCallbackLogCriteria);
-        List<OssCallbackDataVO> dataList = wrapperOssCallbackData(taskCallbackLogList, list, request);
-        return Results.newPageResult(request, count, dataList);
+        return taskMapper.selectByExample(taskCriteria);
     }
 
     @Override

@@ -733,60 +733,16 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Override
     public SaasResult<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
 
-        Map<String, Object> map = Maps.newHashMap();
-        BaseRequest baseRequest = new BaseRequest();
-        map.put("appId", request.getAppId());
-        if (request.getSaasEnv() != 0) {
-            map.put("saasEnv", request.getSaasEnv());
+        TaskCenterRemoteService taskCenterRemoteService = new TaskCenterRemoteService(request).invoke();
+        if (taskCenterRemoteService.is()) {
+            return Results.newPageResult(request, taskCenterRemoteService.getTotal(), Lists.newArrayList());
         }
-        map.put("name", ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
-        if (request.getStatType() == 2) {
-            map.put("status", 3);//失败的任务
-        } else if (request.getStatType() == 3) {
-            map.put("status", 1);//取消的任务
-        } else if (request.getStatType() == 1) {
-            map.put("status", 2);//成功的任务
-        } else {
-            throw new IllegalArgumentException("statType参数有误");
-        }
-
-        if (request.getBizType() == 0) {
-            MerchantResult<List<AppBizTypeResult>> merchantResult = appBizTypeFacade.queryAllAppBizType(baseRequest);
-            List<AppBizType> list = DataConverterUtils.convert(merchantResult.getData(), AppBizType.class);
-            List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
-            map.put("bizTypeList", bizTypeList);
-        } else {
-            map.put("bizType", request.getBizType());
-        }
-
-
-        if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
-            map.put("webSite", request.getWebsiteDetailName());
-            map.put("value", request.getWebsiteDetailName());
-        }
-
-        if (request.getStartTime() != null && request.getEndTime() != null) {
-            map.put("startTime", request.getStartTime());
-            map.put("endTime", request.getEndTime());
-        } else if (request.getDate() != null) {
-            map.put("startTime", DateUtils.getTodayBeginDate(request.getDate()));
-            map.put("endTime", DateUtils.getTomorrowBeginDate(request.getDate()));
-        }
-        map.put("start", request.getOffset());
-        map.put("limit", request.getPageSize());
-        map.put("orderStr", "createTime desc");
-
-        long total = taskAndTaskAttributeMapper.countByExample(map);
-        if (total <= 0) {
-            return Results.newPageResult(request, total, Lists.newArrayList());
-        }
-        List<TaskAndTaskAttribute> taskList = taskAndTaskAttributeMapper.getByExample(map);
+        long total = taskCenterRemoteService.getTotal();
+        List<TaskAndTaskAttribute> taskList = taskCenterRemoteService.getTaskList();
 
         List<Long> taskIdList = taskList.stream().map(TaskAndTaskAttribute::getId).collect(Collectors.toList());
 
-        TaskLogCriteria logCriteria = new TaskLogCriteria();
-        logCriteria.createCriteria().andTaskIdIn(taskIdList);
-        List<TaskLog> taskLogList = taskLogMapper.selectByExample(logCriteria);
+        List<TaskLog> taskLogList = getTaskLogs(taskIdList);
         Map<Long, List<TaskLog>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLog::getTaskId));
 
         List<TaskDetailVO> resultList = Lists.newArrayList();
@@ -845,6 +801,12 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             resultList.add(vo);
         }
         return Results.newPageResult(request, total, resultList);
+    }
+
+    private List<TaskLog> getTaskLogs(List<Long> taskIdList) {
+        TaskLogCriteria logCriteria = new TaskLogCriteria();
+        logCriteria.createCriteria().andTaskIdIn(taskIdList);
+        return taskLogMapper.selectByExample(logCriteria);
     }
 
 
@@ -1230,5 +1192,85 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 return DateUtils.getTodayBeginDate(request.getEndDate());
         }
         return DateUtils.getTodayBeginDate(new Date());
+    }
+
+    private class TaskCenterRemoteService {
+        private boolean myResult;
+        private StatDayRequest request;
+        private long total;
+        private List<TaskAndTaskAttribute> taskList;
+
+        public TaskCenterRemoteService(StatDayRequest request) {
+            this.request = request;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public long getTotal() {
+            return total;
+        }
+
+        public List<TaskAndTaskAttribute> getTaskList() {
+            return taskList;
+        }
+
+        public TaskCenterRemoteService invoke() {
+            Map<String, Object> map = Maps.newHashMap();
+
+            map.put("appId", request.getAppId());
+            if (request.getSaasEnv() != 0) {
+                map.put("saasEnv", request.getSaasEnv());
+            }
+            map.put("name", ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+            if (request.getStatType() == 2) {
+                //失败的任务
+                map.put("status", 3);
+            } else if (request.getStatType() == 3) {
+                //取消的任务
+                map.put("status", 1);
+            } else if (request.getStatType() == 1) {
+                //成功的任务
+                map.put("status", 2);
+            } else {
+                throw new IllegalArgumentException("statType参数有误");
+            }
+
+            if (request.getBizType() == 0) {
+                MerchantResult<List<AppBizTypeResult>> merchantResult = appBizTypeFacade.queryAllAppBizType(new BaseRequest());
+                List<AppBizType> list = DataConverterUtils.convert(merchantResult.getData(), AppBizType.class);
+                List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
+                map.put("bizTypeList", bizTypeList);
+            } else {
+                map.put("bizType", request.getBizType());
+            }
+
+
+            if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
+                map.put("webSite", request.getWebsiteDetailName());
+                map.put("value", request.getWebsiteDetailName());
+            }
+
+            if (request.getStartTime() != null && request.getEndTime() != null) {
+                map.put("startTime", request.getStartTime());
+                map.put("endTime", request.getEndTime());
+            } else if (request.getDate() != null) {
+                map.put("startTime", DateUtils.getTodayBeginDate(request.getDate()));
+                map.put("endTime", DateUtils.getTomorrowBeginDate(request.getDate()));
+            }
+            map.put("start", request.getOffset());
+            map.put("limit", request.getPageSize());
+            map.put("orderStr", "createTime desc");
+
+            total = taskAndTaskAttributeMapper.countByExample(map);
+            if (total <= 0) {
+                myResult = true;
+                return this;
+            }
+            taskList = taskAndTaskAttributeMapper.getByExample(map);
+            myResult = false;
+            return this;
+        }
     }
 }

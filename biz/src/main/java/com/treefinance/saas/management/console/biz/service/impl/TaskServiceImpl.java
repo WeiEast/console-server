@@ -12,7 +12,6 @@ import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
-import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.TaskService;
 import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
@@ -87,40 +86,24 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public SaasResult<Map<String, Object>> findByExample(TaskRequest taskRequest) {
-        TaskCriteria taskCriteria = new TaskCriteria();
-        taskCriteria.setOffset(taskRequest.getOffset());
-        taskCriteria.setLimit(taskRequest.getPageSize());
-        taskCriteria.setOrderByClause("lastUpdateTime desc");
-
-        TaskCriteria.Criteria criteria = taskCriteria.createCriteria();
-        if (taskRequest.getTaskId() != null) {
-            criteria.andIdEqualTo(taskRequest.getTaskId());
-        }
-        if (StringUtils.isNotBlank(taskRequest.getUniqueId())) {
-            criteria.andUniqueIdEqualTo(taskRequest.getUniqueId());
-        }
-        if (StringUtils.isNotBlank(taskRequest.getAccountNo())) {
-            criteria.andAccountNoEqualTo(securityCryptoService.encrypt(taskRequest.getAccountNo(), EncryptionIntensityEnum.NORMAL));
-        }
+        List<String> appIdList = new ArrayList<>();
         if (StringUtils.isNotBlank(taskRequest.getAppName())) {
-            List<String> appIdList = this.getAppIdsLikeAppName(taskRequest.getAppName());
-            if (CollectionUtils.isNotEmpty(appIdList)) {
-                criteria.andAppIdIn(appIdList);
-            } else {//根据appName未查询到appId,则直接返回空集合
+            appIdList = this.getAppIdsLikeAppName(taskRequest.getAppName());
+            //fail fast
+            if (CollectionUtils.isEmpty(appIdList)) {
                 return Results.newPageResult(taskRequest, 0, Lists.newArrayList());
             }
         }
-        criteria.andCreateTimeGreaterThanOrEqualTo(taskRequest.getStartDate());
-        // +23:59:59
-        criteria.andCreateTimeLessThanOrEqualTo(DateUtils.addSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1));
         Byte bizType = BizTypeEnum.valueOfType(BizTypeEnum.valueOf(taskRequest.getType()));
-        criteria.andBizTypeEqualTo(bizType);
-        long count = taskMapper.countByExample(taskCriteria);
-        List<TaskVO> result = Lists.newArrayList();
-        if (count <= 0) {
-            return Results.newPageResult(taskRequest, count, result);
+
+        RemoteService remoteService = new RemoteService(taskRequest, appIdList, bizType).invoke();
+        if (remoteService.is()){
+            return Results.newPageResult(taskRequest, remoteService.getCount(), new ArrayList<>());
         }
-        List<Task> taskList = taskMapper.selectPaginationByExample(taskCriteria);
+        long count = remoteService.getCount();
+        List<Task> taskList = remoteService.getTaskList();
+
+
         //<appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = getMerchantBaseMap(taskList);
         //<website,OperatorRO>
@@ -130,6 +113,9 @@ public class TaskServiceImpl implements TaskService {
         }
         //<taskId,TaskCallbackLog>
         Map<Long, TaskCallbackLogDTO> taskCallbackLogMap = getTaskCallbackLogMap(taskList);
+
+
+        List<TaskVO> result = Lists.newArrayList();
 
         for (Task task : taskList) {
             TaskVO vo = new TaskVO();
@@ -201,9 +187,7 @@ public class TaskServiceImpl implements TaskService {
         List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
         Map<Long, Task> taskMap = taskList.stream().collect(Collectors.toMap(Task::getId, t -> t));
 
-        TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
-        taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
-        List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectByExample(taskCallbackLogCriteria);
+        List<TaskCallbackLog> taskCallbackLogList = getTaskCallbackLogs(taskIdList);
         logger.info("taskCallbackLog:{}", JSON.toJSONString(taskCallbackLogList));
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
@@ -258,6 +242,13 @@ public class TaskServiceImpl implements TaskService {
         }
         logger.info("解密回调参数时,得到的任务对应主流程回调数据,Result={}", JSON.toJSONString(result));
         return result;
+    }
+
+    // TODO: 18/9/18 wait to react
+    private List<TaskCallbackLog> getTaskCallbackLogs(List<Long> taskIdList) {
+        TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
+        taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
+        return taskCallbackLogMapper.selectByExample(taskCallbackLogCriteria);
     }
 
     private String getPlainParamsCallbackLog(Task task, AppCallbackConfig appCallbackConfig, TaskCallbackLog log) {
@@ -324,12 +315,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskBuryPointLogVO> findBuryPointByTaskId(Long taskId) {
-        TaskBuryPointLogCriteria taskBuryPointLogCriteria = new TaskBuryPointLogCriteria();
-        taskBuryPointLogCriteria.createCriteria().andTaskIdEqualTo(taskId);
-        taskBuryPointLogCriteria.setOrderByClause("createTime desc, Id desc");
-        List<TaskBuryPointLog> taskBuryPointLogList = new ArrayList<>();
+        List<TaskBuryPointLog> taskBuryPointLogList = getTaskBuryPointLogs(taskId);
+
         List<TaskBuryPointLogVO> taskBuryPointLogVOList = new ArrayList<>();
-        taskBuryPointLogList = taskBuryPointLogMapper.selectByExample(taskBuryPointLogCriteria);
         for (TaskBuryPointLog taskBuryPointLog : taskBuryPointLogList) {
             TaskBuryPointLogVO taskBuryPointLogVO = new TaskBuryPointLogVO();
             taskBuryPointLogVO.setTaskId(taskBuryPointLog.getTaskId());
@@ -344,14 +332,24 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    private List<TaskBuryPointLog> getTaskBuryPointLogs(Long taskId) {
+        TaskBuryPointLogCriteria taskBuryPointLogCriteria = new TaskBuryPointLogCriteria();
+        taskBuryPointLogCriteria.createCriteria().andTaskIdEqualTo(taskId);
+        taskBuryPointLogCriteria.setOrderByClause("createTime desc, Id desc");
+        return taskBuryPointLogMapper.selectByExample(taskBuryPointLogCriteria);
+    }
+
     @Override
     public List<TaskNextDirectiveVO> findtaskNextDirectiveByTaskId(Long taskId) {
+        List<TaskNextDirective> taskNextDirectiveList = getTaskNextDirectives(taskId);
+        return DataConverterUtils.convert(taskNextDirectiveList, TaskNextDirectiveVO.class);
+    }
+
+    private List<TaskNextDirective> getTaskNextDirectives(Long taskId) {
         TaskNextDirectiveCriteria taskNextDirectiveCriteria = new TaskNextDirectiveCriteria();
         taskNextDirectiveCriteria.createCriteria().andTaskIdEqualTo(taskId);
         taskNextDirectiveCriteria.setOrderByClause("createTime desc, Id desc");
-        List<TaskNextDirective> taskNextDirectiveList = taskNextDirectiveMapper.selectByExample(taskNextDirectiveCriteria);
-        List<TaskNextDirectiveVO> taskNextDirectiveVOList = DataConverterUtils.convert(taskNextDirectiveList, TaskNextDirectiveVO.class);
-        return taskNextDirectiveVOList;
+        return taskNextDirectiveMapper.selectByExample(taskNextDirectiveCriteria);
     }
 
     private Map<String, MerchantBase> getMerchantBaseMap(List<Task> taskList) {
@@ -377,5 +375,67 @@ public class TaskServiceImpl implements TaskService {
         }
         result = merchantBaseList.stream().map(MerchantBase::getAppId).collect(Collectors.toList());
         return result;
+    }
+
+    // TODO: 18/9/18 wait to react
+    private class RemoteService {
+        private boolean myResult;
+        private TaskRequest taskRequest;
+        private List<String> appIdList;
+        private Byte bizType;
+        private long count;
+        private List<Task> taskList;
+
+        public RemoteService(TaskRequest taskRequest, List<String> appIdList, Byte bizType) {
+            this.taskRequest = taskRequest;
+            this.appIdList = appIdList;
+            this.bizType = bizType;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public long getCount() {
+            return count;
+        }
+
+        public List<Task> getTaskList() {
+            return taskList;
+        }
+
+        public RemoteService invoke() {
+            TaskCriteria taskCriteria = new TaskCriteria();
+            taskCriteria.setOffset(taskRequest.getOffset());
+            taskCriteria.setLimit(taskRequest.getPageSize());
+            taskCriteria.setOrderByClause("lastUpdateTime desc");
+
+            TaskCriteria.Criteria criteria = taskCriteria.createCriteria();
+            if (taskRequest.getTaskId() != null) {
+                criteria.andIdEqualTo(taskRequest.getTaskId());
+            }
+            if (StringUtils.isNotBlank(taskRequest.getUniqueId())) {
+                criteria.andUniqueIdEqualTo(taskRequest.getUniqueId());
+            }
+            if (StringUtils.isNotBlank(taskRequest.getAccountNo())) {
+                criteria.andAccountNoEqualTo(securityCryptoService.encrypt(taskRequest.getAccountNo(), EncryptionIntensityEnum.NORMAL));
+            }
+            if (StringUtils.isNotBlank(taskRequest.getAppName())) {
+                criteria.andAppIdIn(appIdList);
+            }
+
+            criteria.andCreateTimeGreaterThanOrEqualTo(taskRequest.getStartDate());
+            // +23:59:59
+            criteria.andCreateTimeLessThanOrEqualTo(DateUtils.addSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1));
+            criteria.andBizTypeEqualTo(bizType);
+            count = taskMapper.countByExample(taskCriteria);
+            if (count <= 0) {
+                myResult = true;
+                return this;
+            }
+            taskList = taskMapper.selectPaginationByExample(taskCriteria);
+            myResult = false;
+            return this;
+        }
     }
 }

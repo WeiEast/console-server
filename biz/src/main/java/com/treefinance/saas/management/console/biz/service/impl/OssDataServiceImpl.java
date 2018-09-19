@@ -90,15 +90,12 @@ public class OssDataServiceImpl implements OssDataService {
             return Results.newPageResult(request, 0, Lists.newArrayList());
         }
         List<Long> taskIdList = list.stream().map(Task::getId).collect(Collectors.toList());
-        TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
-        taskCallbackLogCriteria.setOffset(request.getOffset());
-        taskCallbackLogCriteria.setLimit(request.getPageSize());
-        taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
-        long count = taskCallbackLogMapper.countByExample(taskCallbackLogCriteria);
-        if (count <= 0) {
+        TaskCallbackLogRemoteService taskCallbackLogRemoteService = new TaskCallbackLogRemoteService(request, taskIdList).invoke();
+        if (taskCallbackLogRemoteService.is()){
             return Results.newPageResult(request, 0, Lists.newArrayList());
         }
-        List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogMapper.selectPaginationByExample(taskCallbackLogCriteria);
+        long count = taskCallbackLogRemoteService.getCount();
+        List<TaskCallbackLog> taskCallbackLogList = taskCallbackLogRemoteService.getTaskCallbackLogList();
         List<OssCallbackDataVO> dataList = wrapperOssCallbackData(taskCallbackLogList, list, request);
         return Results.newPageResult(request, count, dataList);
     }
@@ -240,8 +237,7 @@ public class OssDataServiceImpl implements OssDataService {
                 }
                 dataKey = callbackLicenseDTO.getDataSecretKey();
             } else {
-                Long taskId = log.getTaskId();
-                Task task = taskMapper.selectByPrimaryKey(taskId);
+                Task task = getTask(log);
                 if (task == null) {
                     logger.error("oss数据下载,log={}未查询到任务信息", JSON.toJSONString(log));
                     return null;
@@ -257,8 +253,7 @@ public class OssDataServiceImpl implements OssDataService {
         }
         //前端回调
         if (log.getType() == 2) {
-            Long taskId = log.getTaskId();
-            Task task = taskMapper.selectByPrimaryKey(taskId);
+            Task task = getTask(log);
             if (task == null) {
                 logger.error("oss数据下载,log={}未查询到任务信息", JSON.toJSONString(log));
                 return null;
@@ -290,6 +285,11 @@ public class OssDataServiceImpl implements OssDataService {
         return data;
     }
 
+    private Task getTask(TaskCallbackLog log) {
+        Long taskId = log.getTaskId();
+        return taskMapper.selectByPrimaryKey(taskId);
+    }
+
     private List<OssCallbackDataVO> wrapperOssCallbackData(List<TaskCallbackLog> taskCallbackLogList, List<Task> list, OssDataRequest request) {
 
         List<Long> taskIdList = list.stream().map(Task::getId).collect(Collectors.toList());
@@ -308,9 +308,7 @@ public class OssDataServiceImpl implements OssDataService {
         //运营商需展示运营商名称
         Map<Long, TaskAttribute> taskAttributeMap = Maps.newHashMap();
         if (request.getType() != null && EBizType.OPERATOR.getCode().equals(request.getType())) {
-            TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
-            taskAttributeCriteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
-            List<TaskAttribute> taskAttributeList = taskAttributeMapper.selectByExample(taskAttributeCriteria);
+            List<TaskAttribute> taskAttributeList = getTaskAttributes(taskIdList);
             taskAttributeMap = taskAttributeList.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
         }
 
@@ -366,6 +364,12 @@ public class OssDataServiceImpl implements OssDataService {
         return dataList;
     }
 
+    private List<TaskAttribute> getTaskAttributes(List<Long> taskIdList) {
+        TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
+        taskAttributeCriteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+        return taskAttributeMapper.selectByExample(taskAttributeCriteria);
+    }
+
     private Boolean canDownload(TaskCallbackLog log) {
         if (StringUtils.isNotBlank(log.getRequestParam())) {
             JSONObject jsonObject;
@@ -387,4 +391,44 @@ public class OssDataServiceImpl implements OssDataService {
         return false;
     }
 
+    // TODO: 18/9/18 wait to react
+    private class TaskCallbackLogRemoteService {
+        private boolean myResult;
+        private OssDataRequest request;
+        private List<Long> taskIdList;
+        private long count;
+        private List<TaskCallbackLog> taskCallbackLogList;
+
+        public TaskCallbackLogRemoteService(OssDataRequest request, List<Long> taskIdList) {
+            this.request = request;
+            this.taskIdList = taskIdList;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public long getCount() {
+            return count;
+        }
+
+        public List<TaskCallbackLog> getTaskCallbackLogList() {
+            return taskCallbackLogList;
+        }
+
+        public TaskCallbackLogRemoteService invoke() {
+            TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
+            taskCallbackLogCriteria.setOffset(request.getOffset());
+            taskCallbackLogCriteria.setLimit(request.getPageSize());
+            taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
+            count = taskCallbackLogMapper.countByExample(taskCallbackLogCriteria);
+            if (count <= 0) {
+                myResult = true;
+                return this;
+            }
+            taskCallbackLogList = taskCallbackLogMapper.selectPaginationByExample(taskCallbackLogCriteria);
+            myResult = false;
+            return this;
+        }
+    }
 }

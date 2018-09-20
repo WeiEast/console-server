@@ -1,8 +1,6 @@
 package com.treefinance.saas.management.console.web.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
-import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import org.junit.Before;
@@ -17,12 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
  * @author chengtong
@@ -93,7 +86,6 @@ public class MerchantStatControllerTest {
 
     @Test
     public void getOverview() throws Exception {
-
 
         this.mockMvc.perform(get(baseUrl + "/stataccess/all/overview?"+"bizType=0&startDate=2018-04-17&endDate=2018" +
                 "-04-23" +

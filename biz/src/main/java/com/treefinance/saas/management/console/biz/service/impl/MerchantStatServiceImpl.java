@@ -772,14 +772,23 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             map.put("startTime", DateUtils.getTodayBeginDate(request.getDate()));
             map.put("endTime", DateUtils.getTomorrowBeginDate(request.getDate()));
         }
-        map.put("start", request.getOffset());
-        map.put("limit", request.getPageSize());
-        map.put("orderStr", "createTime desc");
 
         long total = taskAndTaskAttributeMapper.countByExample(map);
         if (total <= 0) {
             return Results.newPageResult(request, total, Lists.newArrayList());
         }
+
+        map.put("start", request.getOffset());
+        map.put("limit", request.getPageSize());
+        map.put("orderStr", "createTime desc");
+
+        int pageTotal = (int)total/request.getPageSize() + 1;
+        int lastPageCount = (int)total%request.getPageSize();
+
+        if(pageTotal == request.getPageNumber()){
+            map.put("limit", lastPageCount == 0?request.getPageSize():lastPageCount);
+        }
+
         List<TaskAndTaskAttribute> taskList = taskAndTaskAttributeMapper.getByExample(map);
 
         List<Long> taskIdList = taskList.stream().map(TaskAndTaskAttribute::getId).collect(Collectors.toList());

@@ -27,34 +27,34 @@
         count(task.Id)
         FROM task task
         LEFT JOIN task_attribute attribute ON task.id = attribute.taskId AND attribute.name = #{name}
-        WHERE 1=1
-        <if test="appId != null">
-            and task.appId = #{appId}
-        </if>
-        <if test="status != null">
-            and task.status = #{status}
-        </if>
-        <if test="bizType != null">
-            and task.bizType = #{bizType}
-        </if>
-        <if test="saasEnv != null">
-            and task.saasEnv = #{saasEnv}
-        </if>
-        <if test="bizTypeList != null">
-            and task.bizType in
-            (
-            <foreach collection="bizTypeList" index="index" item="tag" separator=",">
-                #{tag}
-            </foreach>
-            )
-        </if>
-        <if test="startTime != null and endTime != null">
-            and task.lastUpdateTime BETWEEN #{startTime} AND #{endTime}
-        </if>
-        <if test="webSite != null and value != null and name != null">
-            and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )
-        </if>
-
+        <where>
+            <if test="appId != null">
+                and task.appId = #{appId}
+            </if>
+            <if test="status != null">
+                and task.status = #{status}
+            </if>
+            <if test="bizType != null">
+                and task.bizType = #{bizType}
+            </if>
+            <if test="saasEnv != null">
+                and task.saasEnv = #{saasEnv}
+            </if>
+            <if test="bizTypeList != null">
+                and task.bizType in
+                (
+                <foreach collection="bizTypeList" index="index" item="tag" separator=",">
+                    #{tag}
+                </foreach>
+                )
+            </if>
+            <if test="startTime != null and endTime != null">
+                and task.lastUpdateTime BETWEEN #{startTime} AND #{endTime}
+            </if>
+            <if test="webSite != null and value != null and name != null">
+                and ( task.webSite like CONCAT('%',#{webSite},'%') or attribute.value like CONCAT('%',#{value},'%') )
+            </if>
+        </where>
     </select>
 
     <select id="getByExample" resultMap="BaseResultMap">

@@ -38,6 +38,12 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult
 import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
+import com.treefinance.saas.taskcenter.facade.result.TaskCallbackLogRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskRO;
+import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
+import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
+import com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -48,6 +54,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,7 +68,9 @@ public class TaskServiceImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     @Autowired
-    private TaskMapper taskMapper;
+    private TaskFacade taskFacade;
+    @Autowired
+    private TaskCallbackLogFacade taskCallbackLogFacade;
     @Autowired
     private TaskBuryPointLogMapper taskBuryPointLogMapper;
     @Autowired
@@ -244,11 +253,17 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    // TODO: 18/9/18 wait to react
     private List<TaskCallbackLog> getTaskCallbackLogs(List<Long> taskIdList) {
-        TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
-        taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
-        return taskCallbackLogMapper.selectByExample(taskCallbackLogCriteria);
+
+
+        TaskResult<List<TaskCallbackLogRO>> taskResult = taskCallbackLogFacade.queryTaskCallbackLog(taskIdList);
+
+        if(!taskResult.isSuccess()){
+            return new ArrayList<>();
+        }
+
+        return DataConverterUtils.convert(taskResult.getData(), TaskCallbackLog.class);
+
     }
 
     private String getPlainParamsCallbackLog(Task task, AppCallbackConfig appCallbackConfig, TaskCallbackLog log) {
@@ -377,7 +392,6 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    // TODO: 18/9/18 wait to react
     private class RemoteService {
         private boolean myResult;
         private TaskRequest taskRequest;
@@ -405,35 +419,53 @@ public class TaskServiceImpl implements TaskService {
         }
 
         public RemoteService invoke() {
-            TaskCriteria taskCriteria = new TaskCriteria();
-            taskCriteria.setOffset(taskRequest.getOffset());
-            taskCriteria.setLimit(taskRequest.getPageSize());
-            taskCriteria.setOrderByClause("lastUpdateTime desc");
 
-            TaskCriteria.Criteria criteria = taskCriteria.createCriteria();
+            com.treefinance.saas.taskcenter.facade.request.TaskRequest rpcRequest = new com.treefinance.saas.taskcenter.facade.request.TaskRequest();
+
+
+
+
+            rpcRequest.setPageNumber(taskRequest.getPageNumber());
+            rpcRequest.setPageSize(taskRequest.getPageSize());
+
             if (taskRequest.getTaskId() != null) {
-                criteria.andIdEqualTo(taskRequest.getTaskId());
+                rpcRequest.setId(taskRequest.getTaskId());
             }
             if (StringUtils.isNotBlank(taskRequest.getUniqueId())) {
-                criteria.andUniqueIdEqualTo(taskRequest.getUniqueId());
+                rpcRequest.setUniqueId(taskRequest.getUniqueId());
             }
             if (StringUtils.isNotBlank(taskRequest.getAccountNo())) {
-                criteria.andAccountNoEqualTo(securityCryptoService.encrypt(taskRequest.getAccountNo(), EncryptionIntensityEnum.NORMAL));
+                rpcRequest.setAccountNo(securityCryptoService.encrypt(taskRequest.getAccountNo(), EncryptionIntensityEnum
+                        .NORMAL));
             }
             if (StringUtils.isNotBlank(taskRequest.getAppName())) {
-                criteria.andAppIdIn(appIdList);
+                rpcRequest.setAppIdList(appIdList);
             }
 
-            criteria.andCreateTimeGreaterThanOrEqualTo(taskRequest.getStartDate());
+            rpcRequest.setStartDate(taskRequest.getStartDate());
             // +23:59:59
-            criteria.andCreateTimeLessThanOrEqualTo(DateUtils.addSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1));
-            criteria.andBizTypeEqualTo(bizType);
-            count = taskMapper.countByExample(taskCriteria);
+            Date endDate = DateUtils.addSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1);
+            rpcRequest.setEndDate(endDate);
+            rpcRequest.setBizType(bizType);
+
+            TaskPagingResult<TaskRO> result = taskFacade.queryTaskListPage(rpcRequest);
+
+
+            logger.info("请求任务中心返回数据：{}", JSON.toJSONString(result));
+
+            if(!result.isSuccess()){
+                logger.info("请求任务中心返回失败结果:{}", result.getMessage());
+                myResult = true;
+                return this;
+            }
+
+            count = result.getTotal();
             if (count <= 0) {
                 myResult = true;
                 return this;
             }
-            taskList = taskMapper.selectPaginationByExample(taskCriteria);
+            List<TaskRO> taskROS = result.getList();
+            taskList = DataConverterUtils.convert(taskROS, Task.class);
             myResult = false;
             return this;
         }

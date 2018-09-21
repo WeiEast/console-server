@@ -27,7 +27,7 @@ import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.TaskAttributeMapper;
+import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppCallBackConfigByIdRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByAppName;
 import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
@@ -249,16 +249,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private List<TaskCallbackLog> getTaskCallbackLogs(List<Long> taskIdList) {
-
-
         TaskResult<List<TaskCallbackLogRO>> taskResult = taskCallbackLogFacade.queryTaskCallbackLog(taskIdList);
-
+        logger.info("任务中心请求返回数据：{}", taskResult);
         if(!taskResult.isSuccess()){
             return new ArrayList<>();
         }
-
         return DataConverterUtils.convert(taskResult.getData(), TaskCallbackLog.class);
-
     }
 
     private String getPlainParamsCallbackLog(Task task, AppCallbackConfig appCallbackConfig, TaskCallbackLog log) {
@@ -488,7 +484,6 @@ public class TaskServiceImpl implements TaskService {
             rpcRequest.setBizType(bizType);
 
             TaskPagingResult<TaskRO> result = taskFacade.queryTaskListPage(rpcRequest);
-
 
             logger.info("请求任务中心返回数据：{}", JSON.toJSONString(result));
 

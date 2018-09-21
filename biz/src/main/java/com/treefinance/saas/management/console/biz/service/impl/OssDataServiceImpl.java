@@ -36,12 +36,15 @@ import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
 import com.treefinance.saas.taskcenter.facade.request.TaskAttributeRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskCallbackLogPageRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskCallbackLogRequest;
+import com.treefinance.saas.taskcenter.facade.request.TaskRequest;
 import com.treefinance.saas.taskcenter.facade.result.TaskAttributeRO;
 import com.treefinance.saas.taskcenter.facade.result.TaskCallbackLogRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskRO;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
 import com.treefinance.saas.taskcenter.facade.service.TaskAttributeFacade;
 import com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -78,7 +81,7 @@ public class OssDataServiceImpl implements OssDataService {
     @Autowired
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
-    private TaskMapper taskMapper;
+    private TaskFacade taskFacade;
     @Autowired
     private TaskAttributeFacade taskAttributeFacade;
     @Autowired
@@ -109,19 +112,18 @@ public class OssDataServiceImpl implements OssDataService {
     }
 
     private List<Task> getTaskList(OssDataRequest request) {
-        TaskCriteria taskCriteria = new TaskCriteria();
-        TaskCriteria.Criteria innerTaskCriteria = taskCriteria.createCriteria();
+        TaskRequest  taskRequest = new TaskRequest();
         if (request.getType() != null) {
-            innerTaskCriteria.andBizTypeEqualTo(request.getType());
+            taskRequest.setBizType(request.getType());
         }
         if (StringUtils.isNotBlank(request.getUniqueId())) {
-            innerTaskCriteria.andUniqueIdEqualTo(request.getUniqueId());
+            taskRequest.setUniqueId(request.getUniqueId());
         }
         if (StringUtils.isNotBlank(request.getAccountNo())) {
-            innerTaskCriteria.andAccountNoEqualTo(iSecurityCryptoService.encrypt(request.getAccountNo(), EncryptionIntensityEnum.NORMAL));
+            taskRequest.setAccountNo(iSecurityCryptoService.encrypt(request.getAccountNo(), EncryptionIntensityEnum.NORMAL));
         }
         if (request.getTaskId() != null) {
-            innerTaskCriteria.andIdEqualTo(request.getTaskId());
+            taskRequest.setId(request.getTaskId());
         }
         if (StringUtils.isNotBlank(request.getAppName())) {
 
@@ -134,10 +136,25 @@ public class OssDataServiceImpl implements OssDataService {
                 appIdList = list.stream().map(MerchantBase::getAppId).collect(Collectors.toList());
             }
             if (CollectionUtils.isNotEmpty(appIdList)) {
-                innerTaskCriteria.andAppIdIn(appIdList);
+                taskRequest.setAppIdList(appIdList);
             }
         }
-        return taskMapper.selectByExample(taskCriteria);
+
+        TaskResult<List<TaskRO>> taskResult ;
+
+        try{
+            taskResult = taskFacade.queryTaskList(taskRequest);
+        }catch (Exception e){
+            logger.error("请求任务中心出错", e.getMessage());
+            return Lists.newArrayList();
+        }
+
+        logger.info("从任务中心获取数据：{}", taskResult);
+        if(!taskResult.isSuccess()){
+            logger.info("请求任务中心失败:{}", taskResult);
+            return Lists.newArrayList();
+        }
+        return DataConverterUtils.convert(taskResult.getData(), Task.class);
     }
 
     @Override
@@ -315,7 +332,18 @@ public class OssDataServiceImpl implements OssDataService {
 
     private Task getTask(TaskCallbackLog log) {
         Long taskId = log.getTaskId();
-        return taskMapper.selectByPrimaryKey(taskId);
+
+        TaskRequest request = new TaskRequest();
+        request.setId(taskId);
+
+        TaskResult<TaskRO> result = taskFacade.getTaskByPrimaryKey(request);
+
+        if(!result.isSuccess()){
+            logger.info("请求任务中心失败：{}", result);
+            return null;
+        }
+
+        return DataConverterUtils.convert(result.getData(),Task.class);
     }
 
     private List<OssCallbackDataVO> wrapperOssCallbackData(List<TaskCallbackLog> taskCallbackLogList, List<Task> list, OssDataRequest request) {
@@ -416,8 +444,6 @@ public class OssDataServiceImpl implements OssDataService {
 
         return DataConverterUtils.convert(result.getData(), TaskAttribute.class);
 
-
-
     }
 
     private Boolean canDownload(TaskCallbackLog log) {
@@ -441,7 +467,6 @@ public class OssDataServiceImpl implements OssDataService {
         return false;
     }
 
-    // TODO: 18/9/18 wait to react
     private class TaskCallbackLogRemoteService {
         private boolean myResult;
         private OssDataRequest request;
@@ -449,7 +474,7 @@ public class OssDataServiceImpl implements OssDataService {
         private long count;
         private List<TaskCallbackLog> taskCallbackLogList;
 
-        public TaskCallbackLogRemoteService(OssDataRequest request, List<Long> taskIdList) {
+        TaskCallbackLogRemoteService(OssDataRequest request, List<Long> taskIdList) {
             this.request = request;
             this.taskIdList = taskIdList;
         }
@@ -458,15 +483,15 @@ public class OssDataServiceImpl implements OssDataService {
             return myResult;
         }
 
-        public long getCount() {
+        long getCount() {
             return count;
         }
 
-        public List<TaskCallbackLog> getTaskCallbackLogList() {
+        List<TaskCallbackLog> getTaskCallbackLogList() {
             return taskCallbackLogList;
         }
 
-        public TaskCallbackLogRemoteService invoke() {
+        TaskCallbackLogRemoteService invoke() {
 
             TaskCallbackLogPageRequest rpcRequest = new TaskCallbackLogPageRequest();
             rpcRequest.setTaskIdList(taskIdList);

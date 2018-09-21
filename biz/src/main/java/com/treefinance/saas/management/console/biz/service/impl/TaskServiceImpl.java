@@ -27,7 +27,6 @@ import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppCallBackConfigByIdRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByAppName;
 import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
@@ -38,6 +37,7 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult
 import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
+import com.treefinance.saas.taskcenter.facade.request.TaskAttributeRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskBuryPointLogRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskLogRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskNextDirectiveRequest;
@@ -87,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private CallbackSecureHandler callbackSecureHandler;
     @Autowired
-    private TaskAttributeMapper taskAttributeMapper;
+    private TaskAttributeFacade taskAttributeFacade;
     @Autowired
     private TaskNextDirectiveFacade taskNextDirectiveFacade;
 
@@ -177,13 +177,35 @@ public class TaskServiceImpl implements TaskService {
 
     private Map<Long, TaskAttribute> getOperatorMapFromAttribute(List<Task> taskList) {
         List<Long> taskIdList = taskList.stream().map(Task::getId).collect(Collectors.toList());
-        TaskAttributeCriteria criteria = new TaskAttributeCriteria();
-        criteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
-        List<TaskAttribute> list = taskAttributeMapper.selectByExample(criteria);
+        List<TaskAttribute> list = getTaskAttributes(taskIdList);
         if (CollectionUtils.isEmpty(list)) {
             return Maps.newHashMap();
         }
         return list.stream().collect(Collectors.toMap(TaskAttribute::getTaskId, taskAttribute -> taskAttribute));
+    }
+
+    private List<TaskAttribute> getTaskAttributes(List<Long> taskIdList) {
+
+        TaskAttributeRequest taskAttributeRequest = new TaskAttributeRequest();
+
+        taskAttributeRequest.setTaskIds(taskIdList);
+        taskAttributeRequest.setName(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+
+        TaskResult<List<TaskAttributeRO>> taskResult;
+
+        try{
+            taskResult = taskAttributeFacade.queryTaskAttribute(taskAttributeRequest);
+        }catch (Exception e){
+            logger.info("任务中心请求出错", e.getMessage());
+            return Lists.newArrayList();
+        }
+        logger.info("任务中心请求返回数据", taskResult);
+        if(!taskResult.isSuccess()){
+            logger.info("任务中心请求返回失败", taskResult);
+            return Lists.newArrayList();
+        }
+
+        return DataConverterUtils.convert(taskResult.getData(), TaskAttribute.class);
     }
 
     private Map<Long, TaskCallbackLogDTO> getTaskCallbackLogMap(List<Task> taskList) {

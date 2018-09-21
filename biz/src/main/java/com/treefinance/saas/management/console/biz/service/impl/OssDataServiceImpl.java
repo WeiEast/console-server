@@ -22,7 +22,6 @@ import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppCallBackConfigByIdRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByAppName;
 import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;

@@ -22,8 +22,6 @@ import com.treefinance.saas.management.console.common.enumeration.ETaskStatus;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.TaskAttributeMapper;
-import com.treefinance.saas.management.console.dao.mapper.TaskCallbackLogMapper;
 import com.treefinance.saas.management.console.dao.mapper.TaskMapper;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppCallBackConfigByIdRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByAppName;
@@ -35,6 +33,15 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult
 import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
+import com.treefinance.saas.taskcenter.facade.request.TaskAttributeRequest;
+import com.treefinance.saas.taskcenter.facade.request.TaskCallbackLogPageRequest;
+import com.treefinance.saas.taskcenter.facade.request.TaskCallbackLogRequest;
+import com.treefinance.saas.taskcenter.facade.result.TaskAttributeRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskCallbackLogRO;
+import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
+import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
+import com.treefinance.saas.taskcenter.facade.service.TaskAttributeFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -50,6 +57,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,9 +80,9 @@ public class OssDataServiceImpl implements OssDataService {
     @Autowired
     private TaskMapper taskMapper;
     @Autowired
-    private TaskAttributeMapper taskAttributeMapper;
+    private TaskAttributeFacade taskAttributeFacade;
     @Autowired
-    private TaskCallbackLogMapper taskCallbackLogMapper;
+    private TaskCallbackLogFacade taskCallbackLogFacade;
     @Autowired
     private AppCallbackConfigFacade appCallbackConfigFacade;
     @Autowired
@@ -134,7 +142,7 @@ public class OssDataServiceImpl implements OssDataService {
 
     @Override
     public Object downloadOssData(Long id, HttpServletRequest request, HttpServletResponse response) {
-        TaskCallbackLog log = taskCallbackLogMapper.selectByPrimaryKey(id);
+        TaskCallbackLog log = getTaskCallbackLogByPrimaryKey(id);
         if (log == null) {
             logger.error("oss数据下载,id={}的callbackLog记录不存在", id);
             return Results.newFailedResult(ConsoleStateCode.DOWNLOAD_ERROR);
@@ -187,7 +195,9 @@ public class OssDataServiceImpl implements OssDataService {
 
     @Override
     public Object downloadOssDataCheck(Long id) {
-        TaskCallbackLog log = taskCallbackLogMapper.selectByPrimaryKey(id);
+
+
+        TaskCallbackLog log = getTaskCallbackLogByPrimaryKey(id);
         if (log == null) {
             logger.error("oss数据下载,id={}的callbackLog记录不存在", id);
             throw new BizException("下载失败");
@@ -210,6 +220,24 @@ public class OssDataServiceImpl implements OssDataService {
             throw new BizException("oss数据下载解密异常");
         }
         return Results.newSuccessResult(true);
+    }
+
+    private TaskCallbackLog getTaskCallbackLogByPrimaryKey(Long id) {
+
+        TaskCallbackLogRequest taskCallbackLogRequest = new TaskCallbackLogRequest();
+
+        taskCallbackLogRequest.setId(id);
+
+        TaskResult<List<TaskCallbackLogRO>> result = taskCallbackLogFacade.queryTaskCallbackLog(taskCallbackLogRequest);
+
+        if(!result.isSuccess()){
+            logger.info("任务中心请求失败，返回数据：{}", result);
+            return null;
+        }
+
+        List<TaskCallbackLogRO> logROES = result.getData();
+
+        return DataConverterUtils.convert(logROES.get(0), TaskCallbackLog.class);
     }
 
     private String getOssData(TaskCallbackLog log, String dataUrl) {
@@ -365,9 +393,31 @@ public class OssDataServiceImpl implements OssDataService {
     }
 
     private List<TaskAttribute> getTaskAttributes(List<Long> taskIdList) {
-        TaskAttributeCriteria taskAttributeCriteria = new TaskAttributeCriteria();
-        taskAttributeCriteria.createCriteria().andTaskIdIn(taskIdList).andNameEqualTo(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
-        return taskAttributeMapper.selectByExample(taskAttributeCriteria);
+
+        TaskAttributeRequest taskAttributeRequest = new TaskAttributeRequest();
+
+        taskAttributeRequest.setTaskIds(taskIdList);
+        taskAttributeRequest.setName(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+
+        TaskResult<List<TaskAttributeRO>> result;
+
+        try{
+            result = taskAttributeFacade.queryTaskAttributeByTaskId(taskAttributeRequest);
+        }catch (Exception e){
+            logger.error("请求任务中心出错", e.getMessage());
+            return Lists.newArrayList();
+        }
+
+        logger.info("从任务中心获取数据：{}", result);
+        if(!result.isSuccess()){
+            logger.info("请求任务中心失败:{}", result);
+            return Lists.newArrayList();
+        }
+
+        return DataConverterUtils.convert(result.getData(), TaskAttribute.class);
+
+
+
     }
 
     private Boolean canDownload(TaskCallbackLog log) {
@@ -417,16 +467,35 @@ public class OssDataServiceImpl implements OssDataService {
         }
 
         public TaskCallbackLogRemoteService invoke() {
-            TaskCallbackLogCriteria taskCallbackLogCriteria = new TaskCallbackLogCriteria();
-            taskCallbackLogCriteria.setOffset(request.getOffset());
-            taskCallbackLogCriteria.setLimit(request.getPageSize());
-            taskCallbackLogCriteria.createCriteria().andTaskIdIn(taskIdList);
-            count = taskCallbackLogMapper.countByExample(taskCallbackLogCriteria);
+
+            TaskCallbackLogPageRequest rpcRequest = new TaskCallbackLogPageRequest();
+            rpcRequest.setTaskIdList(taskIdList);
+            rpcRequest.setPageNumber(request.getPageNumber());
+            rpcRequest.setPageSize(request.getPageSize());
+            TaskPagingResult<TaskCallbackLogRO> result;
+
+            try{
+                result = taskCallbackLogFacade.queryTaskCallbackLogPage(rpcRequest);
+            }catch (Exception e){
+                logger.error("请求任务中心出错", e.getMessage());
+                myResult = true;
+                return this;
+            }
+            if(!result.isSuccess()){
+                logger.info("请求任务中心返回失败结果:{}", result.getMessage());
+                myResult = true;
+                return this;
+            }
+
+            count = result.getTotal();
             if (count <= 0) {
                 myResult = true;
                 return this;
             }
-            taskCallbackLogList = taskCallbackLogMapper.selectPaginationByExample(taskCallbackLogCriteria);
+
+            List<TaskCallbackLogRO> taskCallbackLogROES = result.getList();
+
+            taskCallbackLogList = DataConverterUtils.convert(taskCallbackLogROES, TaskCallbackLog.class);
             myResult = false;
             return this;
         }

@@ -1,7 +1,6 @@
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.ConsoleServerApplication;
 import com.treefinance.saas.management.console.dao.entity.TaskAndTaskAttribute;
-import com.treefinance.saas.management.console.dao.mapper.TaskAndTaskAttributeMapper;
 import com.treefinance.saas.merchant.center.facade.request.console.GetMerchantByIdRequest;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import org.junit.Test;
@@ -23,8 +22,6 @@ import java.util.stream.Stream;
 @SpringBootTest(classes = ConsoleServerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class ConsoleServiceTest {
 
-    @Autowired
-    private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
 
     @Autowired
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
@@ -37,17 +34,6 @@ public class ConsoleServiceTest {
         merchantBaseInfoFacade.getBaseInfoById(request);
     }
 
-    @Test
-    public void test_TaskAndTaskAttributeMapper() {
-        Map<String, Object> map = Maps.newHashMap();
-        map.put("bizType", 1);
-        map.put("start", 0);
-        map.put("limit", 20);
-        long total = taskAndTaskAttributeMapper.countByExample(map);
-        List<TaskAndTaskAttribute> list = taskAndTaskAttributeMapper.getByExample(map);
-        System.out.println(total);
-        System.out.println(list);
-    }
     @Test
     public void testStream() {
         Stream.iterate(0,x->x+1).limit(10).forEach(System.out::println);

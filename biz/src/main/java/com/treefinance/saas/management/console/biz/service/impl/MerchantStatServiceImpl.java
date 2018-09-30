@@ -24,8 +24,6 @@ import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.TaskAndTaskAttributeMapper;
-import com.treefinance.saas.management.console.dao.mapper.TaskLogMapper;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseByBizTypeRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryMerchantByMerchantIdRequest;
@@ -44,6 +42,14 @@ import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.MerchantStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.SaasErrorStepDayStatRO;
 import com.treefinance.saas.monitor.facade.service.stat.MerchantStatAccessFacade;
+import com.treefinance.saas.taskcenter.facade.request.TaskAndAttributeRequest;
+import com.treefinance.saas.taskcenter.facade.request.TaskLogRequest;
+import com.treefinance.saas.taskcenter.facade.result.TaskAndAttributeRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskLogRO;
+import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
+import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
+import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskLogFacade;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -70,7 +76,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Resource
-    private TaskLogMapper taskLogMapper;
+    private TaskLogFacade taskLogFacade;
     @Resource
     private MerchantUserFacade merchantUserFacade;
     @Resource
@@ -78,7 +84,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
     @Resource
-    private TaskAndTaskAttributeMapper taskAndTaskAttributeMapper;
+    private TaskFacade taskFacade;
+
     @Resource
     private AppBizTypeService appBizTypeService;
 
@@ -733,69 +740,16 @@ public class MerchantStatServiceImpl implements MerchantStatService {
     @Override
     public SaasResult<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
 
-        Map<String, Object> map = Maps.newHashMap();
-        BaseRequest baseRequest = new BaseRequest();
-        map.put("appId", request.getAppId());
-        if (request.getSaasEnv() != 0) {
-            map.put("saasEnv", request.getSaasEnv());
+        TaskCenterRemoteService taskCenterRemoteService = new TaskCenterRemoteService(request).invoke();
+        if (taskCenterRemoteService.is()) {
+            return Results.newPageResult(request, taskCenterRemoteService.getTotal(), Lists.newArrayList());
         }
-        map.put("name", ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
-        if (request.getStatType() == 2) {
-            map.put("status", 3);//失败的任务
-        } else if (request.getStatType() == 3) {
-            map.put("status", 1);//取消的任务
-        } else if (request.getStatType() == 1) {
-            map.put("status", 2);//成功的任务
-        } else {
-            throw new IllegalArgumentException("statType参数有误");
-        }
-
-        if (request.getBizType() == 0) {
-            MerchantResult<List<AppBizTypeResult>> merchantResult = appBizTypeFacade.queryAllAppBizType(baseRequest);
-            List<AppBizType> list = DataConverterUtils.convert(merchantResult.getData(), AppBizType.class);
-            List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
-            map.put("bizTypeList", bizTypeList);
-        } else {
-            map.put("bizType", request.getBizType());
-        }
-
-
-        if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
-            map.put("webSite", request.getWebsiteDetailName());
-            map.put("value", request.getWebsiteDetailName());
-        }
-
-        if (request.getStartTime() != null && request.getEndTime() != null) {
-            map.put("startTime", request.getStartTime());
-            map.put("endTime", request.getEndTime());
-        } else if (request.getDate() != null) {
-            map.put("startTime", DateUtils.getTodayBeginDate(request.getDate()));
-            map.put("endTime", DateUtils.getTomorrowBeginDate(request.getDate()));
-        }
-
-        long total = taskAndTaskAttributeMapper.countByExample(map);
-        if (total <= 0) {
-            return Results.newPageResult(request, total, Lists.newArrayList());
-        }
-
-        map.put("start", request.getOffset());
-        map.put("limit", request.getPageSize());
-        map.put("orderStr", "createTime desc");
-
-        int pageTotal = (int)total/request.getPageSize() + 1;
-        int lastPageCount = (int)total%request.getPageSize();
-
-        if(pageTotal == request.getPageNumber()){
-            map.put("limit", lastPageCount == 0?request.getPageSize():lastPageCount);
-        }
-
-        List<TaskAndTaskAttribute> taskList = taskAndTaskAttributeMapper.getByExample(map);
+        long total = taskCenterRemoteService.getTotal();
+        List<TaskAndTaskAttribute> taskList = taskCenterRemoteService.getTaskList();
 
         List<Long> taskIdList = taskList.stream().map(TaskAndTaskAttribute::getId).collect(Collectors.toList());
 
-        TaskLogCriteria logCriteria = new TaskLogCriteria();
-        logCriteria.createCriteria().andTaskIdIn(taskIdList);
-        List<TaskLog> taskLogList = taskLogMapper.selectByExample(logCriteria);
+        List<TaskLog> taskLogList = getTaskLogs(taskIdList);
         Map<Long, List<TaskLog>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLog::getTaskId));
 
         List<TaskDetailVO> resultList = Lists.newArrayList();
@@ -854,6 +808,20 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             resultList.add(vo);
         }
         return Results.newPageResult(request, total, resultList);
+    }
+
+    private List<TaskLog> getTaskLogs(List<Long> taskIdList) {
+        TaskLogRequest request = new TaskLogRequest();
+        request.setTaskIdList(taskIdList);
+
+        TaskResult<List<TaskLogRO>> result = taskLogFacade.queryTaskLogById(request);
+
+        if(result.isSuccess()){
+            return DataConverterUtils.convert(result.getData(),TaskLog.class);
+        }
+
+        return Lists.newArrayList();
+
     }
 
 
@@ -1239,5 +1207,106 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                 return DateUtils.getTodayBeginDate(request.getEndDate());
         }
         return DateUtils.getTodayBeginDate(new Date());
+    }
+
+    private class TaskCenterRemoteService {
+        private boolean myResult;
+        private StatDayRequest request;
+        private long total;
+        private List<TaskAndTaskAttribute> taskList;
+
+        public TaskCenterRemoteService(StatDayRequest request) {
+            this.request = request;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public long getTotal() {
+            return total;
+        }
+
+        public List<TaskAndTaskAttribute> getTaskList() {
+            return taskList;
+        }
+
+        public TaskCenterRemoteService invoke() {
+            TaskAndAttributeRequest rpcRequest = new TaskAndAttributeRequest();
+            Map<String, Object> map = Maps.newHashMap();
+
+            rpcRequest.setAppId(request.getAppId());
+            if (request.getSaasEnv() != 0) {
+                rpcRequest.setSaasEnv(request.getSaasEnv());
+            }
+            rpcRequest.setName(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+            if (request.getStatType() == 2) {
+                //失败的任务
+                rpcRequest.setStatus(3);
+            } else if (request.getStatType() == 3) {
+                //取消的任务
+                rpcRequest.setStatus(1);
+            } else if (request.getStatType() == 1) {
+                //成功的任务
+                rpcRequest.setStatus(2);
+            } else {
+                throw new IllegalArgumentException("statType参数有误");
+            }
+
+            if (request.getBizType() == 0) {
+                MerchantResult<List<AppBizTypeResult>> merchantResult = appBizTypeFacade.queryAllAppBizType(new BaseRequest());
+                List<AppBizType> list = DataConverterUtils.convert(merchantResult.getData(), AppBizType.class);
+                List<Byte> bizTypeList = list.stream().map(AppBizType::getBizType).collect(Collectors.toList());
+                rpcRequest.setBizTypeList(bizTypeList);
+            } else {
+                rpcRequest.setBizType(request.getBizType());
+            }
+
+
+            if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
+                rpcRequest.setWebSite(request.getWebsiteDetailName());
+                rpcRequest.setValue(request.getWebsiteDetailName());
+            }
+
+            if (request.getStartTime() != null && request.getEndTime() != null) {
+                rpcRequest.setStartTime(request.getStartTime());
+                rpcRequest.setEndTime(request.getEndTime());
+            } else if (request.getDate() != null) {
+                rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getDate()));
+                rpcRequest.setEndTime(DateUtils.getTomorrowBeginDate(request.getDate()));
+            }
+            rpcRequest.setStart(request.getOffset());
+            rpcRequest.setLimit(request.getPageSize());
+            rpcRequest.setOrderStr("createTime desc");
+
+
+            TaskPagingResult<TaskAndAttributeRO> taskPagingResult;
+
+            try{
+                taskPagingResult = taskFacade.queryTaskAndTaskAttribute(rpcRequest);
+            }catch (Exception e){
+                logger.error("请求任务中心出错", e.getMessage());
+                myResult = true;
+                return this;
+            }
+
+            logger.info("从任务中心获取数据：{}", taskPagingResult);
+            if(!taskPagingResult.isSuccess()){
+                logger.info("请求任务中心失败:{}", taskPagingResult);
+                myResult = true;
+                return this;
+            }
+
+            total = taskPagingResult.getTotal();
+            if (total <= 0) {
+                myResult = true;
+                return this;
+            }
+
+            List<TaskAndAttributeRO> list = taskPagingResult.getList();
+            taskList = DataConverterUtils.convert(list, TaskAndTaskAttribute.class);
+            myResult = false;
+            return this;
+        }
     }
 }

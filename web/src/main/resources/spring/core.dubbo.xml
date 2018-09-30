@@ -20,7 +20,7 @@
                      version="1.0.0" timeout="60000"/>
     <dubbo:reference id="alarmRecordFacade"
                      interface="com.treefinance.saas.monitor.facade.service.AlarmRecordFacade"
-                     version="1.0.0" timeout="60000" />
+                     version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="merchantBaseInfoFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade"
@@ -39,6 +39,24 @@
                      interface="com.treefinance.saas.merchant.center.facade.service.AppQuestionnaireFacade"
                      version="1.0.0" timeout="60000"/>
 
+    <dubbo:reference id="taskFacade"
+                     interface="com.treefinance.saas.taskcenter.facade.service.TaskFacade"
+                     version="1.0.0" timeout="60000" />
+    <dubbo:reference id="taskLogFacade"
+                     interface="com.treefinance.saas.taskcenter.facade.service.TaskLogFacade"
+                     version="1.0.0" timeout="60000" />
+    <dubbo:reference id="taskBuryPointLogFacade"
+                     interface="com.treefinance.saas.taskcenter.facade.service.TaskBuryPointLogFacade"
+                     version="1.0.0" timeout="60000" />
+    <dubbo:reference id="taskNextDirectiveFacade"
+                     interface="com.treefinance.saas.taskcenter.facade.service.TaskNextDirectiveFacade"
+                     version="1.0.0" timeout="60000" />
+    <dubbo:reference id="taskCallbackLogFacade"
+                     interface="com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade"
+                     version="1.0.0" timeout="60000" />
+    <dubbo:reference id="taskAttributeFacade"
+                     interface="com.treefinance.saas.taskcenter.facade.service.TaskAttributeFacade"
+                     version="1.0.0" timeout="60000" />
 
     <dubbo:reference id="appCallbackConfigFacade"
                      interface="com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade"

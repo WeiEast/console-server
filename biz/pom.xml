@@ -67,7 +67,11 @@
             <groupId>com.treefinance.saas</groupId>
             <artifactId>merchant-center-facade</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.treefinance.saas</groupId>
+            <artifactId>taskcenter-facade</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

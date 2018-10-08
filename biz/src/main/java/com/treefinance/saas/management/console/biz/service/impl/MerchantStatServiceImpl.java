@@ -816,8 +816,8 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
         TaskResult<List<TaskLogRO>> result = taskLogFacade.queryTaskLogById(request);
 
-        if(result.isSuccess()){
-            return DataConverterUtils.convert(result.getData(),TaskLog.class);
+        if (result.isSuccess()) {
+            return DataConverterUtils.convert(result.getData(), TaskLog.class);
         }
 
         return Lists.newArrayList();
@@ -1236,9 +1236,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             Map<String, Object> map = Maps.newHashMap();
 
             rpcRequest.setAppId(request.getAppId());
-            if (request.getSaasEnv() != 0) {
-                rpcRequest.setSaasEnv(request.getSaasEnv());
-            }
+            rpcRequest.setSaasEnv(request.getSaasEnv());
             rpcRequest.setName(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
             if (request.getStatType() == 2) {
                 //失败的任务
@@ -1282,16 +1280,16 @@ public class MerchantStatServiceImpl implements MerchantStatService {
 
             TaskPagingResult<TaskAndAttributeRO> taskPagingResult;
 
-            try{
+            try {
                 taskPagingResult = taskFacade.queryTaskAndTaskAttribute(rpcRequest);
-            }catch (Exception e){
+            } catch (Exception e) {
                 logger.error("请求任务中心出错", e.getMessage());
                 myResult = true;
                 return this;
             }
 
             logger.info("从任务中心获取数据：{}", taskPagingResult);
-            if(!taskPagingResult.isSuccess()){
+            if (!taskPagingResult.isSuccess()) {
                 logger.info("请求任务中心失败:{}", taskPagingResult);
                 myResult = true;
                 return this;

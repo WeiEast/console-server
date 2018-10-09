@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -47,6 +46,12 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void task() {
+    public void task() throws Exception {
+
+        this.mockMvc.perform(get(baseUrl + "/task/log/234327809106259968").contentType
+                (MediaType
+                        .APPLICATION_JSON).accept
+                (MediaType
+                        .APPLICATION_JSON));
     }
 }

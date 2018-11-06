@@ -21,12 +21,8 @@ import java.util.Objects;
 @RequestMapping("/saas/console/alarm")
 public class AlarmRecordController {
 
-
     @Autowired
     AlarmRecordService alarmRecordService;
-
-
-
 
     /**
      * 获取预警记录的列表
@@ -124,15 +120,14 @@ public class AlarmRecordController {
         return alarmRecordService.querySaasWorkerPage(request);
     }
 
-    @RequestMapping(value = "error/stat/list", produces = "application/json",method = RequestMethod.POST)
-    public SaasResult queryStatList(@RequestBody AlarmRecordRequest request){
+    @RequestMapping(value = "error/stat/list", produces = "application/json", method = RequestMethod.POST)
+    public SaasResult queryStatList(@RequestBody AlarmRecordRequest request) {
         return alarmRecordService.queryStatList(request);
     }
 
-    @RequestMapping(value = "error/list/dashboard", produces = "application/json",method = {RequestMethod.POST})
-    public SaasResult queryDashBoardAlarmRecord(@RequestBody  DashboardRequest request){
+    @RequestMapping(value = "error/list/dashboard", produces = "application/json", method = {RequestMethod.POST})
+    public SaasResult queryDashBoardAlarmRecord(@RequestBody DashboardRequest request) {
         return alarmRecordService.queryErrorRecords(request);
     }
-
 
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 加解密
  * Created by haojiahong on 2017/11/29.
  */
 @RestController
@@ -26,7 +27,6 @@ public class ToolController {
     @Autowired
     private ToolService toolService;
 
-
     @RequestMapping(value = "/knife/crypto/encrypt", method = RequestMethod.POST)
     public Object encryptDataList(@RequestBody KnifeCryptoVO paramVO) {
         if (paramVO == null || StringUtils.isBlank(paramVO.getParam())) {
@@ -36,7 +36,6 @@ public class ToolController {
         return toolService.cryptoEncryptDataList(paramVO.getParam());
     }
 
-
     @RequestMapping(value = "/knife/crypto/decrypt", method = RequestMethod.POST)
     public Object decryptDataList(@RequestBody KnifeCryptoVO paramVO) {
         if (paramVO == null || StringUtils.isBlank(paramVO.getParam())) {
@@ -45,6 +44,5 @@ public class ToolController {
         logger.info("小工具-加解密:param={}", JSON.toJSONString(paramVO));
         return toolService.cryptoDecryptDataList(paramVO.getParam());
     }
-
 
 }

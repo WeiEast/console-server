@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,10 +43,8 @@ public class ApiStatServiceImpl implements ApiStatService {
     @Autowired
     private ApiStatAccessFacade apiStatAccessFacade;
 
-
     @Autowired
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
-
 
     @Override
     public Map<String, Object> queryAllAccessList(StatRequest request) {
@@ -58,8 +55,7 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         MonitorResult<List<ApiBaseStatRO>> result = apiStatAccessFacade.queryTotalAccessList(statRequest);
         if (logger.isDebugEnabled()) {
-            logger.debug("apiStatAccessFacade.queryTotalAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+            logger.debug("apiStatAccessFacade.queryTotalAccessList() : statRequest={},result={}", JSON.toJSONString(statRequest), JSON.toJSONString(result));
         }
         Map<String, Object> wrapMap = Maps.newHashMap();
         if (CollectionUtils.isEmpty(result.getData())) {
@@ -87,7 +83,6 @@ public class ApiStatServiceImpl implements ApiStatService {
             ChartStatVO http5xxVO = new ChartStatVO();
             http5xxVO.setDataTime(ro.getDataTime());
             http5xxVO.setDataValue(ro.getHttp5xxCount());
-
 
             if (CollectionUtils.isEmpty(totalList)) {
                 totalList = Lists.newArrayList();
@@ -141,40 +136,33 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         MonitorResult<List<ApiStatDayAccessRO>> result = apiStatAccessFacade.queryDayAccessList(statRequest);
         if (logger.isDebugEnabled()) {
-            logger.debug("apiStatAccessFacade.queryDayAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+            logger.debug("apiStatAccessFacade.queryDayAccessList() : statRequest={},result={}", JSON.toJSONString(statRequest), JSON.toJSONString(result));
         }
         Map<String, Object> warpMap = Maps.newHashMap();
         if (CollectionUtils.isEmpty(result.getData())) {
             return warpMap;
         }
-        //遍历获取所有的时间节点
+        // 遍历获取所有的时间节点
         Set<Date> dataTimeSet = Sets.newHashSet();
         result.getData().forEach(ro -> {
             dataTimeSet.add(ro.getDataTime());
         });
         List<Date> dataTimeList = Lists.newArrayList(dataTimeSet);
 
-        //<appId,<dataTime,totalCount>>
+        // <appId,<dataTime,totalCount>>
         Map<String, Map<Date, Integer>> map = Maps.newHashMap();
         result.getData().forEach(ro -> {
-            Map<Date, Integer> countMap = map.get(ro.getAppId());
-            if (countMap == null || countMap.isEmpty()) {
-                countMap = Maps.newHashMap();
-                countMap.put(ro.getDataTime(), ro.getTotalCount());
-                map.put(ro.getAppId(), countMap);
-            } else {
-                countMap.put(ro.getDataTime(), ro.getTotalCount());
-            }
+            Map<Date, Integer> countMap = map.computeIfAbsent(ro.getAppId(), k -> Maps.newHashMap());
+            countMap.put(ro.getDataTime(), ro.getTotalCount());
         });
-        //填充未查到时间的数据
+        // 填充未查到时间的数据
         this.fillDataTimeMap(map, dataTimeList);
         Map<String, Map<Date, Integer>> appNameMap = this.changeKey2AppName(map);
 
         List<String> keysList = Lists.newArrayList(appNameMap.keySet()).stream().sorted((String::compareTo)).collect(Collectors.toList());
         keysList.add(0, "总访问量");
         warpMap.put("keys", keysList);
-        //计算总访问量
+        // 计算总访问量
         Map<String, List<ChartStatDayVO>> valuesMap = this.countTotalTask(appNameMap);
         warpMap.put("values", valuesMap);
         return warpMap;
@@ -182,14 +170,12 @@ public class ApiStatServiceImpl implements ApiStatService {
 
     private Map<String, List<ChartStatDayVO>> countTotalTask(Map<String, Map<Date, Integer>> appNameMap) {
         Map<String, List<ChartStatDayVO>> valuesMap = Maps.newHashMap();
-        //计算总任务量的map
+        // 计算总任务量的map
         Map<Date, Integer> totalMap = Maps.newHashMap();
         for (Map.Entry<String, Map<Date, Integer>> entry : appNameMap.entrySet()) {
             List<ChartStatVO> voList = Lists.newArrayList();
             for (Map.Entry<Date, Integer> valueEntry : entry.getValue().entrySet()) {
-                ChartStatVO vo = new ChartStatVO();
-                vo.setDataTime(valueEntry.getKey());
-                vo.setDataValue(valueEntry.getValue());
+                ChartStatVO vo = new ChartStatVO(valueEntry.getKey(), valueEntry.getValue());
                 voList.add(vo);
                 if (totalMap.get(valueEntry.getKey()) == null) {
                     totalMap.put(valueEntry.getKey(), valueEntry.getValue());
@@ -204,9 +190,7 @@ public class ApiStatServiceImpl implements ApiStatService {
         }
         List<ChartStatVO> totalVOList = Lists.newArrayList();
         for (Map.Entry<Date, Integer> entry : totalMap.entrySet()) {
-            ChartStatVO vo = new ChartStatVO();
-            vo.setDataTime(entry.getKey());
-            vo.setDataValue(entry.getValue());
+            ChartStatVO vo = new ChartStatVO(entry.getKey(), entry.getValue());
             totalVOList.add(vo);
         }
         totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
@@ -235,8 +219,7 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         MonitorResult<List<ApiStatAccessRO>> result = apiStatAccessFacade.queryStatAccessList(statRequest);
         if (logger.isDebugEnabled()) {
-            logger.debug("apiStatAccessFacade.queryStatAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+            logger.debug("apiStatAccessFacade.queryStatAccessList() : statRequest={},result={}", JSON.toJSONString(statRequest), JSON.toJSONString(result));
         }
         Map<String, Object> wrapMap = Maps.newHashMap();
         if (CollectionUtils.isEmpty(result.getData())) {
@@ -255,17 +238,12 @@ public class ApiStatServiceImpl implements ApiStatService {
             if (type == 3) {
                 vo.setDataValue(ro.getHttp4xxCount() + ro.getHttp5xxCount());
             }
-            List<ChartStatVO> list = resultMap.get(ro.getApiUrl());
-            if (CollectionUtils.isEmpty(list)) {
-                list = Lists.newArrayList();
-                list.add(vo);
-                resultMap.put(ro.getApiUrl(), list);
-            } else {
-                list.add(vo);
-            }
+
+            List<ChartStatVO> list = resultMap.computeIfAbsent(ro.getApiUrl(), k -> Lists.newArrayList());
+            list.add(vo);
         });
 
-        //list按时间由小到大排序
+        // list按时间由小到大排序
         for (Map.Entry<String, List<ChartStatVO>> entry : resultMap.entrySet()) {
             List<ChartStatVO> voList = entry.getValue().stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
             resultMap.put(entry.getKey(), voList);
@@ -285,26 +263,20 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         MonitorResult<List<ApiStatAccessRO>> result = apiStatAccessFacade.queryStatAccessList(statRequest);
         if (logger.isDebugEnabled()) {
-            logger.debug("apiStatAccessFacade.queryStatAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+            logger.debug("apiStatAccessFacade.queryStatAccessList() : statRequest={},result={}", JSON.toJSONString(statRequest), JSON.toJSONString(result));
         }
 
         List<ApiStatAccessVO> resultList = Lists.newArrayList();
         if (CollectionUtils.isEmpty(result.getData())) {
             return resultList;
         }
-        //<apiUrl,List>
+        // <apiUrl,List>
         Map<String, List<ApiStatAccessRO>> roMap = Maps.newHashMap();
         for (ApiStatAccessRO ro : result.getData()) {
-            List<ApiStatAccessRO> roList = roMap.get(ro.getApiUrl());
-            if (CollectionUtils.isEmpty(roList)) {
-                roList = Lists.newArrayList();
-                roList.add(ro);
-                roMap.put(ro.getApiUrl(), roList);
-            } else {
-                roList.add(ro);
-            }
+            List<ApiStatAccessRO> roList = roMap.computeIfAbsent(ro.getApiUrl(), k -> Lists.newArrayList());
+            roList.add(ro);
         }
+
         for (Map.Entry<String, List<ApiStatAccessRO>> entry : roMap.entrySet()) {
             ApiStatAccessVO vo = new ApiStatAccessVO();
             vo.setKey(entry.getKey());
@@ -357,8 +329,7 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         MonitorResult<List<ApiStatAccessRO>> result = apiStatAccessFacade.queryStatAccessList(statRequest);
         if (logger.isDebugEnabled()) {
-            logger.debug("apiStatAccessFacade.queryStatAccessList() : statRequest={},result={}",
-                    JSON.toJSONString(statRequest), JSON.toJSONString(result));
+            logger.debug("apiStatAccessFacade.queryStatAccessList() : statRequest={},result={}", JSON.toJSONString(statRequest), JSON.toJSONString(result));
         }
         Map<String, Object> resultMap = Maps.newHashMap();
         if (CollectionUtils.isEmpty(result.getData())) {
@@ -416,12 +387,10 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         QueryMerchantByAppIdRequest request = new QueryMerchantByAppIdRequest();
         request.setAppIds(Lists.newArrayList(map.keySet()));
-        MerchantResult<List<MerchantBaseResult>>  merchantBaseResultList = merchantBaseInfoFacade.queryMerchantBaseListByAppId(request);
-        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(merchantBaseResultList.getData(),MerchantBase.class);
-        //<appId,MerchantBase>
-        Map<String, MerchantBase> merchantBaseMap = merchantBaseList
-                .stream()
-                .collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
+        MerchantResult<List<MerchantBaseResult>> merchantBaseResultList = merchantBaseInfoFacade.queryMerchantBaseListByAppId(request);
+        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(merchantBaseResultList.getData(), MerchantBase.class);
+        // <appId,MerchantBase>
+        Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
         Map<String, Map<Date, Integer>> appNameMap = Maps.newHashMap();
         for (Map.Entry<String, Map<Date, Integer>> entry : map.entrySet()) {
             MerchantBase merchantBase = merchantBaseMap.get(entry.getKey());
@@ -433,7 +402,6 @@ public class ApiStatServiceImpl implements ApiStatService {
         }
         return appNameMap;
     }
-
 
     public void baseCheck(StatRequest request) throws IllegalArgumentException {
         if (request == null) {
@@ -472,8 +440,9 @@ public class ApiStatServiceImpl implements ApiStatService {
                 return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 7);
             case 4:
                 return org.apache.commons.lang.time.DateUtils.addHours(new Date(), -24 * 30);
+            default:
+                return null;
         }
-        return null;
     }
 
     /**
@@ -487,7 +456,9 @@ public class ApiStatServiceImpl implements ApiStatService {
         switch (dateType) {
             case 0:
                 return org.apache.commons.lang.time.DateUtils.addSeconds(request.getEndDate(), 24 * 60 * 60 - 1);
+            default:
+                return new Date();
         }
-        return new Date();
+
     }
 }

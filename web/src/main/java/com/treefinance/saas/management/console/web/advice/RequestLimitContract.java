@@ -42,6 +42,7 @@ public class RequestLimitContract {
         if (session == null) {
             throw new RequestLimitException("请求频繁，请稍后重试");
         }
+
         String ip = session.getSession().getHost();
         final Long[] limits = redisService.increaseRequestLimitCounter(ip,
                 limit.times(), limit.timeUnits());

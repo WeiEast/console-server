@@ -39,24 +39,24 @@ public class MerchantFlowConfigController {
         return Results.newSuccessResult(list);
     }
 
-    /**
-     * 批量更新
-     *
-     * @param list
-     */
-    @RequestMapping(value = "/update", produces = "application/json", method = RequestMethod.POST)
-    public Object batchUpdate(@RequestBody List<MerchantFlowConfigVO> list) {
-        if (CollectionUtils.isEmpty(list)) {
-            throw new IllegalArgumentException("parameter is error");
-        }
-        for (MerchantFlowConfigVO vo : list) {
-            if (vo.getId() == null || StringUtils.isBlank(vo.getServiceTag())) {
-                throw new IllegalArgumentException("parameter is error");
-            }
-        }
-        merchantFlowConfigService.batchUpdate(list);
-        return Results.newSuccessResult(true);
-    }
+//    /**
+//     * 批量更新
+//     *
+//     * @param list
+//     */
+//    @RequestMapping(value = "/update", produces = "application/json", method = RequestMethod.POST)
+//    public Object batchUpdate(@RequestBody List<MerchantFlowConfigVO> list) {
+//        if (CollectionUtils.isEmpty(list)) {
+//            throw new IllegalArgumentException("parameter is error");
+//        }
+//        for (MerchantFlowConfigVO vo : list) {
+//            if (vo.getId() == null || StringUtils.isBlank(vo.getServiceTag())) {
+//                throw new IllegalArgumentException("parameter is error");
+//            }
+//        }
+//        merchantFlowConfigService.batchUpdate(list);
+//        return Results.newSuccessResult(true);
+//    }
 
     /**
      * 初始化,将为配置的商户初始化为product的serviceTag

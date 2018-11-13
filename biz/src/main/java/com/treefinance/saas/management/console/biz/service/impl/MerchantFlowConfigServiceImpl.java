@@ -112,38 +112,38 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
         return result;
     }
 
-    @Override
-    public void batchUpdate(List<MerchantFlowConfigVO> list) {
-        // 发送配置变更消息
-        BatchUpdateFlowRequest request = new BatchUpdateFlowRequest();
-        List<UpdateMerchantFlowRequest> updateList = BeanUtils.convertList(list, UpdateMerchantFlowRequest.class);
-        request.setRequests(updateList);
-
-        MerchantResult<List<BatchUpdateFlowResult>> result;
-
-        try {
-            result = merchantFlowConfigFacade.batchUpdateFlowConfig(request);
-        } catch (RpcException e) {
-            logger.error("批量merchantFlowConfig更新失败,{}", e.getMessage());
-            return;
-        }
-
-        if (!result.isSuccess()) {
-            logger.error("批量merchantFlowConfig更新失败");
-            return;
-        }
-
-        List<BatchUpdateFlowResult> resultList = result.getData();
-
-        for (BatchUpdateFlowResult flowResult : resultList) {
-            if (StringUtils.isEmpty(flowResult.getAppId())) {
-                continue;
-            }
-            variableMessageNotifyService.sendVariableMessage("merchant-flow", "update", flowResult.getAppId());
-        }
-
-        logger.info("发送更新商户流量分配配置消息,list={}", JSON.toJSONString(list));
-    }
+//    @Override
+//    public void batchUpdate(List<MerchantFlowConfigVO> list) {
+//        // 发送配置变更消息
+//        BatchUpdateFlowRequest request = new BatchUpdateFlowRequest();
+//        List<UpdateMerchantFlowRequest> updateList = BeanUtils.convertList(list, UpdateMerchantFlowRequest.class);
+//        request.setRequests(updateList);
+//
+//        MerchantResult<List<BatchUpdateFlowResult>> result;
+//
+//        try {
+//            result = merchantFlowConfigFacade.batchUpdateFlowConfig(request);
+//        } catch (RpcException e) {
+//            logger.error("批量merchantFlowConfig更新失败,{}", e.getMessage());
+//            return;
+//        }
+//
+//        if (!result.isSuccess()) {
+//            logger.error("批量merchantFlowConfig更新失败");
+//            return;
+//        }
+//
+//        List<BatchUpdateFlowResult> resultList = result.getData();
+//
+//        for (BatchUpdateFlowResult flowResult : resultList) {
+//            if (StringUtils.isEmpty(flowResult.getAppId())) {
+//                continue;
+//            }
+//            variableMessageNotifyService.sendVariableMessage("merchant-flow", "update", flowResult.getAppId());
+//        }
+//
+//        logger.info("发送更新商户流量分配配置消息,list={}", JSON.toJSONString(list));
+//    }
 
     @Override
     public void init() {

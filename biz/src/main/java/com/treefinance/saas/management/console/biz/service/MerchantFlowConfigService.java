@@ -14,7 +14,7 @@ public interface MerchantFlowConfigService {
 
     List<MerchantFlowConfigVO> getList();
 
-    void batchUpdate(List<MerchantFlowConfigVO> list);
+//    void batchUpdate(List<MerchantFlowConfigVO> list);
 
     void init();
 

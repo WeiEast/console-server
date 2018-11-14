@@ -56,7 +56,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
             throw new BizException(e.getMessage());
         }
 
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             throw new BizException(result.getRetMsg());
         }
 
@@ -72,8 +72,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
 
         List<AppQuestionnaireDetailRequest> details = request.getDetails();
 
-        List<AddAppQuestDetailRequest> detailRpc = DataConverterUtils.convert(details, AddAppQuestDetailRequest
-                .class);
+        List<AddAppQuestDetailRequest> detailRpc = DataConverterUtils.convert(details, AddAppQuestDetailRequest.class);
 
         rpcRequest.setDetails(detailRpc);
 
@@ -86,10 +85,9 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
             throw new BizException(e.getMessage());
         }
 
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             throw new BizException(result.getRetMsg());
         }
-
 
         logger.info("从merchant-center获取数据：{}", result);
         return Results.newSuccessResult(result.getData());
@@ -111,7 +109,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
         }
         logger.info("从merchant-center获取数据：{}", result);
 
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             throw new BizException(result.getRetMsg());
         }
 
@@ -124,8 +122,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
 
         List<AppQuestionnaireDetailRequest> details = request.getDetails();
 
-        List<AddAppQuestDetailRequest> detailRpc = DataConverterUtils.convert(details, AddAppQuestDetailRequest
-                .class);
+        List<AddAppQuestDetailRequest> detailRpc = DataConverterUtils.convert(details, AddAppQuestDetailRequest.class);
         rpcRequest.setDetails(detailRpc);
 
         MerchantResult<Boolean> result;
@@ -137,7 +134,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
             throw new BizException(e.getMessage());
         }
 
-        if(!result.isSuccess()){
+        if (!result.isSuccess()) {
             throw new BizException(result.getRetMsg());
         }
 

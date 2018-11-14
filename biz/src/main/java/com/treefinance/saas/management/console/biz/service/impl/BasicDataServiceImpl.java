@@ -41,7 +41,6 @@ public class BasicDataServiceImpl implements BasicDataService {
     @Autowired
     BasicDataHistoryFacade basicDataHistoryFacade;
 
-
     @Override
     public SaasResult<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
         com.treefinance.saas.monitor.facade.domain.base.PageRequest _pageRequest = new com.treefinance.saas.monitor.facade.domain.base.PageRequest();
@@ -56,9 +55,7 @@ public class BasicDataServiceImpl implements BasicDataService {
 
         return Results.newPageResult(pageRequest, monitorResult.getTotalCount(), basicDataVOList);
 
-
     }
-
 
     @Override
     public SaasResult<Boolean> addBasciData(BasicDataVO basicDataVO) {
@@ -85,7 +82,6 @@ public class BasicDataServiceImpl implements BasicDataService {
         }
         return Results.newSuccessResult(monitorResult.getData());
 
-
     }
 
     @Override
@@ -100,7 +96,6 @@ public class BasicDataServiceImpl implements BasicDataService {
         logger.info("查询到的数据名字为{}", monitorResult.getData().toString());
         return Results.newSuccessResult(monitorResult.getData());
     }
-
 
     @Override
     public SaasResult<String> getdataNameById(BasicDataVO basicDataVO) {
@@ -128,6 +123,7 @@ public class BasicDataServiceImpl implements BasicDataService {
      * @param request
      * @return
      */
+    @Override
     public SaasResult<Map<String, Object>> queryHistory(BasicDataHistoryRequest request) {
         MonitorResult<List<BasicDataHistoryRO>> result = basicDataHistoryFacade.queryList(request);
         List<BasicDataHistoryVO> list = Lists.newArrayList();

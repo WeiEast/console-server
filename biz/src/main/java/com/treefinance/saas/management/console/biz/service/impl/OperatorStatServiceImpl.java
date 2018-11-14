@@ -65,7 +65,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     @Autowired
     private CallbackFailureReasonStatAccessFacade callbackFailureReasonStatAccessFacade;
 
-
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
@@ -209,8 +208,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
             request.setEndDate(new Date());
         }
         if (Objects.isEmpty(request.getStartDate())) {
-            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -3,
-                    TimeUnit.MONTH));
+            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -3, TimeUnit.MONTH));
         }
 
         List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
@@ -225,26 +223,22 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         }
 
         List<OperatorAllStatDayAccessRO> list = rpcDayResult.getData();
-        //根据年月分组
-        Map<String, List<OperatorAllStatDayAccessRO>> map = list.stream().filter(operatorAllStatDayAccessRO ->
-                "virtual_total_stat_appId".equals(operatorAllStatDayAccessRO.getAppId()))
-                .collect(Collectors.groupingBy
-                        (operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
+        // 根据年月分组
+        Map<String, List<OperatorAllStatDayAccessRO>> map =
+            list.stream().filter(operatorAllStatDayAccessRO -> "virtual_total_stat_appId".equals(operatorAllStatDayAccessRO.getAppId()))
+                .collect(Collectors.groupingBy(operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
 
         for (String key : map.keySet()) {
             List<OperatorAllStatDayAccessRO> value = map.get(key);
 
             calcRate(result, key, value);
         }
-        result = result.stream().sorted(Comparator.comparing(OperatorStatDayConvertRateVo::getDataTime)).collect(Collectors
-                .toList());
+        result = result.stream().sorted(Comparator.comparing(OperatorStatDayConvertRateVo::getDataTime)).collect(Collectors.toList());
 
         return Results.newSuccessResult(result);
     }
 
-
-    private void calcRate(List<OperatorStatDayConvertRateVo> result, String date,
-                          List<OperatorAllStatDayAccessRO> filteredList) {
+    private void calcRate(List<OperatorStatDayConvertRateVo> result, String date, List<OperatorAllStatDayAccessRO> filteredList) {
 
         int entryCount = 0, succCount = 0;
 
@@ -257,9 +251,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
 
         OperatorStatDayConvertRateVo rateVO = new OperatorStatDayConvertRateVo();
 
-        BigDecimal rate = entryCount == 0 ? BigDecimal.ZERO : new BigDecimal(succCount).divide(new BigDecimal
-                (entryCount), 4, RoundingMode
-                .HALF_UP).multiply(new BigDecimal(100));
+        BigDecimal rate = entryCount == 0 ? BigDecimal.ZERO : new BigDecimal(succCount).divide(new BigDecimal(entryCount), 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100));
 
         rateVO.setDataValue(rate);
         rateVO.setDataTime(date);
@@ -274,7 +266,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         totalVO.setAppId("virtual_total_stat_appId");
         totalVO.setAppName("所有商户");
         result.add(totalVO);
-
 
         QueryAppBizLicenseByBizTypeRequest queryAppBizLicenseByBizTypeRequest = new QueryAppBizLicenseByBizTypeRequest();
         queryAppBizLicenseByBizTypeRequest.setBizType(EBizType.OPERATOR.getCode());
@@ -291,8 +282,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return Results.newSuccessResult(result);
         }
-        merchantBaseList = merchantBaseList.stream()
-                .sorted((o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime())).collect(Collectors.toList());
+        merchantBaseList = merchantBaseList.stream().sorted((o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime())).collect(Collectors.toList());
         for (MerchantBase merchantBase : merchantBaseList) {
             MerchantSimpleVO vo = new MerchantSimpleVO();
             vo.setAppId(merchantBase.getAppId());
@@ -321,7 +311,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         List<OperatorStatAccessRO> dataList = rpcResult.getData();
         Map<Date, List<OperatorStatAccessRO>> dateMap = dataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getDataTime));
         List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins(), 1);
-        //<时间,<运营商名称,数值>>
+        // <时间,<运营商名称,数值>>
         Map<String, Map<String, String>> everyOneMap = Maps.newHashMap();
         for (Date date : dateList) {
             StringBuilder sb = new StringBuilder();
@@ -404,7 +394,6 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         return Results.newSuccessResult(map);
     }
 
-
     @Override
     public Object initAlarmHistoryData(OperatorStatRequest request) {
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
@@ -424,18 +413,14 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setGroupCode(request.getGroupCode());
         rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getDataDate()));
         rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getDataDate()));
-        MonitorResult<List<CallbackFailureReasonStatDayAccessRO>> rpcResult =
-                callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatDayAccessList(rpcRequest);
+        MonitorResult<List<CallbackFailureReasonStatDayAccessRO>> rpcResult = callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatDayAccessList(rpcRequest);
         List<CallbackFailureReasonVO> result = Lists.newArrayList();
         List<CallbackFailureReasonStatDayAccessRO> rpcDataList = rpcResult.getData();
         if (CollectionUtils.isEmpty(rpcDataList)) {
             return Results.newSuccessResult(result);
         }
         for (CallbackFailureReasonStatDayAccessRO rpcData : rpcDataList) {
-            CallbackFailureReasonVO vo = new CallbackFailureReasonVO();
-            vo.setFailureTotalCount(rpcData.getTotalCount());
-            vo.setUnKnownReasonCount(rpcData.getUnKnownReasonCount());
-            vo.setPersonalReasonCount(rpcData.getPersonalReasonCount());
+            CallbackFailureReasonVO vo = new CallbackFailureReasonVO(rpcData.getTotalCount(), rpcData.getUnKnownReasonCount(), rpcData.getPersonalReasonCount());
             result.add(vo);
         }
         return Results.newSuccessResult(result);
@@ -452,18 +437,14 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         rpcRequest.setStartTime(request.getDataTime());
         rpcRequest.setEndTime(org.apache.commons.lang3.time.DateUtils.addMinutes(request.getDataTime(), 30));
         rpcRequest.setIntervalMins(30);
-        MonitorResult<List<CallbackFailureReasonStatAccessRO>> rpcResult =
-                callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatAccessList(rpcRequest);
+        MonitorResult<List<CallbackFailureReasonStatAccessRO>> rpcResult = callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatAccessList(rpcRequest);
         List<CallbackFailureReasonVO> result = Lists.newArrayList();
         List<CallbackFailureReasonStatAccessRO> rpcDataList = rpcResult.getData();
         if (CollectionUtils.isEmpty(rpcDataList)) {
             return Results.newSuccessResult(result);
         }
         for (CallbackFailureReasonStatAccessRO rpcData : rpcDataList) {
-            CallbackFailureReasonVO vo = new CallbackFailureReasonVO();
-            vo.setFailureTotalCount(rpcData.getTotalCount());
-            vo.setUnKnownReasonCount(rpcData.getUnKnownReasonCount());
-            vo.setPersonalReasonCount(rpcData.getPersonalReasonCount());
+            CallbackFailureReasonVO vo = new CallbackFailureReasonVO(rpcData.getTotalCount(), rpcData.getUnKnownReasonCount(), rpcData.getPersonalReasonCount());
             result.add(vo);
         }
         return Results.newSuccessResult(result);

@@ -15,6 +15,14 @@ public class CallbackFailureReasonVO implements Serializable {
     private Integer unKnownReasonCount;
     private Integer personalReasonCount;
 
+    public CallbackFailureReasonVO() {}
+
+    public CallbackFailureReasonVO(Integer failureTotalCount, Integer unKnownReasonCount, Integer personalReasonCount) {
+        this.failureTotalCount = failureTotalCount;
+        this.unKnownReasonCount = unKnownReasonCount;
+        this.personalReasonCount = personalReasonCount;
+    }
+
     public Integer getFailureTotalCount() {
         return failureTotalCount;
     }

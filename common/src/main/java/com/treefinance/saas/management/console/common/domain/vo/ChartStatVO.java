@@ -10,9 +10,15 @@ public class ChartStatVO implements Serializable {
 
     private static final long serialVersionUID = -4734492990487958188L;
 
-    private Date dataTime;//时间 x轴
+    /**
+     * 时间 x轴
+     */
+    private Date dataTime;
 
-    private Integer dataValue;//统计量 y轴
+    /**
+     * 统计量 y轴
+     */
+    private Integer dataValue;
 
     public ChartStatVO() {
 

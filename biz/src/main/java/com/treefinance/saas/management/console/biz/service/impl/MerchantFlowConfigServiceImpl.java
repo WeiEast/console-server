@@ -9,7 +9,6 @@ import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
-import com.treefinance.saas.management.console.biz.service.dao.MerchantFlowConfigDao;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowEnvQuotaVO;
@@ -48,8 +47,6 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
     private static Logger logger = LoggerFactory.getLogger(MerchantFlowConfigService.class);
 
 
-    @Autowired
-    private MerchantFlowConfigDao merchantFlowConfigDao;
 
     @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;

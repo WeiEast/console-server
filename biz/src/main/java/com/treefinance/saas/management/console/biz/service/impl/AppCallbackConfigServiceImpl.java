@@ -60,7 +60,6 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
 
-
     @Autowired
     private AppLicenseService appLicenseService;
 
@@ -72,16 +71,13 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Autowired
     private ISecurityCryptoService iSecurityCryptoService;
 
-
     @Override
     public SaasResult<Map<String, Object>> getList(PageRequest request) {
-        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
-                .merchant.center.facade.request.common.PageRequest();
+        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas.merchant.center.facade.request.common.PageRequest();
 
         pageRequest.setPageNum(request.getPageNumber());
         pageRequest.setPageSize(request.getPageSize());
-        MerchantResult<List<AppCallbackConfigResult>> result = appCallbackConfigFacade.queryAppCallbackConfig
-                (pageRequest);
+        MerchantResult<List<AppCallbackConfigResult>> result = appCallbackConfigFacade.queryAppCallbackConfig(pageRequest);
 
         if (!result.isSuccess()) {
             logger.error("获取配置列表失败，错误信息：{}", result.getRetMsg());
@@ -172,17 +168,13 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         AddAppCallbackConfigRequest request = new AddAppCallbackConfigRequest();
         BeanUtils.copyProperties(appCallbackConfigVO, request);
 
-
         List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
         List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
         request.setBizTypes(list);
 
-
         AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
         AppCallbackDataTypeRequest dataType = getAppCallbackDataTypeRequest(dataTypeVO);
         request.setDataTypeVO(dataType);
-
-
 
         MerchantResult<AddAppCallbackConfigResult> result = appCallbackConfigFacade.addAppCallbackConfig(request);
 
@@ -201,11 +193,9 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
         BeanUtils.copyProperties(appCallbackConfigVO, request);
 
-
         List<AppCallbackBizVO> bizVOList = appCallbackConfigVO.getBizTypes();
         List<AddAppCallbackBizRequest> list = getAddAppCallbackBizRequests(bizVOList);
         request.setBizTypes(list);
-
 
         AppCallbackDataTypeVO dataTypeVO = appCallbackConfigVO.getDataTypeVO();
 
@@ -276,7 +266,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     public List<AppBizTypeVO> getCallbackBizList() {
         List<AppBizTypeVO> appBizTypeVOList = Lists.newArrayList();
         AppBizTypeVO allVO = new AppBizTypeVO();
-        allVO.setBizType((byte) 0);
+        allVO.setBizType((byte)0);
         allVO.setBizName("全部");
         appBizTypeVOList.add(0, allVO);
         MerchantResult<List<AppBizTypeSimpleResult>> result = null;
@@ -288,7 +278,6 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             return appBizTypeVOList;
         }
 
-
         if (result.isSuccess()) {
             List<AppBizTypeSimpleResult> list = result.getData();
             for (AppBizTypeSimpleResult simpleResult : list) {
@@ -297,7 +286,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 appBizTypeVOList.add(vo);
             }
         }
-        //在回调中需要增加一个全部类型
+        // 在回调中需要增加一个全部类型
 
         return appBizTypeVOList;
     }
@@ -334,7 +323,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Transactional
     public void initHistorySecretKey() {
         GetAppCallBackConfigByIsNewKeyRequest request = new GetAppCallBackConfigByIsNewKeyRequest();
-        request.setIsNewKey((byte) 1);
+        request.setIsNewKey((byte)1);
         MerchantResult<List<AppCallbackResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigByIsNewKey(request);
         List<AppCallbackConfig> configList = DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
         for (AppCallbackConfig config : configList) {
@@ -360,16 +349,6 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
         }
 
-    }
-
-    private String wrapNotifyModelName(Byte notifyModel) {
-        if (notifyModel == 0) {
-            return "URL";
-        }
-        if (notifyModel == 1) {
-            return "数据";
-        }
-        return "未定义";
     }
 
     private String wrapBizTypeName(Byte bizType) {

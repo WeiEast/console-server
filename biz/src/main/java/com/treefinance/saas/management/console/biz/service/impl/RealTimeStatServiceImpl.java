@@ -132,7 +132,6 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         return result;
     }
 
-
     private Map<String, List<ChartStatVO>> getValueMap(List<RealTimeStatAccessRO> rpcList, List<String> statCodeKeyList) {
         Map<String, List<ChartStatVO>> valueMap = Maps.newHashMap();
         for (RealTimeStatAccessRO realTimeStatAccessRO : rpcList) {
@@ -157,7 +156,6 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         }
         return valueMap;
     }
-
 
     private Map<String, List<ChartStatVO>> changeValueMap(Map<String, List<ChartStatVO>> valueMap) {
         Map<String, List<ChartStatVO>> result = Maps.newHashMap();
@@ -193,7 +191,6 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         return result;
     }
 
-
     /**
      * 获取开始时间
      *
@@ -217,8 +214,9 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
             case 5:
                 return DateUtils.addHours(new Date(), -24 * 3);
             default:
+                return null;
         }
-        return null;
+
     }
 
     /**
@@ -238,8 +236,9 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
                 }
                 return endDate;
             default:
+                return new Date();
         }
-        return new Date();
+
     }
 
 }

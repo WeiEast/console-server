@@ -28,7 +28,6 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 
-
 import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
 import net.sf.json.JSONArray;
 import net.sf.json.JsonConfig;
@@ -55,7 +54,6 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppBizLicenseServiceImpl.class);
 
-
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
     @Resource
@@ -64,7 +62,6 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
     DiamondConfig diamondConfig;
-
 
     @Override
     public List<AppBizLicenseVO> selectBizLicenseByAppIdBizType(AppBizLicenseRequest request) {
@@ -98,7 +95,6 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
     public Boolean updateAppBizLicense(AppBizLicenseVO request) {
         Assert.notNull(request.getAppId(), "appId不能为空");
         Assert.notNull(request.getBizType(), "bizType不能为空");
-
 
         UpdateAppBizLicenseRequest updateAppBizLicenseRequest = new UpdateAppBizLicenseRequest();
         BeanUtils.copyProperties(request, updateAppBizLicenseRequest);
@@ -144,7 +140,6 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
         return appBizLicenseVOList;
     }
-
 
     @Override
     public Boolean updateQuota(AppBizLicenseVO request) {
@@ -227,10 +222,9 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             logger.error("分页查找商户户及商户相关信息失败，错误信息:{}", merchantResult.getRetMsg());
         }
         List<RawdataDomainConfig> list = diamondConfig.getRawDataDomainConfigList();
-        Map<String, RawdataDomainConfig> appleMap =  new HashMap<>();
-        for(RawdataDomainConfig rawdataDomainConfig:list)
-        {
-            appleMap.put(rawdataDomainConfig.getSystemSymbol(),rawdataDomainConfig);
+        Map<String, RawdataDomainConfig> appleMap = new HashMap<>();
+        for (RawdataDomainConfig rawdataDomainConfig : list) {
+            appleMap.put(rawdataDomainConfig.getSystemSymbol(), rawdataDomainConfig);
         }
 
         String url = appleMap.get("rawdatacentral").getDomian() + "app/crawler/getList";

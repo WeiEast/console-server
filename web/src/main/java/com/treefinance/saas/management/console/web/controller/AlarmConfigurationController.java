@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
+ * 预警配置管理
  * @author chengtong
  * @date 18/7/19 15:47
  */

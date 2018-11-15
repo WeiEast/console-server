@@ -41,7 +41,6 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
     @Autowired
     protected CallbackSecureHandler callbackSecureHandler;
 
-
     @Override
     public SaasResult<Map<String, Object>> findPageByExample(DsDataApiRequest request) {
         DataApiRawResultRequest dataApiRawResultRequest = new DataApiRawResultRequest();
@@ -50,7 +49,6 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
         List<DataApiRawResultVO> voList = dtoList.stream().map(dto -> convert2VO(dto)).collect(Collectors.toList());
         return Results.newPageResult(request, dataApiRawResultFacade.count(dataApiRawResultRequest), voList);
     }
-
 
     private DataApiRawResultVO convert2VO(DataApiRawResultDTO dto) {
         DataApiRawResultVO vo = new DataApiRawResultVO();
@@ -89,23 +87,6 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
             logger.error("oss下载解密数据失败,ossUrl - {}", ossUrl, e);
             return null;
         }
-    }
-
-
-    private String jsonMerge(JSONObject jsonObject) {
-        Map<String, Object> map = jsonObject;
-        map.forEach((k, v) -> {
-            if (v instanceof Long) {
-                map.put(k, String.valueOf(v));
-            }
-            if (v instanceof JSONObject) {
-                jsonMerge((JSONObject) v);
-            }
-            if (v instanceof JSONArray) {
-                ((JSONArray) v).forEach(j -> jsonMerge((JSONObject) j));
-            }
-        });
-        return JSON.toJSONString(map);
     }
 
 }

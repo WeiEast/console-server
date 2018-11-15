@@ -3,16 +3,11 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
-import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
-import com.treefinance.commonservice.uid.UidGenerator;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
-import com.treefinance.saas.management.console.biz.service.AppLicenseService;
-import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
@@ -20,15 +15,21 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataT
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
-import com.treefinance.saas.management.console.dao.entity.*;
-import com.treefinance.saas.management.console.dao.mapper.*;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.*;
+import com.treefinance.saas.merchant.center.facade.request.console.AddAppCallbackBizRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.AddAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.AppCallbackDataTypeRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.GetAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.center.facade.request.console.UpdateCallbackConfigRequest;
 import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
-import com.treefinance.saas.merchant.center.facade.result.console.*;
-import com.treefinance.saas.merchant.center.facade.result.grapsever.AppCallbackResult;
+import com.treefinance.saas.merchant.center.facade.result.console.AddAppCallbackConfigResult;
+import com.treefinance.saas.merchant.center.facade.result.console.AppBizTypeSimpleResult;
+import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackBizSimpleResult;
+import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackConfigResult;
+import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackDataTypeResult;
+import com.treefinance.saas.merchant.center.facade.result.console.DeleteAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade;
 import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
 import org.apache.commons.lang3.StringUtils;
@@ -38,14 +39,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by haojiahong on 2017/7/21.
@@ -59,17 +59,9 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     private AppCallbackConfigFacade appCallbackConfigFacade;
     @Resource
     private AppBizTypeFacade appBizTypeFacade;
-
-    @Autowired
-    private AppLicenseService appLicenseService;
-
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
 
-    @Autowired
-    private AppCallbackConfigBackupMapper appCallbackConfigBackupMapper;
-    @Autowired
-    private ISecurityCryptoService iSecurityCryptoService;
 
     @Override
     public SaasResult<Map<String, Object>> getList(PageRequest request) {
@@ -317,38 +309,6 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             voList.add(vo);
         }
         return voList;
-    }
-
-    @Override
-    @Transactional
-    public void initHistorySecretKey() {
-        GetAppCallBackConfigByIsNewKeyRequest request = new GetAppCallBackConfigByIsNewKeyRequest();
-        request.setIsNewKey((byte)1);
-        MerchantResult<List<AppCallbackResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigByIsNewKey(request);
-        List<AppCallbackConfig> configList = DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
-        for (AppCallbackConfig config : configList) {
-            CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(config.getId());
-            if (callbackLicenseDTO == null) {
-                logger.info("初始化商户历史回调密钥时,appId={},configId={}的回调配置在redis中未查询到回调密钥.", config.getAppId(), config.getId());
-            } else {
-
-                AppCallbackConfigBackupCriteria backupCriteria = new AppCallbackConfigBackupCriteria();
-                backupCriteria.createCriteria().andCallBackConfigIdEqualTo(config.getId());
-                List<AppCallbackConfigBackup> list = appCallbackConfigBackupMapper.selectByExample(backupCriteria);
-                if (!CollectionUtils.isEmpty(list)) {
-                    logger.info("初始化商户历史回调密钥时,appId={},configId={}的回调配置在backup备份表中已存在,不再初始化.", config.getAppId(), config.getId());
-                    continue;
-                }
-                AppCallbackConfigBackup backup = new AppCallbackConfigBackup();
-                backup.setId(UidGenerator.getId());
-                backup.setCreateTime(config.getCreateTime());
-                backup.setCallBackConfigId(config.getId());
-                backup.setDataSecretKey(iSecurityCryptoService.encrypt(callbackLicenseDTO.getDataSecretKey(), EncryptionIntensityEnum.NORMAL));
-                appCallbackConfigBackupMapper.insertSelective(backup);
-            }
-
-        }
-
     }
 
     private String wrapBizTypeName(Byte bizType) {

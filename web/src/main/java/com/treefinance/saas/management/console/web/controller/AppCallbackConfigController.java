@@ -9,7 +9,11 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfi
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackUrlVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -75,9 +79,4 @@ public class AppCallbackConfigController {
         return Results.newSuccessResult(result);
     }
 
-    @RequestMapping(value = "/history/secretkey/init")
-    public Object initHistorySecretKey() {
-        appCallbackConfigService.initHistorySecretKey();
-        return Results.newSuccessResult("商户历史回调密钥初始化成功!");
-    }
 }

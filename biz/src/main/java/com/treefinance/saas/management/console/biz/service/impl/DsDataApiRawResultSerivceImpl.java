@@ -1,7 +1,6 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +14,6 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.DsDataApiRawResultSerivce;
-import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.request.DsDataApiRequest;
 import com.treefinance.saas.management.console.common.domain.vo.DataApiRawResultVO;
 import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
@@ -46,7 +44,7 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
         DataApiRawResultRequest dataApiRawResultRequest = new DataApiRawResultRequest();
         BeanUtils.copyProperties(request, dataApiRawResultRequest);
         List<DataApiRawResultDTO> dtoList = dataApiRawResultFacade.query(dataApiRawResultRequest);
-        List<DataApiRawResultVO> voList = dtoList.stream().map(dto -> convert2VO(dto)).collect(Collectors.toList());
+        List<DataApiRawResultVO> voList = dtoList.stream().map(this::convert2VO).collect(Collectors.toList());
         return Results.newPageResult(request, dataApiRawResultFacade.count(dataApiRawResultRequest), voList);
     }
 
@@ -73,20 +71,18 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
     }
 
     private String getOssJson(String appId, String ossUrl) {
-        AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
-        String secretKey = appLicenseDTO.getDataSecretKey();
         try {
             byte[] result = RemoteDataDownloadUtils.download(ossUrl, byte[].class);
-            if (result == null) {
-                logger.info("oss下载数据失败,数据为空,ossUrl - {}", ossUrl);
-                return null;
+            if (result != null) {
+                String secretKey = appLicenseService.getAppDataSecretKeyByAppId(appId);
+                return callbackSecureHandler.decryptByAES(result, secretKey);
+            } else {
+                logger.warn("oss下载数据失败,数据为空,ossUrl - {}", ossUrl);
             }
-            String data = callbackSecureHandler.decryptByAES(result, secretKey);
-            return data;
         } catch (Exception e) {
             logger.error("oss下载解密数据失败,ossUrl - {}", ossUrl, e);
-            return null;
         }
+        return null;
     }
 
 }

@@ -24,10 +24,10 @@ import java.util.List;
 public class AlarmConfigurationController {
 
     @Autowired
-    AlarmConfigService alarmConfigService;
+    private AlarmConfigService alarmConfigService;
 
     @Autowired
-    AlarmExcuteLogService alarmExcuteLogService;
+    private AlarmExcuteLogService alarmExcuteLogService;
 
     /**
      * 获取预警执行日志的列表

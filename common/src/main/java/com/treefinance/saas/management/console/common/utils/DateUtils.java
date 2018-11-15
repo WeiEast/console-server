@@ -262,7 +262,9 @@ public class DateUtils {
     }
 
     public static boolean between(Date start, Date end) {
-        if (start.after(end)) return false;
+        if (start.after(end)) {
+            return false;
+        }
         Date today = new Date();
         return start.before(today) && end.after(today);
     }

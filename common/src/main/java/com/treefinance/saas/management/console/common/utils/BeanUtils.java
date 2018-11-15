@@ -56,7 +56,9 @@ public final class BeanUtils {
 
     public static <S, T> List<T> convertList(List<S> request, Class<T> cls) {
         List<T> result = Lists.newArrayList();
-        if (request == null) return result;
+        if (request == null) {
+            return result;
+        }
         for (S obj : request) {
             try {
                 T target = cls.newInstance();
@@ -83,7 +85,8 @@ public final class BeanUtils {
         String str = checkNull(() -> map.get("2").get(0));
         String str1 = checkNull(() -> map.get("1").get(1));
         System.out.println(str);
-        if (str == null)
+        if (str == null) {
             return;
+        }
     }
 }

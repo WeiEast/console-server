@@ -84,6 +84,7 @@ public class RedisDaoImpl implements RedisDao {
     /**
      * @return the redisTemplate
      */
+    @Override
     public RedisTemplate<String, String> getRedisTemplate() {
         return redisTemplate;
     }

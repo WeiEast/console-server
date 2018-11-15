@@ -22,7 +22,7 @@ import java.util.Objects;
 public class AlarmRecordController {
 
     @Autowired
-    AlarmRecordService alarmRecordService;
+    private AlarmRecordService alarmRecordService;
 
     /**
      * 获取预警记录的列表

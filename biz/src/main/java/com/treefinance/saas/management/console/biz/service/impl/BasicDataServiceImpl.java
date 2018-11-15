@@ -36,10 +36,10 @@ public class BasicDataServiceImpl implements BasicDataService {
     private static final Logger logger = LoggerFactory.getLogger(BasicDataService.class);
 
     @Autowired
-    BasicDataFacade basicDataFacade;
+    private BasicDataFacade basicDataFacade;
 
     @Autowired
-    BasicDataHistoryFacade basicDataHistoryFacade;
+    private BasicDataHistoryFacade basicDataHistoryFacade;
 
     @Override
     public SaasResult<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {

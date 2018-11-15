@@ -24,7 +24,7 @@ import java.util.List;
 public class EmailStatServiceImpl implements EmailStatService {
 
     @Autowired
-    EmailStatAccessFacade emailStatAccessFacade;
+    private EmailStatAccessFacade emailStatAccessFacade;
 
     @Override
     public Object queryEmailMonitorDayAccessList(EmailStatRequest request) {

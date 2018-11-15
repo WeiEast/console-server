@@ -25,7 +25,7 @@ public class StatGroupController {
     private static  final Logger logger = LoggerFactory.getLogger(StatGroupController.class);
 
     @Autowired
-    StatGroupService groupStatService;
+    private StatGroupService groupStatService;
 
 
     @RequestMapping(value = "query", method = RequestMethod.POST)

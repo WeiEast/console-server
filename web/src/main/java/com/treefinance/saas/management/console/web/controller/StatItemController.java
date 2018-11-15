@@ -23,7 +23,7 @@ public class StatItemController {
     private static final Logger logger = LoggerFactory.getLogger(StatItemController.class);
 
     @Autowired
-    StatItemService statItemService;
+    private StatItemService statItemService;
 
 
     @RequestMapping(value = "query", method = {RequestMethod.POST, RequestMethod.GET})

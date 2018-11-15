@@ -28,7 +28,7 @@ public class StatTemplateController {
 
 
     @Autowired
-    StatTemplateService templateStatService;
+    private StatTemplateService templateStatService;
 
 
     /**

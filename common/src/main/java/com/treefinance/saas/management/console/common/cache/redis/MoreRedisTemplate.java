@@ -190,6 +190,7 @@ public class MoreRedisTemplate extends RedisTemplate<String, Object> implements
         return super.opsForValue().getAndSet(key, value);
     }
 
+    @Override
     public Boolean acquireLock(final String lock, long expired) {
         long value = System.currentTimeMillis() + expired + 1;
         Boolean acquired = this.setNX(lock, value);
@@ -210,6 +211,7 @@ public class MoreRedisTemplate extends RedisTemplate<String, Object> implements
         }
     }
 
+    @Override
     public void releaseLock(final String lock) {
         long currentTime = System.currentTimeMillis();
         if (currentTime < Long.valueOf(String.valueOf(this.get(lock)))) {

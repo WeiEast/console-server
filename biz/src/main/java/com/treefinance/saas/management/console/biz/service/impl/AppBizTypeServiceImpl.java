@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -168,7 +169,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
             appBizTypeVO.setBizName(appBizType.getBizName());
             appBizTypeVOList.add(appBizTypeVO);
         }
-        appBizTypeVOList = appBizTypeVOList.stream().sorted((o1, o2) -> o1.getBizType().compareTo(o2.getBizType())).collect(Collectors.toList());
+        appBizTypeVOList = appBizTypeVOList.stream().sorted(Comparator.comparing(AppBizTypeVO::getBizType)).collect(Collectors.toList());
 
         logger.info(JSON.toJSONString(appBizTypeVOList));
 

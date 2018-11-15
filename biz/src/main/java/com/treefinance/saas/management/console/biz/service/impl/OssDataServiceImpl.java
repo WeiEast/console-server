@@ -10,10 +10,9 @@ import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
+import com.treefinance.saas.management.console.biz.service.AppLicenseServiceImpl;
 import com.treefinance.saas.management.console.biz.service.OssDataService;
 import com.treefinance.saas.management.console.common.domain.ConsoleStateCode;
-import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
-import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.request.OssDataRequest;
 import com.treefinance.saas.management.console.common.domain.vo.OssCallbackDataVO;
 import com.treefinance.saas.management.console.common.enumeration.EBizType;
@@ -59,7 +58,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -274,25 +272,14 @@ public class OssDataServiceImpl implements OssDataService {
                 return null;
             }
             if (callbackConfig.getIsNewKey() == 1) {
-                CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(callbackConfig.getId());
-                if (callbackLicenseDTO == null) {
-                    logger.error("oss数据下载,log={}未查询到秘钥信息", JSON.toJSONString(log));
-                    return null;
-                }
-                dataKey = callbackLicenseDTO.getDataSecretKey();
+                dataKey = appLicenseService.getCallbackDataSecretKeyByCallbackConfigId(callbackConfig.getId());
             } else {
                 Task task = getTask(log);
                 if (task == null) {
                     logger.error("oss数据下载,log={}未查询到任务信息", JSON.toJSONString(log));
                     return null;
                 }
-                String appId = task.getAppId();
-                AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
-                if (appLicenseDTO == null) {
-                    logger.error("oss数据下载,log={}未查询到秘钥信息", JSON.toJSONString(log));
-                    return null;
-                }
-                dataKey = appLicenseDTO.getDataSecretKey();
+                dataKey = appLicenseService.getAppDataSecretKeyByAppId(task.getAppId());
             }
         }
         //前端回调
@@ -302,13 +289,7 @@ public class OssDataServiceImpl implements OssDataService {
                 logger.error("oss数据下载,log={}未查询到任务信息", JSON.toJSONString(log));
                 return null;
             }
-            String appId = task.getAppId();
-            AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
-            if (appLicenseDTO == null) {
-                logger.error("oss数据下载,log={}未查询到秘钥信息", JSON.toJSONString(log));
-                return null;
-            }
-            dataKey = appLicenseDTO.getDataSecretKey();
+            dataKey = appLicenseService.getAppDataSecretKeyByAppId(task.getAppId());
         }
 
         if (StringUtils.isBlank(dataKey)) {

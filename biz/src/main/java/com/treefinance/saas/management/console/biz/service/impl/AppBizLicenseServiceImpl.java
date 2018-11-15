@@ -17,6 +17,7 @@ import com.treefinance.saas.management.console.common.domain.vo.AppCrawlerConfig
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
+import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.QueryAppBizLicenseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateAppBizLicenseRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateLicenseQuotaRequest;
@@ -27,10 +28,7 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantAppLic
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
-
-import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
 import net.sf.json.JSONArray;
-import net.sf.json.JsonConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +37,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by haojiahong on 2017/7/4.
@@ -61,7 +58,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
     @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
-    DiamondConfig diamondConfig;
+    private DiamondConfig diamondConfig;
 
     @Override
     public List<AppBizLicenseVO> selectBizLicenseByAppIdBizType(AppBizLicenseRequest request) {

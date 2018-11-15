@@ -29,7 +29,7 @@ public class MerchantController {
     @Autowired
     private MerchantService merchantService;
     @Autowired
-    EcommerceMonitorService ecommerceMonitorService;
+    private EcommerceMonitorService ecommerceMonitorService;
 
     @RequestMapping(value = "list", produces = "application/json")
     public SaasResult<Map<String, Object>> getMerchantList(PageRequest request) {

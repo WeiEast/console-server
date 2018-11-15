@@ -27,7 +27,7 @@ public class AlarmExcuteLogServiceImpl implements AlarmExcuteLogService {
 
 
     @Autowired
-    AlarmBasicConfigurationFacade alarmBasicConfigurationFacade;
+    private AlarmBasicConfigurationFacade alarmBasicConfigurationFacade;
 
 
     @Override

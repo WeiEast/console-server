@@ -119,7 +119,7 @@ public class ApiStatServiceImpl implements ApiStatService {
         });
         List<String> keysList = Lists.newArrayList("总访问量", "2xx量", "4xx量", "5xx量");
         for (Map.Entry<String, List<ChartStatVO>> entry : resultMap.entrySet()) {
-            List<ChartStatVO> list = entry.getValue().stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            List<ChartStatVO> list = entry.getValue().stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
             resultMap.put(entry.getKey(), list);
         }
         wrapMap.put("keys", keysList);
@@ -184,7 +184,7 @@ public class ApiStatServiceImpl implements ApiStatService {
                     totalMap.put(valueEntry.getKey(), i + valueEntry.getValue());
                 }
             }
-            voList = voList.stream().sorted(((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime()))).collect(Collectors.toList());
+            voList = voList.stream().sorted((Comparator.comparing(ChartStatVO::getDataTime))).collect(Collectors.toList());
             List<ChartStatDayVO> result = changeDate2DateStr(voList);
             valuesMap.put(entry.getKey(), result);
         }
@@ -193,7 +193,7 @@ public class ApiStatServiceImpl implements ApiStatService {
             ChartStatVO vo = new ChartStatVO(entry.getKey(), entry.getValue());
             totalVOList.add(vo);
         }
-        totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+        totalVOList = totalVOList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
         List<ChartStatDayVO> result = changeDate2DateStr(totalVOList);
         valuesMap.put("总访问量", result);
         return valuesMap;
@@ -245,7 +245,7 @@ public class ApiStatServiceImpl implements ApiStatService {
 
         // list按时间由小到大排序
         for (Map.Entry<String, List<ChartStatVO>> entry : resultMap.entrySet()) {
-            List<ChartStatVO> voList = entry.getValue().stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            List<ChartStatVO> voList = entry.getValue().stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
             resultMap.put(entry.getKey(), voList);
         }
         List<String> keysList = Lists.newArrayList(resultMap.keySet()).stream().sorted(String::compareTo).collect(Collectors.toList());
@@ -303,9 +303,9 @@ public class ApiStatServiceImpl implements ApiStatService {
                 responseTimeList.add(responseTimeVO);
                 errorList.add(errorVO);
             }
-            totalList = totalList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
-            responseTimeList = responseTimeList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
-            errorList = errorList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+            totalList = totalList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
+            responseTimeList = responseTimeList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
+            errorList = errorList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
             voMap.put("总访问量", totalList);
             voMap.put("平均响应时间", responseTimeList);
             voMap.put("请求错误", errorList);
@@ -362,7 +362,7 @@ public class ApiStatServiceImpl implements ApiStatService {
             return sortedMap;
         }
         List<Map.Entry<String, PieChartStatVO>> entryList = new ArrayList<Map.Entry<String, PieChartStatVO>>(dataMap.entrySet());
-        Collections.sort(entryList, (o1, o2) -> o2.getValue().getValue().compareTo(o1.getValue().getValue()));
+        entryList.sort((o1, o2) -> o2.getValue().getValue().compareTo(o1.getValue().getValue()));
         Iterator<Map.Entry<String, PieChartStatVO>> iter = entryList.iterator();
         Map.Entry<String, PieChartStatVO> tmpEntry = null;
         while (iter.hasNext()) {
@@ -376,9 +376,7 @@ public class ApiStatServiceImpl implements ApiStatService {
         for (Map.Entry<String, Map<Date, Integer>> entry : map.entrySet()) {
             Map<Date, Integer> valueMap = entry.getValue();
             for (Date date : dateList) {
-                if (valueMap.get(date) == null) {
-                    valueMap.put(date, 0);
-                }
+                valueMap.putIfAbsent(date, 0);
             }
         }
     }

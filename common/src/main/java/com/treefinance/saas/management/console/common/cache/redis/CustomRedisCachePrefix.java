@@ -46,8 +46,9 @@ public class CustomRedisCachePrefix implements RedisCachePrefix {
 
   @Override
   public byte[] prefix(String cacheName) {
-    if (this.delimiter == null)
-      this.delimiter = ":";
+    if (this.delimiter == null) {
+        this.delimiter = ":";
+    }
 
     return serializer.serialize(this.prefix != null ? (this.prefix.concat(delimiter) + cacheName
         .concat(delimiter)) : cacheName.concat(delimiter));

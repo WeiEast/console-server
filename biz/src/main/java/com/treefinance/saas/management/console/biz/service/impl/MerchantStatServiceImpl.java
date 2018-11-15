@@ -469,39 +469,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return result;
     }
 
-    private void putDataIntoValueMap(List<MerchantStatAccessRO> roList, Map<Date, Integer> valueTotalMap, Map<Date, Integer> valueSuccessMap, Map<Date, Integer> valueFailMap,
-        Map<Date, Integer> valueCancelMap) {
-        roList.forEach(ro -> {
-            if (valueTotalMap.get(ro.getDataTime()) == null) {
-                valueTotalMap.put(ro.getDataTime(), ro.getTotalCount());
-            } else {
-                Integer newValue = valueTotalMap.get(ro.getDataTime()) + ro.getTotalCount();
-                valueTotalMap.put(ro.getDataTime(), newValue);
-            }
-
-            if (valueSuccessMap.get(ro.getDataTime()) == null) {
-                valueSuccessMap.put(ro.getDataTime(), ro.getSuccessCount());
-            } else {
-                Integer newValue = valueSuccessMap.get(ro.getDataTime()) + ro.getSuccessCount();
-                valueSuccessMap.put(ro.getDataTime(), newValue);
-            }
-
-            if (valueFailMap.get(ro.getDataTime()) == null) {
-                valueFailMap.put(ro.getDataTime(), ro.getFailCount());
-            } else {
-                Integer newValue = valueFailMap.get(ro.getDataTime()) + ro.getFailCount();
-                valueFailMap.put(ro.getDataTime(), newValue);
-            }
-
-            if (valueCancelMap.get(ro.getDataTime()) == null) {
-                valueCancelMap.put(ro.getDataTime(), ro.getCancelCount());
-            } else {
-                Integer newValue = valueCancelMap.get(ro.getDataTime()) + ro.getCancelCount();
-                valueCancelMap.put(ro.getDataTime(), newValue);
-            }
-        });
-    }
-
     @Override
     public List<MerchantStatOverviewTimeVO> queryOverviewAccessList(StatRequest request) {
         Integer statType = request.getStatType();
@@ -912,30 +879,6 @@ public class MerchantStatServiceImpl implements MerchantStatService {
         return valuesMap;
     }
 
-    private Map<String, Map<Date, BigDecimal>> countRateTask(Map<Date, Integer> valueTotalMap, Map<Date, Integer> valueSuccessMap, Map<Date, Integer> valueFailMap,
-        Map<Date, Integer> valueCancelMap) {
-        Map<String, Map<Date, BigDecimal>> valuesMap = Maps.newLinkedHashMap();
-        Map<Date, BigDecimal> successRateMap = Maps.newHashMap();
-        Map<Date, BigDecimal> failRateMap = Maps.newHashMap();
-        Map<Date, BigDecimal> cancelRateMap = Maps.newHashMap();
-        for (Map.Entry<Date, Integer> entry : valueTotalMap.entrySet()) {
-            Integer total = entry.getValue();
-            Integer success = valueSuccessMap.get(entry.getKey());
-            Integer fail = valueFailMap.get(entry.getKey());
-            Integer cancel = valueCancelMap.get(entry.getKey());
-            BigDecimal successRate = BigDecimal.valueOf(success * 100).divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal failRate = BigDecimal.valueOf(fail * 100).divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal cancelRate = BigDecimal.valueOf(cancel * 100).divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
-            successRateMap.put(entry.getKey(), successRate);
-            failRateMap.put(entry.getKey(), failRate);
-            cancelRateMap.put(entry.getKey(), cancelRate);
-        }
-        valuesMap.put("转化率", successRateMap);
-        valuesMap.put("失败率", failRateMap);
-        valuesMap.put("取消率", cancelRateMap);
-        return valuesMap;
-    }
-
     private Map<String, List<ChartStatVO>> countTotalTask(Map<String, Map<Date, Integer>> appNameMap) {
         Map<String, List<ChartStatVO>> valuesMap = Maps.newHashMap();
         // 计算总任务量的map
@@ -954,7 +897,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
                     totalMap.put(valueEntry.getKey(), i + valueEntry.getValue());
                 }
             }
-            voList = voList.stream().sorted(((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime()))).collect(Collectors.toList());
+            voList = voList.stream().sorted((Comparator.comparing(ChartStatVO::getDataTime))).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(voList)) {
                 voList.remove(voList.size() - 1);
             }
@@ -967,7 +910,7 @@ public class MerchantStatServiceImpl implements MerchantStatService {
             vo.setDataValue(entry.getValue());
             totalVOList.add(vo);
         }
-        totalVOList = totalVOList.stream().sorted((o1, o2) -> o1.getDataTime().compareTo(o2.getDataTime())).collect(Collectors.toList());
+        totalVOList = totalVOList.stream().sorted(Comparator.comparing(ChartStatVO::getDataTime)).collect(Collectors.toList());
         if (totalVOList.size() > 0) {
             totalVOList.remove(totalVOList.size() - 1);
         }

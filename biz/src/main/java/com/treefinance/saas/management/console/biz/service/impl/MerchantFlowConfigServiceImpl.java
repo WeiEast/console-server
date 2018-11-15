@@ -13,7 +13,6 @@ import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllo
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowEnvQuotaVO;
 import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
@@ -22,7 +21,10 @@ import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchan
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchantFlowAllotSubRequest;
 import com.treefinance.saas.merchant.center.facade.request.console.UpdateMerchantFlowRequest;
 import com.treefinance.saas.merchant.center.facade.request.grapserver.QueryMerchantByAppIdRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.*;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantFlowAllotResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.center.facade.result.console.MerchantSimpleResult;
 import com.treefinance.saas.merchant.center.facade.result.gateway.MerchantFlowConfigResult;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantFlowConfigFacade;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -108,39 +111,6 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
         logger.info(JSON.toJSONString(result));
         return result;
     }
-
-//    @Override
-//    public void batchUpdate(List<MerchantFlowConfigVO> list) {
-//        // 发送配置变更消息
-//        BatchUpdateFlowRequest request = new BatchUpdateFlowRequest();
-//        List<UpdateMerchantFlowRequest> updateList = BeanUtils.convertList(list, UpdateMerchantFlowRequest.class);
-//        request.setRequests(updateList);
-//
-//        MerchantResult<List<BatchUpdateFlowResult>> result;
-//
-//        try {
-//            result = merchantFlowConfigFacade.batchUpdateFlowConfig(request);
-//        } catch (RpcException e) {
-//            logger.error("批量merchantFlowConfig更新失败,{}", e.getMessage());
-//            return;
-//        }
-//
-//        if (!result.isSuccess()) {
-//            logger.error("批量merchantFlowConfig更新失败");
-//            return;
-//        }
-//
-//        List<BatchUpdateFlowResult> resultList = result.getData();
-//
-//        for (BatchUpdateFlowResult flowResult : resultList) {
-//            if (StringUtils.isEmpty(flowResult.getAppId())) {
-//                continue;
-//            }
-//            variableMessageNotifyService.sendVariableMessage("merchant-flow", "update", flowResult.getAppId());
-//        }
-//
-//        logger.info("发送更新商户流量分配配置消息,list={}", JSON.toJSONString(list));
-//    }
 
     @Override
     public void init() {

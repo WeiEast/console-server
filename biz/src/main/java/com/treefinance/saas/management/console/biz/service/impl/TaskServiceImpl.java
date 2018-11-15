@@ -2,7 +2,6 @@ package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.datatrees.toolkits.util.Base64Codec;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
@@ -11,11 +10,7 @@ import com.treefinance.saas.gateway.servicefacade.enums.BizTypeEnum;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
-import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
-import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.TaskService;
-import com.treefinance.saas.management.console.common.domain.dto.AppLicenseDTO;
-import com.treefinance.saas.management.console.common.domain.dto.CallbackLicenseDTO;
 import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
@@ -23,7 +18,6 @@ import com.treefinance.saas.management.console.common.domain.vo.TaskNextDirectiv
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.enumeration.ETaskBuryPoint;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.*;
@@ -36,7 +30,6 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantBaseRe
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
-import com.treefinance.saas.monitor.common.utils.AESSecureUtils;
 import com.treefinance.saas.taskcenter.facade.request.TaskAttributeRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskBuryPointLogRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskLogRequest;
@@ -53,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -79,10 +71,6 @@ public class TaskServiceImpl implements TaskService {
     private TaskLogFacade taskLogFacade;
     @Autowired
     private AppCallbackConfigFacade appCallbackConfigFacade;
-    @Autowired
-    private AppLicenseService appLicenseService;
-    @Autowired
-    private CallbackSecureHandler callbackSecureHandler;
     @Autowired
     private TaskAttributeFacade taskAttributeFacade;
     @Autowired
@@ -274,58 +262,6 @@ public class TaskServiceImpl implements TaskService {
             return new ArrayList<>();
         }
         return DataConverterUtils.convert(taskResult.getData(), TaskCallbackLog.class);
-    }
-
-    private String getPlainParamsCallbackLog(Task task, AppCallbackConfig appCallbackConfig, TaskCallbackLog log) {
-        String appId = task.getAppId();
-        Byte isNewKey = appCallbackConfig.getIsNewKey();
-        String aesDataKey = "";
-        AppLicenseDTO appLicenseDTO = appLicenseService.selectOneByAppId(appId);
-        if (Byte.valueOf("0").equals(isNewKey)) {
-            if (appLicenseDTO == null) {
-                logger.error("解密回调参数时,未找到对应的appLicenseDTO appId={}", appId);
-                return null;
-            }
-            aesDataKey = appLicenseDTO.getDataSecretKey();
-        } else if (Byte.valueOf("1").equals(isNewKey)) {
-            CallbackLicenseDTO callbackLicenseDTO = appLicenseService.selectCallbackLicenseById(log.getConfigId().intValue());
-            if (callbackLicenseDTO == null) {
-                logger.error("解密回调参数时,未找到对应的callbackLicenseDTO configId={}", log.getConfigId());
-                return null;
-            }
-            aesDataKey = callbackLicenseDTO.getDataSecretKey();
-        }
-        String plainParams;
-        byte version = appCallbackConfig.getVersion();
-        if (version > 0) {
-            // 默认使用AES方式
-            plainParams = decryptByAES(log.getRequestParam(), aesDataKey);
-        } else {
-            plainParams = decryptByRSA(log.getRequestParam(), appLicenseDTO);
-        }
-        return plainParams;
-    }
-
-    private String decryptByAES(String data, String dataKey) {
-        try {
-            byte[] newData = Base64Codec.decode(data);
-            return AESSecureUtils.decrypt(dataKey, newData);
-        } catch (Exception e) {
-            throw new BizException("decryptByAES exception", e);
-        }
-    }
-
-    private String decryptByRSA(String data, AppLicenseDTO appLicense) {
-        String params;
-        String rsaPublicKey = appLicense.getServerPublicKey();
-        // 兼容老版本，使用RSA
-        try {
-            params = callbackSecureHandler.decrypt(data, rsaPublicKey);
-            params = URLEncoder.encode(params, "utf-8");
-        } catch (Exception e) {
-            throw new BizException("decryptByRSA exception", e);
-        }
-        return params;
     }
 
     @Override

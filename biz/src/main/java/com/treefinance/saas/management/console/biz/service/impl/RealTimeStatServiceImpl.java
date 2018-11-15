@@ -187,8 +187,7 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
     }
 
     private List<String> getStatCodeKeysList() {
-        List<String> result = ETaskStatLink.getStatCodeListNotSelfDefine();
-        return result;
+        return ETaskStatLink.getStatCodeListNotSelfDefine();
     }
 
     /**

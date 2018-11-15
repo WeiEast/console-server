@@ -23,7 +23,7 @@ public class EcommerceStatController {
     private static Logger logger = LoggerFactory.getLogger(EcommerceStatController.class);
 
     @Autowired
-    EcommerceMonitorService ecommerceMonitorService;
+    private EcommerceMonitorService ecommerceMonitorService;
 
 
 

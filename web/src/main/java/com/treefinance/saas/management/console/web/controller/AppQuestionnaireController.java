@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppQuestionnaireController {
 
     @Autowired
-    AppQuestionnaireService appQuestionnaireService;
+    private AppQuestionnaireService appQuestionnaireService;
 
     @RequestMapping(value = "/list",method = RequestMethod.POST,produces = "application/json")
     public SaasResult queryAppQuestionnaire(@RequestBody  QueryQuestionnaireRequest request) {

@@ -28,10 +28,7 @@ public class EcommerceMonitorDaoImpl implements EcommerceMonitorDao {
 
 
     @Autowired
-    AppBizLicenseFacade appBizLicenseFacade;
-
-    @Autowired
-    MerchantBaseInfoFacade merchantBaseInfoFacade;
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
 
 
     @Override

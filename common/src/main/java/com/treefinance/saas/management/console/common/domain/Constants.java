@@ -1,6 +1,6 @@
 package com.treefinance.saas.management.console.common.domain;
 
-import com.datatrees.common.conf.PropertiesConfiguration;
+import com.treefinance.b2b.saas.conf.PropertiesConfiguration;
 
 public interface Constants {
 

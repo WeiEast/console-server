@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
@@ -28,7 +29,6 @@ import com.treefinance.saas.merchant.center.facade.result.console.MerchantAppLic
 import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade;
 import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
-import net.sf.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -229,11 +229,13 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         HttpResponseResult httpResponseResult = HttpClientUtils.doPostResult(url, merchantResult.getData());
         logger.info("调用http请求，传回的结果为{}，状态码为{}", httpResponseResult.getResponseBody(), httpResponseResult.getStatusCode());
 
-        JSONArray array = JSONArray.fromObject((JSONObject.parseObject(httpResponseResult.getResponseBody())).getString("data"));
-        String js = JSONObject.toJSONString(array);
+        JSONObject jsonObject = JSON.parseObject(httpResponseResult.getResponseBody());
+        JSONArray data = jsonObject.getJSONArray("data");
+        List<AppCrawlerConfigParamVO> voList = data.toJavaList(AppCrawlerConfigParamVO.class);
+
         com.treefinance.saas.knife.request.PageRequest pageRequest = new com.treefinance.saas.knife.request.PageRequest();
         pageRequest.setPageNumber(request.getPageNum());
         pageRequest.setPageSize(request.getPageSize());
-        return Results.newPageResult(pageRequest, merchantResult.getTotalCount(), JSONObject.parseArray(js, AppCrawlerConfigParamVO.class));
+        return Results.newPageResult(pageRequest, merchantResult.getTotalCount(), voList);
     }
 }

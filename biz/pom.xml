@@ -4,13 +4,61 @@
     <parent>
         <groupId>com.treefinance.saas.management</groupId>
         <artifactId>console-server</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>console-server-biz</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>com.treefinance.saas.management</groupId>
+            <artifactId>console-server-dao</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.treefinance.saas.management</groupId>
+            <artifactId>console-server-common</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.netty</groupId>
+                    <artifactId>netty</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.101tec</groupId>
+            <artifactId>zkclient</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.zookeeper</groupId>
+          <artifactId>zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.diamond</groupId>
+            <artifactId>super-diamond-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.rocketmq</groupId>
+            <artifactId>rocketmq-client</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.treefinance.saas.monitor</groupId>
@@ -20,66 +68,43 @@
         <dependency>
             <groupId>com.treefinance.basicservice.security</groupId>
             <artifactId>security-crypto-facade</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.treefinance.saas</groupId>
             <artifactId>grap-server-facade</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.treefinance.saas.management</groupId>
-            <artifactId>console-server-dao</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.treefinance.saas.management</groupId>
-            <artifactId>console-server-common</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.treefinance.saas</groupId>
             <artifactId>assistant-variable-notify</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.treefinance.saas</groupId>
-            <artifactId>saas-knife</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.treefinance.saas.dataservice</groupId>
             <artifactId>data-server-facade</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.treefinance.saas.dataservice</groupId>
             <artifactId>data-monitor-facade</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>com.treefinance.saas</groupId>
-            <artifactId>merchant-center-facade</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>com.treefinance.saas</groupId>
             <artifactId>taskcenter-facade</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-ehcache</artifactId>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>aspectj-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>

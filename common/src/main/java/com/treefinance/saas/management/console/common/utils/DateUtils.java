@@ -1,7 +1,7 @@
 package com.treefinance.saas.management.console.common.utils;
 
-import com.datatrees.crawler.core.processor.format.unit.TimeUnit;
 import com.google.common.collect.Lists;
+import com.treefinance.toolkit.lang.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -587,7 +587,7 @@ public class DateUtils {
 
 
     public static Date getSpecificDayDate(Date source, int interval) {
-        return getSpecificDayDate(source, interval, TimeUnit.DAY);
+        return getSpecificDayDate(source, interval, TimeUnit.DAYS);
     }
 
     /**

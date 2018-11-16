@@ -606,14 +606,4 @@ public class DateUtils {
         return new Date(time + ms);
     }
 
-    public static void main(String[] args) throws ParseException {
-        Date date = DateUtils.string2Date("2018-07-16 19:41:33");
-        Date startDate = DateUtils.getIntervalDateTime(date, 5);
-        System.out.println(DateUtils.date2Hms(startDate));
-
-        Date endDate = DateUtils.getLaterIntervalDateTime(date, 5);
-        System.out.println(DateUtils.date2Hms(endDate));
-    }
-
-
 }

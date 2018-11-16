@@ -1,9 +1,9 @@
 package com.treefinance.saas.management.console.web.filter;
 
-import com.datatrees.toolkits.util.http.servlet.ServletRequestUtils;
 import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.dto.AuthUserInfoDTO;
 import com.treefinance.saas.management.console.common.utils.DateUtils;
+import com.treefinance.toolkit.util.http.servlet.ServletRequests;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -12,6 +12,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Date;
 
@@ -28,7 +29,7 @@ public class LoggingRequestFilter extends OncePerRequestFilter {
 
         String ip = null;
         try {
-            ip = ServletRequestUtils.getIP(request);
+            ip = ServletRequests.getIP(request);
         } catch (Exception e) {
             logger.error("获取ip出错:url={},method={}", request.getRequestURI(), request.getMethod());
         }

@@ -16,7 +16,7 @@
 
 package com.treefinance.saas.management.console.common.cache;
 
-import com.datatrees.toolkits.util.kryo.KryoUtils;
+import com.treefinance.toolkit.util.kryo.KryoUtils;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.util.DigestUtils;
 
@@ -36,16 +36,12 @@ public class CacheKeyGenerator implements KeyGenerator {
     String className = target.getClass().getName();
     String methodName = method.getName();
 
-    try {
-      String signature = this.convertParams(params);
+    String signature = this.convertParams(params);
 
-      return String.format("%s#%s(%s)", className, methodName, signature);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    return String.format("%s#%s(%s)", className, methodName, signature);
   }
 
-  private String convertParams(Object... params) throws Exception {
+  private String convertParams(Object... params) {
     String signature = this.convertSimple(params);
 
     if (signature == null) {

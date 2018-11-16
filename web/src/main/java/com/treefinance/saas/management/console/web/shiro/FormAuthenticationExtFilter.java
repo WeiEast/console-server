@@ -3,10 +3,10 @@
  */
 package com.treefinance.saas.management.console.web.shiro;
 
-import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
-import com.datatrees.toolkits.util.json.Jackson;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
+import com.treefinance.toolkit.util.http.servlet.ServletResponses;
+import com.treefinance.toolkit.util.json.Jackson;
 import org.apache.shiro.web.filter.authc.FormAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class FormAuthenticationExtFilter extends FormAuthenticationFilter {
                         "Authentication url [" + getLoginUrl() + "]");
             }
             String responseBody = Jackson.toJSONString(Results.newFailedResult(CommonStateCode.NOT_LOGGED_IN));
-            ServletResponseUtils.responseJson((HttpServletResponse) response, HttpStatus.OK.value(), responseBody);
+            ServletResponses.responseJson((HttpServletResponse) response, HttpStatus.OK.value(), responseBody);
             return false;
         }
     }

@@ -10,7 +10,6 @@ import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
-import com.treefinance.saas.management.console.biz.service.AppLicenseServiceImpl;
 import com.treefinance.saas.management.console.biz.service.OssDataService;
 import com.treefinance.saas.management.console.common.domain.ConsoleStateCode;
 import com.treefinance.saas.management.console.common.domain.request.OssDataRequest;

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.treefinance.saas.management.console.biz.service;
+package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
+import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.ServiceException;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;

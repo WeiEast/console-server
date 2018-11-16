@@ -1,7 +1,8 @@
 package com.treefinance.saas.management.console.web.shiro;
 
-import com.datatrees.toolkits.util.crypto.AES;
-import com.datatrees.toolkits.util.crypto.exception.CryptoException;
+
+import com.treefinance.toolkit.util.crypto.AES;
+import com.treefinance.toolkit.util.crypto.exception.CryptoException;
 
 /**
  * Created by haojiahong on 2017/7/4.
@@ -30,24 +31,4 @@ public class EncryptHelper {
         return decryptText;
     }
 
-
-    public static void main(String[] args) {
-        String text = "123456";
-//加密
-        String encrptText = null;
-        try {
-            encrptText = AES.createEncryptor(M_KEY).encryptAsBase64String(text);
-            System.out.println(encrptText);
-        } catch (CryptoException e) {
-            e.printStackTrace();
-        }
-//解密
-        try {
-            String text2 = AES.createDecryptor(M_KEY).decryptWithBase64AsString(encrptText);
-            System.out.println(text2);
-        } catch (CryptoException e) {
-            e.printStackTrace();
-        }
-
-    }
 }

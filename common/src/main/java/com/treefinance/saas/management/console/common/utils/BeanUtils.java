@@ -1,7 +1,6 @@
 package com.treefinance.saas.management.console.common.utils;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.springframework.cglib.beans.BeanCopier;
 
 import java.util.List;
@@ -28,7 +27,6 @@ public final class BeanUtils {
      */
     public static void copyProperties(Object source, Object target) {
         if (source == null || target == null) {
-            target = null;
             return;
         }
 
@@ -79,14 +77,4 @@ public final class BeanUtils {
         return null;
     }
 
-    public static void main(String[] args) {
-        Map<String, List<String>> map = Maps.newHashMap();
-        map.put("1", Lists.newArrayList("1"));
-        String str = checkNull(() -> map.get("2").get(0));
-        String str1 = checkNull(() -> map.get("1").get(1));
-        System.out.println(str);
-        if (str == null) {
-            return;
-        }
-    }
 }

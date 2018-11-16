@@ -1,15 +1,19 @@
 package com.treefinance.saas.management.console.common.utils;
 
 import com.alibaba.fastjson.JSON;
-import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.exceptions.RequestFailedException;
+import com.treefinance.toolkit.util.http.servlet.ServletResponses;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
+import org.apache.http.Consts;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -44,6 +48,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +57,12 @@ import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * httpclient 调用工具类
@@ -690,7 +700,7 @@ public class HttpClientUtils {
                 outputStream.flush();
             } else {
                 responseStr = EntityUtils.toString(entity, "utf-8");
-                ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
+                ServletResponses.response(httpResponse, statusCode, contentType, responseStr);
             }
         } catch (IOException e) {
             throw new RequestFailedException(apiUrl, statusCode, null, e);
@@ -737,10 +747,7 @@ public class HttpClientUtils {
             contentType = entity.getContentType().getValue();
             responseStr = EntityUtils.toString(entity, "utf-8");
 
-//            for (Header header : response.getAllHeaders()) {
-//                httpResponse.setHeader(header.getName(), header.getValue());
-//            }
-            ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
+            ServletResponses.response(httpResponse, statusCode, contentType, responseStr);
 
         } catch (IOException e) {
             throw new RequestFailedException(url, statusCode, null, e);
@@ -787,10 +794,7 @@ public class HttpClientUtils {
             contentType = entity.getContentType().getValue();
             responseStr = EntityUtils.toString(entity, "utf-8");
 
-//            for (Header header : response.getAllHeaders()) {
-//                httpResponse.setHeader(header.getName(), header.getValue());
-//            }
-            ServletResponseUtils.response(httpResponse, statusCode, contentType, responseStr);
+            ServletResponses.response(httpResponse, statusCode, contentType, responseStr);
         } catch (IOException e) {
             throw new RequestFailedException(url, statusCode, null, e);
         } finally {
@@ -847,23 +851,6 @@ public class HttpClientUtils {
             closeResponse(response);
         }
         return result;
-    }
-
-    public static void main(String[] args) {
-
-//        Map<String, String> headers = Maps.newHashMap();
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("apiKey").append(" ").append("11112222");
-//        headers.put("Authorization", sb.toString());
-//        Map<String, Object> params = Maps.newHashMap();
-//        params.put("input", "好号浩耗");
-//        System.out.println(HttpClientUtils.doPostWithHeaders("http://127.0.0.1:8443/saas/console/data/moxie/test", params, headers));
-//        System.out.println(HttpClientUtils.doGet("http://n171t90503.iask.in:19859/p2pactivemq/gfd/callback/result"));
-//        System.out.println(HttpClientUtils.doGet("http://www.baidu.com"));
-//        Map<String, Object> map = Maps.newHashMap();
-//        map.put("kw", "%E7%AC%AC%E4%B8%89%E6%96%B9%E7%9A%84");
-//        map.put("fr", "wwwt");
-//        System.out.println(HttpClientUtils.doGet("https://tieba.baidu.com/f?", map));
     }
 
 }

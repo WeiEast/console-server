@@ -1,41 +1,12 @@
 package com.treefinance.saas.management.console.biz.service;
 
-import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.common.domain.request.AppFeedbackRequest;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.merchant.center.facade.request.console.GetAppFeedbackRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.AppFeedbackResultRO;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
-import com.treefinance.saas.merchant.center.facade.service.AppFeedbackFacade;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
- * @author haojiahong
- * @date 2018/8/29
+ * @author Jerry
+ * @date 2018/11/17 02:39
  */
-@Service
-public class AppFeedbackService {
+public interface AppFeedbackService {
 
-    @Autowired
-    private AppFeedbackFacade appFeedbackFacade;
-
-    public Object queryList(AppFeedbackRequest request) {
-        GetAppFeedbackRequest rpcRequest = DataConverterUtils.convert(request, GetAppFeedbackRequest.class);
-        MerchantResult<List<AppFeedbackResultRO>> rpcResult;
-        try {
-            rpcResult = appFeedbackFacade.getAppQuestionnaire(rpcRequest);
-        } catch (Exception e) {
-            throw new BizException("merchant-center系统异常");
-        }
-        if (!rpcResult.isSuccess()) {
-            throw new BizException(rpcResult.getRetMsg());
-        }
-        return Results.newPageResult(request, rpcResult.getTotalCount(), rpcResult.getData());
-    }
-
-
+    Object queryList(AppFeedbackRequest request);
 }

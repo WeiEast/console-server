@@ -15,10 +15,6 @@
             <artifactId>toolkit</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.datatrees.toolkits</groupId>
-            <artifactId>toolkits</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.github.stuxuhai</groupId>
             <artifactId>jpinyin</artifactId>
         </dependency>

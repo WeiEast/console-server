@@ -15,13 +15,17 @@
  */
 package com.treefinance.saas.management.console.web.advice;
 
-import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
-import com.datatrees.toolkits.util.json.Jackson;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.common.StateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.common.domain.ConsoleStateCode;
-import com.treefinance.saas.management.console.common.exceptions.*;
+import com.treefinance.saas.management.console.common.exceptions.BizException;
+import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
+import com.treefinance.saas.management.console.common.exceptions.RequestLimitException;
+import com.treefinance.saas.management.console.common.exceptions.TaskTimeOutException;
+import com.treefinance.saas.management.console.common.exceptions.UnknownException;
+import com.treefinance.toolkit.util.http.servlet.ServletResponses;
+import com.treefinance.toolkit.util.json.Jackson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -136,7 +140,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
                                    HttpStatus httpStatus, HttpServletResponse response) {
         handleLog(request, ex);
         String responseBody = Jackson.toJSONString(Results.newFailedResult(stateCode, ex.getMessage()));
-        ServletResponseUtils.responseJson(response, httpStatus.value(), responseBody);
+        ServletResponses.responseJson(response, httpStatus.value(), responseBody);
     }
 
     /**
@@ -151,6 +155,6 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
                                          HttpStatus httpStatus, HttpServletResponse response) {
         handleLog(request, ex);
         String responseBody = Jackson.toJSONString(Results.newFailedResult(CommonStateCode.FAILURE));
-        ServletResponseUtils.responseJson(response, httpStatus.value(), responseBody);
+        ServletResponses.responseJson(response, httpStatus.value(), responseBody);
     }
 }

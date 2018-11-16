@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.service.tool;
+package com.treefinance.saas.management.console.biz.service;
 
 /**
  * Created by haojiahong on 2017/11/29.

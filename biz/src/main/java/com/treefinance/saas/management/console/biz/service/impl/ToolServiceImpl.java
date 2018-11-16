@@ -1,11 +1,11 @@
-package com.treefinance.saas.management.console.biz.service.tool.impl;
+package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.knife.result.Results;
-import com.treefinance.saas.management.console.biz.service.tool.ToolService;
+import com.treefinance.saas.management.console.biz.service.ToolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;

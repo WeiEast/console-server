@@ -16,87 +16,96 @@
 
 package com.treefinance.saas.management.console.common.cache;
 
+import com.treefinance.b2b.saas.conf.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class RedisServiceImpl implements RedisService {
+
+    private static final int REDIS_KEY_TIMEOUT = PropertiesConfiguration.getInstance().getInt("platform.redisKey.timeout", 600);
     private static final Logger logger = LoggerFactory.getLogger(RedisServiceImpl.class);
 
-    @Resource
-    private RedisDao redisDao;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Override
-    public boolean saveString(String key, String value) {
-        try {
-            return redisDao.pushMessage(key, value);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
-        }
+    public void enqueue(String key, String value) {
+        redisTemplate.opsForList().leftPush(key, value);
     }
 
     @Override
-    public boolean saveString(String key, String value, int ttlSeconds) {
-        try {
-            return redisDao.pushMessage(key, value, ttlSeconds);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
-        }
+    public String dequeue(String key) {
+        return redisTemplate.opsForList().rightPop(key);
     }
 
     @Override
-    public boolean saveListString(String key, List<String> valueList) {
+    public String getValue(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    @Override
+    public boolean setExpiredValueQuietly(String key, final String value) {
+        return setValueQuietly(key, value, REDIS_KEY_TIMEOUT);
+    }
+
+    @Override
+    public boolean setValueQuietly(String key, String value) {
         try {
-            if (!CollectionUtils.isEmpty(valueList)) {
-                return redisDao.saveListString(key, valueList);
-            }
+            setValue(key, value);
             return true;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
+            logger.error("Error setting value into redis!", e);
         }
+        return false;
     }
 
     @Override
-    public String getStringFromList(String key) {
-        try {
-            return redisDao.getStringFromList(key);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return null;
-        }
+    public boolean setValueQuietly(String key, String value, long ttlSeconds) {
+        return setValueQuietly(key, value, ttlSeconds, TimeUnit.SECONDS);
     }
 
     @Override
-    public String getString(String key) {
+    public boolean setValueQuietly(String key, String value, long timeout, TimeUnit unit) {
         try {
-            return redisDao.pullResult(key);
+            setValue(key, value, timeout, unit);
+            return true;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return null;
+            logger.error("Error setting value into redis!", e);
         }
+        return false;
     }
 
     @Override
-    public boolean deleteKey(String key) {
+    public void setValue(String key, String value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    @Override
+    public void setValue(String key, String value, long timeout, TimeUnit unit) {
+        redisTemplate.opsForValue().set(key, value, timeout, unit);
+    }
+
+    @Override
+    public boolean deleteQuietly(String key) {
         try {
-            redisDao.deleteKey(key);
+            delete(key);
+            return true;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
+            logger.error("Error deleting redis key!", e);
         }
         return true;
+    }
+
+    @Override
+    public void delete(String key) {
+        redisTemplate.delete(key);
     }
 
     @Override
@@ -107,14 +116,11 @@ public class RedisServiceImpl implements RedisService {
             final TimeUnit timeUnit = timeUnits[i];
             final long time = times[i];
             final byte[] key = RedisKey.getLimitCounterKey(ip, time, timeUnit).getBytes();
-            ret[i] = redisDao.getRedisTemplate().execute(new RedisCallback<Long>() {
-                @Override
-                public Long doInRedis(RedisConnection connection) throws DataAccessException {
+            ret[i] = redisTemplate.execute((RedisCallback<Long>)connection -> {
 
-                    final Long count = connection.incr(key);
-                    connection.expire(key, timeUnit.toSeconds(time));
-                    return count;
-                }
+                final Long count = connection.incr(key);
+                connection.expire(key, timeUnit.toSeconds(time));
+                return count;
             });
         }
         return ret;

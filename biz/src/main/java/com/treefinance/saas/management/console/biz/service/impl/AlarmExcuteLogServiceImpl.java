@@ -16,24 +16,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 /**
  * @author:guoguoyun
  * @date:Created in 2018/7/19下午3:12
  */
 @Service
 public class AlarmExcuteLogServiceImpl implements AlarmExcuteLogService {
-    private  static  final Logger logger = LoggerFactory.getLogger(AlarmExcuteLogService.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(AlarmExcuteLogService.class);
 
     @Autowired
     private AlarmBasicConfigurationFacade alarmBasicConfigurationFacade;
 
-
     @Override
     public SaasResult queryAlarmLogList(AsAlarmRequest asAlarmRequest) {
-        if(asAlarmRequest.getId()==0) {
-            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK,"预警配置ID不能为空");
+        if (asAlarmRequest.getId() == 0) {
+            return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "预警配置ID不能为空");
         }
         AlarmExcuteLogRequest alarmExcuteLogRequest = new AlarmExcuteLogRequest();
         alarmExcuteLogRequest.setId(asAlarmRequest.getId());
@@ -41,11 +38,12 @@ public class AlarmExcuteLogServiceImpl implements AlarmExcuteLogService {
         alarmExcuteLogRequest.setEndDate(asAlarmRequest.getEndDate());
         alarmExcuteLogRequest.setPageNumber(asAlarmRequest.getPageNumber());
         alarmExcuteLogRequest.setPageSize(asAlarmRequest.getPageSize());
-        MonitorResult<List<AlarmExecuteLogRO>> monitorResult = alarmBasicConfigurationFacade.queryAlaramExecuteLogList(alarmExcuteLogRequest);
-        if(monitorResult.getData()==null){
-            logger.error("取的数据为空{}",monitorResult.getErrorMsg());
-            return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA,monitorResult.getErrorMsg());
+        MonitorResult<List<AlarmExecuteLogRO>> monitorResult =
+            alarmBasicConfigurationFacade.queryAlaramExecuteLogList(alarmExcuteLogRequest);
+        if (monitorResult.getData().size() == 0) {
+            logger.error("取的数据为空{}", monitorResult.getErrorMsg());
+            return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA, monitorResult.getErrorMsg());
         }
-        return Results.newPageResult(asAlarmRequest,monitorResult.getTotalCount(),monitorResult.getData());
+        return Results.newPageResult(asAlarmRequest, monitorResult.getTotalCount(), monitorResult.getData());
     }
 }

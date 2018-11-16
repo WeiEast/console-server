@@ -8,14 +8,12 @@ import com.treefinance.saas.management.console.common.domain.request.AsAlarmRequ
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigDetailVO;
 import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigExpressionTestVO;
-import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
  * 预警配置管理
+ * 
  * @author chengtong
  * @date 18/7/19 15:47
  */
@@ -42,7 +40,7 @@ public class AlarmConfigurationController {
     }
 
     @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.POST)
-    public SaasResult<List<AlarmConfigVO>> queryAlarmConfigList(@RequestBody AlarmConfigRequest request) {
+    public SaasResult queryAlarmConfigList(@RequestBody AlarmConfigRequest request) {
         if (request.getRunEnv() != null) {
             if (request.getRunEnv().intValue() > 2 || request.getRunEnv().intValue() < 0) {
                 throw new IllegalArgumentException("请求参数runEnv为空或非法!");
@@ -108,6 +106,5 @@ public class AlarmConfigurationController {
     public Object deleteAlarmConfig(Long id) {
         return alarmConfigService.deleteAlarmConfig(id);
     }
-
 
 }

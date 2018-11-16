@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public interface AlarmConfigService {
 
-    SaasResult<List<AlarmConfigVO>> queryAlarmConfigList(AlarmConfigRequest request);
+    SaasResult queryAlarmConfigList(AlarmConfigRequest request);
 
     SaasResult<AlarmConfigDetailVO> queryAlarmConfigDetailById(Long id);
 

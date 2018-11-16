@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.context;
+package com.treefinance.saas.management.console.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;

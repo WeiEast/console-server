@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.shiro;
+package com.treefinance.saas.management.console.web.shiro;
 
 import com.datatrees.toolkits.util.crypto.AES;
 import com.datatrees.toolkits.util.crypto.exception.CryptoException;

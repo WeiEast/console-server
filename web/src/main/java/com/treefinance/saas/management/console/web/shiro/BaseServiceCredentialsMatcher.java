@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.shiro;
+package com.treefinance.saas.management.console.web.shiro;
 
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;

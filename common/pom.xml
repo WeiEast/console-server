@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>com.treefinance.commonservice</groupId>
-            <artifactId>uid-worker</artifactId>
+            <artifactId>guid-service-facade</artifactId>
         </dependency>
         <dependency>
             <groupId>com.treefinance.saas</groupId>

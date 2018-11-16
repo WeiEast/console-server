@@ -1,7 +1,7 @@
 /**
  * Copyright © 2017 Treefinance All Rights Reserved
  */
-package com.treefinance.saas.management.console.biz.common.shiro;
+package com.treefinance.saas.management.console.web.shiro;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;

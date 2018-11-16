@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.filter;
+package com.treefinance.saas.management.console.web.filter;
 
 import com.datatrees.toolkits.util.http.servlet.ServletResponseUtils;
 import com.datatrees.toolkits.util.json.Jackson;

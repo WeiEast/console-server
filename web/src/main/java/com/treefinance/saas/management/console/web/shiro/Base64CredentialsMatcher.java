@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.shiro;
+package com.treefinance.saas.management.console.web.shiro;
 
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import org.apache.shiro.authc.AuthenticationInfo;

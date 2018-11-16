@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.filter;
+package com.treefinance.saas.management.console.web.filter;
 
 import com.datatrees.toolkits.util.http.servlet.ServletRequestUtils;
 import com.treefinance.saas.management.console.common.domain.Constants;

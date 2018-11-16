@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.biz.common.shiro;
+package com.treefinance.saas.management.console.web.shiro;
 
 import com.treefinance.saas.management.console.biz.service.ConsoleUserService;
 import com.treefinance.saas.management.console.common.domain.Constants;

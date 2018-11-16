@@ -3,7 +3,7 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.treefinance.commonservice.uid.UidGenerator;
+import com.treefinance.commonservice.uid.UidService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
@@ -49,14 +49,14 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
     private static Logger logger = LoggerFactory.getLogger(MerchantFlowConfigService.class);
 
-
-
     @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Resource
     private MerchantFlowConfigFacade merchantFlowConfigFacade;
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
+    @Autowired
+    private UidService uidService;
 
     @Override
     public List<MerchantFlowConfigVO> getList() {
@@ -145,7 +145,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
                 continue;
             }
             UpdateMerchantFlowRequest config = new UpdateMerchantFlowRequest();
-            config.setId(UidGenerator.getId());
+            config.setId(uidService.getId());
             config.setAppId(merchantBase.getAppId());
             config.setServiceTag(EServiceTag.PRODUCT.getTag());
             list.add(config);

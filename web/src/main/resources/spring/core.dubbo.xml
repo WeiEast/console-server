@@ -155,6 +155,7 @@
                      interface="com.treefinance.saas.merchant.center.facade.service.AppFeedbackFacade"
                      version="1.0.0"/>
 
+    <dubbo:reference interface="com.treefinance.commonservice.uid.UidService" id="uidService"/>
 
 </beans>
 

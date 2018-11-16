@@ -1,11 +1,19 @@
 /**
  * Copyright © 2017 Treefinance All Rights Reserved
  */
-package com.treefinance.saas.management.console.biz.common.shiro;
+package com.treefinance.saas.management.console.configuration;
 
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
-import com.treefinance.saas.management.console.biz.common.filter.LoggingRequestFilter;
-import com.treefinance.saas.management.console.biz.common.filter.RawDataRequestFilter;
+import com.treefinance.saas.management.console.web.filter.LoggingRequestFilter;
+import com.treefinance.saas.management.console.web.filter.RawDataRequestFilter;
+import com.treefinance.saas.management.console.web.shiro.AesCredentialsMatcher;
+import com.treefinance.saas.management.console.web.shiro.Base64CredentialsMatcher;
+import com.treefinance.saas.management.console.web.shiro.BaseServiceCredentialsMatcher;
+import com.treefinance.saas.management.console.web.shiro.ConsoleWebSessionManager;
+import com.treefinance.saas.management.console.web.shiro.FormAuthenticationExtFilter;
+import com.treefinance.saas.management.console.web.shiro.RedisCacheManager;
+import com.treefinance.saas.management.console.web.shiro.RedisSessionDAO;
+import com.treefinance.saas.management.console.web.shiro.UserRealm;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;

@@ -51,7 +51,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
         try {
             result = appQuestionnaireFacade.queryAppQuestionList(rpcRequest);
         } catch (Exception e) {
-            logger.info("从merchant-center获取数据失败，错误：{}", e);
+            logger.error("从merchant-center获取数据失败，错误", e);
             throw new BizException(e.getMessage());
         }
 
@@ -80,7 +80,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
         try {
             result = appQuestionnaireFacade.saveAppQuestionnaire(rpcRequest);
         } catch (Exception e) {
-            logger.info("从merchant-center获取数据失败，错误：{}", e);
+            logger.error("从merchant-center获取数据失败，错误", e);
             throw new BizException(e.getMessage());
         }
 
@@ -103,7 +103,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
         try {
             result = appQuestionnaireFacade.getQuestionnaireById(rpcRequest);
         } catch (Exception e) {
-            logger.info("从merchant-center获取数据失败，错误：{}", e);
+            logger.error("从merchant-center获取数据失败，错误", e);
             throw new BizException(e.getMessage());
         }
         logger.info("从merchant-center获取数据：{}", result);
@@ -129,7 +129,7 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
         try {
             result = appQuestionnaireFacade.updateAppQuestionnaire(rpcRequest);
         } catch (Exception e) {
-            logger.info("从merchant-center获取数据失败，错误：{}", e);
+            logger.error("从merchant-center获取数据失败，错误", e);
             throw new BizException(e.getMessage());
         }
 

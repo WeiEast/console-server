@@ -4,6 +4,7 @@ import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -17,19 +18,9 @@ import com.treefinance.saas.management.console.common.enumeration.ECallBackDataT
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.merchant.facade.request.common.BaseRequest;
-import com.treefinance.saas.merchant.facade.request.console.AddAppCallbackBizRequest;
-import com.treefinance.saas.merchant.facade.request.console.AddAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.facade.request.console.AppCallbackDataTypeRequest;
-import com.treefinance.saas.merchant.facade.request.console.GetAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.facade.request.console.UpdateCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.request.console.*;
 import com.treefinance.saas.merchant.facade.result.common.BaseResult;
-import com.treefinance.saas.merchant.facade.result.console.AddAppCallbackConfigResult;
-import com.treefinance.saas.merchant.facade.result.console.AppBizTypeSimpleResult;
-import com.treefinance.saas.merchant.facade.result.console.AppCallbackBizSimpleResult;
-import com.treefinance.saas.merchant.facade.result.console.AppCallbackConfigResult;
-import com.treefinance.saas.merchant.facade.result.console.AppCallbackDataTypeResult;
-import com.treefinance.saas.merchant.facade.result.console.DeleteAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.facade.result.console.*;
 import com.treefinance.saas.merchant.facade.service.AppBizTypeFacade;
 import com.treefinance.saas.merchant.facade.service.AppCallbackConfigFacade;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,17 +52,19 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Autowired
     private VariableMessageNotifyService variableMessageNotifyService;
 
-
     @Override
     public SaasResult<Map<String, Object>> getList(PageRequest request) {
-        com.treefinance.saas.merchant.facade.request.common.PageRequest pageRequest = new com.treefinance.saas.merchant.facade.request.common.PageRequest();
+        com.treefinance.saas.merchant.facade.request.common.PageRequest pageRequest =
+            new com.treefinance.saas.merchant.facade.request.common.PageRequest();
 
         pageRequest.setPageNum(request.getPageNumber());
         pageRequest.setPageSize(request.getPageSize());
-        MerchantResult<List<AppCallbackConfigResult>> result = appCallbackConfigFacade.queryAppCallbackConfig(pageRequest);
+        MerchantResult<List<AppCallbackConfigResult>> result =
+            appCallbackConfigFacade.queryAppCallbackConfig(pageRequest);
 
         if (!result.isSuccess()) {
             logger.error("获取配置列表失败，错误信息：{}", result.getRetMsg());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
         List<AppCallbackConfigResult> callbackConfigResults = result.getData();
@@ -88,7 +80,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
             returnList.add(vo);
         }
-        logger.info("商户中心返回数据：{}", result);
+        logger.info("商户中心返回数据：{}", JSON.toJSONString(result));
         return Results.newPageResult(request, result.getTotalCount(), returnList);
     }
 
@@ -171,7 +163,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         MerchantResult<AddAppCallbackConfigResult> result = appCallbackConfigFacade.addAppCallbackConfig(request);
 
         if (result.isSuccess()) {
-            variableMessageNotifyService.sendVariableMessage("merchant-callback", "create", appCallbackConfigVO.getAppId());
+            variableMessageNotifyService.sendVariableMessage("merchant-callback", "create",
+                appCallbackConfigVO.getAppId());
             return result.getData().getConfigId();
         }
 
@@ -203,7 +196,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
                 return;
             }
         } catch (RpcException e) {
-            logger.error("调用商户中心失败，{}", e.getMessage());
+            logger.error("调用商户中心失败", e);
             return;
         }
 
@@ -247,7 +240,8 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
             result = appCallbackConfigFacade.deleteAppCallbackConfigResult(request);
 
             if (result.isSuccess()) {
-                variableMessageNotifyService.sendVariableMessage("merchant-callback", "delete", appCallbackConfigVO.getAppId());
+                variableMessageNotifyService.sendVariableMessage("merchant-callback", "delete",
+                    appCallbackConfigVO.getAppId());
             }
         } catch (RpcException e) {
             logger.error("调用商户中心 删除回调配置接口失败，错误信息：{}", e.getMessage());

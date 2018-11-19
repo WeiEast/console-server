@@ -55,7 +55,7 @@ public class BasicDataController {
     @RequestMapping(value = "add", method = RequestMethod.POST)
     public SaasResult<Boolean> addBasicData(@RequestBody BasicDataVO basicDataVO) {
         if (basicDataVO.getDataCode() == null || basicDataVO.getDataJson() == null || basicDataVO.getDataName() == null || basicDataVO.getDataSource() == null || basicDataVO.getDataSourceConfigJson() == null) {
-            logger.error("新增数据，基础数据参数不能为空", basicDataVO.toString());
+            logger.error("新增数据，基础数据参数不能为空,basicDataVO={}", basicDataVO.toString());
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         logger.info("新增数据为{}", basicDataVO.toString());
@@ -73,7 +73,7 @@ public class BasicDataController {
     @RequestMapping(value = "update", method = RequestMethod.POST)
     public SaasResult<Boolean> updateBasicData(@RequestBody BasicDataVO basicDataVO) {
         if (basicDataVO.getDataCode() == null || basicDataVO.getDataJson() == null || basicDataVO.getDataName() == null || basicDataVO.getDataSource() == null || basicDataVO.getDataSourceConfigJson() == null) {
-            logger.error("更新数据列表，基础数据参数不能为空", basicDataVO.toString());
+            logger.error("更新数据列表，基础数据参数不能为空,{}", basicDataVO.toString());
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         logger.info("更新数据为{}", basicDataVO.toString());

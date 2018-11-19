@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/saas/console/feedback")
 public class AppFeedbackController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AppFeedbackController.class);
 
     @Autowired
     private AppFeedbackService appFeedbackService;

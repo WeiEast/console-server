@@ -30,8 +30,7 @@ public class AppCallbackConfigController {
 
     @RequestMapping(value = "list", method = RequestMethod.GET, produces = "application/json")
     public SaasResult<Map<String, Object>> getAppCallbackConfigList(PageRequest request) {
-        SaasResult<Map<String, Object>> result = appCallbackConfigService.getList(request);
-        return result;
+        return appCallbackConfigService.getList(request);
     }
 
     @RequestMapping(value = "get/{id}", method = RequestMethod.GET, produces = "application/json")

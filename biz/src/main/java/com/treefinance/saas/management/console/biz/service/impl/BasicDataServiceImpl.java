@@ -47,7 +47,7 @@ public class BasicDataServiceImpl implements BasicDataService {
         BeanUtils.copyProperties(pageRequest, _pageRequest);
         MonitorResult<List<BasicDataRO>> monitorResult = basicDataFacade.queryAllBasicData(_pageRequest);
         if (monitorResult.getData() == null) {
-            logger.info("查询基础数据列表为空", monitorResult.getErrorMsg());
+            logger.info("查询基础数据列表为空,{}", monitorResult.getErrorMsg());
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
 
         }
@@ -63,7 +63,7 @@ public class BasicDataServiceImpl implements BasicDataService {
         BasicDataRequest basicDataRequest = new BasicDataRequest();
         BeanUtils.copyProperties(basicDataVO, basicDataRequest);
         MonitorResult<Boolean> monitorResult = basicDataFacade.addBasicData(basicDataRequest);
-        if (monitorResult.getData() == false) {
+        if (!monitorResult.getData()) {
             logger.error("插入基础数据错误");
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
@@ -76,7 +76,7 @@ public class BasicDataServiceImpl implements BasicDataService {
         BasicDataRequest basicDataRequest = new BasicDataRequest();
         BeanUtils.copyProperties(basicDataVO, basicDataRequest);
         MonitorResult<Boolean> monitorResult = basicDataFacade.updateBasicData(basicDataRequest);
-        if (monitorResult.getData() == false) {
+        if (!monitorResult.getData()) {
             logger.error("更新基础数据失败");
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }

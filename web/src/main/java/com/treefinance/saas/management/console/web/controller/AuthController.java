@@ -51,13 +51,13 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET}, produces = "application/json")
-    public SaasResult<?> login() throws ForbiddenException {
+    public SaasResult<?> login() {
         logger.info("用户未登录");
         return Results.newFailedResult(CommonStateCode.NOT_LOGGED_IN);
     }
 
     @RequestMapping(value = "/forbidden", method = {RequestMethod.GET}, produces = "application/json")
-    public SaasResult<?> forbidden() throws ForbiddenException {
+    public SaasResult<?> forbidden() {
         logger.info("用户无权限");
         return Results.newFailedResult(CommonStateCode.NO_PERMISSION);
     }
@@ -65,7 +65,7 @@ public class AuthController {
     @RequestMapping(value = "/login", method = {RequestMethod.POST}, produces = "application/json", consumes = "application/json")
     @RequestLimit(counts = {5, 30, 40}, times = {1, 30, 1},
             timeUnits = {TimeUnit.SECONDS, TimeUnit.SECONDS, TimeUnit.MINUTES})
-    public SaasResult<?> doLogin(@RequestBody LoginVO loginVO, HttpSession session) throws ForbiddenException {
+    public SaasResult<?> doLogin(@RequestBody LoginVO loginVO, HttpSession session)  {
         String username = loginVO.getUsername();
         String password = loginVO.getPassword();
         try {

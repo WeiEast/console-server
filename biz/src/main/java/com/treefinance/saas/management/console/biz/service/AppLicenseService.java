@@ -2,8 +2,8 @@ package com.treefinance.saas.management.console.biz.service;
 
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.SaasResult;
-import com.treefinance.saas.merchant.center.facade.result.grapsever.AppLicenseResult;
-import com.treefinance.saas.merchant.center.facade.result.grapsever.CallbackLicenseResult;
+import com.treefinance.saas.merchant.facade.result.grapsever.AppLicenseResult;
+import com.treefinance.saas.merchant.facade.result.grapsever.CallbackLicenseResult;
 
 import java.util.Map;
 

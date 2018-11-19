@@ -16,22 +16,22 @@ import com.treefinance.saas.management.console.common.enumeration.EBizType;
 import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
-import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.AddAppCallbackBizRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.AddAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.AppCallbackDataTypeRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.GetAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.UpdateCallbackConfigRequest;
-import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
-import com.treefinance.saas.merchant.center.facade.result.console.AddAppCallbackConfigResult;
-import com.treefinance.saas.merchant.center.facade.result.console.AppBizTypeSimpleResult;
-import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackBizSimpleResult;
-import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackConfigResult;
-import com.treefinance.saas.merchant.center.facade.result.console.AppCallbackDataTypeResult;
-import com.treefinance.saas.merchant.center.facade.result.console.DeleteAppCallbackConfigRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
-import com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade;
-import com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade;
+import com.treefinance.saas.merchant.facade.request.common.BaseRequest;
+import com.treefinance.saas.merchant.facade.request.console.AddAppCallbackBizRequest;
+import com.treefinance.saas.merchant.facade.request.console.AddAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.request.console.AppCallbackDataTypeRequest;
+import com.treefinance.saas.merchant.facade.request.console.GetAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.request.console.UpdateCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.result.common.BaseResult;
+import com.treefinance.saas.merchant.facade.result.console.AddAppCallbackConfigResult;
+import com.treefinance.saas.merchant.facade.result.console.AppBizTypeSimpleResult;
+import com.treefinance.saas.merchant.facade.result.console.AppCallbackBizSimpleResult;
+import com.treefinance.saas.merchant.facade.result.console.AppCallbackConfigResult;
+import com.treefinance.saas.merchant.facade.result.console.AppCallbackDataTypeResult;
+import com.treefinance.saas.merchant.facade.result.console.DeleteAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.facade.service.AppBizTypeFacade;
+import com.treefinance.saas.merchant.facade.service.AppCallbackConfigFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
 
     @Override
     public SaasResult<Map<String, Object>> getList(PageRequest request) {
-        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas.merchant.center.facade.request.common.PageRequest();
+        com.treefinance.saas.merchant.facade.request.common.PageRequest pageRequest = new com.treefinance.saas.merchant.facade.request.common.PageRequest();
 
         pageRequest.setPageNum(request.getPageNumber());
         pageRequest.setPageSize(request.getPageSize());

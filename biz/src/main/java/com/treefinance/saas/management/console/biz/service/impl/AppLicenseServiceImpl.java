@@ -24,13 +24,13 @@ import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.exceptions.ServiceException;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.merchant.center.facade.request.grapserver.GetAppLicenseRequest;
-import com.treefinance.saas.merchant.center.facade.request.grapserver.GetCallbackLicenseRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.AppLicenseVOResult;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
-import com.treefinance.saas.merchant.center.facade.result.grapsever.AppLicenseResult;
-import com.treefinance.saas.merchant.center.facade.result.grapsever.CallbackLicenseResult;
-import com.treefinance.saas.merchant.center.facade.service.AppLicenseFacade;
+import com.treefinance.saas.merchant.facade.request.grapserver.GetAppLicenseRequest;
+import com.treefinance.saas.merchant.facade.request.grapserver.GetCallbackLicenseRequest;
+import com.treefinance.saas.merchant.facade.result.console.AppLicenseVOResult;
+import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.facade.result.grapsever.AppLicenseResult;
+import com.treefinance.saas.merchant.facade.result.grapsever.CallbackLicenseResult;
+import com.treefinance.saas.merchant.facade.service.AppLicenseFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -97,7 +97,7 @@ public class AppLicenseServiceImpl implements AppLicenseService {
 
     @Override
     public SaasResult<Map<String, Object>> getAppLicenseList(PageRequest request) {
-        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas.merchant.center.facade.request.common.PageRequest();
+        com.treefinance.saas.merchant.facade.request.common.PageRequest pageRequest = new com.treefinance.saas.merchant.facade.request.common.PageRequest();
 
         pageRequest.setPageNum(request.getPageNumber());
         pageRequest.setPageSize(request.getPageSize());

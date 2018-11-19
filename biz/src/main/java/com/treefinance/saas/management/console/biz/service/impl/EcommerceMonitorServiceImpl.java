@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.dubbo.rpc.RpcException;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
@@ -8,8 +9,12 @@ import com.treefinance.saas.management.console.common.domain.vo.AllEcommerceStat
 import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.dao.ecommerce.EcommerceMonitorDao;
+import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
+import com.treefinance.saas.merchant.facade.request.console.QueryMerchantByBizTypeRequest;
+import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.facade.domain.request.EcommerceDetailAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.ecommerce.EcommerceAllDetailRO;
@@ -37,7 +42,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
     private EcommerceStatDivisionAccessFacade ecommerceStatDivisionAccessFacade;
 
     @Autowired
-    private EcommerceMonitorDao ecommerceMonitorDao;
+    private MerchantBaseInfoFacade merchantBaseInfoFacade;
 
 
     @Override
@@ -99,7 +104,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         List<MerchantSimpleVO> merchantSimpleVOS = new ArrayList<>();
         MerchantSimpleVO merchantSimpleVO = new MerchantSimpleVO("virtual_total_stat_appId", "所有商户");
         merchantSimpleVOS.add(merchantSimpleVO);
-        List<MerchantBase> merchantBaseList = ecommerceMonitorDao.queryAllEcommerceListByBizeType(bizType);
+        List<MerchantBase> merchantBaseList = queryAllEcommerceListByBizeType(bizType);
 
         List<MerchantSimpleVO> merchantSimpleVOSSecond = BeanUtils.convertList(merchantBaseList, MerchantSimpleVO.class);
         merchantSimpleVOS.addAll(merchantSimpleVOSSecond);
@@ -111,6 +116,30 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
 
 
         return Results.newSuccessResult(merchantSimpleVOS);
+    }
+
+    private List<MerchantBase> queryAllEcommerceListByBizeType(Integer bizType) {
+
+        QueryMerchantByBizTypeRequest request = new QueryMerchantByBizTypeRequest();
+        request.setBizType(bizType);
+
+
+        MerchantResult<List<MerchantBaseResult>> rpcResult;
+
+        try {
+            logger.info("请求商户中心，request：{}",request);
+            rpcResult = merchantBaseInfoFacade.queryMerchantByBizType(request);
+        }catch (RpcException e){
+            logger.error("根据业务类型获取列表数据失败：{}",e.getMessage());
+            return new ArrayList<>();
+        }
+
+        if(rpcResult.isSuccess()){
+            List<MerchantBaseResult> list = rpcResult.getData();
+            return DataConverterUtils.convert(list,MerchantBase.class);
+        }
+        logger.error("请求商户中心，根据业务类型获取商户列表失败，{}",rpcResult.getRetMsg());
+        return new ArrayList<>();
     }
 
 }

@@ -1,18 +1,15 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.QuestionnaireStatService;
 import com.treefinance.saas.management.console.common.utils.ExcelUtil;
-import com.treefinance.saas.merchant.center.facade.request.console.QueryAppQuestionnaireStatisticsRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.AppQuestionnaireDetailResult;
-import com.treefinance.saas.merchant.center.facade.result.console.AppQuestionnaireDetailStatisticsResult;
-import com.treefinance.saas.merchant.center.facade.result.console.AppQuestionnaireStatisticsResult;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
-import com.treefinance.saas.merchant.center.facade.service.AppQuestionnaireFacade;
+import com.treefinance.saas.merchant.facade.request.console.QueryAppQuestionnaireStatisticsRequest;
+import com.treefinance.saas.merchant.facade.result.console.AppQuestionnaireDetailResult;
+import com.treefinance.saas.merchant.facade.result.console.AppQuestionnaireDetailStatisticsResult;
+import com.treefinance.saas.merchant.facade.result.console.AppQuestionnaireStatisticsResult;
+import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.facade.service.AppQuestionnaireFacade;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +18,13 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 import static com.treefinance.saas.knife.common.CommonStateCode.NO_RELATED_DATA;
 

@@ -5,10 +5,10 @@ import com.treefinance.saas.management.console.biz.service.AppFeedbackService;
 import com.treefinance.saas.management.console.common.domain.request.AppFeedbackRequest;
 import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.merchant.center.facade.request.console.GetAppFeedbackRequest;
-import com.treefinance.saas.merchant.center.facade.result.console.AppFeedbackResultRO;
-import com.treefinance.saas.merchant.center.facade.result.console.MerchantResult;
-import com.treefinance.saas.merchant.center.facade.service.AppFeedbackFacade;
+import com.treefinance.saas.merchant.facade.request.console.GetAppFeedbackRequest;
+import com.treefinance.saas.merchant.facade.result.console.AppFeedbackResultRO;
+import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.facade.service.AppFeedbackFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

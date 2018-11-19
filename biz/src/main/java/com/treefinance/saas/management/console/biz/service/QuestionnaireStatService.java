@@ -1,6 +1,6 @@
 package com.treefinance.saas.management.console.biz.service;
 
-import com.treefinance.saas.merchant.center.facade.request.console.QueryAppQuestionnaireStatisticsRequest;
+import com.treefinance.saas.merchant.facade.request.console.QueryAppQuestionnaireStatisticsRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse; /**

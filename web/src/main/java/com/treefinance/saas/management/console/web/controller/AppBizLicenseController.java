@@ -5,14 +5,12 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
-import com.treefinance.saas.management.console.common.domain.vo.AppCrawlerConfigParamVO;
+import com.treefinance.saas.merchant.facade.request.common.PageRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
-
 
 import java.util.List;
 import java.util.Map;

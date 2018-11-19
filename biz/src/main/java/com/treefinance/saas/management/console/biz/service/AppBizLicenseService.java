@@ -3,8 +3,7 @@ package com.treefinance.saas.management.console.biz.service;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
-import com.treefinance.saas.management.console.common.domain.vo.AppCrawlerConfigParamVO;
-import com.treefinance.saas.merchant.center.facade.request.common.PageRequest;
+import com.treefinance.saas.merchant.facade.request.common.PageRequest;
 
 import java.util.List;
 import java.util.Map;

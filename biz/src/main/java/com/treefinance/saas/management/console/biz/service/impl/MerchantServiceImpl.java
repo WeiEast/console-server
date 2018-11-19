@@ -20,12 +20,24 @@ import com.treefinance.saas.management.console.common.exceptions.BizException;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.CommonUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.merchant.center.facade.request.common.BaseRequest;
-import com.treefinance.saas.merchant.center.facade.request.console.*;
-import com.treefinance.saas.merchant.center.facade.result.common.BaseResult;
-import com.treefinance.saas.merchant.center.facade.result.console.*;
-import com.treefinance.saas.merchant.center.facade.result.grapsever.AppLicenseResult;
-import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
+import com.treefinance.saas.merchant.facade.request.common.BaseRequest;
+import com.treefinance.saas.merchant.facade.request.console.AddAppBizLicenseRequest;
+import com.treefinance.saas.merchant.facade.request.console.AddMerchantBaseRequest;
+import com.treefinance.saas.merchant.facade.request.console.GetMerchantByIdRequest;
+import com.treefinance.saas.merchant.facade.request.console.MerchantStatusChangeRequest;
+import com.treefinance.saas.merchant.facade.request.console.ResetKeyRequest;
+import com.treefinance.saas.merchant.facade.request.console.ResetPwdRequest;
+import com.treefinance.saas.merchant.facade.request.console.UpdateMerchantResult;
+import com.treefinance.saas.merchant.facade.result.common.BaseResult;
+import com.treefinance.saas.merchant.facade.result.console.AddMerchantResult;
+import com.treefinance.saas.merchant.facade.result.console.MerchantBaseInfoResult;
+import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
+import com.treefinance.saas.merchant.facade.result.console.MerchantBizLicense;
+import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
+import com.treefinance.saas.merchant.facade.result.console.MerchantSimpleResult;
+import com.treefinance.saas.merchant.facade.result.console.ResetPwdResult;
+import com.treefinance.saas.merchant.facade.result.grapsever.AppLicenseResult;
+import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +47,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,8 +115,7 @@ public class MerchantServiceImpl implements MerchantService {
     public SaasResult<Map<String, Object>> getMerchantList(PageRequest request) {
         List<MerchantBaseVO> merchantBaseVOList = Lists.newArrayList();
 
-        com.treefinance.saas.merchant.center.facade.request.common.PageRequest pageRequest = new com.treefinance.saas
-                .merchant.center.facade.request.common.PageRequest();
+        com.treefinance.saas.merchant.facade.request.common.PageRequest pageRequest = new com.treefinance.saas.merchant.facade.request.common.PageRequest();
 
         pageRequest.setPageNum(request.getPageNumber());
         pageRequest.setPageSize(request.getPageSize());

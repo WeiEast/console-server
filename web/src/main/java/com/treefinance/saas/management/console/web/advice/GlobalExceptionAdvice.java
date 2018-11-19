@@ -125,7 +125,7 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     }
 
     private void handleLog(HttpServletRequest request, Exception ex) {
-        StringBuffer logBuffer = new StringBuffer();
+        StringBuilder logBuffer = new StringBuilder();
         if (request != null) {
             logBuffer.append("request method=" + request.getMethod());
             logBuffer.append(",url=" + request.getRequestURL());

@@ -23,7 +23,7 @@ public class RequestLimitContract {
     @Autowired
     private RedisService redisService;
 
-    @Pointcut("execution(* com.treefinance.saas.management.console.web.controller.*Controller.*(..))")
+    @Pointcut("execution(* com.treefinance.saas.management.console.web.controller..*Controller.*(..))")
     public void controllerMethodPointcut() {
     }
 

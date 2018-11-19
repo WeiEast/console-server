@@ -52,66 +52,16 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         Map<Date, Map<String, Integer>> map = Maps.newHashMap();
         for (AsStatDayCallbackRO data : rpcResult.getData()) {
             rowSet.add(data.getCallbackMsg());
-            Map<String, Integer> valueMap;
-            if (MapUtils.isEmpty(map.get(data.getDataTime()))) {
-                valueMap = Maps.newHashMap();
-                valueMap.put(data.getCallbackMsg(), data.getCallbackCount());
-            } else {
-                valueMap = map.get(data.getDataTime());
-                if (valueMap.get(data.getCallbackMsg()) == null) {
-                    valueMap.put(data.getCallbackMsg(), data.getCallbackCount());
-                } else {
-                    Integer v = valueMap.get(data.getCallbackMsg()) + data.getCallbackCount();
-                    valueMap.put(data.getCallbackMsg(), v);
-                }
-            }
+            Map<String, Integer> valueMap =
+                getStringIntegerMap(map, data.getDataTime(), data.getCallbackMsg(), data.getCallbackCount());
             map.put(data.getDataTime(), valueMap);
         }
-        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
-            Date key = entry.getKey();
-            rowSet.stream().filter(row -> entry.getValue().get(row) == null).forEach(row -> {
-                Map<String, Integer> map1 = map.get(key);
-                map1.put(row, 0);
-                map.put(key, map1);
-            });
-        }
+        //改变map中数据
+        changeMap(rowSet, map);
 
-        Map<Date, Map<String, String>> resultMap = Maps.newHashMap();
-        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
-            Date key = entry.getKey();
-            int total = entry.getValue().get("任务总数");
-            Map<String, String> map1 = Maps.newHashMap();
-            for (String row : rowSet) {
-                if (StringUtils.equals(row, "任务总数")) {
-                    map1.put("任务总数", total + "");
-                    continue;
-                }
-                map1.put(row, count(map.get(key).get(row), total));
-            }
-            resultMap.put(key, map1);
-        }
+        Map<Date, Map<String, String>> resultMap = getDateMapMap(rowSet, map);
 
-
-        for (Date date : columns) {
-            Map<String, Integer> valueMap = map.get(date);
-            if (MapUtils.isEmpty(valueMap)) {
-                continue;
-            }
-            List<Map.Entry<String, Integer>> list = Lists.newArrayList(valueMap.entrySet());
-            list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
-            for (Map.Entry<String, Integer> entry : list) {
-                if (StringUtils.equals(entry.getKey(), "任务总数")
-                        || StringUtils.equals(entry.getKey(), "回调总数")
-                        || StringUtils.equals(entry.getKey(), "回调成功")) {
-                    continue;
-                }
-                rows.add(entry.getKey());
-            }
-            rows.add(0, "任务总数");
-            rows.add(1, "回调总数");
-            rows.add(2, "回调成功");
-            break;
-        }
+        setRows(rows, columns, map);
 
         Map<String, Object> result = Maps.newHashMap();
         result.put("keys", columns.stream().map(DateUtils::date2Ymd).collect(Collectors.toList()));
@@ -136,6 +86,24 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         return Results.newSuccessResult(result);
     }
 
+    private Map<Date, Map<String, String>> getDateMapMap(Set<String> rowSet, Map<Date, Map<String, Integer>> map) {
+        Map<Date, Map<String, String>> resultMap = Maps.newHashMap();
+        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
+            Date key = entry.getKey();
+            int total = entry.getValue().get("任务总数");
+            Map<String, String> map1 = Maps.newHashMap();
+            for (String row : rowSet) {
+                if (StringUtils.equals(row, "任务总数")) {
+                    map1.put("任务总数", total + "");
+                    continue;
+                }
+                map1.put(row, count(map.get(key).get(row), total));
+            }
+            resultMap.put(key, map1);
+        }
+        return resultMap;
+    }
+
     @Override
     public Object queryCallbackMsgStatAccessList(CallbackMsgStatRequest request) {
         CallbackMsgStatAccessRequest rpcRequest = new CallbackMsgStatAccessRequest();
@@ -153,66 +121,15 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         for (AsStatCallbackRO data : rpcResult.getData()) {
             rowSet.add(data.getCallbackMsg());
             data.setDataTime(DateUtils.getIntervalDateTime(data.getDataTime(), request.getIntervalMins()));
-            Map<String, Integer> valueMap;
-            if (MapUtils.isEmpty(map.get(data.getDataTime()))) {
-                valueMap = Maps.newHashMap();
-                valueMap.put(data.getCallbackMsg(), data.getCallbackCount());
-            } else {
-                valueMap = map.get(data.getDataTime());
-                if (valueMap.get(data.getCallbackMsg()) == null) {
-                    valueMap.put(data.getCallbackMsg(), data.getCallbackCount());
-                } else {
-                    Integer v = valueMap.get(data.getCallbackMsg()) + data.getCallbackCount();
-                    valueMap.put(data.getCallbackMsg(), v);
-                }
-            }
+            Map<String, Integer> valueMap =
+                getStringIntegerMap(map, data.getDataTime(), data.getCallbackMsg(), data.getCallbackCount());
             map.put(data.getDataTime(), valueMap);
         }
-        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
-            Date key = entry.getKey();
-            rowSet.stream().filter(row -> entry.getValue().get(row) == null).forEach(row -> {
-                Map<String, Integer> map1 = map.get(key);
-                map1.put(row, 0);
-                map.put(key, map1);
-            });
-        }
+        changeMap(rowSet, map);
 
-        Map<Date, Map<String, String>> resultMap = Maps.newHashMap();
-        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
-            Date key = entry.getKey();
-            int total = entry.getValue().get("任务总数");
-            Map<String, String> map1 = Maps.newHashMap();
-            for (String row : rowSet) {
-                if (StringUtils.equals(row, "任务总数")) {
-                    map1.put("任务总数", total + "");
-                    continue;
-                }
-                map1.put(row, count(map.get(key).get(row), total));
-            }
-            resultMap.put(key, map1);
-        }
+        Map<Date, Map<String, String>> resultMap = getDateMapMap(rowSet, map);
 
-
-        for (Date date : columns) {
-            Map<String, Integer> valueMap = map.get(date);
-            if (MapUtils.isEmpty(valueMap)) {
-                continue;
-            }
-            List<Map.Entry<String, Integer>> list = Lists.newArrayList(valueMap.entrySet());
-            list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
-            for (Map.Entry<String, Integer> entry : list) {
-                if (StringUtils.equals(entry.getKey(), "任务总数")
-                        || StringUtils.equals(entry.getKey(), "回调总数")
-                        || StringUtils.equals(entry.getKey(), "回调成功")) {
-                    continue;
-                }
-                rows.add(entry.getKey());
-            }
-            rows.add(0, "任务总数");
-            rows.add(1, "回调总数");
-            rows.add(2, "回调成功");
-            break;
-        }
+        setRows(rows, columns, map);
 
         Map<String, Object> result = Maps.newHashMap();
         result.put("keys", columns.stream().map(DateUtils::date2SimpleHm).collect(Collectors.toList()));
@@ -235,6 +152,57 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         result.put("values", valueList);
 
         return Results.newSuccessResult(result);
+    }
+
+    private void setRows(List<String> rows, List<Date> columns, Map<Date, Map<String, Integer>> map) {
+        for (Date date : columns) {
+            Map<String, Integer> valueMap = map.get(date);
+            if (MapUtils.isEmpty(valueMap)) {
+                continue;
+            }
+            List<Map.Entry<String, Integer>> list = Lists.newArrayList(valueMap.entrySet());
+            list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+            for (Map.Entry<String, Integer> entry : list) {
+                if (StringUtils.equals(entry.getKey(), "任务总数") || StringUtils.equals(entry.getKey(), "回调总数")
+                    || StringUtils.equals(entry.getKey(), "回调成功")) {
+                    continue;
+                }
+                rows.add(entry.getKey());
+            }
+            rows.add(0, "任务总数");
+            rows.add(1, "回调总数");
+            rows.add(2, "回调成功");
+            break;
+        }
+    }
+
+    private void changeMap(Set<String> rowSet, Map<Date, Map<String, Integer>> map) {
+        for (Map.Entry<Date, Map<String, Integer>> entry : map.entrySet()) {
+            Date key = entry.getKey();
+            rowSet.stream().filter(row -> entry.getValue().get(row) == null).forEach(row -> {
+                Map<String, Integer> map1 = map.get(key);
+                map1.put(row, 0);
+                map.put(key, map1);
+            });
+        }
+    }
+
+    private Map<String, Integer> getStringIntegerMap(Map<Date, Map<String, Integer>> map, Date dataTime,
+        String callbackMsg, Integer callbackCount) {
+        Map<String, Integer> valueMap;
+        if (MapUtils.isEmpty(map.get(dataTime))) {
+            valueMap = Maps.newHashMap();
+            valueMap.put(callbackMsg, callbackCount);
+        } else {
+            valueMap = map.get(dataTime);
+            if (valueMap.get(callbackMsg) == null) {
+                valueMap.put(callbackMsg, callbackCount);
+            } else {
+                Integer v = valueMap.get(callbackMsg) + callbackCount;
+                valueMap.put(callbackMsg, v);
+            }
+        }
+        return valueMap;
     }
 
     private String count(int value, int total) {

@@ -12,7 +12,7 @@ public final class RemoteDataDownloadUtils {
 
     private static final MoreHttp CLIENT = MoreHttpFactory.createCustom();
 
-    public RemoteDataDownloadUtils() {
+    private RemoteDataDownloadUtils() {
     }
 
     public static <T> T download(String url, Class<T> clazz) throws HttpException {

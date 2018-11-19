@@ -23,20 +23,20 @@
                      version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="merchantBaseInfoFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade"
                      version="1.0.0" timeout="60000"/>
     <dubbo:reference id="merchantFlowConfigFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.MerchantFlowConfigFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.MerchantFlowConfigFacade"
                      version="1.0.0" timeout="60000"/>
     <dubbo:reference id="appBizTypeFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.AppBizTypeFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.AppBizTypeFacade"
                      version="1.0.0" timeout="60000"/>
     <dubbo:reference id="appBizLicenseFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.AppBizLicenseFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.AppBizLicenseFacade"
                      version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="appQuestionnaireFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.AppQuestionnaireFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.AppQuestionnaireFacade"
                      version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="taskFacade"
@@ -59,14 +59,14 @@
                      version="1.0.0" timeout="60000" />
 
     <dubbo:reference id="appCallbackConfigFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.AppCallbackConfigFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.AppCallbackConfigFacade"
                      version="1.0.0" timeout="60000"/>
     <dubbo:reference id="appLicenseFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.AppLicenseFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.AppLicenseFacade"
                      version="1.0.0" timeout="60000"/>
 
     <dubbo:reference id="merchantUserFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.MerchantUserFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.MerchantUserFacade"
                      version="1.0.0" timeout="60000"/>
 
 
@@ -152,7 +152,7 @@
                      version="1.0.0"/>
 
     <dubbo:reference id="appFeedbackFacade"
-                     interface="com.treefinance.saas.merchant.center.facade.service.AppFeedbackFacade"
+                     interface="com.treefinance.saas.merchant.facade.service.AppFeedbackFacade"
                      version="1.0.0"/>
 
     <dubbo:reference interface="com.treefinance.commonservice.uid.UidService" id="uidService"/>

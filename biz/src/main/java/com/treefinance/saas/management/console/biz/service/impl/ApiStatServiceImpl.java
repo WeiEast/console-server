@@ -26,8 +26,9 @@ import com.treefinance.saas.monitor.facade.service.stat.ApiStatAccessFacade;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,10 +48,10 @@ public class ApiStatServiceImpl implements ApiStatService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
+    @Resource
     private ApiStatAccessFacade apiStatAccessFacade;
 
-    @Autowired
+    @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
 
     @Override

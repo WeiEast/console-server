@@ -52,7 +52,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
 
         appBizTypeVOList = BeanUtils.convertList(list, AppBizTypeVO.class);
 
-        logger.info(JSON.toJSONString(appBizTypeVOList));
+        logger.info("获取appBizType列表，result={}",JSON.toJSONString(appBizTypeVOList));
         return appBizTypeVOList;
     }
 
@@ -132,6 +132,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
 
         if (CollectionUtils.isEmpty(result.getData())) {
+            logger.info("根据appId获取appBizLicense返回data结果为空");
             return appBizTypeVOList;
         }
 
@@ -172,7 +173,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
         }
         appBizTypeVOList = appBizTypeVOList.stream().sorted(Comparator.comparing(AppBizTypeVO::getBizType)).collect(Collectors.toList());
 
-        logger.info(JSON.toJSONString(appBizTypeVOList));
+        logger.info("根据bizType获取appBizType，result={}",JSON.toJSONString(appBizTypeVOList));
 
         return appBizTypeVOList;
     }
@@ -199,7 +200,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
             vo.setBizName(o.getBizName() + "任务量监控");
             appBizTypeVOList.add(vo);
         });
-        logger.info(JSON.toJSONString(appBizTypeVOList));
+        logger.info("任务量监控列表，result={}",JSON.toJSONString(appBizTypeVOList));
 
         return appBizTypeVOList;
     }
@@ -224,7 +225,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
             appBizTypeVOList.add(vo);
         });
 
-        logger.info(JSON.toJSONString(appBizTypeVOList));
+        logger.info("访问量监控列表，result={}",JSON.toJSONString(appBizTypeVOList));
         return appBizTypeVOList;
     }
 
@@ -248,7 +249,7 @@ public class AppBizTypeServiceImpl implements AppBizTypeService {
             appBizTypeVOList.add(vo);
         });
 
-        logger.info(JSON.toJSONString(appBizTypeVOList));
+        logger.info("合计列表,result={}",JSON.toJSONString(appBizTypeVOList));
         return appBizTypeVOList;
     }
 }

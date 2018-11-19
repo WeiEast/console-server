@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
@@ -133,7 +134,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
         }
 
-        logger.info(JSON.toJSONString(appBizLicenseVOList));
+        logger.info("获取商户额度列表返回结果,result={}",JSON.toJSONString(appBizLicenseVOList));
 
         return appBizLicenseVOList;
     }
@@ -174,7 +175,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         try {
             result = appBizLicenseFacade.queryAppBizLicenseTraffic(queryAppBizLicenseRequest);
         } catch (RpcException e) {
-            logger.error("获取商户额度列表失败，错误信息：{}", e.getMessage());
+            logger.error("获取商户流量列表失败，错误信息：{}", e.getMessage());
             return appBizLicenseVOList;
         }
 
@@ -183,7 +184,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
         }
 
-        logger.info(JSON.toJSONString(appBizLicenseVOList));
+        logger.info("获取商户流量列表,result={}",JSON.toJSONString(appBizLicenseVOList));
 
         return appBizLicenseVOList;
 
@@ -217,6 +218,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         MerchantResult<List<MerchantAppLicenseResult>> merchantResult = merchantBaseInfoFacade.queryAllMerchantAppLicensePagination(request);
         if (StringUtils.isEmpty(merchantResult.getData())) {
             logger.error("分页查找商户户及商户相关信息失败，错误信息:{}", merchantResult.getRetMsg());
+            return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
         }
         List<RawdataDomainConfig> list = diamondConfig.getRawDataDomainConfigList();
         Map<String, RawdataDomainConfig> appleMap = new HashMap<>();

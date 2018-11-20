@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.DashBoardService;
@@ -37,10 +38,11 @@ public class DashBoardServiceImpl implements DashBoardService {
 
         MonitorResult<DashBoardResult> result = null;
 
-        try{
+        try {
             result = dashBoardFacade.queryDashboardResult(statRequest);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.info("请求monitor失败:{}", e.getMessage());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
         logger.info("从monitor获取的数据：{}", JSON.toJSONString(result));

@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/saas/console/monitor/stat/dataitem/")
 public class StatItemController {
-    private static final Logger logger = LoggerFactory.getLogger(StatItemController.class);
 
     @Autowired
     private StatItemService statItemService;

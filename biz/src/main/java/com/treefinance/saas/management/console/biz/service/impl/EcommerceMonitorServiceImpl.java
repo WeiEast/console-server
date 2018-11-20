@@ -110,7 +110,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         merchantSimpleVOS.addAll(merchantSimpleVOSSecond);
 
         if (CollectionUtils.isEmpty(merchantBaseList)) {
-            logger.info("电商整体监控返回的值为空");
+            logger.warn("电商整体监控返回的值为空");
             return Results.newSuccessResult(merchantSimpleVOS);
         }
 

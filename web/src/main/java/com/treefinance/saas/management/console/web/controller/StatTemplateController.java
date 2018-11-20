@@ -24,9 +24,6 @@ import java.util.Map;
 @RequestMapping("/saas/console/monitor/stat/template/")
 public class StatTemplateController {
 
-    private static final Logger logger = LoggerFactory.getLogger(StatTemplateController.class);
-
-
     @Autowired
     private StatTemplateService templateStatService;
 

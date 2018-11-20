@@ -30,7 +30,7 @@ public class EcommerceStatController {
     @RequestMapping(value = "all/detail/list", method = RequestMethod.GET, produces = "application/json")
     public Object queryDivisionEcommerceMonitor(OperatorStatRequest request) {
 
-        logger.info("电商分时详细查询 Controller层  传入参数为{}", JSON.toJSON(request).toString());
+        logger.info("电商分时详细查询 Controller层  传入参数为{}", JSON.toJSONString(request));
         if (request.getDataDate() == null || request.getStatType() == null ||request.getSourceType() == null || StringUtils.isBlank(request.getAppId())) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
@@ -41,7 +41,7 @@ public class EcommerceStatController {
     @RequestMapping(value ="all/day/list", method = RequestMethod.GET, produces = "application/json")
     public Object queryAllEcommerceMonitor(OperatorStatRequest request) {
 
-        logger.info("电商整体查询 Controller层  传入参数为{}", JSON.toJSON(request).toString());
+        logger.info("电商整体查询 Controller层  传入参数为{}", JSON.toJSONString(request));
         if (request.getStartDate() == null ||request.getEndDate() == null ||request.getSourceType() == null || request.getStatType() == null || StringUtils.isBlank(request.getAppId())) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }

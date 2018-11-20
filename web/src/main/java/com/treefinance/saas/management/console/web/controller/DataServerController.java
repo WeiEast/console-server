@@ -6,21 +6,15 @@ import com.treefinance.saas.management.console.biz.service.DataApiConfigService;
 import com.treefinance.saas.management.console.biz.service.DsDataApiRawResultSerivce;
 import com.treefinance.saas.management.console.biz.service.TpApiConfigService;
 import com.treefinance.saas.management.console.common.domain.request.DsDataApiRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 
 @RestController
 @RequestMapping("/saas/console/ds/")
 public class DataServerController {
-
-    private static final Logger logger = LoggerFactory.getLogger(DataServerController.class);
 
     @Autowired
     private DsDataApiRawResultSerivce dsDataApiRawResultSerivce;

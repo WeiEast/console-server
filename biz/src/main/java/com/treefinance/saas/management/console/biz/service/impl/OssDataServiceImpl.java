@@ -224,7 +224,7 @@ public class OssDataServiceImpl implements OssDataService {
         try {
             requestParamJsonObj = JSONObject.parseObject(log.getRequestParam());
         } catch (Exception e) {
-            logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log={}", id, JSON.toJSONString(log));
+            logger.error("oss数据下载,id={}的callbackLog记录解析dataUrl异常,log={}", id, JSON.toJSONString(log),e);
             throw new BizException("回调参数有误,解析异常");
         }
         String dataUrl = requestParamJsonObj.getString("dataUrl");

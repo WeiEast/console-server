@@ -75,7 +75,7 @@ public class StatTemplateServiceImpl implements StatTemplateService {
             logger.info("更新模板数据，传入的信息为{}", templateStatVO.toString());
             monitorResult = statTemplateFacade.updateStatTemplate(templateStatRequest);
         }
-        if (monitorResult.getData() == false) {
+        if (!monitorResult.getData()) {
             logger.error("模板数据操作错误");
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }

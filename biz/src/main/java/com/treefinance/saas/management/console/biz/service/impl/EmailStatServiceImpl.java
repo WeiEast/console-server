@@ -31,47 +31,36 @@ public class EmailStatServiceImpl implements EmailStatService {
 
         EmailStatAccessRequest rpcRequest = new EmailStatAccessRequest();
 
+        BeanUtils.copyProperties(request, rpcRequest);
         rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getStartDate()));
         rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getEndDate()));
 
-        rpcRequest.setPageSize(request.getPageSize());
-        rpcRequest.setPageNumber(request.getPageNumber());
-
-        rpcRequest.setStatType(request.getStatType());
-        rpcRequest.setAppId(request.getAppId());
-        rpcRequest.setEmail(request.getEmail());
-        MonitorResult<List<EmailStatAccessBaseRO>> rpcResult = emailStatAccessFacade.queryEmailStatDayAccessList(rpcRequest);
+        MonitorResult<List<EmailStatAccessBaseRO>> rpcResult =
+            emailStatAccessFacade.queryEmailStatDayAccessList(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newPageResult(request, 0, rpcResult.getData());
         }
 
         List<EmailStatAccessVO> result = BeanUtils.convertList(rpcResult.getData(), EmailStatAccessVO.class);
-        result.stream().sorted();
         return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
     @Override
     public Object queryEmailMonitorDayAccessListDetail(EmailStatRequest request) {
 
-
         EmailStatAccessRequest rpcRequest = new EmailStatAccessRequest();
 
+        BeanUtils.copyProperties(request, rpcRequest);
         rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getDataDate()));
         rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getDataDate()));
 
-        rpcRequest.setPageSize(request.getPageSize());
-        rpcRequest.setPageNumber(request.getPageNumber());
-
-        rpcRequest.setStatType(request.getStatType());
-        rpcRequest.setAppId(request.getAppId());
-        rpcRequest.setEmail(request.getEmail());
-        MonitorResult<List<EmailStatAccessBaseRO>> rpcResult = emailStatAccessFacade.queryEmailStatDayAccessListDetail(rpcRequest);
+        MonitorResult<List<EmailStatAccessBaseRO>> rpcResult =
+            emailStatAccessFacade.queryEmailStatDayAccessListDetail(rpcRequest);
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newPageResult(request, 0, rpcResult.getData());
         }
 
         List<EmailStatAccessVO> result = BeanUtils.convertList(rpcResult.getData(), EmailStatAccessVO.class);
-
 
         return Results.newPageResult(request, rpcResult.getTotalCount(), result);
 
@@ -79,8 +68,8 @@ public class EmailStatServiceImpl implements EmailStatService {
 
     @Override
     public Object queryEmailSupportList(EmailStatRequest request) {
-        MonitorResult<List<String>> rpcResult = emailStatAccessFacade
-                .queryEmailSupportList(new EmailStatAccessRequest());
+        MonitorResult<List<String>> rpcResult =
+            emailStatAccessFacade.queryEmailSupportList(new EmailStatAccessRequest());
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newPageResult(request, 0, rpcResult.getData());
         }

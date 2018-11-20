@@ -102,7 +102,7 @@ public class TaskServiceImpl implements TaskService {
         List<String> appIdList = new ArrayList<>();
         if (StringUtils.isNotBlank(taskRequest.getAppName())) {
             appIdList = this.getAppIdsLikeAppName(taskRequest.getAppName());
-            //fail fast
+            // fail fast
             if (CollectionUtils.isEmpty(appIdList)) {
                 return Results.newPageResult(taskRequest, 0, Lists.newArrayList());
             }
@@ -110,23 +110,21 @@ public class TaskServiceImpl implements TaskService {
         Byte bizType = BizTypeEnum.valueOfType(BizTypeEnum.valueOf(taskRequest.getType()));
 
         RemoteService remoteService = new RemoteService(taskRequest, appIdList, bizType).invoke();
-        if (remoteService.is()){
+        if (remoteService.is()) {
             return Results.newPageResult(taskRequest, remoteService.getCount(), new ArrayList<>());
         }
         long count = remoteService.getCount();
         List<Task> taskList = remoteService.getTaskList();
 
-
-        //<appId,MerchantBase>
+        // <appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = getMerchantBaseMap(taskList);
-        //<website,OperatorRO>
+        // <website,OperatorRO>
         Map<Long, TaskAttribute> operatorMap = Maps.newHashMap();
         if (BizTypeEnum.valueOfType(BizTypeEnum.OPERATOR).equals(bizType)) {
             operatorMap = getOperatorMapFromAttribute(taskList);
         }
-        //<taskId,TaskCallbackLog>
+        // <taskId,TaskCallbackLog>
         Map<Long, TaskCallbackLogDTO> taskCallbackLogMap = getTaskCallbackLogMap(taskList);
-
 
         List<TaskVO> result = Lists.newArrayList();
 
@@ -199,14 +197,14 @@ public class TaskServiceImpl implements TaskService {
 
         TaskResult<List<TaskAttributeRO>> taskResult;
 
-        try{
+        try {
             taskResult = taskAttributeFacade.queryTaskAttribute(taskAttributeRequest);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.info("任务中心请求出错", e.getMessage());
             return Lists.newArrayList();
         }
         logger.info("任务中心请求返回数据", taskResult);
-        if(!taskResult.isSuccess()){
+        if (!taskResult.isSuccess()) {
             logger.info("任务中心请求返回失败", taskResult);
             return Lists.newArrayList();
         }
@@ -224,15 +222,19 @@ public class TaskServiceImpl implements TaskService {
         if (CollectionUtils.isEmpty(taskCallbackLogList)) {
             return result;
         }
-        List<Integer> configIdList = taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).distinct().collect(Collectors.toList());
+        List<Integer> configIdList =
+            taskCallbackLogList.stream().map(t -> t.getConfigId().intValue()).distinct().collect(Collectors.toList());
         QueryAppCallBackConfigByIdRequest queryAppCallBackConfigByIdRequest = new QueryAppCallBackConfigByIdRequest();
         queryAppCallBackConfigByIdRequest.setId(configIdList);
-        MerchantResult<List<AppCallbackConfigResult>> listMerchantResult = appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
+        MerchantResult<List<AppCallbackConfigResult>> listMerchantResult =
+            appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
         logger.info("商户中心返回数据:{}", JSON.toJSONString(listMerchantResult));
-        List<AppCallbackConfig> appCallbackConfigList = DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
+        List<AppCallbackConfig> appCallbackConfigList =
+            DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
         logger.info("数据转换：{}", JSON.toJSONString(appCallbackConfigList));
-        //<configId,AppCallbackConfig>
-        Map<Integer, AppCallbackConfig> appCallbackConfigMap = appCallbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, t -> t));
+        // <configId,AppCallbackConfig>
+        Map<Integer, AppCallbackConfig> appCallbackConfigMap =
+            appCallbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, t -> t));
 
         for (TaskCallbackLog log : taskCallbackLogList) {
             Task task = taskMap.get(log.getTaskId());
@@ -240,7 +242,7 @@ public class TaskServiceImpl implements TaskService {
                 logger.error("解密回调参数时,在任务回调记录表中未找到对应的任务信息 taskId={}", log.getTaskId());
                 continue;
             }
-            //后端回调
+            // 后端回调
             if (log.getType() == 1) {
                 AppCallbackConfig appCallbackConfig = appCallbackConfigMap.get(log.getConfigId().intValue());
                 if (appCallbackConfig == null) {
@@ -252,15 +254,16 @@ public class TaskServiceImpl implements TaskService {
                     TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
                     BeanUtils.convert(log, logDTO);
                     logDTO.setPlainRequestParam(log.getRequestParam());
-                    //网关支持:一个任务,回调多方,这里现将日志打印出来
+                    // 网关支持:一个任务,回调多方,这里现将日志打印出来
                     if (result.get(taskId) != null) {
-                        logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)), logDTO);
+                        logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}",
+                            JSON.toJSONString(result.get(taskId)), logDTO);
                         continue;
                     }
                     result.put(taskId, logDTO);
                 }
             }
-            //前端回调
+            // 前端回调
             if (log.getType() == 2) {
                 Long taskId = task.getId();
                 TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
@@ -270,7 +273,6 @@ public class TaskServiceImpl implements TaskService {
 
             }
 
-
         }
         logger.info("解密回调参数时,得到的任务对应主流程回调数据,Result={}", JSON.toJSONString(result));
         return result;
@@ -279,7 +281,7 @@ public class TaskServiceImpl implements TaskService {
     private List<TaskCallbackLog> getTaskCallbackLogs(List<Long> taskIdList) {
         TaskResult<List<TaskCallbackLogRO>> taskResult = taskCallbackLogFacade.queryTaskCallbackLog(taskIdList);
         logger.info("任务中心请求返回数据：{}", taskResult);
-        if(!taskResult.isSuccess()){
+        if (!taskResult.isSuccess()) {
             return new ArrayList<>();
         }
         return DataConverterUtils.convert(taskResult.getData(), TaskCallbackLog.class);
@@ -293,21 +295,20 @@ public class TaskServiceImpl implements TaskService {
 
         TaskResult<List<TaskLogRO>> taskResult;
 
-        try{
+        try {
             taskResult = taskLogFacade.queryTaskLogById(rpcRequest);
-        }catch (Exception e){
-            logger.info("任务中心请求出错", e.getMessage());
+        } catch (Exception e) {
+            logger.error("任务中心请求出错", e);
             return Lists.newArrayList();
         }
-        logger.info("任务中心请求返回数据", taskResult);
-        if(!taskResult.isSuccess()){
-            logger.info("任务中心请求返回失败", taskResult);
+        logger.info("任务中心请求返回数据taskResult={}", taskResult);
+        if (!taskResult.isSuccess()) {
+            logger.error("任务中心请求返回失败taskResult={}", taskResult);
             return Lists.newArrayList();
         }
 
         return DataConverterUtils.convert(taskResult.getData(), TaskLog.class);
     }
-
 
     @Override
     public List<TaskBuryPointLogVO> findBuryPointByTaskId(Long taskId) {
@@ -336,16 +337,16 @@ public class TaskServiceImpl implements TaskService {
 
         TaskResult<List<TaskBuryPointLogRO>> taskResult;
 
-        try{
+        try {
             taskResult = taskBuryPointLogFacade.queryTaskBuryPointLogById(taskBuryPointLogRequest);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("请求任务中心出错", e.getMessage());
             return Lists.newArrayList();
         }
 
         logger.info("从任务中心获取数据：{}", taskResult);
-        if(!taskResult.isSuccess()){
-            logger.info("请求任务中心失败:{}", taskResult);
+        if (!taskResult.isSuccess()) {
+            logger.error("请求任务中心失败:{}", taskResult);
             return Lists.newArrayList();
         }
 
@@ -365,16 +366,16 @@ public class TaskServiceImpl implements TaskService {
 
         TaskResult<List<TaskNextDirectiveRO>> taskResult;
 
-        try{
+        try {
             taskResult = taskNextDirectiveFacade.queryTaskNextDirectiveByTaskId(request);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("请求任务中心出错", e.getMessage());
             return Lists.newArrayList();
         }
 
         logger.info("从任务中心获取数据：{}", taskResult);
-        if(!taskResult.isSuccess()){
-            logger.info("请求任务中心失败:{}", taskResult);
+        if (!taskResult.isSuccess()) {
+            logger.error("请求任务中心失败:{}", taskResult);
             return Lists.newArrayList();
         }
 
@@ -387,8 +388,10 @@ public class TaskServiceImpl implements TaskService {
 
         QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
         queryMerchantByAppIdRequest.setAppIds(appIdList);
-        MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
-        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
+        MerchantResult<List<MerchantBaseResult>> listMerchantResult =
+            merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
+        List<MerchantBase> merchantBaseList =
+            DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
         return merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, m -> m));
     }
 
@@ -397,8 +400,10 @@ public class TaskServiceImpl implements TaskService {
         List<String> result = Lists.newArrayList();
         QueryMerchantByAppName queryMerchantByAppName = new QueryMerchantByAppName();
         queryMerchantByAppName.setAppName(appName);
-        MerchantResult<List<MerchantBaseInfoResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseByAppName(queryMerchantByAppName);
-        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
+        MerchantResult<List<MerchantBaseInfoResult>> listMerchantResult =
+            merchantBaseInfoFacade.queryMerchantBaseByAppName(queryMerchantByAppName);
+        List<MerchantBase> merchantBaseList =
+            DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return result;
         }
@@ -434,7 +439,8 @@ public class TaskServiceImpl implements TaskService {
 
         RemoteService invoke() {
 
-            com.treefinance.saas.taskcenter.facade.request.TaskRequest rpcRequest = new com.treefinance.saas.taskcenter.facade.request.TaskRequest();
+            com.treefinance.saas.taskcenter.facade.request.TaskRequest rpcRequest =
+                new com.treefinance.saas.taskcenter.facade.request.TaskRequest();
 
             rpcRequest.setPageNumber(taskRequest.getPageNumber());
             rpcRequest.setPageSize(taskRequest.getPageSize());
@@ -446,8 +452,8 @@ public class TaskServiceImpl implements TaskService {
                 rpcRequest.setUniqueId(taskRequest.getUniqueId());
             }
             if (StringUtils.isNotBlank(taskRequest.getAccountNo())) {
-                rpcRequest.setAccountNo(securityCryptoService.encrypt(taskRequest.getAccountNo(), EncryptionIntensityEnum
-                        .NORMAL));
+                rpcRequest.setAccountNo(
+                    securityCryptoService.encrypt(taskRequest.getAccountNo(), EncryptionIntensityEnum.NORMAL));
             }
             if (StringUtils.isNotBlank(taskRequest.getAppName())) {
                 rpcRequest.setAppIdList(appIdList);
@@ -463,8 +469,8 @@ public class TaskServiceImpl implements TaskService {
 
             logger.info("请求任务中心返回数据：{}", JSON.toJSONString(result));
 
-            if(!result.isSuccess()){
-                logger.info("请求任务中心返回失败结果:{}", result.getMessage());
+            if (!result.isSuccess()) {
+                logger.error("请求任务中心返回失败结果:{}", result.getMessage());
                 myResult = true;
                 return this;
             }

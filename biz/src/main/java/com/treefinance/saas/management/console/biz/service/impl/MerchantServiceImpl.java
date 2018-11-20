@@ -82,7 +82,7 @@ public class MerchantServiceImpl implements MerchantService {
             throw new BizException("不存在的商户");
         }
         MerchantBaseInfoResult infoResult = result.getData();
-        logger.info("商户中心返回数据：{}",infoResult);
+        logger.info("商户中心返回数据：infoResult={}",JSON.toJSONString(infoResult));
         MerchantBaseVO baseVO = new MerchantBaseVO();
 
         appLicenseVOprocess(infoResult, baseVO);
@@ -124,6 +124,7 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantResult<List<MerchantBaseResult>> result = merchantBaseInfoFacade.queryMerchantBaseList(pageRequest);
         if (!result.isSuccess()) {
             logger.error("获取商户列表失败：错误信息：{}", result.getRetMsg());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
         }
         if (!CollectionUtils.isEmpty(result.getData())) {
             merchantBaseVOList = BeanUtils.convertList(result.getData(), MerchantBaseVO.class);
@@ -157,7 +158,7 @@ public class MerchantServiceImpl implements MerchantService {
             licenseRequests.add(addAppBizLicenseRequest);
         }
         request.setAppBizLicenseVOList(licenseRequests);
-        logger.info("更新信息：{}", request);
+        logger.info("更新信息：{}", JSON.toJSONString(request));
         MerchantResult<AddMerchantResult> result;
         try {
             result = merchantBaseInfoFacade.addMerchant(request);
@@ -168,7 +169,7 @@ public class MerchantServiceImpl implements MerchantService {
                 return map;
             }
         } catch (Exception e) {
-            logger.error("新增商户失败，错误信息：{}", e.getMessage());
+            logger.error("新增商户失败", e);
         }
 
 
@@ -185,7 +186,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         AddMerchantBaseRequest request = new AddMerchantBaseRequest();
         BeanUtils.copyProperties(merchantBaseVO, request);
-        logger.info("更新商户信息，更新信息：{}", request);
+        logger.info("更新商户信息，更新信息：request={}", JSON.toJSONString(request));
 
         MerchantResult<UpdateMerchantResult> result = merchantBaseInfoFacade.updateMerchant(request);
 
@@ -204,7 +205,7 @@ public class MerchantServiceImpl implements MerchantService {
         resetPwdRequest.setNewPwd(newPwd);
         MerchantResult<ResetPwdResult> result = merchantBaseInfoFacade.resetPwd(resetPwdRequest);
         if (!result.isSuccess()) {
-            logger.info("重置密码失败，错误信息{}", result.getRetMsg());
+            logger.error("重置密码失败，错误信息{}", result.getRetMsg());
         }
 
         return result.getData().getPlainTextPwd();
@@ -218,7 +219,7 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantResult<List<MerchantSimpleResult>> result = merchantBaseInfoFacade.querySimpleMerchantSimple(new
                 BaseRequest());
 
-        logger.info(result.toString());
+        logger.info("获取简单列表 result={}",JSON.toJSONString(result));
 
         if (!result.isSuccess()) {
             logger.error("获取简单列表失败，错误信息：{}", result.getRetMsg());
@@ -236,7 +237,7 @@ public class MerchantServiceImpl implements MerchantService {
         MerchantResult<BaseResult> merchantResult = merchantBaseInfoFacade.resetKey(resetKeyRequest);
 
         if(!merchantResult.isSuccess()){
-            logger.info("重置Key失败，错误信息：{}",merchantResult.getRetMsg());
+            logger.error("重置Key失败，错误信息：{}",merchantResult.getRetMsg());
             throw new BizException("重置key失败，错误信息："+merchantResult.getRetMsg());
         }
 
@@ -260,15 +261,15 @@ public class MerchantServiceImpl implements MerchantService {
         request.setOpType(new Integer(isActive));
         request.setAppId(appId);
         try{
-            logger.info("{}，request：{}",isActive==0?"禁用商户":"启用商户",request);
+            logger.info("{}，request：{}",isActive==0?"禁用商户":"启用商户",JSON.toJSONString(request));
             MerchantResult<BaseResult> rpcResult= merchantBaseInfoFacade.merchantActiveChange(request);
-            logger.info("商户中心返回数据：{}",rpcResult);
+            logger.info("商户中心返回数据：{}",JSON.toJSONString(rpcResult));
             if(rpcResult.isSuccess()){
                 return Results.newSuccessResult(true);
             }
             return Results.newFailedResult(false, CommonStateCode.FAILURE);
         }catch (RpcException e){
-            logger.info("启用或禁用商户失败：{}",e.getMessage());
+            logger.error("启用或禁用商户失败：{}",e.getMessage());
             return Results.newFailedResult(false, CommonStateCode.FAILURE);
         }
 

@@ -33,8 +33,7 @@ public class MerchantController {
 
     @RequestMapping(value = "list", produces = "application/json")
     public SaasResult<Map<String, Object>> getMerchantList(PageRequest request) {
-        SaasResult<Map<String, Object>> result = merchantService.getMerchantList(request);
-        return result;
+        return merchantService.getMerchantList(request);
     }
 
     @RequestMapping(value = "add", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")

@@ -1,5 +1,6 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.alibaba.rocketmq.shade.com.alibaba.fastjson.JSON;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -39,7 +40,7 @@ public class StatGroupServiceImpl implements StatGroupService {
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
         }
         List<StatGroupVO> statGroupVOList = BeanUtils.convertList(monitorResult.getData(), StatGroupVO.class);
-        logger.info("查询的统计分组数据为{}", statGroupVOList.toString());
+        logger.info("查询的统计分组数据为{}", JSON.toJSONString(statGroupVOList));
         return Results.newSuccessResult(statGroupVOList);
     }
 
@@ -48,8 +49,8 @@ public class StatGroupServiceImpl implements StatGroupService {
         StatGroupRequest groupStatRequest = new StatGroupRequest();
         BeanUtils.copyProperties(statGroupVO, groupStatRequest);
         MonitorResult<Boolean> monitorResult = statGroupFacade.addOrUpdateStatGroup(groupStatRequest);
-        if (monitorResult.getData() == false) {
-            logger.info("新增或修改统计分组数据失败");
+        if (!monitorResult.getData()) {
+            logger.info("新增或修改计分组数据失败");
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
         return Results.newSuccessResult(monitorResult.getData());
@@ -63,7 +64,7 @@ public class StatGroupServiceImpl implements StatGroupService {
             logger.info("找不到相关数据");
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
         }
-        logger.info("查询的统计分组序号数据为{}", monitorResult.getData().toString());
+        logger.info("查询的统计分组序号数据为{}", JSON.toJSONString(monitorResult.getData()));
         return Results.newSuccessResult(monitorResult.getData());
     }
 }

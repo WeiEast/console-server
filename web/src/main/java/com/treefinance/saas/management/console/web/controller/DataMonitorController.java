@@ -5,8 +5,6 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.DmStatService;
 import com.treefinance.saas.management.console.common.domain.request.DmStatDsRequest;
 import com.treefinance.saas.management.console.common.domain.request.DmStatTpRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,7 +17,6 @@ import java.util.Date;
 @RestController
 @RequestMapping("/saas/console/monitor/")
 public class DataMonitorController {
-    private static final Logger logger = LoggerFactory.getLogger(DataMonitorController.class);
 
     @Autowired
     private DmStatService dmStatService;

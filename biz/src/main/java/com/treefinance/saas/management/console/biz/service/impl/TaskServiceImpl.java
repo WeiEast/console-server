@@ -20,14 +20,7 @@ import com.treefinance.saas.management.console.common.enumeration.ECallBackDataT
 import com.treefinance.saas.management.console.common.enumeration.ETaskBuryPoint;
 import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.management.console.dao.entity.AppCallbackConfig;
-import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.management.console.dao.entity.Task;
-import com.treefinance.saas.management.console.dao.entity.TaskAttribute;
-import com.treefinance.saas.management.console.dao.entity.TaskBuryPointLog;
-import com.treefinance.saas.management.console.dao.entity.TaskCallbackLog;
-import com.treefinance.saas.management.console.dao.entity.TaskLog;
-import com.treefinance.saas.management.console.dao.entity.TaskNextDirective;
+import com.treefinance.saas.management.console.dao.entity.*;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppCallBackConfigByIdRequest;
 import com.treefinance.saas.merchant.facade.request.console.QueryMerchantByAppName;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
@@ -41,20 +34,10 @@ import com.treefinance.saas.taskcenter.facade.request.TaskAttributeRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskBuryPointLogRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskLogRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskNextDirectiveRequest;
-import com.treefinance.saas.taskcenter.facade.result.TaskAttributeRO;
-import com.treefinance.saas.taskcenter.facade.result.TaskBuryPointLogRO;
-import com.treefinance.saas.taskcenter.facade.result.TaskCallbackLogRO;
-import com.treefinance.saas.taskcenter.facade.result.TaskLogRO;
-import com.treefinance.saas.taskcenter.facade.result.TaskNextDirectiveRO;
-import com.treefinance.saas.taskcenter.facade.result.TaskRO;
+import com.treefinance.saas.taskcenter.facade.result.*;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
-import com.treefinance.saas.taskcenter.facade.service.TaskAttributeFacade;
-import com.treefinance.saas.taskcenter.facade.service.TaskBuryPointLogFacade;
-import com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade;
-import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
-import com.treefinance.saas.taskcenter.facade.service.TaskLogFacade;
-import com.treefinance.saas.taskcenter.facade.service.TaskNextDirectiveFacade;
+import com.treefinance.saas.taskcenter.facade.service.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -63,11 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -256,8 +235,8 @@ public class TaskServiceImpl implements TaskService {
                     logDTO.setPlainRequestParam(log.getRequestParam());
                     // 网关支持:一个任务,回调多方,这里现将日志打印出来
                     if (result.get(taskId) != null) {
-                        logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={},otherTaskCallbackLogDTO={}",
-                            JSON.toJSONString(result.get(taskId)), logDTO);
+                        logger.error("此taskId={},存在多个回调配置,TaskCallbackLogDTO={}", JSON.toJSONString(result.get(taskId)),
+                            logDTO);
                         continue;
                     }
                     result.put(taskId, logDTO);
@@ -280,7 +259,7 @@ public class TaskServiceImpl implements TaskService {
 
     private List<TaskCallbackLog> getTaskCallbackLogs(List<Long> taskIdList) {
         TaskResult<List<TaskCallbackLogRO>> taskResult = taskCallbackLogFacade.queryTaskCallbackLog(taskIdList);
-        logger.info("任务中心请求返回数据：{}", taskResult);
+        logger.info("任务中心请求返回数据：{}", JSON.toJSONString(taskResult));
         if (!taskResult.isSuccess()) {
             return new ArrayList<>();
         }
@@ -301,9 +280,9 @@ public class TaskServiceImpl implements TaskService {
             logger.error("任务中心请求出错", e);
             return Lists.newArrayList();
         }
-        logger.info("任务中心请求返回数据taskResult={}", taskResult);
+        logger.info("任务中心请求返回数据taskResult={}", JSON.toJSONString(taskResult));
         if (!taskResult.isSuccess()) {
-            logger.error("任务中心请求返回失败taskResult={}", taskResult);
+            logger.error("任务中心请求返回失败taskResult={}", JSON.toJSONString(taskResult));
             return Lists.newArrayList();
         }
 

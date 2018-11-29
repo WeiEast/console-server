@@ -1,11 +1,16 @@
 package com.treefinance.saas.management.console.web.shiro;
 
+import com.treefinance.saas.console.context.Constants;
 import com.treefinance.saas.management.console.biz.service.ConsoleUserService;
-import com.treefinance.saas.management.console.common.domain.Constants;
 import com.treefinance.saas.management.console.common.domain.dto.AuthUserInfoDTO;
 import com.treefinance.saas.management.console.dao.entity.ConsoleUser;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.LockedAccountException;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -16,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author luoyihua
- * @Title: UserRealm.java
  * @date 2017年5月18日 上午8:00:38
  */
 

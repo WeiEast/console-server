@@ -2,6 +2,7 @@ package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -11,7 +12,6 @@ import com.treefinance.saas.management.console.common.domain.request.TestExpress
 import com.treefinance.saas.management.console.common.domain.request.TestRequest;
 import com.treefinance.saas.management.console.common.domain.vo.StatTemplateVO;
 import com.treefinance.saas.management.console.common.domain.vo.TemplateStatVO;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.request.autostat.TemplateExpressionTestRequest;
 import com.treefinance.saas.monitor.facade.domain.request.autostat.TemplateTestRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
@@ -27,11 +27,11 @@ import java.util.Map;
 
 
 /**
- * @author:guoguoyun
- * @date:Created in 2018/4/26上午9:48
+ * @author guoguoyun
+ * @date 2018/4/26上午9:48
  */
 @Service
-public class StatTemplateServiceImpl implements StatTemplateService {
+public class StatTemplateServiceImpl extends AbstractServiceAdapter implements StatTemplateService {
 
 
     private static final Logger logger = LoggerFactory.getLogger(StatTemplateService.class);
@@ -43,7 +43,7 @@ public class StatTemplateServiceImpl implements StatTemplateService {
     public SaasResult<Map<String, Object>> queryStatTemplate(StatTemplateRequest templateStatRequest) {
         logger.info("统计模板列表查询，传入请求信息为{}", templateStatRequest.toString());
         com.treefinance.saas.monitor.facade.domain.request.StatTemplateRequest templateStatRequests = new com.treefinance.saas.monitor.facade.domain.request.StatTemplateRequest();
-        BeanUtils.copyProperties(templateStatRequest, templateStatRequests);
+        this.copyProperties(templateStatRequest, templateStatRequests);
         MonitorResult<List<StatTemplateRO>> monitorResult = statTemplateFacade.queryStatTemplate(templateStatRequests);
 
         List<StatTemplateVO> statTemplateVOList = Lists.newArrayList();
@@ -51,7 +51,7 @@ public class StatTemplateServiceImpl implements StatTemplateService {
             return Results.newPageResult(templateStatRequest, monitorResult.getTotalCount(), statTemplateVOList);
         }
 
-        statTemplateVOList = BeanUtils.convertList(monitorResult.getData(), StatTemplateVO.class);
+        statTemplateVOList = this.convertList(monitorResult.getData(), StatTemplateVO.class);
         return Results.newPageResult(templateStatRequest, monitorResult.getTotalCount(), statTemplateVOList);
 
 
@@ -66,7 +66,7 @@ public class StatTemplateServiceImpl implements StatTemplateService {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
         com.treefinance.saas.monitor.facade.domain.request.StatTemplateRequest templateStatRequest = new com.treefinance.saas.monitor.facade.domain.request.StatTemplateRequest();
-        BeanUtils.copyProperties(templateStatVO, templateStatRequest);
+        this.copyProperties(templateStatVO, templateStatRequest);
         MonitorResult<Boolean> monitorResult;
         if (templateStatVO.getId() == null) {
             logger.info("插入模板数据，传入的信息为{}", templateStatVO.toString());
@@ -84,7 +84,8 @@ public class StatTemplateServiceImpl implements StatTemplateService {
 
     @Override
     public SaasResult<String> testExpression(TestExpressionRequest request) {
-        TemplateExpressionTestRequest req = BeanUtils.convert(request, new TemplateExpressionTestRequest());
+        TemplateExpressionTestRequest req = new TemplateExpressionTestRequest();
+        this.copy(request, req);
         MonitorResult<String> monitorResult = statTemplateFacade.testTemplateExpression(req);
         logger.info("testExpression : request={}  , result={}", JSON.toJSONString(req), JSON.toJSONString(monitorResult));
         return Results.newSuccessResult(monitorResult.getData());
@@ -92,7 +93,8 @@ public class StatTemplateServiceImpl implements StatTemplateService {
 
     @Override
     public SaasResult<Object> test(TestRequest request) {
-        TemplateTestRequest req = BeanUtils.convert(request, new TemplateTestRequest());
+        TemplateTestRequest req = new TemplateTestRequest();
+        this.copy(request, req);
         MonitorResult<String> monitorResult = statTemplateFacade.testTemplate(req);
         logger.info("testExpression : request={}  , result={}", JSON.toJSONString(req), JSON.toJSONString(monitorResult));
         return Results.newSuccessResult(monitorResult.getData());

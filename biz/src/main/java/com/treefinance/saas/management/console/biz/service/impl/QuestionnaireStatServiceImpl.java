@@ -1,9 +1,9 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.treefinance.saas.console.util.ExcelUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.QuestionnaireStatService;
-import com.treefinance.saas.management.console.common.utils.ExcelUtil;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppQuestionnaireStatisticsRequest;
 import com.treefinance.saas.merchant.facade.result.console.AppQuestionnaireDetailResult;
 import com.treefinance.saas.merchant.facade.result.console.AppQuestionnaireDetailStatisticsResult;
@@ -29,8 +29,8 @@ import java.util.Map;
 import static com.treefinance.saas.knife.common.CommonStateCode.NO_RELATED_DATA;
 
 /**
- * @author:guoguoyun
- * @date:Created in 2018/8/21下午2:04
+ * @author guoguoyun
+ * @date 2018/8/21下午2:04
  */
 @Service
 public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
@@ -120,16 +120,14 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
             content2[i][5] = appQuestionnaireDetailResult.getContent();
             content2[i][6] = appQuestionnaireDetailResult.getCreateTime();
         }
-        ExcelUtil excelUtil = new ExcelUtil();
-        HSSFWorkbook hssfWorkbook = new HSSFWorkbook();
 
-        hssfWorkbook = excelUtil.getHSSFWorkbook(sheetName, title, content, hssfWorkbook);
-        hssfWorkbook = excelUtil.getHSSFWorkbook(sheetName1, title1, content1, hssfWorkbook);
-        hssfWorkbook = excelUtil.getHSSFWorkbook(sheetName2, title2, content2, hssfWorkbook);
+        HSSFWorkbook hssfWorkbook = ExcelUtils.createWorkbook(sheetName, title, content);
+        ExcelUtils.createSheet(hssfWorkbook, sheetName1, title1, content1);
+        ExcelUtils.createSheet(hssfWorkbook, sheetName2, title2, content2);
 
         // 响应到客户端
         try {
-            ExcelUtil.setResponseHeader(response, fileName);
+            ExcelUtils.setResponseHeader(response, fileName);
             OutputStream os = response.getOutputStream();
             hssfWorkbook.write(os);
 

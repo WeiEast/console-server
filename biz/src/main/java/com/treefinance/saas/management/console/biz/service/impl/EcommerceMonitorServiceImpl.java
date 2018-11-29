@@ -2,14 +2,13 @@ package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.dubbo.rpc.RpcException;
 import com.google.common.collect.Lists;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AllEcommerceStatDayAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
 import com.treefinance.saas.merchant.facade.request.console.QueryMerchantByBizTypeRequest;
 import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
@@ -20,8 +19,6 @@ import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.ecommerce.EcommerceAllDetailRO;
 import com.treefinance.saas.monitor.facade.service.stat.EcommerceStatDivisionAccessFacade;
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author:guoguoyun
- * @date:Created in 2018/1/15下午2:45
+ * @author guoguoyun
+ * @date 2018/1/15下午2:45
  */
 @Service
-public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
-
-    private static Logger logger = LoggerFactory.getLogger(EcommerceMonitorServiceImpl.class);
+public class EcommerceMonitorServiceImpl extends AbstractServiceAdapter implements EcommerceMonitorService {
 
 
     @Autowired
@@ -63,7 +58,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
             logger.info("电商分时监控返回的值为空");
             return Results.newSuccessResult(result);
         }
-        result = BeanUtils.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
+        result = this.convertList(monitorResult.getData(), AllOperatorStatAccessVO.class);
         logger.info("电商分时监控返回信息为:{}", result.toString());
 
         return Results.newSuccessResult(result);
@@ -91,7 +86,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
             logger.info("电商整体监控返回的值为空");
             return Results.newPageResult(request, 0, result);
         }
-        result = BeanUtils.convertList(monitorResult.getData(), AllEcommerceStatDayAccessVO.class);
+        result = this.convertList(monitorResult.getData(), AllEcommerceStatDayAccessVO.class);
         logger.info("电商整体监控返回信息为:{}", result.toString());
 
         return Results.newPageResult(request, monitorResult.getTotalCount(), result);
@@ -106,7 +101,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         merchantSimpleVOS.add(merchantSimpleVO);
         List<MerchantBase> merchantBaseList = queryAllEcommerceListByBizeType(bizType);
 
-        List<MerchantSimpleVO> merchantSimpleVOSSecond = BeanUtils.convertList(merchantBaseList, MerchantSimpleVO.class);
+        List<MerchantSimpleVO> merchantSimpleVOSSecond = this.convertList(merchantBaseList, MerchantSimpleVO.class);
         merchantSimpleVOS.addAll(merchantSimpleVOSSecond);
 
         if (CollectionUtils.isEmpty(merchantBaseList)) {
@@ -135,8 +130,7 @@ public class EcommerceMonitorServiceImpl implements EcommerceMonitorService {
         }
 
         if(rpcResult.isSuccess()){
-            List<MerchantBaseResult> list = rpcResult.getData();
-            return DataConverterUtils.convert(list,MerchantBase.class);
+            return this.convert(rpcResult.getData(), MerchantBase.class);
         }
         logger.error("请求商户中心，根据业务类型获取商户列表失败，{}",rpcResult.getRetMsg());
         return new ArrayList<>();

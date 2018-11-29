@@ -6,17 +6,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.treefinance.saas.console.util.CallbackDataUtils;
+import com.treefinance.saas.console.util.RemoteDataUtils;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.dto.DataApiRawResultDTO;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.facade.DataApiRawResultFacade;
 import com.treefinance.saas.dataservice.dataserver.dataapirawresult.request.DataApiRawResultRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
-import com.treefinance.saas.management.console.biz.common.handler.CallbackSecureHandler;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.biz.service.DsDataApiRawResultSerivce;
 import com.treefinance.saas.management.console.common.domain.request.DsDataApiRequest;
 import com.treefinance.saas.management.console.common.domain.vo.DataApiRawResultVO;
-import com.treefinance.saas.monitor.common.utils.RemoteDataDownloadUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +36,6 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
     private DataApiRawResultFacade dataApiRawResultFacade;
     @Autowired
     private AppLicenseService appLicenseService;
-    @Autowired
-    protected CallbackSecureHandler callbackSecureHandler;
 
     @Override
     public SaasResult<Map<String, Object>> findPageByExample(DsDataApiRequest request) {
@@ -72,10 +70,10 @@ public class DsDataApiRawResultSerivceImpl implements DsDataApiRawResultSerivce 
 
     private String getOssJson(String appId, String ossUrl) {
         try {
-            byte[] result = RemoteDataDownloadUtils.download(ossUrl, byte[].class);
+            byte[] result = RemoteDataUtils.download(ossUrl, byte[].class);
             if (result != null) {
                 String secretKey = appLicenseService.getAppDataSecretKeyByAppId(appId);
-                return callbackSecureHandler.decryptByAES(result, secretKey);
+                return CallbackDataUtils.decryptByAES(result, secretKey);
             } else {
                 logger.warn("oss下载数据失败,数据为空,ossUrl - {}", ossUrl);
             }

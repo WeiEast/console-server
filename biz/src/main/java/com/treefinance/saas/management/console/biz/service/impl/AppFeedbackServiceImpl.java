@@ -1,10 +1,10 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.AppFeedbackService;
 import com.treefinance.saas.management.console.common.domain.request.AppFeedbackRequest;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.facade.request.console.GetAppFeedbackRequest;
 import com.treefinance.saas.merchant.facade.result.console.AppFeedbackResultRO;
 import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
@@ -19,14 +19,14 @@ import java.util.List;
  * @date 2018/8/29
  */
 @Service
-public class AppFeedbackServiceImpl implements AppFeedbackService {
+public class AppFeedbackServiceImpl extends AbstractServiceAdapter implements AppFeedbackService {
 
     @Autowired
     private AppFeedbackFacade appFeedbackFacade;
 
     @Override
     public Object queryList(AppFeedbackRequest request) {
-        GetAppFeedbackRequest rpcRequest = DataConverterUtils.convert(request, GetAppFeedbackRequest.class);
+        GetAppFeedbackRequest rpcRequest = this.convert(request, GetAppFeedbackRequest.class);
         MerchantResult<List<AppFeedbackResultRO>> rpcResult;
         try {
             rpcResult = appFeedbackFacade.getAppQuestionnaire(rpcRequest);

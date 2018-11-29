@@ -1,6 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
@@ -8,7 +9,6 @@ import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.BasicDataService;
 import com.treefinance.saas.management.console.common.domain.vo.BasicDataHistoryVO;
 import com.treefinance.saas.management.console.common.domain.vo.BasicDataVO;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.base.BaseRequest;
 import com.treefinance.saas.monitor.facade.domain.request.BasicDataRequest;
 import com.treefinance.saas.monitor.facade.domain.request.autostat.BasicDataHistoryRequest;
@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author:guoguoyun
- * @date:Created in 2018/4/23下午5:12
+ * @author guoguoyun
+ * @date 2018/4/23下午5:12
  */
 @Service
-public class BasicDataServiceImpl implements BasicDataService {
+public class BasicDataServiceImpl extends AbstractServiceAdapter implements BasicDataService {
     private static final Logger logger = LoggerFactory.getLogger(BasicDataService.class);
 
     @Autowired
@@ -44,14 +44,14 @@ public class BasicDataServiceImpl implements BasicDataService {
     @Override
     public SaasResult<Map<String, Object>> queryAllBasicData(PageRequest pageRequest) {
         com.treefinance.saas.monitor.facade.domain.base.PageRequest _pageRequest = new com.treefinance.saas.monitor.facade.domain.base.PageRequest();
-        BeanUtils.copyProperties(pageRequest, _pageRequest);
+        this.copyProperties(pageRequest, _pageRequest);
         MonitorResult<List<BasicDataRO>> monitorResult = basicDataFacade.queryAllBasicData(_pageRequest);
         if (monitorResult.getData() == null) {
             logger.info("查询基础数据列表为空,{}", monitorResult.getErrorMsg());
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
 
         }
-        List<BasicDataVO> basicDataVOList = BeanUtils.convertList(monitorResult.getData(), BasicDataVO.class);
+        List<BasicDataVO> basicDataVOList = this.convertList(monitorResult.getData(), BasicDataVO.class);
 
         return Results.newPageResult(pageRequest, monitorResult.getTotalCount(), basicDataVOList);
 
@@ -61,7 +61,7 @@ public class BasicDataServiceImpl implements BasicDataService {
     public SaasResult<Boolean> addBasciData(BasicDataVO basicDataVO) {
 
         BasicDataRequest basicDataRequest = new BasicDataRequest();
-        BeanUtils.copyProperties(basicDataVO, basicDataRequest);
+        this.copyProperties(basicDataVO, basicDataRequest);
         MonitorResult<Boolean> monitorResult = basicDataFacade.addBasicData(basicDataRequest);
         if (!monitorResult.getData()) {
             logger.error("插入基础数据错误");
@@ -74,7 +74,7 @@ public class BasicDataServiceImpl implements BasicDataService {
     @Override
     public SaasResult<Boolean> updateBasciData(BasicDataVO basicDataVO) {
         BasicDataRequest basicDataRequest = new BasicDataRequest();
-        BeanUtils.copyProperties(basicDataVO, basicDataRequest);
+        this.copyProperties(basicDataVO, basicDataRequest);
         MonitorResult<Boolean> monitorResult = basicDataFacade.updateBasicData(basicDataRequest);
         if (!monitorResult.getData()) {
             logger.error("更新基础数据失败");
@@ -128,7 +128,7 @@ public class BasicDataServiceImpl implements BasicDataService {
         MonitorResult<List<BasicDataHistoryRO>> result = basicDataHistoryFacade.queryList(request);
         List<BasicDataHistoryVO> list = Lists.newArrayList();
         if (result != null && !CollectionUtils.isEmpty(result.getData())) {
-            list = BeanUtils.convertList(result.getData(), BasicDataHistoryVO.class);
+            list = this.convertList(result.getData(), BasicDataHistoryVO.class);
         }
         PageRequest pageRequest = new PageRequest();
         pageRequest.setPageNumber(request.getPageNumber());

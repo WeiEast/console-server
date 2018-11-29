@@ -5,15 +5,15 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.commonservice.uid.UidService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
+import com.treefinance.saas.management.console.biz.enums.EServiceTagEnum;
 import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantFlowEnvQuotaVO;
-import com.treefinance.saas.management.console.common.enumeration.EServiceTag;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.facade.request.common.PageRequest;
 import com.treefinance.saas.merchant.facade.request.console.BatchUpdateFlowRequest;
@@ -29,13 +29,12 @@ import com.treefinance.saas.merchant.facade.result.gateway.MerchantFlowConfigRes
 import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.merchant.facade.service.MerchantFlowConfigFacade;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,9 +43,7 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/9/28.
  */
 @Service
-public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService {
-
-    private static Logger logger = LoggerFactory.getLogger(MerchantFlowConfigService.class);
+public class MerchantFlowConfigServiceImpl extends AbstractServiceAdapter implements MerchantFlowConfigService {
 
     @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
@@ -103,7 +100,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
                 vo.setAppName(appName);
             }
             vo.setServiceTag(config.getServiceTag());
-            vo.setServiceTagName(EServiceTag.getDesc(config.getServiceTag()));
+            vo.setServiceTagName(EServiceTagEnum.getDesc(config.getServiceTag()));
             result.add(vo);
         }
         logger.info(JSON.toJSONString(result));
@@ -144,7 +141,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
             UpdateMerchantFlowRequest config = new UpdateMerchantFlowRequest();
             config.setId(uidService.getId());
             config.setAppId(merchantBase.getAppId());
-            config.setServiceTag(EServiceTag.PRODUCT.getTag());
+            config.setServiceTag(EServiceTagEnum.PRODUCT.getTag());
             list.add(config);
         }
 
@@ -183,7 +180,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
 
         List<MerchantFlowAllotResult> list = result.getData();
 
-        List<MerchantFlowAllotVO> merchantFlowAllotVOS = DataConverterUtils.convert(list, MerchantFlowAllotVO.class);
+        List<MerchantFlowAllotVO> merchantFlowAllotVOS = this.convert(list, MerchantFlowAllotVO.class);
 
         return Results.newPageResult(pageRequest, result.getTotalCount(), merchantFlowAllotVOS);
     }
@@ -197,7 +194,7 @@ public class MerchantFlowConfigServiceImpl implements MerchantFlowConfigService 
         List<MerchantFlowEnvQuotaVO> quotaVOList = merchantFlowAllotVO.getQuotaVOList();
 
         List<UpdateMerchantFlowAllotSubRequest> subRequests =
-            DataConverterUtils.convert(quotaVOList, UpdateMerchantFlowAllotSubRequest.class);
+            this.convert(quotaVOList, UpdateMerchantFlowAllotSubRequest.class);
 
         request.setQuotas(subRequests);
 

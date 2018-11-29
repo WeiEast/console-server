@@ -3,7 +3,11 @@ package com.treefinance.saas.management.console.biz.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.treefinance.saas.console.manager.LicenseManager;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.management.console.biz.enums.EBizTypeEnum;
 import com.treefinance.saas.management.console.biz.service.OperatorStatService;
 import com.treefinance.saas.management.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AllOperatorStatAccessVO;
@@ -14,18 +18,10 @@ import com.treefinance.saas.management.console.common.domain.vo.OperatorStatAcce
 import com.treefinance.saas.management.console.common.domain.vo.OperatorStatDayAccessDetailVO;
 import com.treefinance.saas.management.console.common.domain.vo.OperatorStatDayAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.OperatorStatDayConvertRateVo;
-import com.treefinance.saas.management.console.common.enumeration.EBizType;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.management.console.common.utils.DateUtils;
-import com.treefinance.saas.management.console.dao.entity.AppBizLicense;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
-import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseByBizTypeRequest;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
-import com.treefinance.saas.merchant.facade.result.console.AppBizLicenseResult;
 import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
 import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
-import com.treefinance.saas.merchant.facade.service.AppBizLicenseFacade;
 import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.monitor.facade.domain.request.CallbackFailureReasonStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.OperatorStatAccessRequest;
@@ -43,8 +39,6 @@ import com.treefinance.toolkit.util.Objects;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -63,18 +57,17 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/11/1.
  */
 @Service
-public class OperatorStatServiceImpl implements OperatorStatService {
+public class OperatorStatServiceImpl extends AbstractServiceAdapter implements OperatorStatService {
 
-    private static final Logger logger = LoggerFactory.getLogger(OperatorStatService.class);
     @Autowired
     private OperatorStatAccessFacade operatorStatAccessFacade;
 
     @Autowired
-    private AppBizLicenseFacade appBizLicenseFacade;
-    @Autowired
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
     private CallbackFailureReasonStatAccessFacade callbackFailureReasonStatAccessFacade;
+    @Autowired
+    private LicenseManager licenseManager;
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -91,7 +84,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newPageResult(request, 0, result);
         }
-        result = BeanUtils.convertList(rpcResult.getData(), AllOperatorStatDayAccessVO.class);
+        result = this.convertList(rpcResult.getData(), AllOperatorStatDayAccessVO.class);
         return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
@@ -109,7 +102,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newSuccessResult(result);
         }
-        result = BeanUtils.convertList(rpcResult.getData(), AllOperatorStatAccessVO.class);
+        result = this.convertList(rpcResult.getData(), AllOperatorStatAccessVO.class);
         return Results.newSuccessResult(result);
     }
 
@@ -128,7 +121,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newPageResult(request, 0, result);
         }
-        result = BeanUtils.convertList(rpcResult.getData(), OperatorStatAccessVO.class);
+        result = this.convertList(rpcResult.getData(), OperatorStatAccessVO.class);
         return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
@@ -147,7 +140,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         if (CollectionUtils.isEmpty(rpcResult.getData())) {
             return Results.newPageResult(request, 0, result);
         }
-        result = BeanUtils.convertList(rpcResult.getData(), OperatorStatDayAccessVO.class);
+        result = this.convertList(rpcResult.getData(), OperatorStatDayAccessVO.class);
         return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
@@ -183,13 +176,17 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         Map<String, List<OperatorStatDayAccessDetailVO>> map = Maps.newHashMap();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         for (OperatorStatAccessRO ro : rpcResult.getData()) {
+            if (ro == null) {
+                continue;
+            }
+
             String dateStr = df.format(ro.getDataTime());
             List<OperatorStatDayAccessDetailVO> list = map.get(dateStr);
             if (CollectionUtils.isEmpty(list)) {
                 list = Lists.newArrayList();
             }
             OperatorStatDayAccessDetailVO vo = new OperatorStatDayAccessDetailVO();
-            BeanUtils.convert(ro, vo);
+            this.copyProperties(ro, vo);
             vo.setDataTimeStr(DateUtils.date2SimpleHm(vo.getDataTime()));
             list.add(vo);
 
@@ -197,9 +194,13 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         }
         List<OperatorStatDayAccessDetailVO> result = Lists.newArrayList();
         for (OperatorStatDayAccessRO ro : rpcDayResult.getData()) {
+            if (ro == null) {
+                continue;
+            }
+
             String dateStr = df.format(ro.getDataTime());
             OperatorStatDayAccessDetailVO vo = new OperatorStatDayAccessDetailVO();
-            BeanUtils.convert(ro, vo);
+            this.copyProperties(ro, vo);
             List<OperatorStatDayAccessDetailVO> detailList = map.get(dateStr);
             if (CollectionUtils.isNotEmpty(detailList)) {
                 detailList = detailList.stream().sorted((o1, o2) -> o2.getDataTime().compareTo(o1.getDataTime())).collect(Collectors.toList());
@@ -278,18 +279,16 @@ public class OperatorStatServiceImpl implements OperatorStatService {
         totalVO.setAppName("所有商户");
         result.add(totalVO);
 
-        QueryAppBizLicenseByBizTypeRequest queryAppBizLicenseByBizTypeRequest = new QueryAppBizLicenseByBizTypeRequest();
-        queryAppBizLicenseByBizTypeRequest.setBizType(EBizType.OPERATOR.getCode());
-        MerchantResult<List<AppBizLicenseResult>> listMerchantBase = appBizLicenseFacade.queryAppBizLicenseByBizType(queryAppBizLicenseByBizTypeRequest);
-        List<AppBizLicense> appBizLicenseList = DataConverterUtils.convert(listMerchantBase.getData(), AppBizLicense.class);
-        if (CollectionUtils.isEmpty(appBizLicenseList)) {
+        List<String> appIds = licenseManager.listAppIdsByBizType(EBizTypeEnum.OPERATOR.getCode());
+
+        if (CollectionUtils.isEmpty(appIds)) {
             return Results.newSuccessResult(result);
         }
-        List<String> appIdList = appBizLicenseList.stream().map(AppBizLicense::getAppId).distinct().collect(Collectors.toList());
+
         QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
-        queryMerchantByAppIdRequest.setAppIds(appIdList);
+        queryMerchantByAppIdRequest.setAppIds(appIds);
         MerchantResult<List<MerchantBaseResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
-        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
+        List<MerchantBase> merchantBaseList = this.convert(listMerchantResult.getData(), MerchantBase.class);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return Results.newSuccessResult(result);
         }
@@ -370,22 +369,22 @@ public class OperatorStatServiceImpl implements OperatorStatService {
                     String valueStr = itemCountMap.get(groupName);
                     StringBuilder sb = new StringBuilder();
                     if (StringUtils.isBlank(valueStr)) {
-                        sb = sb.append("0").append(" | ").append("NA");
+                        sb.append("0").append(" | ").append("NA");
                         itemValueMap.put(groupName, sb.toString());
                     } else {
                         if (total == 0) {
-                            sb = sb.append("0").append(" | ").append("NA");
+                            sb.append("0").append(" | ").append("NA");
                             itemValueMap.put(groupName, sb.toString());
                         } else {
                             BigDecimal rate = new BigDecimal(valueStr).multiply(new BigDecimal(100)).divide(new BigDecimal(total), 2, BigDecimal.ROUND_HALF_UP);
-                            sb = sb.append(valueStr).append(" | ").append(rate).append("%");
+                            sb.append(valueStr).append(" | ").append(rate).append("%");
                             itemValueMap.put(groupName, sb.toString());
                         }
                     }
                 }
             } else {
                 StringBuilder sb = new StringBuilder();
-                sb = sb.append("0").append(" | ").append("NA");
+                sb.append("0").append(" | ").append("NA");
                 for (String groupName : groupNameList) {
                     itemValueMap.put(groupName, sb.toString());
                 }
@@ -418,7 +417,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     public Object queryDayCallbackFailureReason(OperatorStatRequest request) {
         CallbackFailureReasonStatAccessRequest rpcRequest = new CallbackFailureReasonStatAccessRequest();
         rpcRequest.setAppId(request.getAppId());
-        rpcRequest.setBizType(EBizType.OPERATOR.getCode());
+        rpcRequest.setBizType(EBizTypeEnum.OPERATOR.getCode());
         rpcRequest.setDataType(request.getStatType());
         rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setGroupCode(request.getGroupCode());
@@ -441,7 +440,7 @@ public class OperatorStatServiceImpl implements OperatorStatService {
     public Object queryCallbackFailureReason(OperatorStatRequest request) {
         CallbackFailureReasonStatAccessRequest rpcRequest = new CallbackFailureReasonStatAccessRequest();
         rpcRequest.setAppId(request.getAppId());
-        rpcRequest.setBizType(EBizType.OPERATOR.getCode());
+        rpcRequest.setBizType(EBizTypeEnum.OPERATOR.getCode());
         rpcRequest.setDataType(request.getStatType());
         rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setGroupCode(request.getGroupCode());

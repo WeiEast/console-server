@@ -1,11 +1,11 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.service.EmailStatService;
 import com.treefinance.saas.management.console.common.domain.request.EmailStatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.EmailStatAccessVO;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.monitor.facade.domain.request.EmailStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.email.EmailStatAccessBaseRO;
@@ -21,7 +21,7 @@ import java.util.List;
  * @date 18/3/15 15:26
  */
 @Service
-public class EmailStatServiceImpl implements EmailStatService {
+public class EmailStatServiceImpl extends AbstractServiceAdapter implements EmailStatService {
 
     @Autowired
     private EmailStatAccessFacade emailStatAccessFacade;
@@ -31,7 +31,7 @@ public class EmailStatServiceImpl implements EmailStatService {
 
         EmailStatAccessRequest rpcRequest = new EmailStatAccessRequest();
 
-        BeanUtils.copyProperties(request, rpcRequest);
+        this.copyProperties(request, rpcRequest);
         rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getStartDate()));
         rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getEndDate()));
 
@@ -41,7 +41,7 @@ public class EmailStatServiceImpl implements EmailStatService {
             return Results.newPageResult(request, 0, rpcResult.getData());
         }
 
-        List<EmailStatAccessVO> result = BeanUtils.convertList(rpcResult.getData(), EmailStatAccessVO.class);
+        List<EmailStatAccessVO> result = this.convertList(rpcResult.getData(), EmailStatAccessVO.class);
         return Results.newPageResult(request, rpcResult.getTotalCount(), result);
     }
 
@@ -50,7 +50,7 @@ public class EmailStatServiceImpl implements EmailStatService {
 
         EmailStatAccessRequest rpcRequest = new EmailStatAccessRequest();
 
-        BeanUtils.copyProperties(request, rpcRequest);
+        this.copyProperties(request, rpcRequest);
         rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getDataDate()));
         rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getDataDate()));
 
@@ -60,7 +60,7 @@ public class EmailStatServiceImpl implements EmailStatService {
             return Results.newPageResult(request, 0, rpcResult.getData());
         }
 
-        List<EmailStatAccessVO> result = BeanUtils.convertList(rpcResult.getData(), EmailStatAccessVO.class);
+        List<EmailStatAccessVO> result = this.convertList(rpcResult.getData(), EmailStatAccessVO.class);
 
         return Results.newPageResult(request, rpcResult.getTotalCount(), result);
 

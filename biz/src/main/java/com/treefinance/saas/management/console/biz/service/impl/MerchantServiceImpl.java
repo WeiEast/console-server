@@ -6,6 +6,9 @@ import com.google.common.collect.Lists;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.util.SystemUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
@@ -16,10 +19,6 @@ import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.management.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.CommonUtils;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.facade.request.console.AddAppBizLicenseRequest;
 import com.treefinance.saas.merchant.facade.request.console.AddMerchantBaseRequest;
@@ -39,8 +38,6 @@ import com.treefinance.saas.merchant.facade.result.console.ResetPwdResult;
 import com.treefinance.saas.merchant.facade.result.grapsever.AppLicenseResult;
 import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -59,8 +56,7 @@ import java.util.regex.Pattern;
  * Created by haojiahong on 2017/6/21.
  */
 @Component
-public class MerchantServiceImpl implements MerchantService {
-    private static final Logger logger = LoggerFactory.getLogger(MerchantServiceImpl.class);
+public class MerchantServiceImpl extends AbstractServiceAdapter implements MerchantService {
 
     @Resource
     private ISecurityCryptoService iSecurityCryptoService;
@@ -89,7 +85,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         List<MerchantBizLicense> list = infoResult.getAppBizLicenseList();
 
-        List<AppBizLicenseVO> appBizLicenseVOList = DataConverterUtils.convert(list,AppBizLicenseVO.class);
+        List<AppBizLicenseVO> appBizLicenseVOList = this.convert(list, AppBizLicenseVO.class);
 
         baseVO.setAppBizLicenseVOList(appBizLicenseVOList);
 
@@ -98,14 +94,14 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     private void appLicenseVOprocess(MerchantBaseInfoResult infoResult, MerchantBaseVO baseVO) {
-        BeanUtils.copyProperties(infoResult,baseVO);
+        this.copyProperties(infoResult, baseVO);
 
         AppLicenseResult appLicenseResult = infoResult.getAppLicenseVO();
         if(appLicenseResult == null){
             logger.info("appLicense 为空");
         }else {
             AppLicenseVO appLicenseVO = new AppLicenseVO();
-            BeanUtils.convert(appLicenseResult,appLicenseVO);
+            this.copyProperties(appLicenseResult, appLicenseVO);
             baseVO.setAppLicenseVO(appLicenseVO);
         }
     }
@@ -127,7 +123,7 @@ public class MerchantServiceImpl implements MerchantService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
         if (!CollectionUtils.isEmpty(result.getData())) {
-            merchantBaseVOList = BeanUtils.convertList(result.getData(), MerchantBaseVO.class);
+            merchantBaseVOList = this.convertList(result.getData(), MerchantBaseVO.class);
         }
 
         return Results.newPageResult(request, result.getTotalCount(), merchantBaseVOList);
@@ -150,11 +146,11 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         AddMerchantBaseRequest request = new AddMerchantBaseRequest();
-        BeanUtils.copyProperties(merchantBaseVO, request);
+        this.copyProperties(merchantBaseVO, request);
         List<AddAppBizLicenseRequest> licenseRequests = new ArrayList<>();
         for (AppBizLicenseVO vo : merchantBaseVO.getAppBizLicenseVOList()) {
             AddAppBizLicenseRequest addAppBizLicenseRequest = new AddAppBizLicenseRequest();
-            BeanUtils.copyProperties(vo, addAppBizLicenseRequest);
+            this.copyProperties(vo, addAppBizLicenseRequest);
             licenseRequests.add(addAppBizLicenseRequest);
         }
         request.setAppBizLicenseVOList(licenseRequests);
@@ -185,7 +181,7 @@ public class MerchantServiceImpl implements MerchantService {
         Assert.notNull(merchantBaseVO.getId(), "id不能为空");
 
         AddMerchantBaseRequest request = new AddMerchantBaseRequest();
-        BeanUtils.copyProperties(merchantBaseVO, request);
+        this.copyProperties(merchantBaseVO, request);
         logger.info("更新商户信息，更新信息：request={}", JSON.toJSONString(request));
 
         MerchantResult<UpdateMerchantResult> result = merchantBaseInfoFacade.updateMerchant(request);
@@ -198,7 +194,7 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public String resetPassWord(Long id) {
 
-        String newPwd = CommonUtils.generatePassword();
+        String newPwd = SystemUtils.generatePassword();
 
         ResetPwdRequest resetPwdRequest = new ResetPwdRequest();
         resetPwdRequest.setId(id);
@@ -226,7 +222,7 @@ public class MerchantServiceImpl implements MerchantService {
             return merchantSimpleVOList;
         }
 
-        merchantSimpleVOList = BeanUtils.convertList(result.getData(), MerchantSimpleVO.class);
+        merchantSimpleVOList = this.convertList(result.getData(), MerchantSimpleVO.class);
         return merchantSimpleVOList;
     }
 
@@ -246,7 +242,7 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public String autoGenerateAppId() {
         String prefix = diamondConfig.getAppIdEnvironmentPrefix();
-        return prefix + "_" + CommonUtils.generateAppId();
+        return prefix + "_" + SystemUtils.generateAppId();
     }
 
     @Override

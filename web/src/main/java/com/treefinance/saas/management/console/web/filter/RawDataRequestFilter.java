@@ -1,13 +1,14 @@
 package com.treefinance.saas.management.console.web.filter;
 
+import com.treefinance.saas.console.util.http.HttpClientUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
-import com.treefinance.saas.management.console.common.domain.config.RawdataDomainConfig;
-import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
+import com.treefinance.saas.management.console.biz.common.config.RawdataDomainConfig;
 import com.treefinance.toolkit.util.http.servlet.ServletResponses;
 import com.treefinance.toolkit.util.json.Jackson;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.AntPathMatcher;
@@ -53,7 +54,7 @@ public class RawDataRequestFilter extends OncePerRequestFilter {
         String requestPath = request.getRequestURI();
         for (String patternPath : map.keySet()) {
             if (matcher.match(patternPath, requestPath)) {
-                url = map.get(patternPath).getDomian() + StringUtils.removeFirst(requestPath, map.get(patternPath).getRemovePath());
+                url = map.get(patternPath).getDomian() + RegExUtils.removeFirst(requestPath, map.get(patternPath).getRemovePath());
             }
         }
         try {
@@ -98,13 +99,13 @@ public class RawDataRequestFilter extends OncePerRequestFilter {
     }
 
     private void handleLog(HttpServletRequest request, Exception ex) {
-        StringBuffer logBuffer = new StringBuffer();
+        StringBuilder logBuffer = new StringBuilder();
         if (request != null) {
-            logBuffer.append("request method=" + request.getMethod());
-            logBuffer.append(",url=" + request.getRequestURL());
+            logBuffer.append("request method=").append(request.getMethod());
+            logBuffer.append(",url=").append(request.getRequestURL());
         }
         if (ex != null) {
-            logBuffer.append(",exception:" + ex);
+            logBuffer.append(",exception:").append(ex);
         }
         logger.error(logBuffer.toString(), ex);
     }

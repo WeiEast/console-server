@@ -17,13 +17,13 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.treefinance.saas.console.context.exception.RpcServiceException;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppLicenseService;
 import com.treefinance.saas.management.console.common.domain.vo.AppLicenseVO;
-import com.treefinance.saas.management.console.common.exceptions.ServiceException;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.facade.request.grapserver.GetAppLicenseRequest;
 import com.treefinance.saas.merchant.facade.request.grapserver.GetCallbackLicenseRequest;
 import com.treefinance.saas.merchant.facade.result.console.AppLicenseVOResult;
@@ -45,7 +45,7 @@ import java.util.Map;
  * @date 19:14 25/04/2017
  */
 @Component
-public class AppLicenseServiceImpl implements AppLicenseService {
+public class AppLicenseServiceImpl extends AbstractServiceAdapter implements AppLicenseService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppLicenseServiceImpl.class);
 
@@ -66,7 +66,7 @@ public class AppLicenseServiceImpl implements AppLicenseService {
         request.setAppId(appId);
         MerchantResult<AppLicenseResult> result = appLicenseFacade.getAppLicense(request);
         if (!result.isSuccess()) {
-            throw new ServiceException("请求商户[appId:" + appId + "]的app-license失败：" + result.getRetMsg());
+            throw new RpcServiceException("请求商户[appId:" + appId + "]的app-license失败：" + result.getRetMsg());
         }
 
         logger.info("根据appId={}查询秘钥key结果为result={}", appId, JSON.toJSONString(result.getData()));
@@ -87,7 +87,7 @@ public class AppLicenseServiceImpl implements AppLicenseService {
         request.setCallbackId(callbackConfigId);
         MerchantResult<CallbackLicenseResult> result = appLicenseFacade.getCallbackLicense(request);
         if (!result.isSuccess()) {
-            throw new ServiceException("请求回调[callbackConfigId: " + callbackConfigId + "]的license失败：" + result.getRetMsg());
+            throw new RpcServiceException("请求回调[callbackConfigId: " + callbackConfigId + "]的license失败：" + result.getRetMsg());
         }
 
         logger.info("根据Id={}查询回调的license结果为result={}", callbackConfigId, JSON.toJSONString(result.getData()));
@@ -104,11 +104,11 @@ public class AppLicenseServiceImpl implements AppLicenseService {
 
         MerchantResult<List<AppLicenseVOResult>> result = appLicenseFacade.queryAppLicenseVo(pageRequest);
         if (!result.isSuccess()) {
-            throw new ServiceException("请求商户中心的app-license列表失败：" + result.getRetMsg());
+            throw new RpcServiceException("请求商户中心的app-license列表失败：" + result.getRetMsg());
         }
 
         logger.info("商户中心返回数据：{}", result.getData());
-        List<AppLicenseVO> appLicenseVOList = DataConverterUtils.convert(result.getData(), AppLicenseVO.class);
+        List<AppLicenseVO> appLicenseVOList = this.convert(result.getData(), AppLicenseVO.class);
 
         return Results.newPageResult(request, result.getTotalCount(), appLicenseVOList);
     }

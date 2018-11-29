@@ -1,11 +1,11 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.StatItemService;
 import com.treefinance.saas.management.console.common.domain.vo.StatItemVO;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.autostat.StatItemRO;
 import com.treefinance.saas.monitor.facade.service.autostat.StatItemFacade;
@@ -19,7 +19,7 @@ import java.util.List;
  * Created by yh-treefinance on 2018/5/22.
  */
 @Component("statItemService")
-public class StatItemServiceImpl implements StatItemService {
+public class StatItemServiceImpl extends AbstractServiceAdapter implements StatItemService {
     @Autowired
     private StatItemFacade statItemFacade;
 
@@ -32,13 +32,14 @@ public class StatItemServiceImpl implements StatItemService {
         if (StringUtils.isNotEmpty(result.getErrorMsg())) {
             return Results.newFailedResult(CommonStateCode.FAILURE, result.getErrorMsg());
         }
-        List<StatItemVO> statItemVOS = BeanUtils.convertList(result.getData(), StatItemVO.class);
+        List<StatItemVO> statItemVOS = this.convertList(result.getData(), StatItemVO.class);
         return Results.newSuccessResult(statItemVOS);
     }
 
     @Override
     public SaasResult<Long> saveStatItem(StatItemVO statItemVO) {
-        StatItemRO statItemRO = BeanUtils.convert(statItemVO, new StatItemRO());
+        StatItemRO statItemRO = new StatItemRO();
+        this.copy(statItemVO, statItemRO);
         Long id = statItemRO.getId();
         if (id == null) {
             MonitorResult<Long> result = statItemFacade.addStatItem(statItemRO);

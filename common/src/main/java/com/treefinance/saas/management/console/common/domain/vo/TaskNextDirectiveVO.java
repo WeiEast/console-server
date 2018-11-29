@@ -1,7 +1,5 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
-import org.springframework.stereotype.Service;
-
 import java.io.Serializable;
 import java.util.Date;
 

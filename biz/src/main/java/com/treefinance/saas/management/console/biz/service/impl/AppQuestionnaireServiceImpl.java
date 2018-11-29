@@ -1,5 +1,7 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
+import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AppQuestionnaireService;
@@ -7,8 +9,6 @@ import com.treefinance.saas.management.console.biz.service.MerchantFlowConfigSer
 import com.treefinance.saas.management.console.common.domain.request.AppQuestionnaireDetailRequest;
 import com.treefinance.saas.management.console.common.domain.request.AppQuestionnaireRequest;
 import com.treefinance.saas.management.console.common.domain.request.QueryQuestionnaireRequest;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
 import com.treefinance.saas.merchant.facade.request.console.AddAppQuestDetailRequest;
 import com.treefinance.saas.merchant.facade.request.console.AddAppQuestionnaireRequest;
 import com.treefinance.saas.merchant.facade.request.console.GetQuestionnaireRequest;
@@ -29,7 +29,7 @@ import java.util.List;
  * @date 18/8/21 11:14
  */
 @Service
-public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
+public class AppQuestionnaireServiceImpl extends AbstractServiceAdapter implements AppQuestionnaireService {
 
     private static Logger logger = LoggerFactory.getLogger(MerchantFlowConfigService.class);
 
@@ -66,12 +66,11 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
 
     @Override
     public SaasResult addAppQuestionnaire(AppQuestionnaireRequest request) {
-
-        AddAppQuestionnaireRequest rpcRequest = DataConverterUtils.convert(request, AddAppQuestionnaireRequest.class);
+        AddAppQuestionnaireRequest rpcRequest = this.convert(request, AddAppQuestionnaireRequest.class);
 
         List<AppQuestionnaireDetailRequest> details = request.getDetails();
 
-        List<AddAppQuestDetailRequest> detailRpc = DataConverterUtils.convert(details, AddAppQuestDetailRequest.class);
+        List<AddAppQuestDetailRequest> detailRpc = this.convert(details, AddAppQuestDetailRequest.class);
 
         rpcRequest.setDetails(detailRpc);
 
@@ -117,11 +116,11 @@ public class AppQuestionnaireServiceImpl implements AppQuestionnaireService {
 
     @Override
     public SaasResult updateAppQuestionnaire(AppQuestionnaireRequest request) {
-        AddAppQuestionnaireRequest rpcRequest = DataConverterUtils.convert(request, AddAppQuestionnaireRequest.class);
+        AddAppQuestionnaireRequest rpcRequest = this.convert(request, AddAppQuestionnaireRequest.class);
 
         List<AppQuestionnaireDetailRequest> details = request.getDetails();
 
-        List<AddAppQuestDetailRequest> detailRpc = DataConverterUtils.convert(details, AddAppQuestDetailRequest.class);
+        List<AddAppQuestDetailRequest> detailRpc = this.convert(details, AddAppQuestDetailRequest.class);
         rpcRequest.setDetails(detailRpc);
 
         MerchantResult<Boolean> result;

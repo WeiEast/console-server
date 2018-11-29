@@ -4,23 +4,33 @@ import com.alibaba.dubbo.rpc.RpcException;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.util.http.HttpClientUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
+import com.treefinance.saas.management.console.biz.enums.EBizTypeEnum;
+import com.treefinance.saas.management.console.biz.enums.ECallBackDataTypeEnum;
 import com.treefinance.saas.management.console.biz.service.AppCallbackConfigService;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackConfigVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCallbackDataTypeVO;
-import com.treefinance.saas.management.console.common.enumeration.EBizType;
-import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.merchant.facade.request.common.BaseRequest;
-import com.treefinance.saas.merchant.facade.request.console.*;
+import com.treefinance.saas.merchant.facade.request.console.AddAppCallbackBizRequest;
+import com.treefinance.saas.merchant.facade.request.console.AddAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.request.console.AppCallbackDataTypeRequest;
+import com.treefinance.saas.merchant.facade.request.console.GetAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.request.console.UpdateCallbackConfigRequest;
 import com.treefinance.saas.merchant.facade.result.common.BaseResult;
-import com.treefinance.saas.merchant.facade.result.console.*;
+import com.treefinance.saas.merchant.facade.result.console.AddAppCallbackConfigResult;
+import com.treefinance.saas.merchant.facade.result.console.AppBizTypeSimpleResult;
+import com.treefinance.saas.merchant.facade.result.console.AppCallbackBizSimpleResult;
+import com.treefinance.saas.merchant.facade.result.console.AppCallbackConfigResult;
+import com.treefinance.saas.merchant.facade.result.console.AppCallbackDataTypeResult;
+import com.treefinance.saas.merchant.facade.result.console.DeleteAppCallbackConfigRequest;
+import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.facade.service.AppBizTypeFacade;
 import com.treefinance.saas.merchant.facade.service.AppCallbackConfigFacade;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -119,7 +130,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     private void completeDataType(AppCallbackConfigVO vo, AppCallbackConfigResult callbackConfigResult) {
         AppCallbackDataTypeResult dataTypeResult = callbackConfigResult.getDataTypeVO();
         AppCallbackDataTypeVO dataTypeVO = new AppCallbackDataTypeVO();
-        dataTypeVO.setText(ECallBackDataType.getText(dataTypeResult.getCode()));
+        dataTypeVO.setText(ECallBackDataTypeEnum.getText(dataTypeResult.getCode()));
         dataTypeVO.setCode(dataTypeResult.getCode());
         vo.setDataTypeVO(dataTypeVO);
     }
@@ -255,7 +266,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         allVO.setBizType((byte)0);
         allVO.setBizName("全部");
         appBizTypeVOList.add(0, allVO);
-        MerchantResult<List<AppBizTypeSimpleResult>> result = null;
+        MerchantResult<List<AppBizTypeSimpleResult>> result;
 
         try {
             result = appBizTypeFacade.queryAppBizTypeSimple(new BaseRequest());
@@ -296,7 +307,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
     @Override
     public List<AppCallbackDataTypeVO> getCallbackDataTypeList() {
         List<AppCallbackDataTypeVO> voList = Lists.newArrayList();
-        for (ECallBackDataType item : ECallBackDataType.values()) {
+        for (ECallBackDataTypeEnum item : ECallBackDataTypeEnum.values()) {
             AppCallbackDataTypeVO vo = new AppCallbackDataTypeVO();
             vo.setCode(item.getCode());
             vo.setText(item.getText());
@@ -309,7 +320,7 @@ public class AppCallbackConfigServiceImpl implements AppCallbackConfigService {
         if (bizType == 0) {
             return "全部";
         } else {
-            return EBizType.getName(bizType);
+            return EBizTypeEnum.getName(bizType);
         }
     }
 

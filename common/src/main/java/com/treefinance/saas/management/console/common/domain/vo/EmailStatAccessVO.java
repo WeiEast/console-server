@@ -1,6 +1,6 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
-import com.treefinance.saas.management.console.common.utils.DateUtils;
+import com.treefinance.saas.console.util.DateUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

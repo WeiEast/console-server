@@ -1,8 +1,8 @@
 package com.treefinance.saas.management.console.web.advice;
 
-import com.treefinance.saas.management.console.common.annotations.RequestLimit;
-import com.treefinance.saas.management.console.common.cache.RedisService;
-import com.treefinance.saas.management.console.common.exceptions.RequestLimitException;
+import com.treefinance.saas.console.context.annotations.RequestLimit;
+import com.treefinance.saas.console.context.exception.RequestLimitException;
+import com.treefinance.saas.console.share.cache.RedisService;
 import org.apache.shiro.web.servlet.ShiroHttpSession;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,9 +32,9 @@ public class RequestLimitContract {
 
         Object[] args = joinPoint.getArgs();
         ShiroHttpSession session = null;
-        for (int i = 0; i < args.length; i++) {
-            if (args[i] instanceof ShiroHttpSession) {
-                session = (ShiroHttpSession) args[i];
+        for (Object arg : args) {
+            if (arg instanceof ShiroHttpSession) {
+                session = (ShiroHttpSession) arg;
                 break;
             }
         }

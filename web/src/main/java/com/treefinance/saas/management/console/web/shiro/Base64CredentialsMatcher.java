@@ -1,6 +1,6 @@
 package com.treefinance.saas.management.console.web.shiro;
 
-import com.treefinance.saas.management.console.common.utils.CommonUtils;
+import com.treefinance.toolkit.util.Base64Codec;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -16,7 +16,7 @@ public class Base64CredentialsMatcher extends SimpleCredentialsMatcher {
         UsernamePasswordToken authcToken = (UsernamePasswordToken) token;
         String password = String.valueOf(authcToken.getPassword());
         Object accountCredentials = getCredentials(info);
-        String encryptText = CommonUtils.encodeBase64(password);
+        String encryptText = Base64Codec.encode(password.getBytes());
         return equals(encryptText, accountCredentials);
     }
 }

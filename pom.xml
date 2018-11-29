@@ -7,6 +7,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>utils</module>
+        <module>share</module>
+        <module>manager</module>
         <module>common</module>
         <module>dao</module>
         <module>biz</module>
@@ -27,7 +30,7 @@
         <saas-monitor-facade.version>1.1.12-SNAPSHOT</saas-monitor-facade.version>
         <grap-server-facade.version>1.1.0-SNAPSHOT</grap-server-facade.version>
         <merchant-center.version>1.1.0-SNAPSHOT</merchant-center.version>
-        <task-center.version>1.0.0-SNAPSHOT</task-center.version>
+        <task-center.version>1.1.0-SNAPSHOT</task-center.version>
         <shiro.version>1.2.5</shiro.version>
     </properties>
 
@@ -72,28 +75,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aspects</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -102,12 +85,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>aspectj-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>

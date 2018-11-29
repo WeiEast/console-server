@@ -6,19 +6,19 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.treefinance.saas.assistant.variable.notify.server.VariableMessageNotifyService;
+import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.util.http.HttpClientUtils;
+import com.treefinance.saas.console.util.http.HttpResponseResult;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.common.config.DiamondConfig;
+import com.treefinance.saas.management.console.biz.common.config.RawdataDomainConfig;
 import com.treefinance.saas.management.console.biz.service.AppBizLicenseService;
-import com.treefinance.saas.management.console.common.domain.config.RawdataDomainConfig;
-import com.treefinance.saas.management.console.common.domain.dto.HttpResponseResult;
 import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.management.console.common.domain.vo.AppCrawlerConfigParamVO;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.HttpClientUtils;
 import com.treefinance.saas.merchant.facade.request.common.PageRequest;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseRequest;
 import com.treefinance.saas.merchant.facade.request.console.UpdateAppBizLicenseRequest;
@@ -48,7 +48,7 @@ import java.util.Map;
  * Created by haojiahong on 2017/7/4.
  */
 @Service
-public class AppBizLicenseServiceImpl implements AppBizLicenseService {
+public class AppBizLicenseServiceImpl extends AbstractServiceAdapter implements AppBizLicenseService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppBizLicenseServiceImpl.class);
 
@@ -81,7 +81,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         if (result.isSuccess()) {
             List<AppBizLicenseResult> list = result.getData();
 
-            appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
+            appBizLicenseVOList = this.convertList(list, AppBizLicenseVO.class);
 
         }
 
@@ -95,7 +95,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         Assert.notNull(request.getBizType(), "bizType不能为空");
 
         UpdateAppBizLicenseRequest updateAppBizLicenseRequest = new UpdateAppBizLicenseRequest();
-        BeanUtils.copyProperties(request, updateAppBizLicenseRequest);
+        this.copyProperties(request, updateAppBizLicenseRequest);
         MerchantResult<BaseResult> result;
         try {
             result = appBizLicenseFacade.updateAppBizLicense(updateAppBizLicenseRequest);
@@ -117,7 +117,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
         List<AppBizLicenseVO> appBizLicenseVOList = Lists.newArrayList();
 
-        MerchantResult<List<AppBizLicenseResult>> result = null;
+        MerchantResult<List<AppBizLicenseResult>> result;
         QueryAppBizLicenseRequest queryAppBizLicenseRequest = new QueryAppBizLicenseRequest();
         queryAppBizLicenseRequest.setAppId(request.getAppId());
         queryAppBizLicenseRequest.setBizType(request.getBizType());
@@ -131,7 +131,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
         if (result.isSuccess()) {
             List<AppBizLicenseResult> list = result.getData();
-            appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
+            appBizLicenseVOList = this.convertList(list, AppBizLicenseVO.class);
         }
 
         logger.info("获取商户额度列表返回结果,result={}",JSON.toJSONString(appBizLicenseVOList));
@@ -147,7 +147,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
         UpdateLicenseQuotaRequest updateLicenseQuotaRequest = new UpdateLicenseQuotaRequest();
 
-        BeanUtils.copyProperties(request, updateLicenseQuotaRequest);
+        this.copyProperties(request, updateLicenseQuotaRequest);
 
         MerchantResult<BaseResult> result;
         try {
@@ -181,7 +181,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
 
         if (result.isSuccess()) {
             List<AppBizLicenseResult> list = result.getData();
-            appBizLicenseVOList = BeanUtils.convertList(list, AppBizLicenseVO.class);
+            appBizLicenseVOList = this.convertList(list, AppBizLicenseVO.class);
         }
 
         logger.info("获取商户流量列表,result={}",JSON.toJSONString(appBizLicenseVOList));
@@ -200,7 +200,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
         }
         UpdateLicenseTrafficRequest updateLicenseTrafficRequest = new UpdateLicenseTrafficRequest();
 
-        BeanUtils.copyProperties(request, updateLicenseTrafficRequest);
+        this.copyProperties(request, updateLicenseTrafficRequest);
 
         MerchantResult<BaseResult> result;
         try {
@@ -221,7 +221,7 @@ public class AppBizLicenseServiceImpl implements AppBizLicenseService {
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA);
         }
         List<RawdataDomainConfig> list = diamondConfig.getRawDataDomainConfigList();
-        Map<String, RawdataDomainConfig> appleMap = new HashMap<>();
+        Map<String, RawdataDomainConfig> appleMap = new HashMap<>(list.size());
         for (RawdataDomainConfig rawdataDomainConfig : list) {
             appleMap.put(rawdataDomainConfig.getSystemSymbol(), rawdataDomainConfig);
         }

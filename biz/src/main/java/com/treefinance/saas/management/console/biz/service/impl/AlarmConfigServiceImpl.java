@@ -1,17 +1,35 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.google.common.collect.Lists;
+import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.AlarmConfigService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmConfigRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
-import com.treefinance.saas.management.console.common.domain.vo.*;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.monitor.facade.domain.request.autoalarm.*;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigExpressionTestVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConfigVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmConstantDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmInfoDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmMsgDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmNotifyDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmQueryDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmTriggerDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmVariableDetailVO;
+import com.treefinance.saas.management.console.common.domain.vo.SaasWorkerVO;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AlarmBasicConfigurationDetailRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AlarmBasicConfigurationRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AlarmBasicConfigurationTestRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AsAlarmConstantInfoRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AsAlarmInfoRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AsAlarmMsgInfoRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AsAlarmNotifyInfoRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AsAlarmQueryInfoRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AsAlarmTriggerInfoRequest;
+import com.treefinance.saas.monitor.facade.domain.request.autoalarm.AsAlarmVariableInfoRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.SaasWorkerRO;
 import com.treefinance.saas.monitor.facade.domain.ro.autoalarm.AsAlarmBasicConfigurationDetailRO;
@@ -20,11 +38,10 @@ import com.treefinance.saas.monitor.facade.domain.ro.autoalarm.AsAlarmRO;
 import com.treefinance.saas.monitor.facade.service.autoalarm.AlarmBasicConfigurationFacade;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,9 +51,7 @@ import java.util.stream.Collectors;
  * @date 18/7/19 16:07
  */
 @Service
-public class AlarmConfigServiceImpl implements AlarmConfigService {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+public class AlarmConfigServiceImpl extends AbstractServiceAdapter implements AlarmConfigService {
 
     @Resource
     private AlarmBasicConfigurationFacade alarmBasicConfigurationFacade;
@@ -51,7 +66,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         configurationRequest.setPageNumber(request.getPageNumber());
         configurationRequest.setPageSize(request.getPageSize());
 
-        MonitorResult<List<AsAlarmRO>> result = null;
+        MonitorResult<List<AsAlarmRO>> result;
         try {
             logger.info("向monitor请求数据，request：{}", configurationRequest);
             result = alarmBasicConfigurationFacade.queryAlarmConfigurationList(configurationRequest);
@@ -61,9 +76,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
-        List<AsAlarmRO> list = result.getData();
-
-        List<AlarmConfigVO> returnList = DataConverterUtils.convert(list, AlarmConfigVO.class);
+        List<AlarmConfigVO> returnList = this.convert(result.getData(), AlarmConfigVO.class);
 
         return Results.newPageResult(request, result.getTotalCount(), returnList);
     }
@@ -85,37 +98,37 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
             throw new BizException("saas-monitor中未查询到id=" + id + "的预警配置");
         }
         AlarmInfoDetailVO alarmInfoDetailVO = new AlarmInfoDetailVO();
-        BeanUtils.convert(rpcData.getAsAlarmRO(), alarmInfoDetailVO);
+        this.copy(rpcData.getAsAlarmRO(), alarmInfoDetailVO);
         alarmConfigDetailVO.setAlarmInfo(alarmInfoDetailVO);
 
         List<AlarmConstantDetailVO> alarmConstantDetailVOList =
-            BeanUtils.convertList(rpcData.getAsAlarmConstantROList(), AlarmConstantDetailVO.class);
+            this.convert(rpcData.getAsAlarmConstantROList(), AlarmConstantDetailVO.class);
         alarmConfigDetailVO.setAlarmConstantList(alarmConstantDetailVOList);
 
         List<AlarmQueryDetailVO> alarmQueryDetailVOList =
-            BeanUtils.convertList(rpcData.getAsAlarmQueryROList(), AlarmQueryDetailVO.class);
+            this.convertList(rpcData.getAsAlarmQueryROList(), AlarmQueryDetailVO.class);
         alarmConfigDetailVO.setAlarmQueryList(alarmQueryDetailVOList);
 
         List<AlarmVariableDetailVO> alarmVariableDetailVOList =
-            BeanUtils.convertList(rpcData.getAsAlarmVariableROList(), AlarmVariableDetailVO.class);
+            this.convertList(rpcData.getAsAlarmVariableROList(), AlarmVariableDetailVO.class);
         alarmConfigDetailVO.setAlarmVariableList(alarmVariableDetailVOList);
 
         List<AlarmNotifyDetailVO> alarmNotifyDetailVOList =
-            BeanUtils.convertList(rpcData.getAsAlarmNotifyROList(), AlarmNotifyDetailVO.class);
+            this.convertList(rpcData.getAsAlarmNotifyROList(), AlarmNotifyDetailVO.class);
         alarmConfigDetailVO.setAlarmNotifyList(alarmNotifyDetailVOList);
 
         List<AsAlarmMsgRO> notifyMsgList = rpcData.getAsAlarmMsgROList().stream()
             .filter(asAlarmMsgRO -> Byte.valueOf("1").equals(asAlarmMsgRO.getMsgType())).collect(Collectors.toList());
-        List<AlarmMsgDetailVO> alarmNotifyMsgROList = BeanUtils.convertList(notifyMsgList, AlarmMsgDetailVO.class);
+        List<AlarmMsgDetailVO> alarmNotifyMsgROList = this.convertList(notifyMsgList, AlarmMsgDetailVO.class);
         alarmConfigDetailVO.setAlarmNotifyMsgList(alarmNotifyMsgROList);
 
         List<AsAlarmMsgRO> recoveryMsgList = rpcData.getAsAlarmMsgROList().stream()
             .filter(asAlarmMsgRO -> Byte.valueOf("2").equals(asAlarmMsgRO.getMsgType())).collect(Collectors.toList());
-        List<AlarmMsgDetailVO> alarmRecoveryMsgROList = BeanUtils.convertList(recoveryMsgList, AlarmMsgDetailVO.class);
+        List<AlarmMsgDetailVO> alarmRecoveryMsgROList = this.convertList(recoveryMsgList, AlarmMsgDetailVO.class);
         alarmConfigDetailVO.setAlarmRecoveryMsgList(alarmRecoveryMsgROList);
 
         List<AlarmTriggerDetailVO> alarmTriggerDetailVOList =
-            BeanUtils.convertList(rpcData.getAsAlarmTriggerROList(), AlarmTriggerDetailVO.class);
+            this.convertList(rpcData.getAsAlarmTriggerROList(), AlarmTriggerDetailVO.class);
         alarmConfigDetailVO.setAlarmTriggerList(alarmTriggerDetailVOList);
         return Results.newSuccessResult(alarmConfigDetailVO);
     }
@@ -126,42 +139,44 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
 
         AlarmBasicConfigurationDetailRequest rpcRequest = new AlarmBasicConfigurationDetailRequest();
         AsAlarmInfoRequest asAlarmInfoRequest = new AsAlarmInfoRequest();
-        BeanUtils.convert(alarmConfigDetailVO.getAlarmInfo(), asAlarmInfoRequest);
+        this.copy(alarmConfigDetailVO.getAlarmInfo(), asAlarmInfoRequest);
         rpcRequest.setAsAlarmInfoRequest(asAlarmInfoRequest);
 
         List<AsAlarmConstantInfoRequest> asAlarmConstantInfoRequestList =
-            BeanUtils.convertList(alarmConfigDetailVO.getAlarmConstantList(), AsAlarmConstantInfoRequest.class);
+            this.convertList(alarmConfigDetailVO.getAlarmConstantList(), AsAlarmConstantInfoRequest.class);
         rpcRequest.setAsAlarmConstantInfoRequestList(asAlarmConstantInfoRequestList);
 
         List<AsAlarmQueryInfoRequest> asAlarmQueryInfoRequestList =
-            BeanUtils.convertList(alarmConfigDetailVO.getAlarmQueryList(), AsAlarmQueryInfoRequest.class);
+            this.convertList(alarmConfigDetailVO.getAlarmQueryList(), AsAlarmQueryInfoRequest.class);
         rpcRequest.setAsAlarmQueryInfoRequestList(asAlarmQueryInfoRequestList);
 
         List<AsAlarmVariableInfoRequest> asAlarmVariableInfoRequestList =
-            BeanUtils.convertList(alarmConfigDetailVO.getAlarmVariableList(), AsAlarmVariableInfoRequest.class);
+            this.convertList(alarmConfigDetailVO.getAlarmVariableList(), AsAlarmVariableInfoRequest.class);
         rpcRequest.setAsAlarmVariableInfoRequestList(asAlarmVariableInfoRequestList);
 
         List<AsAlarmNotifyInfoRequest> asAlarmNotifyInfoRequestList =
-            BeanUtils.convertList(alarmConfigDetailVO.getAlarmNotifyList(), AsAlarmNotifyInfoRequest.class);
+            this.convertList(alarmConfigDetailVO.getAlarmNotifyList(), AsAlarmNotifyInfoRequest.class);
         rpcRequest.setAsAlarmNotifyInfoRequestList(asAlarmNotifyInfoRequestList);
 
         List<AsAlarmMsgInfoRequest> asAlarmMsgInfoRequestList = Lists.newArrayList();
         for (AlarmMsgDetailVO alarmMsgDetailVO : alarmConfigDetailVO.getAlarmNotifyMsgList()) {
-            AsAlarmMsgInfoRequest asAlarmMsgInfoRequest =
-                DataConverterUtils.convert(alarmMsgDetailVO, AsAlarmMsgInfoRequest.class);
-            asAlarmMsgInfoRequest.setMsgType((byte)1);
-            asAlarmMsgInfoRequestList.add(asAlarmMsgInfoRequest);
+            AsAlarmMsgInfoRequest asAlarmMsgInfoRequest = this.convert(alarmMsgDetailVO, AsAlarmMsgInfoRequest.class);
+            if (asAlarmMsgInfoRequest != null) {
+                asAlarmMsgInfoRequest.setMsgType((byte)1);
+                asAlarmMsgInfoRequestList.add(asAlarmMsgInfoRequest);
+            }
         }
 
         for (AlarmMsgDetailVO alarmMsgDetailVO : alarmConfigDetailVO.getAlarmRecoveryMsgList()) {
-            AsAlarmMsgInfoRequest asAlarmMsgInfoRequest =
-                DataConverterUtils.convert(alarmMsgDetailVO, AsAlarmMsgInfoRequest.class);
-            asAlarmMsgInfoRequest.setMsgType((byte)2);
-            asAlarmMsgInfoRequestList.add(asAlarmMsgInfoRequest);
+            AsAlarmMsgInfoRequest asAlarmMsgInfoRequest = this.convert(alarmMsgDetailVO, AsAlarmMsgInfoRequest.class);
+            if (asAlarmMsgInfoRequest != null) {
+                asAlarmMsgInfoRequest.setMsgType((byte)2);
+                asAlarmMsgInfoRequestList.add(asAlarmMsgInfoRequest);
+            }
         }
         rpcRequest.setAsAlarmMsgInfoRequestList(asAlarmMsgInfoRequestList);
         List<AsAlarmTriggerInfoRequest> asAlarmTriggerInfoRequestList =
-            BeanUtils.convertList(alarmConfigDetailVO.getAlarmTriggerList(), AsAlarmTriggerInfoRequest.class);
+            this.convertList(alarmConfigDetailVO.getAlarmTriggerList(), AsAlarmTriggerInfoRequest.class);
         rpcRequest.setAsAlarmTriggerInfoRequestList(asAlarmTriggerInfoRequestList);
 
         MonitorResult<Void> rpcResult;
@@ -295,41 +310,41 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
         rpcRequest.setTestType(request.getExpressionType());
 
         AsAlarmInfoRequest alarmInfoRequest =
-            DataConverterUtils.convert(request.getAlarmInfo(), AsAlarmInfoRequest.class);
+            this.convert(request.getAlarmInfo(), AsAlarmInfoRequest.class);
         rpcRequest.setAsAlarmInfoRequest(alarmInfoRequest);
 
         List<AsAlarmConstantInfoRequest> constantInfoRequestList =
-            DataConverterUtils.convert(request.getAlarmConstantList(), AsAlarmConstantInfoRequest.class);
+            this.convert(request.getAlarmConstantList(), AsAlarmConstantInfoRequest.class);
         rpcRequest.setAsAlarmConstantInfoRequestList(constantInfoRequestList);
 
         List<AsAlarmQueryInfoRequest> queryInfoRequestList =
-            DataConverterUtils.convert(request.getAlarmQueryList(), AsAlarmQueryInfoRequest.class);
+            this.convert(request.getAlarmQueryList(), AsAlarmQueryInfoRequest.class);
         rpcRequest.setAsAlarmQueryInfoRequestList(queryInfoRequestList);
 
         List<AsAlarmVariableInfoRequest> variableInfoRequestList =
-            DataConverterUtils.convert(request.getAlarmVariableList(), AsAlarmVariableInfoRequest.class);
+            this.convert(request.getAlarmVariableList(), AsAlarmVariableInfoRequest.class);
         rpcRequest.setAsAlarmVariableInfoRequestList(variableInfoRequestList);
 
         List<AsAlarmNotifyInfoRequest> notifyInfoRequestList =
-            DataConverterUtils.convert(request.getAlarmNotifyList(), AsAlarmNotifyInfoRequest.class);
+            this.convert(request.getAlarmNotifyList(), AsAlarmNotifyInfoRequest.class);
         rpcRequest.setAsAlarmNotifyInfoRequestList(notifyInfoRequestList);
 
         List<AsAlarmMsgInfoRequest> alarmNotifyMsgInfoRequestList =
-            DataConverterUtils.convert(request.getAlarmNotifyMsgList(), AsAlarmMsgInfoRequest.class);
+            this.convert(request.getAlarmNotifyMsgList(), AsAlarmMsgInfoRequest.class);
         for (AsAlarmMsgInfoRequest asAlarmMsgInfoRequest : alarmNotifyMsgInfoRequestList) {
             asAlarmMsgInfoRequest.setMsgType((byte)1);
         }
         rpcRequest.setAsAlarmNotifyMsgInfoRequestList(alarmNotifyMsgInfoRequestList);
 
         List<AsAlarmMsgInfoRequest> alarmRecoveryMsgInfoRequestList =
-            DataConverterUtils.convert(request.getAlarmRecoveryMsgList(), AsAlarmMsgInfoRequest.class);
+            this.convert(request.getAlarmRecoveryMsgList(), AsAlarmMsgInfoRequest.class);
         for (AsAlarmMsgInfoRequest asAlarmMsgInfoRequest : alarmRecoveryMsgInfoRequestList) {
             asAlarmMsgInfoRequest.setMsgType((byte)2);
         }
         rpcRequest.setAsAlarmRecoveryMsgInfoRequestList(alarmRecoveryMsgInfoRequestList);
 
         List<AsAlarmTriggerInfoRequest> triggerInfoRequestList =
-            DataConverterUtils.convert(request.getAlarmTriggerList(), AsAlarmTriggerInfoRequest.class);
+            this.convert(request.getAlarmTriggerList(), AsAlarmTriggerInfoRequest.class);
         rpcRequest.setAsAlarmTriggerInfoRequestList(triggerInfoRequestList);
 
         MonitorResult<Object> rpcResult = alarmBasicConfigurationFacade.testAlarmConfiguration(rpcRequest);
@@ -365,7 +380,7 @@ public class AlarmConfigServiceImpl implements AlarmConfigService {
             logger.error("返回值班人员的数据为空{}", monitorResult.getErrorMsg());
             return Results.newFailedResult(CommonStateCode.NO_RELATED_DATA, monitorResult.getErrorMsg());
         }
-        List<SaasWorkerVO> list = DataConverterUtils.convert(monitorResult.getData(), SaasWorkerVO.class);
+        List<SaasWorkerVO> list = this.convert(monitorResult.getData(), SaasWorkerVO.class);
         return Results.newSuccessResult(list);
     }
 

@@ -6,7 +6,6 @@ import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.management.console.biz.service.DashBoardService;
 import com.treefinance.saas.management.console.common.domain.request.DashboardRequest;
-import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.monitor.facade.domain.request.DashboardStatRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.DashBoardResult;
@@ -36,7 +35,7 @@ public class DashBoardServiceImpl implements DashBoardService {
         statRequest.setBizType(request.getBizType());
         statRequest.setSaasEnv(request.getSaasEnv());
 
-        MonitorResult<DashBoardResult> result = null;
+        MonitorResult<DashBoardResult> result ;
 
         try {
             result = dashBoardFacade.queryDashboardResult(statRequest);

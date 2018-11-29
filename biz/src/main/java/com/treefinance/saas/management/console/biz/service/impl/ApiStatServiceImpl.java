@@ -4,14 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.management.console.biz.service.ApiStatService;
 import com.treefinance.saas.management.console.common.domain.request.StatRequest;
 import com.treefinance.saas.management.console.common.domain.vo.ApiStatAccessVO;
 import com.treefinance.saas.management.console.common.domain.vo.ChartStatDayVO;
 import com.treefinance.saas.management.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.management.console.common.domain.vo.PieChartStatVO;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.management.console.common.utils.DateUtils;
 import com.treefinance.saas.management.console.dao.entity.MerchantBase;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
 import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/7/10.
  */
 @Service
-public class ApiStatServiceImpl implements ApiStatService {
+public class ApiStatServiceImpl extends AbstractServiceAdapter implements ApiStatService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -152,9 +152,7 @@ public class ApiStatServiceImpl implements ApiStatService {
         }
         // 遍历获取所有的时间节点
         Set<Date> dataTimeSet = Sets.newHashSet();
-        result.getData().forEach(ro -> {
-            dataTimeSet.add(ro.getDataTime());
-        });
+        result.getData().forEach(ro -> dataTimeSet.add(ro.getDataTime()));
         List<Date> dataTimeList = Lists.newArrayList(dataTimeSet);
 
         // <appId,<dataTime,totalCount>>
@@ -369,10 +367,10 @@ public class ApiStatServiceImpl implements ApiStatService {
         if (dataMap == null || dataMap.isEmpty()) {
             return sortedMap;
         }
-        List<Map.Entry<String, PieChartStatVO>> entryList = new ArrayList<Map.Entry<String, PieChartStatVO>>(dataMap.entrySet());
+        List<Map.Entry<String, PieChartStatVO>> entryList = new ArrayList<>(dataMap.entrySet());
         entryList.sort((o1, o2) -> o2.getValue().getValue().compareTo(o1.getValue().getValue()));
         Iterator<Map.Entry<String, PieChartStatVO>> iter = entryList.iterator();
-        Map.Entry<String, PieChartStatVO> tmpEntry = null;
+        Map.Entry<String, PieChartStatVO> tmpEntry;
         while (iter.hasNext()) {
             tmpEntry = iter.next();
             sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
@@ -394,7 +392,7 @@ public class ApiStatServiceImpl implements ApiStatService {
         QueryMerchantByAppIdRequest request = new QueryMerchantByAppIdRequest();
         request.setAppIds(Lists.newArrayList(map.keySet()));
         MerchantResult<List<MerchantBaseResult>> merchantBaseResultList = merchantBaseInfoFacade.queryMerchantBaseListByAppId(request);
-        List<MerchantBase> merchantBaseList = DataConverterUtils.convert(merchantBaseResultList.getData(), MerchantBase.class);
+        List<MerchantBase> merchantBaseList = this.convert(merchantBaseResultList.getData(), MerchantBase.class);
         // <appId,MerchantBase>
         Map<String, MerchantBase> merchantBaseMap = merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, merchantBase -> merchantBase));
         Map<String, Map<Date, Integer>> appNameMap = Maps.newHashMap();
@@ -409,7 +407,7 @@ public class ApiStatServiceImpl implements ApiStatService {
         return appNameMap;
     }
 
-    public void baseCheck(StatRequest request) throws IllegalArgumentException {
+    private void baseCheck(StatRequest request) throws IllegalArgumentException {
         if (request == null) {
             throw new IllegalArgumentException("请求参数不能为空！");
         }

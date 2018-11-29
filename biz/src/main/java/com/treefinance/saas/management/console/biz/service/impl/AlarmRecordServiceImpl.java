@@ -1,6 +1,8 @@
 package com.treefinance.saas.management.console.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -8,13 +10,24 @@ import com.treefinance.saas.management.console.biz.service.AlarmRecordService;
 import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
 import com.treefinance.saas.management.console.common.domain.request.DashboardRequest;
 import com.treefinance.saas.management.console.common.domain.request.SaasWorkerRequest;
-import com.treefinance.saas.management.console.common.domain.vo.*;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.management.console.common.utils.DateUtils;
-import com.treefinance.saas.monitor.facade.domain.request.*;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmRecordStatVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmRecordVO;
+import com.treefinance.saas.management.console.common.domain.vo.AlarmWorkOrderVO;
+import com.treefinance.saas.management.console.common.domain.vo.SaasWorkerVO;
+import com.treefinance.saas.management.console.common.domain.vo.WorkOrderLogVO;
+import com.treefinance.saas.monitor.facade.domain.request.AlarmRecordDashBoardRequest;
+import com.treefinance.saas.monitor.facade.domain.request.AlarmRecordRequest;
+import com.treefinance.saas.monitor.facade.domain.request.AlarmRecordStatRequest;
+import com.treefinance.saas.monitor.facade.domain.request.UpdateWorkOrderRequest;
+import com.treefinance.saas.monitor.facade.domain.request.WorkOrderLogRequest;
+import com.treefinance.saas.monitor.facade.domain.request.WorkOrderRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
-import com.treefinance.saas.monitor.facade.domain.ro.*;
+import com.treefinance.saas.monitor.facade.domain.ro.AlarmRecordRO;
+import com.treefinance.saas.monitor.facade.domain.ro.AlarmRecordStatisticRO;
+import com.treefinance.saas.monitor.facade.domain.ro.AlarmTypeListRO;
+import com.treefinance.saas.monitor.facade.domain.ro.AlarmWorkOrderRO;
+import com.treefinance.saas.monitor.facade.domain.ro.SaasWorkerRO;
+import com.treefinance.saas.monitor.facade.domain.ro.WorkOrderLogRO;
 import com.treefinance.saas.monitor.facade.service.AlarmRecordFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +44,7 @@ import java.util.Map;
  * @date 18/5/31 16:36
  */
 @Service
-public class AlarmRecordServiceImpl implements AlarmRecordService {
+public class AlarmRecordServiceImpl extends AbstractServiceAdapter implements AlarmRecordService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -43,7 +57,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
         AlarmRecordRequest recordRequest = new AlarmRecordRequest();
 
-        BeanUtils.copyProperties(request, recordRequest);
+        this.copyProperties(request, recordRequest);
 
         recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
         recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
@@ -57,7 +71,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
-        List<AlarmRecordVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(), AlarmRecordVO.class);
+        List<AlarmRecordVO> alarmRecordVOS = this.convert(result.getData(), AlarmRecordVO.class);
 
         return Results.newPageResult(request, result.getTotalCount(), alarmRecordVOS);
     }
@@ -81,7 +95,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
-        List<AlarmRecordVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(), AlarmRecordVO.class);
+        List<AlarmRecordVO> alarmRecordVOS = this.convert(result.getData(), AlarmRecordVO.class);
 
         return Results.newSuccessResult(alarmRecordVOS);
     }
@@ -100,7 +114,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
-        List<WorkOrderLogVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(), WorkOrderLogVO.class);
+        List<WorkOrderLogVO> alarmRecordVOS = this.convert(result.getData(), WorkOrderLogVO.class);
 
         return Results.newSuccessResult(alarmRecordVOS);
     }
@@ -110,7 +124,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
 
         WorkOrderRequest request = new WorkOrderRequest();
 
-        BeanUtils.copyProperties(alarmWorkOrderRequest, request);
+        this.copyProperties(alarmWorkOrderRequest, request);
 
         request.setEndTime(DateUtils.strToDate(alarmWorkOrderRequest.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
         request.setStartTime(DateUtils.strToDate(alarmWorkOrderRequest.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
@@ -123,7 +137,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
-        List<AlarmWorkOrderVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(), AlarmWorkOrderVO.class);
+        List<AlarmWorkOrderVO> alarmRecordVOS = this.convert(result.getData(), AlarmWorkOrderVO.class);
 
         return Results.newPageResult(alarmWorkOrderRequest, result.getTotalCount(), alarmRecordVOS);
 
@@ -189,7 +203,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             logger.error("querySaasWorker请求monitor-server失败", e);
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
-        List<SaasWorkerVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(), SaasWorkerVO.class);
+        List<SaasWorkerVO> alarmRecordVOS = this.convert(result.getData(), SaasWorkerVO.class);
         return Results.newSuccessResult(alarmRecordVOS);
     }
 
@@ -210,7 +224,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             logger.error("querySaasWorkerPage请求monitor-server失败", e);
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
-        List<SaasWorkerVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(), SaasWorkerVO.class);
+        List<SaasWorkerVO> alarmRecordVOS = this.convert(result.getData(), SaasWorkerVO.class);
         return Results.newPageResult(request, result.getTotalCount(), alarmRecordVOS);
     }
 
@@ -233,7 +247,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
             return Results.newFailedResult(CommonStateCode.FAILURE);
         }
 
-        List<AlarmRecordStatVO> alarmRecordVOS = DataConverterUtils.convert(result.getData(), AlarmRecordStatVO.class);
+        List<AlarmRecordStatVO> alarmRecordVOS = this.convert(result.getData(), AlarmRecordStatVO.class);
         return Results.newSuccessResult(alarmRecordVOS);
     }
 
@@ -253,7 +267,7 @@ public class AlarmRecordServiceImpl implements AlarmRecordService {
     public SaasResult queryErrorRecords(DashboardRequest request) {
         AlarmRecordDashBoardRequest statRequest = new AlarmRecordDashBoardRequest();
 
-        BeanUtils.copyProperties(request, statRequest);
+        this.copyProperties(request, statRequest);
         statRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartDate(), "yyyy-MM-dd"));
         statRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndDate(), "yyyy-MM-dd"));
 

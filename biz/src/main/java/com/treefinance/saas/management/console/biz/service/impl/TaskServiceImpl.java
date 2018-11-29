@@ -6,21 +6,27 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
+import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
+import com.treefinance.saas.management.console.biz.enums.BizTypeEnum;
+import com.treefinance.saas.management.console.biz.enums.ECallBackDataTypeEnum;
+import com.treefinance.saas.management.console.biz.enums.ETaskBuryPointEnum;
 import com.treefinance.saas.management.console.biz.service.TaskService;
 import com.treefinance.saas.management.console.common.domain.dto.TaskCallbackLogDTO;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
 import com.treefinance.saas.management.console.common.domain.vo.TaskNextDirectiveVO;
 import com.treefinance.saas.management.console.common.domain.vo.TaskVO;
-import com.treefinance.saas.management.console.common.enumeration.BizTypeEnum;
-import com.treefinance.saas.management.console.common.enumeration.ECallBackDataType;
-import com.treefinance.saas.management.console.common.enumeration.ETaskBuryPoint;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
-import com.treefinance.saas.management.console.common.utils.DataConverterUtils;
-import com.treefinance.saas.management.console.dao.entity.*;
+import com.treefinance.saas.management.console.dao.entity.AppCallbackConfig;
+import com.treefinance.saas.management.console.dao.entity.MerchantBase;
+import com.treefinance.saas.management.console.dao.entity.Task;
+import com.treefinance.saas.management.console.dao.entity.TaskAttribute;
+import com.treefinance.saas.management.console.dao.entity.TaskBuryPointLog;
+import com.treefinance.saas.management.console.dao.entity.TaskCallbackLog;
+import com.treefinance.saas.management.console.dao.entity.TaskLog;
+import com.treefinance.saas.management.console.dao.entity.TaskNextDirective;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppCallBackConfigByIdRequest;
 import com.treefinance.saas.merchant.facade.request.console.QueryMerchantByAppName;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
@@ -34,10 +40,20 @@ import com.treefinance.saas.taskcenter.facade.request.TaskAttributeRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskBuryPointLogRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskLogRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskNextDirectiveRequest;
-import com.treefinance.saas.taskcenter.facade.result.*;
+import com.treefinance.saas.taskcenter.facade.result.TaskAttributeRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskBuryPointLogRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskCallbackLogRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskLogRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskNextDirectiveRO;
+import com.treefinance.saas.taskcenter.facade.result.TaskRO;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
-import com.treefinance.saas.taskcenter.facade.service.*;
+import com.treefinance.saas.taskcenter.facade.service.TaskAttributeFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskBuryPointLogFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskLogFacade;
+import com.treefinance.saas.taskcenter.facade.service.TaskNextDirectiveFacade;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -46,14 +62,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Created by haojiahong on 2017/8/15.
  */
 @Service
-public class TaskServiceImpl implements TaskService {
+public class TaskServiceImpl extends AbstractServiceAdapter implements TaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 
@@ -188,7 +208,7 @@ public class TaskServiceImpl implements TaskService {
             return Lists.newArrayList();
         }
 
-        return DataConverterUtils.convert(taskResult.getData(), TaskAttribute.class);
+        return this.convert(taskResult.getData(), TaskAttribute.class);
     }
 
     private Map<Long, TaskCallbackLogDTO> getTaskCallbackLogMap(List<Task> taskList) {
@@ -209,13 +229,17 @@ public class TaskServiceImpl implements TaskService {
             appCallbackConfigFacade.queryAppCallBackConfigById(queryAppCallBackConfigByIdRequest);
         logger.info("商户中心返回数据:{}", JSON.toJSONString(listMerchantResult));
         List<AppCallbackConfig> appCallbackConfigList =
-            DataConverterUtils.convert(listMerchantResult.getData(), AppCallbackConfig.class);
+            this.convert(listMerchantResult.getData(), AppCallbackConfig.class);
         logger.info("数据转换：{}", JSON.toJSONString(appCallbackConfigList));
         // <configId,AppCallbackConfig>
         Map<Integer, AppCallbackConfig> appCallbackConfigMap =
             appCallbackConfigList.stream().collect(Collectors.toMap(AppCallbackConfig::getId, t -> t));
 
         for (TaskCallbackLog log : taskCallbackLogList) {
+            if (log == null) {
+                continue;
+            }
+
             Task task = taskMap.get(log.getTaskId());
             if (task == null) {
                 logger.error("解密回调参数时,在任务回调记录表中未找到对应的任务信息 taskId={}", log.getTaskId());
@@ -228,10 +252,10 @@ public class TaskServiceImpl implements TaskService {
                     logger.error("解密回调参数时,任务回调记录表中未找到对应的商户回调配置信息 configId={}", log.getConfigId());
                     continue;
                 }
-                if (ECallBackDataType.MAIN.getCode().equals(appCallbackConfig.getDataType())) {
+                if (ECallBackDataTypeEnum.MAIN.getCode().equals(appCallbackConfig.getDataType())) {
                     Long taskId = task.getId();
                     TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
-                    BeanUtils.convert(log, logDTO);
+                    this.copyProperties(log, logDTO);
                     logDTO.setPlainRequestParam(log.getRequestParam());
                     // 网关支持:一个任务,回调多方,这里现将日志打印出来
                     if (result.get(taskId) != null) {
@@ -246,7 +270,7 @@ public class TaskServiceImpl implements TaskService {
             if (log.getType() == 2) {
                 Long taskId = task.getId();
                 TaskCallbackLogDTO logDTO = new TaskCallbackLogDTO();
-                BeanUtils.convert(log, logDTO);
+                this.copyProperties(log, logDTO);
                 logDTO.setPlainRequestParam(log.getRequestParam());
                 result.put(taskId, logDTO);
 
@@ -263,14 +287,14 @@ public class TaskServiceImpl implements TaskService {
         if (!taskResult.isSuccess()) {
             return new ArrayList<>();
         }
-        return DataConverterUtils.convert(taskResult.getData(), TaskCallbackLog.class);
+        return this.convert(taskResult.getData(), TaskCallbackLog.class);
     }
 
     @Override
     public List<TaskLog> findByTaskId(Long taskId) {
 
         TaskLogRequest rpcRequest = new TaskLogRequest();
-        rpcRequest.setTaskIdList(Arrays.asList(taskId));
+        rpcRequest.setTaskIdList(Collections.singletonList(taskId));
 
         TaskResult<List<TaskLogRO>> taskResult;
 
@@ -286,7 +310,7 @@ public class TaskServiceImpl implements TaskService {
             return Lists.newArrayList();
         }
 
-        return DataConverterUtils.convert(taskResult.getData(), TaskLog.class);
+        return this.convert(taskResult.getData(), TaskLog.class);
     }
 
     @Override
@@ -301,7 +325,7 @@ public class TaskServiceImpl implements TaskService {
             taskBuryPointLogVO.setCode(taskBuryPointLog.getCode());
             taskBuryPointLogVO.setCreateTime(taskBuryPointLog.getCreateTime());
             taskBuryPointLogVO.setLastUpdateTime(taskBuryPointLog.getLastUpdateTime());
-            taskBuryPointLogVO.setCodeMessage(ETaskBuryPoint.getText(Integer.parseInt(taskBuryPointLog.getCode())));
+            taskBuryPointLogVO.setCodeMessage(ETaskBuryPointEnum.getText(Integer.parseInt(taskBuryPointLog.getCode())));
             taskBuryPointLogVOList.add(taskBuryPointLogVO);
         }
         return taskBuryPointLogVOList;
@@ -329,13 +353,13 @@ public class TaskServiceImpl implements TaskService {
             return Lists.newArrayList();
         }
 
-        return DataConverterUtils.convert(taskResult.getData(), TaskBuryPointLog.class);
+        return this.convert(taskResult.getData(), TaskBuryPointLog.class);
     }
 
     @Override
     public List<TaskNextDirectiveVO> findtaskNextDirectiveByTaskId(Long taskId) {
         List<TaskNextDirective> taskNextDirectiveList = getTaskNextDirectives(taskId);
-        return DataConverterUtils.convert(taskNextDirectiveList, TaskNextDirectiveVO.class);
+        return this.convert(taskNextDirectiveList, TaskNextDirectiveVO.class);
     }
 
     private List<TaskNextDirective> getTaskNextDirectives(Long taskId) {
@@ -358,7 +382,7 @@ public class TaskServiceImpl implements TaskService {
             return Lists.newArrayList();
         }
 
-        return DataConverterUtils.convert(taskResult.getData(), TaskNextDirective.class);
+        return this.convert(taskResult.getData(), TaskNextDirective.class);
 
     }
 
@@ -370,7 +394,7 @@ public class TaskServiceImpl implements TaskService {
         MerchantResult<List<MerchantBaseResult>> listMerchantResult =
             merchantBaseInfoFacade.queryMerchantBaseListByAppId(queryMerchantByAppIdRequest);
         List<MerchantBase> merchantBaseList =
-            DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
+            this.convert(listMerchantResult.getData(), MerchantBase.class);
         return merchantBaseList.stream().collect(Collectors.toMap(MerchantBase::getAppId, m -> m));
     }
 
@@ -382,7 +406,7 @@ public class TaskServiceImpl implements TaskService {
         MerchantResult<List<MerchantBaseInfoResult>> listMerchantResult =
             merchantBaseInfoFacade.queryMerchantBaseByAppName(queryMerchantByAppName);
         List<MerchantBase> merchantBaseList =
-            DataConverterUtils.convert(listMerchantResult.getData(), MerchantBase.class);
+            this.convert(listMerchantResult.getData(), MerchantBase.class);
         if (CollectionUtils.isEmpty(merchantBaseList)) {
             return result;
         }
@@ -459,8 +483,7 @@ public class TaskServiceImpl implements TaskService {
                 myResult = true;
                 return this;
             }
-            List<TaskRO> taskROS = result.getList();
-            taskList = DataConverterUtils.convert(taskROS, Task.class);
+            taskList = TaskServiceImpl.this.convert(result.getList(), Task.class);
             myResult = false;
             return this;
         }

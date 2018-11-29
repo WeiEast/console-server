@@ -1,14 +1,14 @@
 package com.treefinance.saas.management.console.common.domain.vo;
 
-import com.treefinance.saas.management.console.common.utils.DateUtils;
+import com.treefinance.saas.console.util.DateUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * @author:guoguoyun
- * @date:Created in 2018/1/18下午4:38
+ * @author guoguoyun
+ * @date 2018/1/18下午4:38
  */
 public class AllEcommerceStatDayAccessVO implements Serializable {
 

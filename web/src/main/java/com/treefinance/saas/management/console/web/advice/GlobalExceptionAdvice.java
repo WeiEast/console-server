@@ -15,15 +15,12 @@
  */
 package com.treefinance.saas.management.console.web.advice;
 
+import com.treefinance.saas.console.context.ConsoleStateCode;
+import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.context.exception.RequestLimitException;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.common.StateCode;
 import com.treefinance.saas.knife.result.Results;
-import com.treefinance.saas.management.console.common.domain.ConsoleStateCode;
-import com.treefinance.saas.management.console.common.exceptions.BizException;
-import com.treefinance.saas.management.console.common.exceptions.ForbiddenException;
-import com.treefinance.saas.management.console.common.exceptions.RequestLimitException;
-import com.treefinance.saas.management.console.common.exceptions.TaskTimeOutException;
-import com.treefinance.saas.management.console.common.exceptions.UnknownException;
 import com.treefinance.toolkit.util.http.servlet.ServletResponses;
 import com.treefinance.toolkit.util.json.Jackson;
 import org.slf4j.Logger;
@@ -51,27 +48,6 @@ import javax.validation.ValidationException;
 @ControllerAdvice
 public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
-
-    @ExceptionHandler(value = UnknownException.class)
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    @ResponseBody
-    public void handleUnknownException(HttpServletRequest request, UnknownException ex, HttpServletResponse response) {
-        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.SERVICE_UNAVAILABLE, response);
-    }
-
-    @ExceptionHandler(value = TaskTimeOutException.class)
-    @ResponseStatus(HttpStatus.GATEWAY_TIMEOUT)
-    @ResponseBody
-    public void handleTimeoutException(HttpServletRequest request, TaskTimeOutException ex, HttpServletResponse response) {
-        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.GATEWAY_TIMEOUT, response);
-    }
-
-    @ExceptionHandler(value = ForbiddenException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ResponseBody
-    public void handleForbiddenException(HttpServletRequest request, ForbiddenException ex, HttpServletResponse response) {
-        responseException(request, CommonStateCode.FAILURE, ex, HttpStatus.FORBIDDEN, response);
-    }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -127,11 +103,11 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     private void handleLog(HttpServletRequest request, Exception ex) {
         StringBuilder logBuffer = new StringBuilder();
         if (request != null) {
-            logBuffer.append("request method=" + request.getMethod());
-            logBuffer.append(",url=" + request.getRequestURL());
+            logBuffer.append("request method=").append(request.getMethod());
+            logBuffer.append(",url=").append(request.getRequestURL());
         }
         if (ex != null) {
-            logBuffer.append(",exception:" + ex);
+            logBuffer.append(",exception:").append(ex.getMessage());
         }
         logger.error(logBuffer.toString(), ex);
     }

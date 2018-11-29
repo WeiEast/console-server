@@ -1,14 +1,14 @@
 package com.treefinance.saas.management.console.web.controller;
 
+import com.treefinance.saas.console.share.adapter.AbstractDomainObjectAdapter;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
+import com.treefinance.saas.management.console.biz.enums.BizTypeEnum;
 import com.treefinance.saas.management.console.biz.service.TaskService;
 import com.treefinance.saas.management.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.management.console.common.domain.vo.TaskBuryPointLogVO;
 import com.treefinance.saas.management.console.common.domain.vo.TaskLogVO;
 import com.treefinance.saas.management.console.common.domain.vo.TaskNextDirectiveVO;
-import com.treefinance.saas.management.console.common.enumeration.BizTypeEnum;
-import com.treefinance.saas.management.console.common.utils.BeanUtils;
 import com.treefinance.saas.management.console.dao.entity.TaskLog;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/saas/console/")
-public class TaskController {
+public class TaskController extends AbstractDomainObjectAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
@@ -45,8 +45,7 @@ public class TaskController {
         if (StringUtils.isBlank(taskRequest.getType())) {
             return Results.newFailedResult(CommonStateCode.PARAMETER_LACK, "type不能为空");
         }
-        BizTypeEnum typeEnum = BizTypeEnum.valueOf(taskRequest.getType());
-        if (typeEnum == null) {
+        if (!BizTypeEnum.contains(taskRequest.getType())) {
             return Results.newFailedResult(CommonStateCode.ILLEGAL_PARAMETER, "type参数有误");
         }
         if (taskRequest.getStartDate() == null || taskRequest.getEndDate() == null) {
@@ -58,7 +57,8 @@ public class TaskController {
     @RequestMapping(value = "/task/log/{taskId}", method = {RequestMethod.GET})
     public Object task(@PathVariable Long taskId) {
         List<TaskLog> taskLogList = taskService.findByTaskId(taskId);
-        return Results.newSuccessResult(BeanUtils.convertList(taskLogList, TaskLogVO.class));
+        List<TaskLogVO> result = this.convert(taskLogList, TaskLogVO.class);
+        return Results.newSuccessResult(result);
     }
 
 

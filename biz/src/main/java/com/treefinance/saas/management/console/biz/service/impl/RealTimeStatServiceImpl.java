@@ -229,7 +229,7 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         switch (dateType) {
             case 0:
                 Date now = new Date();
-                Date endDate = com.treefinance.saas.management.console.common.utils.DateUtils.getTodayEndDate(request.getEndDate());
+                Date endDate = com.treefinance.saas.console.util.DateUtils.getTodayEndDate(request.getEndDate());
                 if (endDate.compareTo(now) > 0) {
                     return now;
                 }

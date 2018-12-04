@@ -1,11 +1,11 @@
-package com.treefinance.saas.management.console.web.controller;
+package com.treefinance.saas.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.treefinance.saas.management.console.common.domain.request.AlarmRecordRequest;
-import com.treefinance.saas.management.console.common.domain.request.AlarmWorkOrderRequest;
-import com.treefinance.saas.management.console.common.domain.request.DashboardRequest;
-import com.treefinance.saas.management.console.common.domain.request.UpdateWorkOrderRequest;
+import com.treefinance.saas.console.common.domain.request.AlarmRecordRequest;
+import com.treefinance.saas.console.common.domain.request.AlarmWorkOrderRequest;
+import com.treefinance.saas.console.common.domain.request.DashboardRequest;
+import com.treefinance.saas.console.common.domain.request.UpdateWorkOrderRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

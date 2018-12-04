@@ -1,18 +1,12 @@
-import com.google.common.collect.Maps;
-import com.treefinance.saas.management.console.ConsoleServerApplication;
-import com.treefinance.saas.management.console.dao.entity.TaskAndTaskAttribute;
-import com.treefinance.saas.merchant.center.facade.request.console.GetMerchantByIdRequest;
-import com.treefinance.saas.merchant.center.facade.service.MerchantBaseInfoFacade;
+import com.treefinance.saas.console.ConsoleServerApplication;
+import com.treefinance.saas.merchant.facade.request.console.GetMerchantByIdRequest;
+import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**

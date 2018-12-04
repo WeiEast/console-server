@@ -1,8 +1,8 @@
-package com.treefinance.saas.management.console.web.controller;
+package com.treefinance.saas.console.web.controller;
 
-import com.treefinance.saas.management.console.common.domain.request.StatRequest;
-import com.treefinance.saas.management.console.common.enumeration.EBizType;
-import com.treefinance.saas.management.console.common.utils.DateUtils;
+import com.treefinance.saas.console.common.domain.request.StatRequest;
+import com.treefinance.saas.console.common.enumeration.EBizType;
+import com.treefinance.saas.console.common.utils.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

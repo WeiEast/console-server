@@ -1,9 +1,9 @@
-package com.treefinance.saas.management.console.web.controller;
+package com.treefinance.saas.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.treefinance.saas.management.console.common.domain.request.AppQuestionnaireDetailRequest;
-import com.treefinance.saas.management.console.common.domain.request.AppQuestionnaireRequest;
-import com.treefinance.saas.management.console.common.domain.request.QueryQuestionnaireRequest;
+import com.treefinance.saas.console.common.domain.request.AppQuestionnaireDetailRequest;
+import com.treefinance.saas.console.common.domain.request.AppQuestionnaireRequest;
+import com.treefinance.saas.console.common.domain.request.QueryQuestionnaireRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

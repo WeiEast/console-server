@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.web.controller;
+package com.treefinance.saas.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
 import org.junit.After;

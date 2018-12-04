@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.web.controller;
+package com.treefinance.saas.console.web.controller;
 
 /**
  * @author chengtong

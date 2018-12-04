@@ -1,4 +1,4 @@
-package com.treefinance.saas.management.console.web.controller;
+package com.treefinance.saas.console.web.controller;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +14,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
  * @author chengtong

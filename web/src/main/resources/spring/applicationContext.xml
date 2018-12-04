@@ -6,12 +6,12 @@
     http://www.springframework.org/schema/context  
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-    <import resource="classpath*:spring/core.diamond.xml"/>
-    <import resource="classpath*:spring/console-server-dubbo-registry.xml"/>
-    <import resource="classpath*:spring/core.datasource.xml"/>
+    <import resource="console-server-diamond.xml"/>
+    <import resource="console-server-dubbo-registry.xml"/>
+    <import resource="classpath*:spring/console-server-datasource.xml"/>
     <import resource="classpath*:spring/console-server-manager.xml"/>
 
-    <context:component-scan base-package="com.treefinance.saas.management.console"/>
+    <context:component-scan base-package="com.treefinance.saas.console"/>
 
-    <bean class="com.treefinance.saas.management.console.web.advice.RequestLimitContract" factory-method="aspectOf"/>
+    <bean class="com.treefinance.saas.console.web.advice.RequestLimitContract" factory-method="aspectOf"/>
 </beans>

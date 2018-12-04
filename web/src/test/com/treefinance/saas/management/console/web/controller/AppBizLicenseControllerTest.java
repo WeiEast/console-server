@@ -1,8 +1,8 @@
-package com.treefinance.saas.management.console.web.controller;
+package com.treefinance.saas.console.web.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.treefinance.saas.management.console.common.domain.request.AppBizLicenseRequest;
-import com.treefinance.saas.management.console.common.domain.vo.AppBizLicenseVO;
+import com.treefinance.saas.console.common.domain.request.AppBizLicenseRequest;
+import com.treefinance.saas.console.common.domain.vo.AppBizLicenseVO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +18,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.math.BigDecimal;
 
 import static org.junit.Assert.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**

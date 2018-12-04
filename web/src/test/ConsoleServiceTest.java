@@ -1,4 +1,4 @@
-import com.treefinance.saas.management.console.ConsoleServerApplication;
+import com.treefinance.saas.console.ConsoleServerApplication;
 import com.treefinance.saas.merchant.facade.request.console.GetMerchantByIdRequest;
 import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import org.junit.Test;

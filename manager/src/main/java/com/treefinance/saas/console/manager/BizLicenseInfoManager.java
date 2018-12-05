@@ -10,14 +10,14 @@ import java.util.List;
  * @author Jerry
  * @date 2018/11/23 19:14
  */
-public interface BizLicenseManager {
+public interface BizLicenseInfoManager {
 
     /**
      * search all app's licenses
      *
      * @return list of {@link BizLicenseInfoBO}
      */
-    List<BizLicenseInfoBO> listAppLicenses();
+    List<BizLicenseInfoBO> listAppLicenseInfos();
 
     /**
      * search all app's licenses that associated with the given <code>bizType</code>
@@ -25,7 +25,7 @@ public interface BizLicenseManager {
      * @param bizType the business type to search
      * @return list of {@link BizLicenseInfoBO}
      */
-    List<BizLicenseInfoBO> listAppLicensesByBizType(@Nonnull Byte bizType);
+    List<BizLicenseInfoBO> listAppLicenseInfosByBizType(@Nonnull Byte bizType);
 
     /**
      * search all app licenses and return its appIds.
@@ -42,5 +42,5 @@ public interface BizLicenseManager {
      */
     List<String> listAppIdsByBizType(@Nonnull Byte bizType);
 
-    List<BizLicenseInfoBO> listValidAppLicensesByAppId(@Nonnull String appId);
+    List<BizLicenseInfoBO> listValidAppLicenseInfosByAppId(@Nonnull String appId);
 }

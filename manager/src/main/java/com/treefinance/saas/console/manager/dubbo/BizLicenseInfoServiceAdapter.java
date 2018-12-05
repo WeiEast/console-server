@@ -1,6 +1,6 @@
 package com.treefinance.saas.console.manager.dubbo;
 
-import com.treefinance.saas.console.manager.BizLicenseManager;
+import com.treefinance.saas.console.manager.BizLicenseInfoManager;
 import com.treefinance.saas.console.manager.domain.BizLicenseInfoBO;
 import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseByAppIdRequest;
@@ -21,16 +21,16 @@ import java.util.List;
  * @date 2018/11/23 19:15
  */
 @Service
-public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter implements BizLicenseManager {
+public class BizLicenseInfoServiceAdapter extends AbstractMerchantServiceAdapter implements BizLicenseInfoManager {
     private final AppBizLicenseFacade bizLicenseFacade;
 
     @Autowired
-    public BizLicenseServiceAdapter(AppBizLicenseFacade bizLicenseFacade) {
+    public BizLicenseInfoServiceAdapter(AppBizLicenseFacade bizLicenseFacade) {
         this.bizLicenseFacade = bizLicenseFacade;
     }
 
     @Override
-    public List<BizLicenseInfoBO> listAppLicenses() {
+    public List<BizLicenseInfoBO> listAppLicenseInfos() {
         MerchantResult<List<AppBizLicenseResult>> result = queryAppLicenses();
 
         return convert(result.getData(), BizLicenseInfoBO.class);
@@ -47,7 +47,7 @@ public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter imp
     }
 
     @Override
-    public List<BizLicenseInfoBO> listAppLicensesByBizType(@Nonnull Byte bizType) {
+    public List<BizLicenseInfoBO> listAppLicenseInfosByBizType(@Nonnull Byte bizType) {
         MerchantResult<List<AppBizLicenseResult>> result = queryAppLicensesByBizType(bizType);
 
         return convert(result.getData(), BizLicenseInfoBO.class);
@@ -85,7 +85,7 @@ public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter imp
     }
 
     @Override
-    public List<BizLicenseInfoBO> listValidAppLicensesByAppId(@Nonnull String appId) {
+    public List<BizLicenseInfoBO> listValidAppLicenseInfosByAppId(@Nonnull String appId) {
         Preconditions.notBlank("appId", appId);
 
         QueryAppBizLicenseByAppIdRequest request = new QueryAppBizLicenseByAppIdRequest();

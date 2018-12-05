@@ -14,9 +14,9 @@ import com.treefinance.saas.console.common.domain.vo.OperatorStatAccessVO;
 import com.treefinance.saas.console.common.domain.vo.OperatorStatDayAccessDetailVO;
 import com.treefinance.saas.console.common.domain.vo.OperatorStatDayAccessVO;
 import com.treefinance.saas.console.common.domain.vo.OperatorStatDayConvertRateVo;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.manager.LicenseManager;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/11/1.
  */
 @Service
-public class OperatorStatServiceImpl extends AbstractServiceAdapter implements OperatorStatService {
+public class OperatorStatServiceImpl extends AbstractService implements OperatorStatService {
 
     @Autowired
     private OperatorStatAccessFacade operatorStatAccessFacade;

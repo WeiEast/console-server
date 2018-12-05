@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.treefinance.b2b.saas.util.RemoteDataUtils;
 import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
 import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.console.biz.enums.EBizTypeEnum;
@@ -14,15 +15,14 @@ import com.treefinance.saas.console.biz.service.OssDataService;
 import com.treefinance.saas.console.common.domain.request.OssDataRequest;
 import com.treefinance.saas.console.common.domain.vo.OssCallbackDataVO;
 import com.treefinance.saas.console.context.ConsoleStateCode;
-import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.console.dao.entity.AppCallbackConfig;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.dao.entity.Task;
 import com.treefinance.saas.console.dao.entity.TaskAttribute;
 import com.treefinance.saas.console.dao.entity.TaskCallbackLog;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.console.util.CallbackDataUtils;
-import com.treefinance.saas.console.util.RemoteDataUtils;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppCallBackConfigByIdRequest;
@@ -71,7 +71,7 @@ import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValu
  * Created by haojiahong on 2017/11/21.
  */
 @Service
-public class OssDataServiceImpl extends AbstractServiceAdapter implements OssDataService {
+public class OssDataServiceImpl extends AbstractService implements OssDataService {
 
     @Autowired
     private ISecurityCryptoService iSecurityCryptoService;

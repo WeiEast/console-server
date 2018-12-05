@@ -1,4 +1,4 @@
-package com.treefinance.saas.console.context.exception;
+package com.treefinance.saas.console.exception;
 
 
 /**

@@ -10,7 +10,7 @@ import com.treefinance.saas.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.console.common.domain.vo.MerchantFlowAllotVO;
 import com.treefinance.saas.console.common.domain.vo.MerchantFlowConfigVO;
 import com.treefinance.saas.console.common.domain.vo.MerchantFlowEnvQuotaVO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/9/28.
  */
 @Service
-public class MerchantFlowConfigServiceImpl extends AbstractServiceAdapter implements MerchantFlowConfigService {
+public class MerchantFlowConfigServiceImpl extends AbstractService implements MerchantFlowConfigService {
 
     @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;

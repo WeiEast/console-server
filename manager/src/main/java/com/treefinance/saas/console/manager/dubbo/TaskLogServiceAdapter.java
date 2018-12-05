@@ -2,7 +2,7 @@ package com.treefinance.saas.console.manager.dubbo;
 
 import com.treefinance.saas.console.manager.TaskLogManager;
 import com.treefinance.saas.console.manager.domain.TaskLogBO;
-import com.treefinance.saas.console.share.internal.RpcActionEnum;
+import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.taskcenter.facade.request.TaskLogRequest;
 import com.treefinance.saas.taskcenter.facade.result.TaskLogRO;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;

@@ -8,7 +8,7 @@ import com.treefinance.saas.console.common.domain.request.TestExpressionRequest;
 import com.treefinance.saas.console.common.domain.request.TestRequest;
 import com.treefinance.saas.console.common.domain.vo.StatTemplateVO;
 import com.treefinance.saas.console.common.domain.vo.TemplateStatVO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -31,7 +31,7 @@ import java.util.Map;
  * @date 2018/4/26上午9:48
  */
 @Service
-public class StatTemplateServiceImpl extends AbstractServiceAdapter implements StatTemplateService {
+public class StatTemplateServiceImpl extends AbstractService implements StatTemplateService {
 
 
     private static final Logger logger = LoggerFactory.getLogger(StatTemplateService.class);

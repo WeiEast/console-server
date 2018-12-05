@@ -16,8 +16,8 @@
 package com.treefinance.saas.console.web.advice;
 
 import com.treefinance.saas.console.context.ConsoleStateCode;
-import com.treefinance.saas.console.context.exception.BizException;
-import com.treefinance.saas.console.context.exception.RequestLimitException;
+import com.treefinance.saas.console.exception.BizException;
+import com.treefinance.saas.console.exception.RequestLimitException;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.common.StateCode;
 import com.treefinance.saas.knife.result.Results;

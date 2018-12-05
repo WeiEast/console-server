@@ -5,8 +5,8 @@ import com.treefinance.saas.console.biz.service.MerchantFlowConfigService;
 import com.treefinance.saas.console.common.domain.request.AppQuestionnaireDetailRequest;
 import com.treefinance.saas.console.common.domain.request.AppQuestionnaireRequest;
 import com.treefinance.saas.console.common.domain.request.QueryQuestionnaireRequest;
-import com.treefinance.saas.console.context.exception.BizException;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.merchant.facade.request.console.AddAppQuestDetailRequest;
@@ -29,7 +29,7 @@ import java.util.List;
  * @date 18/8/21 11:14
  */
 @Service
-public class AppQuestionnaireServiceImpl extends AbstractServiceAdapter implements AppQuestionnaireService {
+public class AppQuestionnaireServiceImpl extends AbstractService implements AppQuestionnaireService {
 
     private static Logger logger = LoggerFactory.getLogger(MerchantFlowConfigService.class);
 

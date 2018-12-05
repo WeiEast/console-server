@@ -6,13 +6,17 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.UnsupportedEncodingException;
+
 /**
  * @author Jerry
  * @date 2018/11/28 14:15
  */
 public final class SystemUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(SystemUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystemUtils.class);
     private static final String DA_SHU = "dashu";
 
     private SystemUtils() {
@@ -30,12 +34,25 @@ public final class SystemUtils {
                 result = PinyinHelper.getShortPinyin(appName);
             }
         } catch (Exception ignoreException) {
-            logger.error("生成商户登录名出错,{}", ignoreException);
+            LOGGER.error("生成商户登录名出错,{}", ignoreException);
         }
         return result;
     }
 
     public static String generatePassword() {
         return RandomStringUtils.randomAlphanumeric(16);
+    }
+
+    public static void setFileResponseHeader(HttpServletResponse response, String fileName) {
+        String filename = fileName;
+        try {
+            filename = new String(filename.getBytes(), "ISO8859-1");
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.warn("Unsupported encoding:{}", "ISO8859-1", e);
+        }
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment;filename=" + filename);
+        response.addHeader("Pargam", "no-cache");
+        response.addHeader("Cache-Control", "no-cache");
     }
 }

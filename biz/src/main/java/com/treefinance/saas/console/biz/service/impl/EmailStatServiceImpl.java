@@ -3,7 +3,7 @@ package com.treefinance.saas.console.biz.service.impl;
 import com.treefinance.saas.console.biz.service.EmailStatService;
 import com.treefinance.saas.console.common.domain.request.EmailStatRequest;
 import com.treefinance.saas.console.common.domain.vo.EmailStatAccessVO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.monitor.facade.domain.request.EmailStatAccessRequest;
@@ -21,7 +21,7 @@ import java.util.List;
  * @date 18/3/15 15:26
  */
 @Service
-public class EmailStatServiceImpl extends AbstractServiceAdapter implements EmailStatService {
+public class EmailStatServiceImpl extends AbstractService implements EmailStatService {
 
     @Autowired
     private EmailStatAccessFacade emailStatAccessFacade;

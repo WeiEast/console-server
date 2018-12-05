@@ -10,7 +10,7 @@ import com.treefinance.saas.console.common.domain.vo.AlarmRecordVO;
 import com.treefinance.saas.console.common.domain.vo.AlarmWorkOrderVO;
 import com.treefinance.saas.console.common.domain.vo.SaasWorkerVO;
 import com.treefinance.saas.console.common.domain.vo.WorkOrderLogVO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
@@ -44,7 +44,7 @@ import java.util.Map;
  * @date 18/5/31 16:36
  */
 @Service
-public class AlarmRecordServiceImpl extends AbstractServiceAdapter implements AlarmRecordService {
+public class AlarmRecordServiceImpl extends AbstractService implements AlarmRecordService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

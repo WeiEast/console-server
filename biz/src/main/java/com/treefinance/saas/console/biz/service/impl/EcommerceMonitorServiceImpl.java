@@ -7,8 +7,8 @@ import com.treefinance.saas.console.common.domain.request.OperatorStatRequest;
 import com.treefinance.saas.console.common.domain.vo.AllEcommerceStatDayAccessVO;
 import com.treefinance.saas.console.common.domain.vo.AllOperatorStatAccessVO;
 import com.treefinance.saas.console.common.domain.vo.MerchantSimpleVO;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.merchant.facade.request.console.QueryMerchantByBizTypeRequest;
 import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
@@ -30,7 +30,7 @@ import java.util.List;
  * @date 2018/1/15下午2:45
  */
 @Service
-public class EcommerceMonitorServiceImpl extends AbstractServiceAdapter implements EcommerceMonitorService {
+public class EcommerceMonitorServiceImpl extends AbstractService implements EcommerceMonitorService {
 
 
     @Autowired

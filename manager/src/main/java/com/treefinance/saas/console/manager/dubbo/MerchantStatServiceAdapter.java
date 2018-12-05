@@ -9,7 +9,7 @@ import com.treefinance.saas.console.manager.domain.MerchantDailyAccessStatResult
 import com.treefinance.saas.console.manager.query.DailyErrorStepStatQuery;
 import com.treefinance.saas.console.manager.query.MerchantAccessStatQuery;
 import com.treefinance.saas.console.manager.query.MerchantDailyAccessStatQuery;
-import com.treefinance.saas.console.share.internal.RpcActionEnum;
+import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.MerchantStatDayAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.request.SaasErrorStepDayStatRequest;

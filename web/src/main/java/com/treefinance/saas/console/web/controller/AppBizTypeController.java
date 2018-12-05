@@ -5,7 +5,7 @@ import com.treefinance.saas.console.biz.domain.IdentifiedBizType;
 import com.treefinance.saas.console.biz.domain.MonitoringBizType;
 import com.treefinance.saas.console.biz.enums.MonitorTypeEnum;
 import com.treefinance.saas.console.biz.service.AppBizTypeService;
-import com.treefinance.saas.console.share.adapter.AbstractDomainObjectAdapter;
+import com.treefinance.saas.console.context.component.AbstractController;
 import com.treefinance.saas.console.web.vo.AppBizTypeNameValueVO;
 import com.treefinance.saas.console.web.vo.AppBizTypeVO;
 import com.treefinance.saas.console.web.vo.MonitoringBizTypeVO;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/saas/console/biz")
-public class AppBizTypeController extends AbstractDomainObjectAdapter {
+public class AppBizTypeController extends AbstractController {
 
     private final AppBizTypeService bizTypeService;
 

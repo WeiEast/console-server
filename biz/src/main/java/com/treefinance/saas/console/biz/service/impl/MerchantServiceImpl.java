@@ -12,8 +12,8 @@ import com.treefinance.saas.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.console.common.domain.vo.AppLicenseVO;
 import com.treefinance.saas.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.console.context.exception.BizException;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.console.util.SystemUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
@@ -56,7 +56,7 @@ import java.util.regex.Pattern;
  * Created by haojiahong on 2017/6/21.
  */
 @Component
-public class MerchantServiceImpl extends AbstractServiceAdapter implements MerchantService {
+public class MerchantServiceImpl extends AbstractService implements MerchantService {
 
     @Resource
     private ISecurityCryptoService iSecurityCryptoService;

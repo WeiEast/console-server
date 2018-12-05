@@ -10,8 +10,8 @@ import com.treefinance.saas.console.common.domain.vo.ApiStatAccessVO;
 import com.treefinance.saas.console.common.domain.vo.ChartStatDayVO;
 import com.treefinance.saas.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.console.common.domain.vo.PieChartStatVO;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
 import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/7/10.
  */
 @Service
-public class ApiStatServiceImpl extends AbstractServiceAdapter implements ApiStatService {
+public class ApiStatServiceImpl extends AbstractService implements ApiStatService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 

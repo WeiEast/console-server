@@ -1,8 +1,8 @@
 package com.treefinance.saas.console.manager.dubbo;
 
-import com.treefinance.saas.console.context.exception.RpcServiceException;
-import com.treefinance.saas.console.share.adapter.AbstractDubboServiceAdapter;
-import com.treefinance.saas.console.share.internal.RpcActionEnum;
+import com.treefinance.saas.console.context.component.AbstractDubboServiceAdapter;
+import com.treefinance.saas.console.exception.RpcServiceException;
+import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
 
 /**

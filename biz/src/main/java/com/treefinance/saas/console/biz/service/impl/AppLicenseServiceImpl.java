@@ -19,8 +19,8 @@ package com.treefinance.saas.console.biz.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.console.biz.service.AppLicenseService;
 import com.treefinance.saas.console.common.domain.vo.AppLicenseVO;
-import com.treefinance.saas.console.context.exception.RpcServiceException;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.RpcServiceException;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -45,7 +45,7 @@ import java.util.Map;
  * @date 19:14 25/04/2017
  */
 @Component
-public class AppLicenseServiceImpl extends AbstractServiceAdapter implements AppLicenseService {
+public class AppLicenseServiceImpl extends AbstractService implements AppLicenseService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppLicenseServiceImpl.class);
 

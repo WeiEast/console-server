@@ -2,8 +2,8 @@ package com.treefinance.saas.console.biz.service.impl;
 
 import com.treefinance.saas.console.biz.service.AppFeedbackService;
 import com.treefinance.saas.console.common.domain.request.AppFeedbackRequest;
-import com.treefinance.saas.console.context.exception.BizException;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.merchant.facade.request.console.GetAppFeedbackRequest;
 import com.treefinance.saas.merchant.facade.result.console.AppFeedbackResultRO;
@@ -19,7 +19,7 @@ import java.util.List;
  * @date 2018/8/29
  */
 @Service
-public class AppFeedbackServiceImpl extends AbstractServiceAdapter implements AppFeedbackService {
+public class AppFeedbackServiceImpl extends AbstractService implements AppFeedbackService {
 
     @Autowired
     private AppFeedbackFacade appFeedbackFacade;

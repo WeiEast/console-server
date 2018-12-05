@@ -16,7 +16,7 @@
 
 package com.treefinance.saas.console.share.cache;
 
-import com.treefinance.b2b.saas.conf.PropertiesConfiguration;
+import com.treefinance.b2b.saas.context.conf.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

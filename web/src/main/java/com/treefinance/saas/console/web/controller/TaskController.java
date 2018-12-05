@@ -6,8 +6,8 @@ import com.treefinance.saas.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.console.common.domain.vo.TaskBuryPointLogVO;
 import com.treefinance.saas.console.common.domain.vo.TaskLogVO;
 import com.treefinance.saas.console.common.domain.vo.TaskNextDirectiveVO;
+import com.treefinance.saas.console.context.component.AbstractController;
 import com.treefinance.saas.console.dao.entity.TaskLog;
-import com.treefinance.saas.console.share.adapter.AbstractDomainObjectAdapter;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/saas/console/")
-public class TaskController extends AbstractDomainObjectAdapter {
+public class TaskController extends AbstractController {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 

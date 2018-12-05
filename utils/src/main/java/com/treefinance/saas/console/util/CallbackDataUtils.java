@@ -77,7 +77,7 @@ public final class CallbackDataUtils {
      */
     public static String decryptByAES(byte[] data, String dataKey) throws CallbackDataCryptoException {
         try {
-            return AesUtils.decrypt(dataKey, data);
+            return com.treefinance.b2b.saas.util.AesUtils.decrypt(dataKey, data);
         } catch (CryptoException e) {
             throw new CallbackDataCryptoException("decryptByAES exception", e);
         }
@@ -93,7 +93,7 @@ public final class CallbackDataUtils {
     public static String encryptByAES(Object data, String dataKey) throws CallbackDataCryptoException {
         try {
             byte[] input = JSON.toJSONBytes(data);
-            byte[] result = AesUtils.encrypt(dataKey, input);
+            byte[] result = com.treefinance.b2b.saas.util.AesUtils.encrypt(dataKey, input);
             return new String(result);
         } catch (CryptoException e) {
             throw new CallbackDataCryptoException("encryptByAES exception", e);

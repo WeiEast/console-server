@@ -12,8 +12,8 @@ import com.treefinance.saas.console.biz.service.AppBizLicenseService;
 import com.treefinance.saas.console.common.domain.request.AppBizLicenseRequest;
 import com.treefinance.saas.console.common.domain.vo.AppBizLicenseVO;
 import com.treefinance.saas.console.common.domain.vo.AppCrawlerConfigParamVO;
-import com.treefinance.saas.console.context.exception.BizException;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.console.util.http.HttpClientUtils;
 import com.treefinance.saas.console.util.http.HttpResponseResult;
 import com.treefinance.saas.knife.common.CommonStateCode;
@@ -48,7 +48,7 @@ import java.util.Map;
  * Created by haojiahong on 2017/7/4.
  */
 @Service
-public class AppBizLicenseServiceImpl extends AbstractServiceAdapter implements AppBizLicenseService {
+public class AppBizLicenseServiceImpl extends AbstractService implements AppBizLicenseService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppBizLicenseServiceImpl.class);
 

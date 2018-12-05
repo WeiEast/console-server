@@ -4,7 +4,7 @@ import com.treefinance.saas.console.biz.service.EcommerceMonitorService;
 import com.treefinance.saas.console.biz.service.MerchantService;
 import com.treefinance.saas.console.common.domain.vo.MerchantBaseVO;
 import com.treefinance.saas.console.common.domain.vo.MerchantSimpleVO;
-import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;

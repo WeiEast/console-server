@@ -1,7 +1,8 @@
 package com.treefinance.saas.console.biz.service.impl;
 
+import com.treefinance.b2b.saas.util.ExcelUtils;
 import com.treefinance.saas.console.biz.service.QuestionnaireStatService;
-import com.treefinance.saas.console.util.ExcelUtils;
+import com.treefinance.saas.console.util.SystemUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppQuestionnaireStatisticsRequest;
@@ -127,7 +128,7 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
 
         // 响应到客户端
         try {
-            ExcelUtils.setResponseHeader(response, fileName);
+            SystemUtils.setFileResponseHeader(response, fileName);
             OutputStream os = response.getOutputStream();
             hssfWorkbook.write(os);
 

@@ -15,8 +15,8 @@ import com.treefinance.saas.console.common.domain.vo.AlarmQueryDetailVO;
 import com.treefinance.saas.console.common.domain.vo.AlarmTriggerDetailVO;
 import com.treefinance.saas.console.common.domain.vo.AlarmVariableDetailVO;
 import com.treefinance.saas.console.common.domain.vo.SaasWorkerVO;
-import com.treefinance.saas.console.context.exception.BizException;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * @date 18/7/19 16:07
  */
 @Service
-public class AlarmConfigServiceImpl extends AbstractServiceAdapter implements AlarmConfigService {
+public class AlarmConfigServiceImpl extends AbstractService implements AlarmConfigService {
 
     @Resource
     private AlarmBasicConfigurationFacade alarmBasicConfigurationFacade;

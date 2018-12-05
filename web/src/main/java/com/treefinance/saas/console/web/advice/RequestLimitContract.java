@@ -1,7 +1,7 @@
 package com.treefinance.saas.console.web.advice;
 
 import com.treefinance.saas.console.context.annotations.RequestLimit;
-import com.treefinance.saas.console.context.exception.RequestLimitException;
+import com.treefinance.saas.console.exception.RequestLimitException;
 import com.treefinance.saas.console.share.cache.RedisService;
 import org.apache.shiro.web.servlet.ShiroHttpSession;
 import org.aspectj.lang.JoinPoint;

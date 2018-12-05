@@ -1,4 +1,4 @@
-package com.treefinance.saas.console.share.internal;
+package com.treefinance.saas.console.context.component;
 
 /**
  * RPC action list.

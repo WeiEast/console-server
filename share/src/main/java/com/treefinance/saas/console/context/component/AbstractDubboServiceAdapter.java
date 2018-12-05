@@ -1,8 +1,8 @@
-package com.treefinance.saas.console.share.adapter;
+package com.treefinance.saas.console.context.component;
 
 import com.alibaba.fastjson.JSON;
-import com.treefinance.saas.console.context.exception.RpcServiceException;
-import com.treefinance.saas.console.share.internal.RpcActionEnum;
+import com.treefinance.b2b.saas.context.adapter.AbstractDomainObjectAdapter;
+import com.treefinance.saas.console.exception.RpcServiceException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 

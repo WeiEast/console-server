@@ -24,6 +24,7 @@ import com.treefinance.saas.console.common.domain.vo.MerchantStatVO;
 import com.treefinance.saas.console.common.domain.vo.PieChartStatRateVO;
 import com.treefinance.saas.console.common.domain.vo.TaskDetailVO;
 import com.treefinance.saas.console.context.Constants;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.dao.entity.MerchantUser;
 import com.treefinance.saas.console.dao.entity.TaskAndTaskAttribute;
@@ -39,7 +40,6 @@ import com.treefinance.saas.console.manager.domain.TaskLogBO;
 import com.treefinance.saas.console.manager.query.DailyErrorStepStatQuery;
 import com.treefinance.saas.console.manager.query.MerchantAccessStatQuery;
 import com.treefinance.saas.console.manager.query.MerchantDailyAccessStatQuery;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -79,7 +79,7 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/7/5.
  */
 @Service
-public class MerchantStatServiceImpl extends AbstractServiceAdapter implements MerchantStatService {
+public class MerchantStatServiceImpl extends AbstractService implements MerchantStatService {
 
     @Resource
     private MerchantBaseInfoFacade merchantBaseInfoFacade;

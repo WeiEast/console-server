@@ -2,7 +2,7 @@ package com.treefinance.saas.console.manager.dubbo;
 
 import com.treefinance.saas.console.manager.LicenseManager;
 import com.treefinance.saas.console.manager.domain.LicenseBO;
-import com.treefinance.saas.console.share.internal.RpcActionEnum;
+import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseByAppIdRequest;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseByBizTypeRequest;
 import com.treefinance.saas.merchant.facade.result.console.AppBizLicenseResult;

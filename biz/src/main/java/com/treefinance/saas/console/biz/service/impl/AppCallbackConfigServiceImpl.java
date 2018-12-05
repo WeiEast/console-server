@@ -11,7 +11,7 @@ import com.treefinance.saas.console.common.domain.vo.AppBizTypeVO;
 import com.treefinance.saas.console.common.domain.vo.AppCallbackBizVO;
 import com.treefinance.saas.console.common.domain.vo.AppCallbackConfigVO;
 import com.treefinance.saas.console.common.domain.vo.AppCallbackDataTypeVO;
-import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.console.util.http.HttpClientUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;

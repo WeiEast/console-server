@@ -3,7 +3,7 @@ package com.treefinance.saas.console.biz.service.impl;
 import com.alibaba.rocketmq.shade.com.alibaba.fastjson.JSON;
 import com.treefinance.saas.console.biz.service.StatGroupService;
 import com.treefinance.saas.console.common.domain.vo.StatGroupVO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -25,7 +25,7 @@ import java.util.Set;
  * @date 2018/4/27上午11:09
  */
 @Service
-public class StatGroupServiceImpl extends AbstractServiceAdapter implements StatGroupService {
+public class StatGroupServiceImpl extends AbstractService implements StatGroupService {
 
     private static final Logger logger = LoggerFactory.getLogger(StatGroupService.class);
     @Autowired

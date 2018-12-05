@@ -1,7 +1,7 @@
 package com.treefinance.saas.console.share.manager.dubbo;
 
 import com.treefinance.commonservice.uid.UidService;
-import com.treefinance.saas.console.context.exception.RpcServiceException;
+import com.treefinance.saas.console.exception.RpcServiceException;
 import com.treefinance.saas.console.share.manager.GuidManager;
 import com.treefinance.toolkit.util.Preconditions;
 import org.apache.commons.lang3.ArrayUtils;

@@ -2,7 +2,7 @@ package com.treefinance.saas.console.web.controller;
 
 import com.treefinance.saas.console.biz.service.OssDataService;
 import com.treefinance.saas.console.common.domain.request.OssDataRequest;
-import com.treefinance.saas.console.context.exception.BizException;
+import com.treefinance.saas.console.exception.BizException;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

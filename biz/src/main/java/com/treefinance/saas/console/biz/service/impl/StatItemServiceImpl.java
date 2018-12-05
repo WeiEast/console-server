@@ -2,7 +2,7 @@ package com.treefinance.saas.console.biz.service.impl;
 
 import com.treefinance.saas.console.biz.service.StatItemService;
 import com.treefinance.saas.console.common.domain.vo.StatItemVO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -19,7 +19,7 @@ import java.util.List;
  * Created by yh-treefinance on 2018/5/22.
  */
 @Component("statItemService")
-public class StatItemServiceImpl extends AbstractServiceAdapter implements StatItemService {
+public class StatItemServiceImpl extends AbstractService implements StatItemService {
     @Autowired
     private StatItemFacade statItemFacade;
 

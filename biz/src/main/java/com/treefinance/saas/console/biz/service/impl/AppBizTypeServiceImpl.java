@@ -6,13 +6,13 @@ import com.treefinance.saas.console.biz.domain.IdentifiedBizType;
 import com.treefinance.saas.console.biz.domain.MonitoringBizType;
 import com.treefinance.saas.console.biz.enums.MonitorTypeEnum;
 import com.treefinance.saas.console.biz.service.AppBizTypeService;
-import com.treefinance.saas.console.context.exception.IllegalBusinessDataException;
+import com.treefinance.saas.console.context.component.AbstractService;
+import com.treefinance.saas.console.exception.IllegalBusinessDataException;
 import com.treefinance.saas.console.manager.BizTypeManager;
 import com.treefinance.saas.console.manager.LicenseManager;
 import com.treefinance.saas.console.manager.domain.BizTypeBO;
 import com.treefinance.saas.console.manager.domain.IdentifiedBizTypeBO;
 import com.treefinance.saas.console.manager.domain.LicenseBO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.toolkit.util.Preconditions;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @date 2017/7/4.
  */
 @Service
-public class AppBizTypeServiceImpl extends AbstractServiceAdapter implements AppBizTypeService {
+public class AppBizTypeServiceImpl extends AbstractService implements AppBizTypeService {
 
     private static final Logger logger = LoggerFactory.getLogger(AppBizTypeServiceImpl.class);
 

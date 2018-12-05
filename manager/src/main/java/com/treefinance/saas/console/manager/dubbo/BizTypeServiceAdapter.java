@@ -3,7 +3,7 @@ package com.treefinance.saas.console.manager.dubbo;
 import com.treefinance.saas.console.manager.BizTypeManager;
 import com.treefinance.saas.console.manager.domain.BizTypeBO;
 import com.treefinance.saas.console.manager.domain.IdentifiedBizTypeBO;
-import com.treefinance.saas.console.share.internal.RpcActionEnum;
+import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.merchant.facade.request.common.BaseRequest;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizTypeRequest;
 import com.treefinance.saas.merchant.facade.result.console.AppBizTypeResult;

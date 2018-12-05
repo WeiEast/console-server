@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.treefinance.saas.console.biz.service.BasicDataService;
 import com.treefinance.saas.console.common.domain.vo.BasicDataHistoryVO;
 import com.treefinance.saas.console.common.domain.vo.BasicDataVO;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.Results;
@@ -32,7 +32,7 @@ import java.util.Map;
  * @date 2018/4/23下午5:12
  */
 @Service
-public class BasicDataServiceImpl extends AbstractServiceAdapter implements BasicDataService {
+public class BasicDataServiceImpl extends AbstractService implements BasicDataService {
     private static final Logger logger = LoggerFactory.getLogger(BasicDataService.class);
 
     @Autowired

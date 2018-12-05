@@ -15,6 +15,7 @@ import com.treefinance.saas.console.common.domain.request.TaskRequest;
 import com.treefinance.saas.console.common.domain.vo.TaskBuryPointLogVO;
 import com.treefinance.saas.console.common.domain.vo.TaskNextDirectiveVO;
 import com.treefinance.saas.console.common.domain.vo.TaskVO;
+import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.AppCallbackConfig;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.dao.entity.Task;
@@ -23,7 +24,6 @@ import com.treefinance.saas.console.dao.entity.TaskBuryPointLog;
 import com.treefinance.saas.console.dao.entity.TaskCallbackLog;
 import com.treefinance.saas.console.dao.entity.TaskLog;
 import com.treefinance.saas.console.dao.entity.TaskNextDirective;
-import com.treefinance.saas.console.share.adapter.AbstractServiceAdapter;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
  * Created by haojiahong on 2017/8/15.
  */
 @Service
-public class TaskServiceImpl extends AbstractServiceAdapter implements TaskService {
+public class TaskServiceImpl extends AbstractService implements TaskService {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskServiceImpl.class);
 

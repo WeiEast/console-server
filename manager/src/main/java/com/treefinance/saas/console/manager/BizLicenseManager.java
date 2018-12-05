@@ -1,6 +1,6 @@
 package com.treefinance.saas.console.manager;
 
-import com.treefinance.saas.console.manager.domain.LicenseBO;
+import com.treefinance.saas.console.manager.domain.BizLicenseInfoBO;
 
 import javax.annotation.Nonnull;
 
@@ -15,17 +15,17 @@ public interface BizLicenseManager {
     /**
      * search all app's licenses
      *
-     * @return list of {@link LicenseBO}
+     * @return list of {@link BizLicenseInfoBO}
      */
-    List<LicenseBO> listAppLicenses();
+    List<BizLicenseInfoBO> listAppLicenses();
 
     /**
      * search all app's licenses that associated with the given <code>bizType</code>
      *
      * @param bizType the business type to search
-     * @return list of {@link LicenseBO}
+     * @return list of {@link BizLicenseInfoBO}
      */
-    List<LicenseBO> listAppLicensesByBizType(@Nonnull Byte bizType);
+    List<BizLicenseInfoBO> listAppLicensesByBizType(@Nonnull Byte bizType);
 
     /**
      * search all app licenses and return its appIds.
@@ -42,5 +42,5 @@ public interface BizLicenseManager {
      */
     List<String> listAppIdsByBizType(@Nonnull Byte bizType);
 
-    List<LicenseBO> listValidAppLicensesByAppId(@Nonnull String appId);
+    List<BizLicenseInfoBO> listValidAppLicensesByAppId(@Nonnull String appId);
 }

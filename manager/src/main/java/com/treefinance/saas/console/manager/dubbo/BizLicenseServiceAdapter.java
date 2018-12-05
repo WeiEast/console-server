@@ -1,7 +1,7 @@
 package com.treefinance.saas.console.manager.dubbo;
 
 import com.treefinance.saas.console.manager.BizLicenseManager;
-import com.treefinance.saas.console.manager.domain.LicenseBO;
+import com.treefinance.saas.console.manager.domain.BizLicenseInfoBO;
 import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseByAppIdRequest;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseByBizTypeRequest;
@@ -30,10 +30,10 @@ public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter imp
     }
 
     @Override
-    public List<LicenseBO> listAppLicenses() {
+    public List<BizLicenseInfoBO> listAppLicenses() {
         MerchantResult<List<AppBizLicenseResult>> result = queryAppLicenses();
 
-        return convert(result.getData(), LicenseBO.class);
+        return convert(result.getData(), BizLicenseInfoBO.class);
     }
 
     private MerchantResult<List<AppBizLicenseResult>> queryAppLicenses() {
@@ -47,10 +47,10 @@ public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter imp
     }
 
     @Override
-    public List<LicenseBO> listAppLicensesByBizType(@Nonnull Byte bizType) {
+    public List<BizLicenseInfoBO> listAppLicensesByBizType(@Nonnull Byte bizType) {
         MerchantResult<List<AppBizLicenseResult>> result = queryAppLicensesByBizType(bizType);
 
-        return convert(result.getData(), LicenseBO.class);
+        return convert(result.getData(), BizLicenseInfoBO.class);
     }
 
     private MerchantResult<List<AppBizLicenseResult>> queryAppLicensesByBizType(@Nonnull Byte bizType) {
@@ -85,7 +85,7 @@ public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter imp
     }
 
     @Override
-    public List<LicenseBO> listValidAppLicensesByAppId(@Nonnull String appId) {
+    public List<BizLicenseInfoBO> listValidAppLicensesByAppId(@Nonnull String appId) {
         Preconditions.notBlank("appId", appId);
 
         QueryAppBizLicenseByAppIdRequest request = new QueryAppBizLicenseByAppIdRequest();
@@ -96,6 +96,6 @@ public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter imp
 
         validateResponse(result, RpcActionEnum.QUERY_VALID_APP_LICENSES_BY_APP_ID, request);
 
-        return convert(result.getData(), LicenseBO.class);
+        return convert(result.getData(), BizLicenseInfoBO.class);
     }
 }

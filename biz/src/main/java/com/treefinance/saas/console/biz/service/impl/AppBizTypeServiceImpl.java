@@ -12,7 +12,7 @@ import com.treefinance.saas.console.manager.BizTypeManager;
 import com.treefinance.saas.console.manager.BizLicenseManager;
 import com.treefinance.saas.console.manager.domain.BizTypeBO;
 import com.treefinance.saas.console.manager.domain.IdentifiedBizTypeBO;
-import com.treefinance.saas.console.manager.domain.LicenseBO;
+import com.treefinance.saas.console.manager.domain.BizLicenseInfoBO;
 import com.treefinance.toolkit.util.Preconditions;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -62,13 +62,13 @@ public class AppBizTypeServiceImpl extends AbstractService implements AppBizType
 
     @Override
     public List<BizTypeInfo> listBizTypeInfosByAppId(@Nonnull String appId) {
-        List<LicenseBO> licenses = bizLicenseManager.listValidAppLicensesByAppId(appId);
+        List<BizLicenseInfoBO> licenses = bizLicenseManager.listValidAppLicensesByAppId(appId);
         if (CollectionUtils.isEmpty(licenses)) {
             logger.info("根据appId获取appBizLicense返回data结果为空");
             return Collections.emptyList();
         }
 
-        List<Byte> bizTypeValues = transform(licenses, LicenseBO::getBizType, true);
+        List<Byte> bizTypeValues = transform(licenses, BizLicenseInfoBO::getBizType, true);
 
         List<BizTypeBO> bizTypes = bizTypeManager.listBizTypesInValues(bizTypeValues);
         if (CollectionUtils.isEmpty(bizTypes)) {
@@ -78,7 +78,7 @@ public class AppBizTypeServiceImpl extends AbstractService implements AppBizType
         Map<Byte, BizTypeBO> bizTypeBOMap = transformToMap(bizTypes, BizTypeBO::getBizType, Function.identity());
 
         List<BizTypeInfo> result = new ArrayList<>();
-        for (LicenseBO o : licenses) {
+        for (BizLicenseInfoBO o : licenses) {
             BizTypeBO type = bizTypeBOMap.get(o.getBizType());
             BizTypeInfo appBizTypeVO = new BizTypeInfo();
             appBizTypeVO.setBizType(type.getBizType());

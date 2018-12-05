@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @ToString
-public class LicenseBO implements Serializable {
+public class BizLicenseInfoBO implements Serializable {
 
     private String appId;
     private Byte bizType;

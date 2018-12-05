@@ -9,7 +9,7 @@ import com.treefinance.saas.console.biz.service.AppBizTypeService;
 import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.exception.IllegalBusinessDataException;
 import com.treefinance.saas.console.manager.BizTypeManager;
-import com.treefinance.saas.console.manager.LicenseManager;
+import com.treefinance.saas.console.manager.BizLicenseManager;
 import com.treefinance.saas.console.manager.domain.BizTypeBO;
 import com.treefinance.saas.console.manager.domain.IdentifiedBizTypeBO;
 import com.treefinance.saas.console.manager.domain.LicenseBO;
@@ -40,12 +40,12 @@ public class AppBizTypeServiceImpl extends AbstractService implements AppBizType
     private static final Logger logger = LoggerFactory.getLogger(AppBizTypeServiceImpl.class);
 
     private final BizTypeManager bizTypeManager;
-    private final LicenseManager licenseManager;
+    private final BizLicenseManager bizLicenseManager;
 
     @Autowired
-    public AppBizTypeServiceImpl(BizTypeManager bizTypeManager, LicenseManager licenseManager) {
+    public AppBizTypeServiceImpl(BizTypeManager bizTypeManager, BizLicenseManager bizLicenseManager) {
         this.bizTypeManager = bizTypeManager;
-        this.licenseManager = licenseManager;
+        this.bizLicenseManager = bizLicenseManager;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class AppBizTypeServiceImpl extends AbstractService implements AppBizType
 
     @Override
     public List<BizTypeInfo> listBizTypeInfosByAppId(@Nonnull String appId) {
-        List<LicenseBO> licenses = licenseManager.listValidAppLicensesByAppId(appId);
+        List<LicenseBO> licenses = bizLicenseManager.listValidAppLicensesByAppId(appId);
         if (CollectionUtils.isEmpty(licenses)) {
             logger.info("根据appId获取appBizLicense返回data结果为空");
             return Collections.emptyList();

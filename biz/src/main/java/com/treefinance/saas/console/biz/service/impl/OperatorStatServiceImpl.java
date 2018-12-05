@@ -16,7 +16,7 @@ import com.treefinance.saas.console.common.domain.vo.OperatorStatDayAccessVO;
 import com.treefinance.saas.console.common.domain.vo.OperatorStatDayConvertRateVo;
 import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
-import com.treefinance.saas.console.manager.LicenseManager;
+import com.treefinance.saas.console.manager.BizLicenseManager;
 import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
@@ -67,7 +67,7 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
     @Autowired
     private CallbackFailureReasonStatAccessFacade callbackFailureReasonStatAccessFacade;
     @Autowired
-    private LicenseManager licenseManager;
+    private BizLicenseManager bizLicenseManager;
 
     @Override
     public Object queryAllOperatorStatDayAccessList(OperatorStatRequest request) {
@@ -279,7 +279,7 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
         totalVO.setAppName("所有商户");
         result.add(totalVO);
 
-        List<String> appIds = licenseManager.listAppIdsByBizType(EBizTypeEnum.OPERATOR.getCode());
+        List<String> appIds = bizLicenseManager.listAppIdsByBizType(EBizTypeEnum.OPERATOR.getCode());
 
         if (CollectionUtils.isEmpty(appIds)) {
             return Results.newSuccessResult(result);

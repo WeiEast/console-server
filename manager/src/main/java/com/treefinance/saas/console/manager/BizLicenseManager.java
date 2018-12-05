@@ -10,7 +10,7 @@ import java.util.List;
  * @author Jerry
  * @date 2018/11/23 19:14
  */
-public interface LicenseManager {
+public interface BizLicenseManager {
 
     /**
      * search all app's licenses

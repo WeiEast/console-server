@@ -1,6 +1,6 @@
 package com.treefinance.saas.console.manager.dubbo;
 
-import com.treefinance.saas.console.manager.LicenseManager;
+import com.treefinance.saas.console.manager.BizLicenseManager;
 import com.treefinance.saas.console.manager.domain.LicenseBO;
 import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppBizLicenseByAppIdRequest;
@@ -21,11 +21,11 @@ import java.util.List;
  * @date 2018/11/23 19:15
  */
 @Service
-public class LicenseServiceAdapter extends AbstractMerchantServiceAdapter implements LicenseManager {
+public class BizLicenseServiceAdapter extends AbstractMerchantServiceAdapter implements BizLicenseManager {
     private final AppBizLicenseFacade bizLicenseFacade;
 
     @Autowired
-    public LicenseServiceAdapter(AppBizLicenseFacade bizLicenseFacade) {
+    public BizLicenseServiceAdapter(AppBizLicenseFacade bizLicenseFacade) {
         this.bizLicenseFacade = bizLicenseFacade;
     }
 

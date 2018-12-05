@@ -29,7 +29,7 @@ import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.dao.entity.MerchantUser;
 import com.treefinance.saas.console.dao.entity.TaskAndTaskAttribute;
 import com.treefinance.saas.console.manager.BizTypeManager;
-import com.treefinance.saas.console.manager.LicenseManager;
+import com.treefinance.saas.console.manager.BizLicenseManager;
 import com.treefinance.saas.console.manager.MerchantStatManager;
 import com.treefinance.saas.console.manager.TaskLogManager;
 import com.treefinance.saas.console.manager.domain.DailyErrorStepStatBO;
@@ -88,7 +88,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
     @Resource
     private TaskFacade taskFacade;
     @Autowired
-    private LicenseManager licenseManager;
+    private BizLicenseManager bizLicenseManager;
     @Autowired
     private BizTypeManager bizTypeManager;
     @Autowired
@@ -474,9 +474,9 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
         // 获取所有的appBizLicense 数据
         List<String> appIds;
         if (request.getBizType() != null && request.getBizType() != 0) {
-            appIds = licenseManager.listAppIdsByBizType(request.getBizType());
+            appIds = bizLicenseManager.listAppIdsByBizType(request.getBizType());
         } else {
-            appIds = licenseManager.listAppIds();
+            appIds = bizLicenseManager.listAppIds();
         }
 
         // 获取所有的appBizLicense的appId数据

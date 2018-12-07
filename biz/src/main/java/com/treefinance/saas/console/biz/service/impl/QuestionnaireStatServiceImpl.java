@@ -11,6 +11,7 @@ import com.treefinance.saas.merchant.facade.result.console.AppQuestionnaireDetai
 import com.treefinance.saas.merchant.facade.result.console.AppQuestionnaireStatisticsResult;
 import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.facade.service.AppQuestionnaireFacade;
+import com.treefinance.toolkit.util.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -83,9 +83,8 @@ public class QuestionnaireStatServiceImpl implements QuestionnaireStatService {
         String[][] content = new String[listMerchantResult.getData().size()][];
         String[][] content1 = new String[listMerchantResult1.getData().size()][];
         String[][] content2 = new String[merchantResult.getData().size()][];
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-        String fileName = "商户问卷统计表" + simpleDateFormat.format(new Date()) + ".xls";
+        String fileName = "商户问卷统计表" + DateUtils.formatDate(new Date()) + ".xls";
 
         String sheetName = "概要统计";
         String sheetName1 = "明细统计";

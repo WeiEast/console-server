@@ -1,6 +1,7 @@
 package com.treefinance.saas.console.web.controller;
 
 import com.treefinance.saas.console.biz.service.QuestionnaireStatService;
+import com.treefinance.saas.console.context.Constants;
 import com.treefinance.saas.merchant.facade.request.console.QueryAppQuestionnaireStatisticsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -37,8 +38,8 @@ public class QuestionnaireStatController {
     public void downloadAppQuestionnaireStatistics(@RequestParam(value = "appId", required = false) String appId,
                                                    @RequestParam(value = "bizType", required = false) Byte bizType,
                                                    @RequestParam(value = "step", required = false) String step,
-                                                   @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
-                                                   @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate,
+                                                   @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = Constants.DATETIME_PATTERN) Date startDate,
+                                                   @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = Constants.DATETIME_PATTERN) Date endDate,
                                                    HttpServletRequest request, HttpServletResponse response) {
         QueryAppQuestionnaireStatisticsRequest queryAppQuestionnaireStatisticsRequest = new QueryAppQuestionnaireStatisticsRequest();
         queryAppQuestionnaireStatisticsRequest.setAppId(appId);

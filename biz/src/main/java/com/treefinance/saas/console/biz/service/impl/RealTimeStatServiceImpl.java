@@ -11,9 +11,9 @@ import com.treefinance.saas.monitor.facade.domain.request.BaseStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.RealTimeStatAccessRO;
 import com.treefinance.saas.monitor.facade.service.stat.RealTimeStatAccessFacade;
+import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -203,15 +203,15 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
             case 0:
                 return request.getStartDate();
             case 1:
-                return DateUtils.addHours(new Date(), -1);
+                return DateUtils.minusHours(new Date(), 1);
             case 2:
-                return DateUtils.addHours(new Date(), -3);
+                return DateUtils.minusHours(new Date(), 3);
             case 3:
-                return DateUtils.addHours(new Date(), -12);
+                return DateUtils.minusHours(new Date(), 12);
             case 4:
-                return DateUtils.addHours(new Date(), -24);
+                return DateUtils.minusDays(new Date(), 1);
             case 5:
-                return DateUtils.addHours(new Date(), -24 * 3);
+                return DateUtils.minusDays(new Date(), 3);
             default:
                 return null;
         }
@@ -229,8 +229,8 @@ public class RealTimeStatServiceImpl implements RealTimeStatService {
         switch (dateType) {
             case 0:
                 Date now = new Date();
-                Date endDate = com.treefinance.saas.console.util.DateUtils.getTodayEndDate(request.getEndDate());
-                if (endDate.compareTo(now) > 0) {
+                Date endDate = DateUtils.getEndTimeOfDay(request.getEndDate());
+                if (endDate.after(now)) {
                     return now;
                 }
                 return endDate;

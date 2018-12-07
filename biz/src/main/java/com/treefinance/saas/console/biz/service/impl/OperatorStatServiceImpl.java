@@ -3,6 +3,7 @@ package com.treefinance.saas.console.biz.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.treefinance.b2b.saas.util.SaasDateUtils;
 import com.treefinance.saas.console.biz.enums.EBizTypeEnum;
 import com.treefinance.saas.console.biz.service.OperatorStatService;
 import com.treefinance.saas.console.common.domain.request.OperatorStatRequest;
@@ -17,7 +18,6 @@ import com.treefinance.saas.console.common.domain.vo.OperatorStatDayConvertRateV
 import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.manager.BizLicenseInfoManager;
-import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
 import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
@@ -34,7 +34,7 @@ import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatA
 import com.treefinance.saas.monitor.facade.domain.ro.stat.operator.OperatorStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.service.stat.CallbackFailureReasonStatAccessFacade;
 import com.treefinance.saas.monitor.facade.service.stat.OperatorStatAccessFacade;
-import com.treefinance.toolkit.lang.TimeUnit;
+import com.treefinance.toolkit.util.DateUtils;
 import com.treefinance.toolkit.util.Objects;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -44,8 +44,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -91,8 +89,8 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
     @Override
     public Object queryAllOperatorStatAccessList(OperatorStatRequest request) {
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
-        rpcRequest.setStartDate(DateUtils.getTodayBeginDate(request.getDataDate()));
-        rpcRequest.setEndDate(DateUtils.getTodayEndDate(request.getDataDate()));
+        rpcRequest.setStartDate(DateUtils.getStartTimeOfDay(request.getDataDate()));
+        rpcRequest.setEndDate(DateUtils.getEndTimeOfDay(request.getDataDate()));
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
         rpcRequest.setSaasEnv(request.getSaasEnv());
@@ -174,20 +172,19 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
             return Results.newPageResult(request, 0, Lists.newArrayList());
         }
         Map<String, List<OperatorStatDayAccessDetailVO>> map = Maps.newHashMap();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         for (OperatorStatAccessRO ro : rpcResult.getData()) {
             if (ro == null) {
                 continue;
             }
 
-            String dateStr = df.format(ro.getDataTime());
+            String dateStr = DateUtils.formatDate(ro.getDataTime());
             List<OperatorStatDayAccessDetailVO> list = map.get(dateStr);
             if (CollectionUtils.isEmpty(list)) {
                 list = Lists.newArrayList();
             }
             OperatorStatDayAccessDetailVO vo = new OperatorStatDayAccessDetailVO();
             this.copyProperties(ro, vo);
-            vo.setDataTimeStr(DateUtils.date2SimpleHm(vo.getDataTime()));
+            vo.setDataTimeStr(DateUtils.formatHm(vo.getDataTime()));
             list.add(vo);
 
             map.put(dateStr, list);
@@ -198,7 +195,7 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
                 continue;
             }
 
-            String dateStr = df.format(ro.getDataTime());
+            String dateStr = DateUtils.formatDate(ro.getDataTime());
             OperatorStatDayAccessDetailVO vo = new OperatorStatDayAccessDetailVO();
             this.copyProperties(ro, vo);
             List<OperatorStatDayAccessDetailVO> detailList = map.get(dateStr);
@@ -220,13 +217,13 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
             request.setEndDate(new Date());
         }
         if (Objects.isEmpty(request.getStartDate())) {
-            request.setStartDate(DateUtils.getSpecificDayDate(request.getEndDate(), -3, TimeUnit.MONTHS));
+            request.setStartDate(DateUtils.minusMonths(request.getEndDate(), 3));
         }
 
         List<OperatorStatDayConvertRateVo> result = new ArrayList<>();
 
-        rpcDayRequest.setStartDate(DateUtils.getTodayBeginDate(DateUtils.getFirstDayOfMonth(request.getStartDate())));
-        rpcDayRequest.setEndDate(DateUtils.getTodayEndDate(DateUtils.getLastDayOfMonth(request.getEndDate())));
+        rpcDayRequest.setStartDate(DateUtils.getStartTimeOfDay(DateUtils.getFirstDayOfMonth(request.getStartDate())));
+        rpcDayRequest.setEndDate(DateUtils.getEndTimeOfDay(DateUtils.getLastDayOfMonth(request.getEndDate())));
         rpcDayRequest.setStatType(request.getStatType() == null ? 1 : request.getStatType());
         rpcDayRequest.setAppId("virtual_total_stat_appId");
         MonitorResult<List<OperatorAllStatDayAccessRO>> rpcDayResult = operatorStatAccessFacade.queryAllOperatorStatDayAccessList(rpcDayRequest);
@@ -238,7 +235,7 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
         // 根据年月分组
         Map<String, List<OperatorAllStatDayAccessRO>> map =
             list.stream().filter(operatorAllStatDayAccessRO -> "virtual_total_stat_appId".equals(operatorAllStatDayAccessRO.getAppId()))
-                .collect(Collectors.groupingBy(operatorAllStatDayAccessRO -> DateUtils.date2SimpleYm(operatorAllStatDayAccessRO.getDataTime())));
+                .collect(Collectors.groupingBy(operatorAllStatDayAccessRO -> DateUtils.formatYm(operatorAllStatDayAccessRO.getDataTime())));
 
         for (String key : map.keySet()) {
             List<OperatorAllStatDayAccessRO> value = map.get(key);
@@ -305,12 +302,12 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
     @Override
     public Object queryNumberRatio(OperatorStatRequest request) {
         Map<String, Object> map = Maps.newHashMap();
-        List<String> keys = DateUtils.getIntervalDateStrRegion(request.getStartTime(), request.getEndTime(), request.getIntervalMins());
+        List<String> keys = SaasDateUtils.getIntervalDateStrRegion(request.getStartTime(), request.getEndTime(), request.getIntervalMins());
         List<String> groupNameList = Lists.newArrayList("中国联通", "广东移动", "浙江移动", "江苏移动", "福建移动", "山东移动", "河南移动", "湖南移动", "广西移动", "湖北移动", "其他");
         map.put("keys", keys);
         OperatorStatAccessRequest rpcRequest = new OperatorStatAccessRequest();
-        rpcRequest.setStartDate(DateUtils.getIntervalDateTime(request.getStartTime(), request.getIntervalMins()));
-        rpcRequest.setEndDate(DateUtils.getLaterIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
+        rpcRequest.setStartDate(SaasDateUtils.getIntervalDateTime(request.getStartTime(), request.getIntervalMins()));
+        rpcRequest.setEndDate(SaasDateUtils.getLaterIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
         rpcRequest.setStatType(request.getStatType());
         rpcRequest.setAppId(request.getAppId());
         rpcRequest.setIntervalMins(request.getIntervalMins());
@@ -320,14 +317,14 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
         }
         List<OperatorStatAccessRO> dataList = rpcResult.getData();
         Map<Date, List<OperatorStatAccessRO>> dateMap = dataList.stream().collect(Collectors.groupingBy(OperatorStatAccessRO::getDataTime));
-        List<Date> dateList = DateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins(), 1);
+        List<Date> dateList = SaasDateUtils.getIntervalDateRegion(rpcRequest.getStartDate(), rpcRequest.getEndDate(), request.getIntervalMins(), 1);
         // <时间,<运营商名称,数值>>
         Map<String, Map<String, String>> everyOneMap = Maps.newHashMap();
         for (Date date : dateList) {
             StringBuilder sb = new StringBuilder();
-            sb.append(DateUtils.date2SimpleHm(date));
-            Date mediTime = org.apache.commons.lang3.time.DateUtils.addMinutes(date, request.getIntervalMins());
-            sb.append("-").append(DateUtils.date2SimpleHm(mediTime));
+            sb.append(DateUtils.formatHm(date));
+            Date mediTime = DateUtils.plusMinutes(date, request.getIntervalMins());
+            sb.append("-").append(DateUtils.formatHm(mediTime));
 
             List<OperatorStatAccessRO> dateDataList = dateMap.get(date);
             if (CollectionUtils.isEmpty(dateDataList)) {
@@ -421,8 +418,8 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
         rpcRequest.setDataType(request.getStatType());
         rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setGroupCode(request.getGroupCode());
-        rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getDataDate()));
-        rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getDataDate()));
+        rpcRequest.setStartTime(DateUtils.getStartTimeOfDay(request.getDataDate()));
+        rpcRequest.setEndTime(DateUtils.getEndTimeOfDay(request.getDataDate()));
         MonitorResult<List<CallbackFailureReasonStatDayAccessRO>> rpcResult = callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatDayAccessList(rpcRequest);
         List<CallbackFailureReasonVO> result = Lists.newArrayList();
         List<CallbackFailureReasonStatDayAccessRO> rpcDataList = rpcResult.getData();
@@ -445,7 +442,7 @@ public class OperatorStatServiceImpl extends AbstractService implements Operator
         rpcRequest.setSaasEnv(request.getSaasEnv());
         rpcRequest.setGroupCode(request.getGroupCode());
         rpcRequest.setStartTime(request.getDataTime());
-        rpcRequest.setEndTime(org.apache.commons.lang3.time.DateUtils.addMinutes(request.getDataTime(), 30));
+        rpcRequest.setEndTime(DateUtils.plusMinutes(request.getDataTime(), 30));
         rpcRequest.setIntervalMins(30);
         MonitorResult<List<CallbackFailureReasonStatAccessRO>> rpcResult = callbackFailureReasonStatAccessFacade.queryCallbackFailureReasonStatAccessList(rpcRequest);
         List<CallbackFailureReasonVO> result = Lists.newArrayList();

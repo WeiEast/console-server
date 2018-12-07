@@ -54,9 +54,9 @@ import com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade;
 import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
 import com.treefinance.saas.taskcenter.facade.service.TaskLogFacade;
 import com.treefinance.saas.taskcenter.facade.service.TaskNextDirectiveFacade;
+import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -464,7 +464,7 @@ public class TaskServiceImpl extends AbstractService implements TaskService {
 
             rpcRequest.setStartDate(taskRequest.getStartDate());
             // +23:59:59
-            Date endDate = DateUtils.addSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1);
+            Date endDate = DateUtils.plusSeconds(taskRequest.getEndDate(), 24 * 60 * 60 - 1);
             rpcRequest.setEndDate(endDate);
             rpcRequest.setBizType(bizType);
 

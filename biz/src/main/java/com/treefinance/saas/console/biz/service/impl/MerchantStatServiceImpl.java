@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.treefinance.b2b.saas.util.SaasDateUtils;
 import com.treefinance.saas.console.biz.enums.EBizType4MonitorEnum;
 import com.treefinance.saas.console.biz.enums.EBizTypeEnum;
 import com.treefinance.saas.console.biz.enums.ESaasEnvEnum;
@@ -28,8 +29,8 @@ import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.dao.entity.MerchantUser;
 import com.treefinance.saas.console.dao.entity.TaskAndTaskAttribute;
-import com.treefinance.saas.console.manager.BizTypeManager;
 import com.treefinance.saas.console.manager.BizLicenseInfoManager;
+import com.treefinance.saas.console.manager.BizTypeManager;
 import com.treefinance.saas.console.manager.MerchantStatManager;
 import com.treefinance.saas.console.manager.TaskLogManager;
 import com.treefinance.saas.console.manager.domain.DailyErrorStepStatBO;
@@ -190,7 +191,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
         if (CollectionUtils.isNotEmpty(list)) {
             timeMap = new HashMap<>();
             list.forEach(bo -> {
-                String timeStr = com.treefinance.saas.console.util.DateUtils.getWeekStrOfYear(bo.getDataTime());
+                String timeStr = SaasDateUtils.getWeekStrOfYear(bo.getDataTime());
 
                 List<MerchantDailyAccessStatBO> timeValueList = timeMap.computeIfAbsent(timeStr, s -> new ArrayList<>());
 
@@ -379,7 +380,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
                 continue;
             }
             Map<Date, List<MerchantAccessStatBO>> map = appIdROEntry.getValue().stream()
-                .collect(Collectors.groupingBy(ro -> com.treefinance.saas.console.util.DateUtils.getLaterIntervalDateTime(ro.getDataTime(), intervalMins)));
+                .collect(Collectors.groupingBy(ro -> SaasDateUtils.getLaterIntervalDateTime(ro.getDataTime(), intervalMins)));
             for (Map.Entry<Date, List<MerchantAccessStatBO>> entry : map.entrySet()) {
                 List<MerchantAccessStatBO> value = entry.getValue();
                 if (CollectionUtils.isEmpty(value)) {
@@ -647,7 +648,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
     }
 
     private List<String> getDateStrings(StatRequest request) {
-        List<String> dateList = DateUtils.getDateStringBetweenDays(this.getStartDate(request), this.getEndDate(request));
+        List<String> dateList = DateUtils.listDateStringsBetweenDays(this.getStartDate(request), this.getEndDate(request));
         if (dateList.size() != 7) {
             throw new IllegalArgumentException("请求参数startDate,endDate非法!");
         }

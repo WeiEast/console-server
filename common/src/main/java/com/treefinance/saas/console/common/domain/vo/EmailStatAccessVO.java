@@ -1,6 +1,6 @@
 package com.treefinance.saas.console.common.domain.vo;
 
-import com.treefinance.saas.console.util.DateUtils;
+import com.treefinance.toolkit.util.DateUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -54,7 +54,7 @@ public class EmailStatAccessVO implements Serializable {
 
     public String getTimeStr() {
         if(dataTime !=null){
-            return DateUtils.date2SimpleHm(dataTime);
+            return DateUtils.formatHm(dataTime);
         }
         return timeStr;
     }
@@ -65,7 +65,7 @@ public class EmailStatAccessVO implements Serializable {
 
     public String getDateStr() {
         if(dataTime !=null){
-            return DateUtils.date2SimpleYmd(dataTime);
+            return com.treefinance.toolkit.util.DateUtils.formatDate(dataTime);
         }
         return timeStr;
     }

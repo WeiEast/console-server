@@ -1,6 +1,6 @@
 package com.treefinance.saas.console.common.domain.vo;
 
-import com.treefinance.saas.console.util.DateUtils;
+import com.treefinance.toolkit.util.DateUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -136,7 +136,7 @@ public class OperatorStatAccessVO implements Serializable {
 
     public String getDataTimeStr() {
         if (this.dataTime != null) {
-            return DateUtils.date2SimpleHm(this.dataTime);
+            return DateUtils.formatHm(this.dataTime);
         }
         return dataTimeStr;
     }

@@ -4,12 +4,12 @@ import com.treefinance.saas.console.biz.service.EmailStatService;
 import com.treefinance.saas.console.common.domain.request.EmailStatRequest;
 import com.treefinance.saas.console.common.domain.vo.EmailStatAccessVO;
 import com.treefinance.saas.console.context.component.AbstractService;
-import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.monitor.facade.domain.request.EmailStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.email.EmailStatAccessBaseRO;
 import com.treefinance.saas.monitor.facade.service.stat.EmailStatAccessFacade;
+import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,8 +32,8 @@ public class EmailStatServiceImpl extends AbstractService implements EmailStatSe
         EmailStatAccessRequest rpcRequest = new EmailStatAccessRequest();
 
         this.copyProperties(request, rpcRequest);
-        rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getStartDate()));
-        rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getEndDate()));
+        rpcRequest.setStartTime(DateUtils.getStartTimeOfDay(request.getStartDate()));
+        rpcRequest.setEndTime(DateUtils.getEndTimeOfDay(request.getEndDate()));
 
         MonitorResult<List<EmailStatAccessBaseRO>> rpcResult =
             emailStatAccessFacade.queryEmailStatDayAccessList(rpcRequest);
@@ -51,8 +51,8 @@ public class EmailStatServiceImpl extends AbstractService implements EmailStatSe
         EmailStatAccessRequest rpcRequest = new EmailStatAccessRequest();
 
         this.copyProperties(request, rpcRequest);
-        rpcRequest.setStartTime(DateUtils.getTodayBeginDate(request.getDataDate()));
-        rpcRequest.setEndTime(DateUtils.getTodayEndDate(request.getDataDate()));
+        rpcRequest.setStartTime(DateUtils.getStartTimeOfDay(request.getDataDate()));
+        rpcRequest.setEndTime(DateUtils.getEndTimeOfDay(request.getDataDate()));
 
         MonitorResult<List<EmailStatAccessBaseRO>> rpcResult =
             emailStatAccessFacade.queryEmailStatDayAccessListDetail(rpcRequest);

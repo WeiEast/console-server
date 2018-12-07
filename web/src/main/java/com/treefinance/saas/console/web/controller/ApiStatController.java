@@ -3,6 +3,7 @@ package com.treefinance.saas.console.web.controller;
 import com.treefinance.saas.console.biz.service.ApiStatService;
 import com.treefinance.saas.console.common.domain.request.StatRequest;
 import com.treefinance.saas.console.common.domain.vo.ApiStatAccessVO;
+import com.treefinance.saas.console.context.Constants;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -57,7 +58,7 @@ public class ApiStatController {
     }
 
     @RequestMapping(value = "/stataccess/rank", method = RequestMethod.GET, produces = "application/json")
-    public SaasResult<Map<String, Object>> queryStatAccessRank(@DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+    public SaasResult<Map<String, Object>> queryStatAccessRank(@DateTimeFormat(pattern = Constants.DATE_PATTERN) Date date) {
         return Results.newSuccessResult(apiStatService.queryStatAccessRank(date));
     }
 

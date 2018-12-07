@@ -6,7 +6,7 @@ public final class Constants {
 
     public static final String VIRTUAL_TOTAL_STAT_APPID = "virtual_total_stat_appId";
 
-    public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
 

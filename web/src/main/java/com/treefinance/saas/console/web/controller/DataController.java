@@ -48,9 +48,9 @@ public class DataController {
     public SaasResult<Object> decryptRSAData(@RequestParam("data") String data,
                                              @RequestParam("key") String key) {
         try {
-            data = URLDecoder.decode(data, "utf-8");
-            data = CallbackDataUtils.decrypt(data, key);
-            return Results.newSuccessResult(JSON.parse(data));
+            String input = URLDecoder.decode(data, "utf-8");
+            String result = CallbackDataUtils.decrypt(input, key);
+            return Results.newSuccessResult(JSON.parse(result));
         } catch (Exception e) {
             logger.error("decryptRSAData failed", e);
             return Results.newFailedResult(e.getMessage(), CommonStateCode.FAILURE);
@@ -61,8 +61,9 @@ public class DataController {
     public SaasResult<Object> encryptRSAData(@RequestParam("data") String data,
                                              @RequestParam("key") String key) {
         try {
-            data = CallbackDataUtils.encrypt(data, key);
-            return Results.newSuccessResult(URLEncoder.encode(data, "utf-8"));
+            String result = CallbackDataUtils.encrypt(data, key);
+            result = URLEncoder.encode(result, "utf-8");
+            return Results.newSuccessResult(result);
         } catch (Exception e) {
             logger.error("encryptRSAData failed", e);
             return Results.newFailedResult(e.getMessage(), CommonStateCode.FAILURE);

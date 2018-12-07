@@ -3,15 +3,16 @@ package com.treefinance.saas.console.biz.service.impl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.treefinance.b2b.saas.util.SaasDateUtils;
 import com.treefinance.saas.console.biz.service.CallbackMsgStatService;
 import com.treefinance.saas.console.common.domain.request.CallbackMsgStatRequest;
-import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.monitor.facade.domain.request.CallbackMsgStatAccessRequest;
 import com.treefinance.saas.monitor.facade.domain.result.MonitorResult;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.callback.AsStatCallbackRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.callback.AsStatDayCallbackRO;
 import com.treefinance.saas.monitor.facade.service.stat.CallbackMsgStatAccessFacade;
+import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
 
         Set<String> rowSet = Sets.newHashSet();
         List<String> rows = Lists.newArrayList();
-        List<Date> columns = DateUtils.getDayDateRegion(rpcRequest.getStartTime(), rpcRequest.getEndTime(), 1);
+        List<Date> columns = SaasDateUtils.getDayDateRegion(rpcRequest.getStartTime(), rpcRequest.getEndTime(), 1);
         Map<Date, Map<String, Integer>> map = Maps.newHashMap();
         for (AsStatDayCallbackRO data : rpcResult.getData()) {
             rowSet.add(data.getCallbackMsg());
@@ -64,7 +65,8 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         setRows(rows, columns, map);
 
         Map<String, Object> result = Maps.newHashMap();
-        result.put("keys", columns.stream().map(DateUtils::date2Ymd).collect(Collectors.toList()));
+        result.put("keys",
+            columns.stream().map(DateUtils::formatDate).collect(Collectors.toList()));
         List<Object> valueList = Lists.newArrayList();
         for (String row : rows) {
             Map<String, Object> columnMap = Maps.newLinkedHashMap();
@@ -76,7 +78,7 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
                 if (!MapUtils.isEmpty(resultMap.get(column)) && resultMap.get(column).get(row) != null) {
                     v = resultMap.get(column).get(row);
                 }
-                columnMap.put(DateUtils.date2Ymd(column), v);
+                columnMap.put(DateUtils.formatDate(column), v);
             }
             columnMap.put("callbackMsg", row);
             valueList.add(columnMap);
@@ -110,17 +112,17 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         rpcRequest.setAppId(request.getAppId());
         rpcRequest.setDataType(request.getDataType());
         rpcRequest.setBizType(request.getBizType());
-        rpcRequest.setStartTime(DateUtils.getIntervalDateTime(request.getStartTime(), request.getIntervalMins()));
-        rpcRequest.setEndTime(DateUtils.getLaterIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
+        rpcRequest.setStartTime(SaasDateUtils.getIntervalDateTime(request.getStartTime(), request.getIntervalMins()));
+        rpcRequest.setEndTime(SaasDateUtils.getLaterIntervalDateTime(request.getEndTime(), request.getIntervalMins()));
         MonitorResult<List<AsStatCallbackRO>> rpcResult = callbackMsgStatAccessFacade.queryCallbackMsgStatAccessList(rpcRequest);
 
         Set<String> rowSet = Sets.newHashSet();
         List<String> rows = Lists.newArrayList();
-        List<Date> columns = DateUtils.getIntervalDateRegion(rpcRequest.getStartTime(), rpcRequest.getEndTime(), request.getIntervalMins(), 1, 1);
+        List<Date> columns = SaasDateUtils.getIntervalDateRegion(rpcRequest.getStartTime(), rpcRequest.getEndTime(), request.getIntervalMins(), 1, 1);
         Map<Date, Map<String, Integer>> map = Maps.newHashMap();
         for (AsStatCallbackRO data : rpcResult.getData()) {
             rowSet.add(data.getCallbackMsg());
-            data.setDataTime(DateUtils.getIntervalDateTime(data.getDataTime(), request.getIntervalMins()));
+            data.setDataTime(SaasDateUtils.getIntervalDateTime(data.getDataTime(), request.getIntervalMins()));
             Map<String, Integer> valueMap =
                 getStringIntegerMap(map, data.getDataTime(), data.getCallbackMsg(), data.getCallbackCount());
             map.put(data.getDataTime(), valueMap);
@@ -132,7 +134,8 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
         setRows(rows, columns, map);
 
         Map<String, Object> result = Maps.newHashMap();
-        result.put("keys", columns.stream().map(DateUtils::date2SimpleHm).collect(Collectors.toList()));
+        result.put("keys",
+            columns.stream().map(DateUtils::formatHm).collect(Collectors.toList()));
         List<Object> valueList = Lists.newArrayList();
         for (String row : rows) {
             Map<String, Object> columnMap = Maps.newLinkedHashMap();
@@ -144,7 +147,7 @@ public class CallbackMsgStatServiceImpl implements CallbackMsgStatService {
                 if (!MapUtils.isEmpty(resultMap.get(column)) && resultMap.get(column).get(row) != null) {
                     v = resultMap.get(column).get(row);
                 }
-                columnMap.put(DateUtils.date2SimpleHm(column), v);
+                columnMap.put(DateUtils.formatHm(column), v);
             }
             columnMap.put("callbackMsg", row);
             valueList.add(columnMap);

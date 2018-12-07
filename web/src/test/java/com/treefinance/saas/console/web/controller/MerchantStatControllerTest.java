@@ -58,8 +58,8 @@ public class MerchantStatControllerTest {
 
         StatRequest statRequest = new StatRequest();
         statRequest.setBizType(EBizTypeEnum.OPERATOR.getCode());
-        statRequest.setStartDate(DateUtils.parse("2018-04-18","yyyy-mm-dd"));
-        statRequest.setEndDate(DateUtils.parse("2018-04-19","yyyy-mm-dd"));
+        statRequest.setStartDate(DateUtils.parseDate("2018-04-18"));
+        statRequest.setEndDate(DateUtils.parseDate("2018-04-19"));
         statRequest.setDateType(1);
         statRequest.setIntervalMins(10);
 

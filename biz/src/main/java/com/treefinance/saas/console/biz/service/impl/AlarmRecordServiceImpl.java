@@ -11,7 +11,6 @@ import com.treefinance.saas.console.common.domain.vo.AlarmWorkOrderVO;
 import com.treefinance.saas.console.common.domain.vo.SaasWorkerVO;
 import com.treefinance.saas.console.common.domain.vo.WorkOrderLogVO;
 import com.treefinance.saas.console.context.component.AbstractService;
-import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.knife.common.CommonStateCode;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -29,6 +28,7 @@ import com.treefinance.saas.monitor.facade.domain.ro.AlarmWorkOrderRO;
 import com.treefinance.saas.monitor.facade.domain.ro.SaasWorkerRO;
 import com.treefinance.saas.monitor.facade.domain.ro.WorkOrderLogRO;
 import com.treefinance.saas.monitor.facade.service.AlarmRecordFacade;
+import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,15 +52,14 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
     private AlarmRecordFacade alarmRecordFacade;
 
     @Override
-    public SaasResult<Map<String, Object>>
-        queryAlarmRecord(com.treefinance.saas.console.common.domain.request.AlarmRecordRequest request) {
+    public SaasResult<Map<String, Object>> queryAlarmRecord(com.treefinance.saas.console.common.domain.request.AlarmRecordRequest request) {
 
         AlarmRecordRequest recordRequest = new AlarmRecordRequest();
 
         this.copyProperties(request, recordRequest);
 
-        recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
-        recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
+        recordRequest.setStartTime(DateUtils.parse(request.getStartTime()));
+        recordRequest.setEndTime(DateUtils.parse(request.getEndTime()));
 
         MonitorResult<List<AlarmRecordRO>> result;
         try {
@@ -77,12 +76,11 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
     }
 
     @Override
-    public SaasResult queryAlarmListAndHandleMessage(
-        com.treefinance.saas.console.common.domain.request.AlarmRecordRequest request) {
+    public SaasResult queryAlarmListAndHandleMessage(com.treefinance.saas.console.common.domain.request.AlarmRecordRequest request) {
         AlarmRecordStatRequest recordRequest = new AlarmRecordStatRequest();
 
-        recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
-        recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
+        recordRequest.setEndTime(DateUtils.parse(request.getEndTime()));
+        recordRequest.setStartTime(DateUtils.parse(request.getStartTime()));
         recordRequest.setDateType(request.getDateType());
         recordRequest.setName(request.getName());
 
@@ -126,8 +124,8 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
 
         this.copyProperties(alarmWorkOrderRequest, request);
 
-        request.setEndTime(DateUtils.strToDate(alarmWorkOrderRequest.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
-        request.setStartTime(DateUtils.strToDate(alarmWorkOrderRequest.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
+        request.setEndTime(DateUtils.parse(alarmWorkOrderRequest.getEndTime()));
+        request.setStartTime(DateUtils.parse(alarmWorkOrderRequest.getStartTime()));
 
         MonitorResult<List<AlarmWorkOrderRO>> result;
         try {
@@ -144,8 +142,7 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
     }
 
     @Override
-    public SaasResult updateWorkerOrderProcessor(
-        com.treefinance.saas.console.common.domain.request.UpdateWorkOrderRequest updateWorkOrderRequest) {
+    public SaasResult updateWorkerOrderProcessor(com.treefinance.saas.console.common.domain.request.UpdateWorkOrderRequest updateWorkOrderRequest) {
 
         UpdateWorkOrderRequest request = new UpdateWorkOrderRequest();
 
@@ -169,8 +166,7 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
     }
 
     @Override
-    public SaasResult updateWorkerOrderStatus(
-        com.treefinance.saas.console.common.domain.request.UpdateWorkOrderRequest updateWorkOrderRequest) {
+    public SaasResult updateWorkerOrderStatus(com.treefinance.saas.console.common.domain.request.UpdateWorkOrderRequest updateWorkOrderRequest) {
 
         UpdateWorkOrderRequest request = new UpdateWorkOrderRequest();
 
@@ -210,8 +206,7 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
     @Override
     public SaasResult querySaasWorkerPage(SaasWorkerRequest request) {
 
-        com.treefinance.saas.monitor.facade.domain.request.SaasWorkerRequest saasWorkerRequest =
-            new com.treefinance.saas.monitor.facade.domain.request.SaasWorkerRequest();
+        com.treefinance.saas.monitor.facade.domain.request.SaasWorkerRequest saasWorkerRequest = new com.treefinance.saas.monitor.facade.domain.request.SaasWorkerRequest();
 
         saasWorkerRequest.setName(request.getName());
         saasWorkerRequest.setPageNumber(request.getPageNumber());
@@ -229,13 +224,12 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
     }
 
     @Override
-    public SaasResult
-        queryStatList(com.treefinance.saas.console.common.domain.request.AlarmRecordRequest request) {
+    public SaasResult queryStatList(com.treefinance.saas.console.common.domain.request.AlarmRecordRequest request) {
 
         AlarmRecordStatRequest recordRequest = new AlarmRecordStatRequest();
 
-        recordRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartTime(), "yyyy-MM-dd hh:mm:ss"));
-        recordRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndTime(), "yyyy-MM-dd hh:mm:ss"));
+        recordRequest.setStartTime(DateUtils.parse(request.getStartTime()));
+        recordRequest.setEndTime(DateUtils.parse(request.getEndTime()));
         recordRequest.setDateType(request.getDateType());
         recordRequest.setName(request.getName());
 
@@ -268,8 +262,8 @@ public class AlarmRecordServiceImpl extends AbstractService implements AlarmReco
         AlarmRecordDashBoardRequest statRequest = new AlarmRecordDashBoardRequest();
 
         this.copyProperties(request, statRequest);
-        statRequest.setStartTime(DateUtils.strToDateOrNull(request.getStartDate(), "yyyy-MM-dd"));
-        statRequest.setEndTime(DateUtils.strToDateOrNull(request.getEndDate(), "yyyy-MM-dd"));
+        statRequest.setStartTime(DateUtils.parseDate(request.getStartDate()));
+        statRequest.setEndTime(DateUtils.parseDate(request.getEndDate()));
 
         MonitorResult result;
 

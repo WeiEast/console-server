@@ -12,7 +12,6 @@ import com.treefinance.saas.console.common.domain.vo.ChartStatVO;
 import com.treefinance.saas.console.common.domain.vo.PieChartStatVO;
 import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
-import com.treefinance.saas.console.util.DateUtils;
 import com.treefinance.saas.merchant.facade.request.grapserver.QueryMerchantByAppIdRequest;
 import com.treefinance.saas.merchant.facade.result.console.MerchantBaseResult;
 import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
@@ -23,6 +22,7 @@ import com.treefinance.saas.monitor.facade.domain.ro.stat.api.ApiBaseStatRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.api.ApiStatAccessRO;
 import com.treefinance.saas.monitor.facade.domain.ro.stat.api.ApiStatDayAccessRO;
 import com.treefinance.saas.monitor.facade.service.stat.ApiStatAccessFacade;
+import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,7 +209,7 @@ public class ApiStatServiceImpl extends AbstractService implements ApiStatServic
         List<ChartStatDayVO> result = Lists.newArrayList();
         voList.forEach(vo -> {
             ChartStatDayVO newVO = new ChartStatDayVO();
-            newVO.setDataTime(DateUtils.date2Ymd(vo.getDataTime()));
+            newVO.setDataTime(DateUtils.formatDate(vo.getDataTime()));
             newVO.setDataValue(vo.getDataValue());
             result.add(newVO);
         });
@@ -326,11 +326,11 @@ public class ApiStatServiceImpl extends AbstractService implements ApiStatServic
     public Map<String, Object> queryStatAccessRank(Date date) {
         ApiStatBaseRequest statRequest = new ApiStatBaseRequest();
         if (date == null) {
-            statRequest.setStartDate(DateUtils.getTodayBeginDate());
-            statRequest.setEndDate(DateUtils.getTomorrowBeginDate());
+            statRequest.setStartDate(DateUtils.getStartTimeOfToday());
+            statRequest.setEndDate(DateUtils.getStartTimeOfTomorrow());
         } else {
-            statRequest.setStartDate(DateUtils.getTodayBeginDate(date));
-            statRequest.setEndDate(DateUtils.getTomorrowBeginDate(date));
+            statRequest.setStartDate(DateUtils.getStartTimeOfDay(date));
+            statRequest.setEndDate(DateUtils.getStartTimeOfTomorrow(date));
         }
 
         MonitorResult<List<ApiStatAccessRO>> result = apiStatAccessFacade.queryStatAccessList(statRequest);

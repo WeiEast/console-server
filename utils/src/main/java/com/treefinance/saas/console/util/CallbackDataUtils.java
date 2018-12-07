@@ -1,17 +1,15 @@
 package com.treefinance.saas.console.util;
 
-import com.alibaba.fastjson.JSON;
-import com.treefinance.toolkit.util.crypto.RSA;
-import com.treefinance.toolkit.util.crypto.core.Decryptor;
-import com.treefinance.toolkit.util.crypto.core.Encryptor;
+import com.treefinance.b2b.saas.util.AesUtils;
+import com.treefinance.b2b.saas.util.DataUtils;
 import com.treefinance.toolkit.util.crypto.exception.CryptoException;
-import com.treefinance.toolkit.util.json.Jackson;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by luoyihua on 2017/5/10.
+ * @author luoyihua
+ * @date 2017/5/10.
  */
 public final class CallbackDataUtils {
     private static final Logger logger = LoggerFactory.getLogger(CallbackDataUtils.class);
@@ -26,15 +24,14 @@ public final class CallbackDataUtils {
      * @return
      * @throws CallbackDataCryptoException
      */
-    public static String encrypt(Object data, String publicKey) throws CallbackDataCryptoException {
-        if (data == null) {
-            return null;
+    public static String encrypt(String data, String publicKey) throws CallbackDataCryptoException {
+        if (StringUtils.isEmpty(data)) {
+            return StringUtils.EMPTY;
         }
 
         try {
-            byte[] json = Jackson.toJSONByteArray(data);
+            String encryptedData = DataUtils.encryptBeanAsBase64StringByRsa(data, publicKey);
 
-            String encryptedData = getEncryptor(publicKey).encryptAsBase64String(json);
             logger.debug("Finish encrypting callback for encryptedData '{}'.", encryptedData);
 
             return encryptedData;
@@ -51,15 +48,14 @@ public final class CallbackDataUtils {
      * @return
      * @throws CallbackDataCryptoException
      */
-    public static String decrypt(Object data, String privateKey) throws CallbackDataCryptoException {
-        if (data == null) {
-            return null;
+    public static String decrypt(String data, String privateKey) throws CallbackDataCryptoException {
+        if (StringUtils.isEmpty(data)) {
+            return StringUtils.EMPTY;
         }
 
         try {
-            byte[] json = Jackson.toJSONByteArray(data);
+            String decryptedData = DataUtils.decryptWithBase64AsStringByRsa(data, privateKey);
 
-            String decryptedData = getDecryptor(privateKey).decryptWithBase64AsString(json);
             logger.debug("Finish decrypting callback for decryptedData '{}'.", decryptedData);
 
             return decryptedData;
@@ -77,43 +73,10 @@ public final class CallbackDataUtils {
      */
     public static String decryptByAES(byte[] data, String dataKey) throws CallbackDataCryptoException {
         try {
-            return com.treefinance.b2b.saas.util.AesUtils.decrypt(dataKey, data);
+            return AesUtils.decryptAsString(data, dataKey);
         } catch (CryptoException e) {
             throw new CallbackDataCryptoException("decryptByAES exception", e);
         }
-    }
-
-    /**
-     * AES 加密
-     *
-     * @param data
-     * @param dataKey
-     * @return
-     */
-    public static String encryptByAES(Object data, String dataKey) throws CallbackDataCryptoException {
-        try {
-            byte[] input = JSON.toJSONBytes(data);
-            byte[] result = com.treefinance.b2b.saas.util.AesUtils.encrypt(dataKey, input);
-            return new String(result);
-        } catch (CryptoException e) {
-            throw new CallbackDataCryptoException("encryptByAES exception", e);
-        }
-    }
-
-    private static Encryptor getEncryptor(String publicKey) {
-        if (StringUtils.isEmpty(publicKey)) {
-            throw new IllegalArgumentException("Can not find commercial tenant's public key.");
-        }
-
-        return RSA.createEncryptor(publicKey);
-    }
-
-    private static Decryptor getDecryptor(String privateKey) {
-        if (StringUtils.isEmpty(privateKey)) {
-            throw new IllegalArgumentException("Can not find commercial tenant's private key.");
-        }
-
-        return RSA.createDecryptor(privateKey);
     }
 
 }

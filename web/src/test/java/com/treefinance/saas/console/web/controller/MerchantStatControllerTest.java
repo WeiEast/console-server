@@ -1,8 +1,8 @@
 package com.treefinance.saas.console.web.controller;
 
+import com.treefinance.saas.console.biz.enums.EBizTypeEnum;
 import com.treefinance.saas.console.common.domain.request.StatRequest;
-import com.treefinance.saas.console.common.enumeration.EBizType;
-import com.treefinance.saas.console.common.utils.DateUtils;
+import com.treefinance.toolkit.util.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,9 +57,9 @@ public class MerchantStatControllerTest {
 
 
         StatRequest statRequest = new StatRequest();
-        statRequest.setBizType(EBizType.OPERATOR.getCode());
-        statRequest.setStartDate(DateUtils.strToDate("2018-04-18","yyyy-mm-dd"));
-        statRequest.setEndDate(DateUtils.strToDate("2018-04-19","yyyy-mm-dd"));
+        statRequest.setBizType(EBizTypeEnum.OPERATOR.getCode());
+        statRequest.setStartDate(DateUtils.parse("2018-04-18","yyyy-mm-dd"));
+        statRequest.setEndDate(DateUtils.parse("2018-04-19","yyyy-mm-dd"));
         statRequest.setDateType(1);
         statRequest.setIntervalMins(10);
 

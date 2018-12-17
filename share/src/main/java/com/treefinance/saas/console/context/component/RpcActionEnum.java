@@ -35,7 +35,6 @@ public enum RpcActionEnum {
      * 根据指定的taskId列表查询任务日志
      */
     QUERY_TASK_LOG_ASSIGNED_TASK_IDS,
-
     /**
      * 查询商户每天的访问统计记录的集合
      */
@@ -56,5 +55,17 @@ public enum RpcActionEnum {
      * 查询saas每天的ErrorStep统计记录
      */
     STATISTICS_ERROR_STEP_DAILY_RECORDS,
+    /**
+     * 根据任务ID查询任务
+     */
+    QUERY_TASK_BY_ID,
+    /**
+     * 根据条件查询任务
+     */
+    QUERY_TASKS,
+    /**
+     * 根据条件分页查询任务
+     */
+    QUERY_PAGING_TASKS,
 
 }

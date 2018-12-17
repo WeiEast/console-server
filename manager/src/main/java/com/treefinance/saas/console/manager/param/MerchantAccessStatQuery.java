@@ -1,4 +1,4 @@
-package com.treefinance.saas.console.manager.query;
+package com.treefinance.saas.console.manager.param;
 
 import lombok.Getter;
 import lombok.Setter;

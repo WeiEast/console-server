@@ -16,12 +16,14 @@ import com.treefinance.saas.console.common.domain.request.OssDataRequest;
 import com.treefinance.saas.console.common.domain.vo.OssCallbackDataVO;
 import com.treefinance.saas.console.context.ConsoleStateCode;
 import com.treefinance.saas.console.context.component.AbstractService;
-import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.console.dao.entity.AppCallbackConfig;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
-import com.treefinance.saas.console.dao.entity.Task;
 import com.treefinance.saas.console.dao.entity.TaskAttribute;
 import com.treefinance.saas.console.dao.entity.TaskCallbackLog;
+import com.treefinance.saas.console.exception.BizException;
+import com.treefinance.saas.console.manager.TaskManager;
+import com.treefinance.saas.console.manager.domain.TaskBO;
+import com.treefinance.saas.console.manager.param.TaskQuery;
 import com.treefinance.saas.console.util.CallbackDataUtils;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
@@ -37,15 +39,12 @@ import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.taskcenter.facade.request.TaskAttributeRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskCallbackLogPageRequest;
 import com.treefinance.saas.taskcenter.facade.request.TaskCallbackLogRequest;
-import com.treefinance.saas.taskcenter.facade.request.TaskRequest;
 import com.treefinance.saas.taskcenter.facade.result.TaskAttributeRO;
 import com.treefinance.saas.taskcenter.facade.result.TaskCallbackLogRO;
-import com.treefinance.saas.taskcenter.facade.result.TaskRO;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
 import com.treefinance.saas.taskcenter.facade.result.common.TaskResult;
 import com.treefinance.saas.taskcenter.facade.service.TaskAttributeFacade;
 import com.treefinance.saas.taskcenter.facade.service.TaskCallbackLogFacade;
-import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -60,8 +59,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.alibaba.fastjson.serializer.SerializerFeature.PrettyFormat;
@@ -78,7 +79,7 @@ public class OssDataServiceImpl extends AbstractService implements OssDataServic
     @Autowired
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
-    private TaskFacade taskFacade;
+    private TaskManager taskManager;
     @Autowired
     private TaskAttributeFacade taskAttributeFacade;
     @Autowired
@@ -91,11 +92,11 @@ public class OssDataServiceImpl extends AbstractService implements OssDataServic
 
     @Override
     public Object getOssCallbackDataList(OssDataRequest request) {
-        List<Task> list = getTaskList(request);
+        List<TaskBO> list = getTaskList(request);
         if (CollectionUtils.isEmpty(list)) {
             return Results.newPageResult(request, 0, Lists.newArrayList());
         }
-        List<Long> taskIdList = list.stream().map(Task::getId).collect(Collectors.toList());
+        List<Long> taskIdList = list.stream().map(TaskBO::getId).collect(Collectors.toList());
         TaskCallbackLogRemoteService taskCallbackLogRemoteService = new TaskCallbackLogRemoteService(request, taskIdList).invoke();
         if (taskCallbackLogRemoteService.is()){
             return Results.newPageResult(request, 0, Lists.newArrayList());
@@ -106,50 +107,55 @@ public class OssDataServiceImpl extends AbstractService implements OssDataServic
         return Results.newPageResult(request, count, dataList);
     }
 
-    private List<Task> getTaskList(OssDataRequest request) {
-        TaskRequest  taskRequest = new TaskRequest();
+    private List<TaskBO> getTaskList(OssDataRequest request) {
+        List<TaskBO> tasks;
+        if (request.getTaskId() != null) {
+            tasks = queryTasksById(request.getTaskId());
+        } else {
+            tasks = queryTasks(request);
+        }
+
+        return tasks;
+    }
+
+    private List<TaskBO> queryTasksById(Long taskId) {
+        List<TaskBO> result;
+        try {
+            TaskBO task = taskManager.getTaskById(taskId);
+            result = Collections.singletonList(task);
+        } catch (Exception e) {
+            logger.warn("找不到任务[{}]", taskId, e);
+            result = Collections.emptyList();
+        }
+        return result;
+    }
+
+    private List<TaskBO> queryTasks(OssDataRequest request) {
+        TaskQuery query = new TaskQuery();
         if (request.getType() != null) {
-            taskRequest.setBizType(request.getType());
+            query.setBizTypes(Collections.singletonList(request.getType()));
         }
         if (StringUtils.isNotBlank(request.getUniqueId())) {
-            taskRequest.setUniqueId(request.getUniqueId());
+            query.setUniqueId(request.getUniqueId());
         }
         if (StringUtils.isNotBlank(request.getAccountNo())) {
-            taskRequest.setAccountNo(iSecurityCryptoService.encrypt(request.getAccountNo(), EncryptionIntensityEnum.NORMAL));
-        }
-        if (request.getTaskId() != null) {
-            taskRequest.setId(request.getTaskId());
+            query.setAccountNo(request.getAccountNo());
         }
         if (StringUtils.isNotBlank(request.getAppName())) {
-
             QueryMerchantByAppName queryMerchantByAppName = new QueryMerchantByAppName();
             queryMerchantByAppName.setAppName(request.getAppName());
             MerchantResult<List<MerchantBaseInfoResult>> listMerchantResult = merchantBaseInfoFacade.queryMerchantBaseByAppName(queryMerchantByAppName);
-            List<MerchantBase> list = this.convert(listMerchantResult.getData(),MerchantBase.class);
-            List<String> appIdList = Lists.newArrayList();
+            List<MerchantBase> list = this.convert(listMerchantResult.getData(), MerchantBase.class);
+            List<String> appIdList = null;
             if (CollectionUtils.isNotEmpty(list)) {
                 appIdList = list.stream().map(MerchantBase::getAppId).collect(Collectors.toList());
             }
             if (CollectionUtils.isNotEmpty(appIdList)) {
-                taskRequest.setAppIdList(appIdList);
+                query.setAppIds(appIdList);
             }
         }
 
-        TaskResult<List<TaskRO>> taskResult ;
-
-        try{
-            taskResult = taskFacade.queryTaskList(taskRequest);
-        }catch (Exception e){
-            logger.error("请求任务中心出错", e.getMessage());
-            return Lists.newArrayList();
-        }
-
-        logger.info("从任务中心获取数据：{}", taskResult);
-        if(!taskResult.isSuccess()){
-            logger.info("请求任务中心失败:{}", taskResult);
-            return Lists.newArrayList();
-        }
-        return this.convert(taskResult.getData(), Task.class);
+        return taskManager.queryTasks(query);
     }
 
     @Override
@@ -272,22 +278,14 @@ public class OssDataServiceImpl extends AbstractService implements OssDataServic
             if (callbackConfig.getIsNewKey() == 1) {
                 dataKey = appLicenseService.getCallbackDataSecretKeyByCallbackConfigId(callbackConfig.getId());
             } else {
-                Task task = getTask(log);
-                if (task == null) {
-                    logger.error("oss数据下载,log={}未查询到任务信息", JSON.toJSONString(log));
-                    return null;
-                }
-                dataKey = appLicenseService.getAppDataSecretKeyByAppId(task.getAppId());
+                String appId = taskManager.getAppIdByTaskId(log.getTaskId());
+                dataKey = appLicenseService.getAppDataSecretKeyByAppId(appId);
             }
         }
         //前端回调
         if (log.getType() == 2) {
-            Task task = getTask(log);
-            if (task == null) {
-                logger.error("oss数据下载,log={}未查询到任务信息", JSON.toJSONString(log));
-                return null;
-            }
-            dataKey = appLicenseService.getAppDataSecretKeyByAppId(task.getAppId());
+            String appId = taskManager.getAppIdByTaskId(log.getTaskId());
+            dataKey = appLicenseService.getAppDataSecretKeyByAppId(appId);
         }
 
         if (StringUtils.isBlank(dataKey)) {
@@ -308,28 +306,13 @@ public class OssDataServiceImpl extends AbstractService implements OssDataServic
         return data;
     }
 
-    private Task getTask(TaskCallbackLog log) {
-        Long taskId = log.getTaskId();
+    private List<OssCallbackDataVO> wrapperOssCallbackData(List<TaskCallbackLog> taskCallbackLogList,
+        List<TaskBO> list, OssDataRequest request) {
 
-        TaskRequest request = new TaskRequest();
-        request.setId(taskId);
+        List<Long> taskIdList = list.stream().map(TaskBO::getId).collect(Collectors.toList());
+        Map<Long, TaskBO> taskMap = list.stream().collect(Collectors.toMap(TaskBO::getId, Function.identity()));
 
-        TaskResult<TaskRO> result = taskFacade.getTaskByPrimaryKey(request);
-
-        if(!result.isSuccess()){
-            logger.info("请求任务中心失败：{}", result);
-            return null;
-        }
-
-        return this.convert(result.getData(),Task.class);
-    }
-
-    private List<OssCallbackDataVO> wrapperOssCallbackData(List<TaskCallbackLog> taskCallbackLogList, List<Task> list, OssDataRequest request) {
-
-        List<Long> taskIdList = list.stream().map(Task::getId).collect(Collectors.toList());
-        Map<Long, Task> taskMap = list.stream().collect(Collectors.toMap(Task::getId, task -> task));
-
-        List<String> appIdList = list.stream().map(Task::getAppId).distinct().collect(Collectors.toList());
+        List<String> appIdList = list.stream().map(TaskBO::getAppId).distinct().collect(Collectors.toList());
 
 
         QueryMerchantByAppIdRequest queryMerchantByAppIdRequest = new QueryMerchantByAppIdRequest();
@@ -361,7 +344,7 @@ public class OssDataServiceImpl extends AbstractService implements OssDataServic
         for (TaskCallbackLog log : taskCallbackLogList) {
             OssCallbackDataVO vo = new OssCallbackDataVO();
             Long taskId = log.getTaskId();
-            Task task = taskMap.get(taskId);
+            TaskBO task = taskMap.get(taskId);
             vo.setId(log.getId());
             vo.setTaskId(taskId);
             vo.setCallbackRequestParam(log.getRequestParam());

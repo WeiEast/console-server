@@ -1,43 +1,57 @@
 package com.treefinance.saas.console.biz.enums;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
- * Created by luoyihua on 2017/5/10.
+ * @author  luoyihua
+ * @date 2017/5/10.
  */
 public enum BizTypeEnum {
     /**
      * 邮箱
      */
-    EMAIL,
+    EMAIL((byte)1),
     /**
      * 电商
      */
-    ECOMMERCE,
+    ECOMMERCE((byte)2),
     /**
      * 运营商
      */
-    OPERATOR,
+    OPERATOR((byte)3),
     /**
      * 公积金
      */
-    FUND;
+    FUND((byte)4);
 
-    public static Byte valueOfType(BizTypeEnum typeEnum) {
-        if (typeEnum == null) {
-            return null;
+    private byte code;
+
+    BizTypeEnum(byte code) {
+        this.code = code;
+    }
+
+    public byte getCode() {
+        return code;
+    }
+
+    public boolean is(Byte type) {
+        return type != null && type == this.code;
+    }
+
+    public boolean is(String type) {
+        return this.name().equals(type);
+    }
+
+    public static Byte convert(String value) {
+        if (StringUtils.isNotEmpty(value)) {
+            BizTypeEnum[] values = BizTypeEnum.values();
+            for (BizTypeEnum val : values) {
+                if (val.name().equals(value)) {
+                    return val.getCode();
+                }
+            }
         }
-        // 业务类型，1:账单，2：电商，3:运营商，4:公积金
-        switch (typeEnum) {
-            case EMAIL:
-                return (byte) 1;
-            case ECOMMERCE:
-                return (byte) 2;
-            case OPERATOR:
-                return (byte) 3;
-            case FUND:
-                return (byte) 4;
-            default:
-                return null;
-        }
+        return null;
     }
 
     public static boolean contains(String type) {

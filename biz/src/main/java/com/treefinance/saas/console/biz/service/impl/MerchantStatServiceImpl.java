@@ -28,19 +28,22 @@ import com.treefinance.saas.console.context.Constants;
 import com.treefinance.saas.console.context.component.AbstractService;
 import com.treefinance.saas.console.dao.entity.MerchantBase;
 import com.treefinance.saas.console.dao.entity.MerchantUser;
-import com.treefinance.saas.console.dao.entity.TaskAndTaskAttribute;
 import com.treefinance.saas.console.manager.BizLicenseInfoManager;
 import com.treefinance.saas.console.manager.BizTypeManager;
 import com.treefinance.saas.console.manager.MerchantStatManager;
 import com.treefinance.saas.console.manager.TaskLogManager;
+import com.treefinance.saas.console.manager.TaskManager;
+import com.treefinance.saas.console.manager.domain.CompositeTaskAttrBO;
+import com.treefinance.saas.console.manager.domain.CompositeTaskAttrPagingResultSet;
 import com.treefinance.saas.console.manager.domain.DailyErrorStepStatBO;
 import com.treefinance.saas.console.manager.domain.MerchantAccessStatBO;
 import com.treefinance.saas.console.manager.domain.MerchantDailyAccessStatBO;
 import com.treefinance.saas.console.manager.domain.MerchantDailyAccessStatResultSet;
 import com.treefinance.saas.console.manager.domain.TaskLogBO;
-import com.treefinance.saas.console.manager.query.DailyErrorStepStatQuery;
-import com.treefinance.saas.console.manager.query.MerchantAccessStatQuery;
-import com.treefinance.saas.console.manager.query.MerchantDailyAccessStatQuery;
+import com.treefinance.saas.console.manager.param.CompositeTaskAttrPagingQuery;
+import com.treefinance.saas.console.manager.param.DailyErrorStepStatQuery;
+import com.treefinance.saas.console.manager.param.MerchantAccessStatQuery;
+import com.treefinance.saas.console.manager.param.MerchantDailyAccessStatQuery;
 import com.treefinance.saas.grapserver.facade.enums.ETaskAttribute;
 import com.treefinance.saas.knife.result.Results;
 import com.treefinance.saas.knife.result.SaasResult;
@@ -51,10 +54,6 @@ import com.treefinance.saas.merchant.facade.result.console.MerchantResult;
 import com.treefinance.saas.merchant.facade.result.console.MerchantUserResult;
 import com.treefinance.saas.merchant.facade.service.MerchantBaseInfoFacade;
 import com.treefinance.saas.merchant.facade.service.MerchantUserFacade;
-import com.treefinance.saas.taskcenter.facade.request.TaskAndAttributeRequest;
-import com.treefinance.saas.taskcenter.facade.result.TaskAndAttributeRO;
-import com.treefinance.saas.taskcenter.facade.result.common.TaskPagingResult;
-import com.treefinance.saas.taskcenter.facade.service.TaskFacade;
 import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -87,7 +86,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
     @Resource
     private MerchantUserFacade merchantUserFacade;
     @Resource
-    private TaskFacade taskFacade;
+    private TaskManager taskManager;
     @Autowired
     private BizLicenseInfoManager bizLicenseInfoManager;
     @Autowired
@@ -660,13 +659,13 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
     public SaasResult<Map<String, Object>> queryOverviewDetailAccessList(StatDayRequest request) {
 
         TaskCenterRemoteService taskCenterRemoteService = new TaskCenterRemoteService(request).invoke();
-        if (taskCenterRemoteService.is()) {
-            return Results.newPageResult(request, taskCenterRemoteService.getTotal(), Lists.newArrayList());
+        if (taskCenterRemoteService.failure()) {
+            return Results.newPageResult(request, 0, Collections.emptyList());
         }
         long total = taskCenterRemoteService.getTotal();
-        List<TaskAndTaskAttribute> taskList = taskCenterRemoteService.getTaskList();
+        List<CompositeTaskAttrBO> taskList = taskCenterRemoteService.getTaskAttrs();
 
-        List<Long> taskIdList = taskList.stream().map(TaskAndTaskAttribute::getId).collect(Collectors.toList());
+        List<Long> taskIdList = taskList.stream().map(CompositeTaskAttrBO::getId).collect(Collectors.toList());
 
         List<TaskLogBO> taskLogList = taskLogManager.listTaskLogsInTaskIds(taskIdList);
         Map<Long, List<TaskLogBO>> taskLogsMap = taskLogList.stream().collect(Collectors.groupingBy(TaskLogBO::getTaskId));
@@ -674,7 +673,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
         List<TaskDetailVO> resultList = Lists.newArrayList();
         Map<Byte, String> bizTypeMap = bizTypeManager.getBizTypeNameMapping();
 
-        for (TaskAndTaskAttribute task : taskList) {
+        for (CompositeTaskAttrBO task : taskList) {
             TaskDetailVO vo = new TaskDetailVO();
             vo.setId(task.getId());
             vo.setAppId(task.getAppId());
@@ -718,7 +717,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
             vo.setOccurTime(task.getCreateTime());
 
             if (EBizTypeEnum.OPERATOR.getCode().equals(task.getBizType())) {
-                vo.setWebsiteDetailName(task.getValue());
+                vo.setWebsiteDetailName(task.getAttrValue());
             } else {
                 vo.setWebsiteDetailName(task.getWebSite());
 
@@ -1066,43 +1065,41 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
     }
 
     private class TaskCenterRemoteService {
-        private boolean myResult;
-        private StatDayRequest request;
+        private final StatDayRequest request;
+        private List<CompositeTaskAttrBO> taskAttrs;
         private long total;
-        private List<TaskAndTaskAttribute> taskList;
+        private boolean failure = false;
 
         public TaskCenterRemoteService(StatDayRequest request) {
             this.request = request;
         }
 
-        boolean is() {
-            return myResult;
+        boolean failure() {
+            return failure;
         }
 
         public long getTotal() {
             return total;
         }
 
-        public List<TaskAndTaskAttribute> getTaskList() {
-            return taskList;
+        public List<CompositeTaskAttrBO> getTaskAttrs() {
+            return taskAttrs;
         }
 
         public TaskCenterRemoteService invoke() {
-            TaskAndAttributeRequest rpcRequest = new TaskAndAttributeRequest();
-            Map<String, Object> map = Maps.newHashMap();
+            CompositeTaskAttrPagingQuery query = new CompositeTaskAttrPagingQuery();
 
-            rpcRequest.setAppId(request.getAppId());
-            rpcRequest.setSaasEnv(request.getSaasEnv());
-            rpcRequest.setName(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+            query.setAppId(request.getAppId());
+            query.setSaasEnv(request.getSaasEnv());
             if (request.getStatType() == 2) {
                 // 失败的任务
-                rpcRequest.setStatus(3);
+                query.setStatus((byte)3);
             } else if (request.getStatType() == 3) {
                 // 取消的任务
-                rpcRequest.setStatus(1);
+                query.setStatus((byte)1);
             } else if (request.getStatType() == 1) {
                 // 成功的任务
-                rpcRequest.setStatus(2);
+                query.setStatus((byte)2);
             } else {
                 throw new IllegalArgumentException("statType参数有误");
             }
@@ -1110,52 +1107,41 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
             if (request.getBizType() == 0) {
                 List<Byte> bizTypeList = bizTypeManager.listBizTypeValues();
 
-                rpcRequest.setBizTypeList(bizTypeList);
+                query.setBizTypes(bizTypeList);
             } else {
-                rpcRequest.setBizType(request.getBizType());
+                query.setBizTypes(Collections.singletonList(request.getBizType()));
             }
-
-            if (StringUtils.isNotBlank(request.getWebsiteDetailName())) {
-                rpcRequest.setWebSite(request.getWebsiteDetailName());
-                rpcRequest.setValue(request.getWebsiteDetailName());
+            query.setAttrName(ETaskAttribute.OPERATOR_GROUP_NAME.getAttribute());
+            String websiteDetailName = request.getWebsiteDetailName();
+            if (StringUtils.isNotBlank(websiteDetailName)) {
+                query.setWebsite(websiteDetailName);
+                query.setAttrValue(websiteDetailName);
             }
 
             if (request.getStartTime() != null && request.getEndTime() != null) {
-                rpcRequest.setStartTime(request.getStartTime());
-                rpcRequest.setEndTime(request.getEndTime());
+                query.setStartDate(request.getStartTime());
+                query.setEndDate(request.getEndTime());
             } else if (request.getDate() != null) {
-                rpcRequest.setStartTime(DateUtils.getStartTimeOfDay(request.getDate()));
-                rpcRequest.setEndTime(DateUtils.getStartTimeOfTomorrow(request.getDate()));
+                query.setStartDate(DateUtils.getStartTimeOfDay(request.getDate()));
+                query.setEndDate(DateUtils.getEndTimeOfDay(request.getDate()));
             }
-            rpcRequest.setStart(request.getOffset());
-            rpcRequest.setLimit(request.getPageSize());
-            rpcRequest.setOrderStr("createTime desc");
-
-            TaskPagingResult<TaskAndAttributeRO> taskPagingResult;
+            query.setPageNum(request.getPageNumber());
+            query.setPageSize(request.getPageSize());
+            query.setOrder("createTime desc");
 
             try {
-                taskPagingResult = taskFacade.queryTaskAndTaskAttribute(rpcRequest);
+                CompositeTaskAttrPagingResultSet pagination = taskManager.queryPagingCompositeTaskAttrs(query);
+                total = pagination.getTotal();
+                if (total > 0) {
+                    taskAttrs = pagination.getList();
+                } else {
+                    failure = true;
+                }
             } catch (Exception e) {
-                logger.error("请求任务中心出错", e.getMessage());
-                myResult = true;
-                return this;
+                logger.error("请求任务远程服务，复合查询任务及属性信息失败", e);
+                failure = true;
             }
 
-            logger.info("从任务中心获取数据：{}", taskPagingResult);
-            if (!taskPagingResult.isSuccess()) {
-                logger.info("请求任务中心失败:{}", taskPagingResult);
-                myResult = true;
-                return this;
-            }
-
-            total = taskPagingResult.getTotal();
-            if (total <= 0) {
-                myResult = true;
-                return this;
-            }
-
-            taskList = MerchantStatServiceImpl.this.convert(taskPagingResult.getList(), TaskAndTaskAttribute.class);
-            myResult = false;
             return this;
         }
     }

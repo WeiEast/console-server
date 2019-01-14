@@ -58,6 +58,7 @@ import com.treefinance.toolkit.util.DateUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -647,7 +648,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
     }
 
     private List<String> getDateStrings(StatRequest request) {
-        List<String> dateList = DateUtils.listDateStringsBetweenDays(this.getStartDate(request), this.getEndDate(request));
+        List<String> dateList = DateUtils.listDateStringsDuringDays(this.getStartDate(request), this.getEndDate(request));
         if (dateList.size() != 7) {
             throw new IllegalArgumentException("请求参数startDate,endDate非法!");
         }

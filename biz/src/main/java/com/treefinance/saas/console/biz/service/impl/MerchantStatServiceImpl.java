@@ -649,6 +649,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
 
     private List<String> getDateStrings(StatRequest request) {
         List<String> dateList = DateUtils.listDateStringsDuringDays(this.getStartDate(request), this.getEndDate(request));
+        logger.info("测一下dateList的值，dateList={},size={}",JSON.toJSONString(dateList),dateList.size());
         if (dateList.size() != 7) {
             throw new IllegalArgumentException("请求参数startDate,endDate非法!");
         }

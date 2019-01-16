@@ -1132,6 +1132,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
             query.setOrder("createTime desc");
 
             try {
+                logger.info("打个日志测一下,query={}",JSON.toJSONString(query));
                 CompositeTaskAttrPagingResultSet pagination = taskManager.queryPagingCompositeTaskAttrs(query);
                 total = pagination.getTotal();
                 if (total > 0) {

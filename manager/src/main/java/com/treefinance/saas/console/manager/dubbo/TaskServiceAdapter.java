@@ -1,5 +1,6 @@
 package com.treefinance.saas.console.manager.dubbo;
 
+import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.console.manager.TaskManager;
 import com.treefinance.saas.console.manager.domain.CompositeTaskAttrPagingResultSet;
@@ -100,6 +101,7 @@ public class TaskServiceAdapter extends AbstractTaskServiceAdapter implements Ta
         
         CompositeTaskAttrPagingQueryRequest request = convertStrict(query, CompositeTaskAttrPagingQueryRequest.class);
 
+        logger.info("conser请求task时的参数request={}", JSON.toJSONString(request));
         TaskResponse<PagingDataSet<CompositeTaskAttrDTO>> response = taskFacade.queryPagingCompositeTaskAttrs(request);
 
         validateResult(response, RpcActionEnum.QUERY_PAGING_TASKS, request);

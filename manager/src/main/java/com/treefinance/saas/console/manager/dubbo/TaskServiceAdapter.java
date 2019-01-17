@@ -3,6 +3,7 @@ package com.treefinance.saas.console.manager.dubbo;
 import com.alibaba.fastjson.JSON;
 import com.treefinance.saas.console.context.component.RpcActionEnum;
 import com.treefinance.saas.console.manager.TaskManager;
+import com.treefinance.saas.console.manager.domain.CompositeTaskAttrBO;
 import com.treefinance.saas.console.manager.domain.CompositeTaskAttrPagingResultSet;
 import com.treefinance.saas.console.manager.domain.TaskBO;
 import com.treefinance.saas.console.manager.domain.TaskPagingResultSet;
@@ -92,7 +93,15 @@ public class TaskServiceAdapter extends AbstractTaskServiceAdapter implements Ta
 
         validateResult(response, RpcActionEnum.QUERY_PAGING_TASKS, request);
 
-        return convert(response.getEntity(), TaskPagingResultSet.class);
+        PagingDataSet<SimpleTaskDTO> entity = response.getEntity();
+        if (entity != null) {
+            TaskPagingResultSet resultSet = new TaskPagingResultSet();
+            resultSet.setTotal(entity.getTotal());
+            resultSet.setList(convert(entity.getList(), TaskBO.class));
+            return resultSet;
+        }
+
+        return null;
     }
 
     @Override
@@ -101,11 +110,19 @@ public class TaskServiceAdapter extends AbstractTaskServiceAdapter implements Ta
         
         CompositeTaskAttrPagingQueryRequest request = convertStrict(query, CompositeTaskAttrPagingQueryRequest.class);
 
-        logger.info("conser请求task时的参数request={}", JSON.toJSONString(request));
+        logger.info("请求task时的参数request={}", JSON.toJSONString(request));
         TaskResponse<PagingDataSet<CompositeTaskAttrDTO>> response = taskFacade.queryPagingCompositeTaskAttrs(request);
 
         validateResult(response, RpcActionEnum.QUERY_PAGING_TASKS, request);
 
-        return convert(response.getEntity(), CompositeTaskAttrPagingResultSet.class);
+        PagingDataSet<CompositeTaskAttrDTO> entity = response.getEntity();
+        if (entity != null) {
+            CompositeTaskAttrPagingResultSet resultSet = new CompositeTaskAttrPagingResultSet();
+            resultSet.setTotal(entity.getTotal());
+            resultSet.setList(convert(entity.getList(), CompositeTaskAttrBO.class));
+            return resultSet;
+        }
+
+        return null;
     }
 }

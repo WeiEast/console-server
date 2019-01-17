@@ -1129,6 +1129,7 @@ public class MerchantStatServiceImpl extends AbstractService implements Merchant
             }
             query.setPageNum(request.getPageNumber());
             query.setPageSize(request.getPageSize());
+            query.setOffset(request.getOffset());
             query.setOrder("createTime desc");
 
             try {

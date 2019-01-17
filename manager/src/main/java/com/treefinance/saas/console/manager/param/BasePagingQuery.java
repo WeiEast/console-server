@@ -21,4 +21,6 @@ abstract class BasePagingQuery implements Serializable {
      * 每页显示数
      */
     private Integer pageSize;
+    
+    private Integer offset;
 }

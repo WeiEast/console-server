@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.treefinance.b2b.saas.util.RemoteDataUtils;
-import com.treefinance.basicservice.security.crypto.facade.EncryptionIntensityEnum;
-import com.treefinance.basicservice.security.crypto.facade.ISecurityCryptoService;
 import com.treefinance.saas.console.biz.enums.EBizTypeEnum;
 import com.treefinance.saas.console.biz.enums.ECallBackDataTypeEnum;
 import com.treefinance.saas.console.biz.enums.ETaskStatusEnum;
@@ -74,8 +72,6 @@ import static com.alibaba.fastjson.serializer.SerializerFeature.WriteMapNullValu
 @Service
 public class OssDataServiceImpl extends AbstractService implements OssDataService {
 
-    @Autowired
-    private ISecurityCryptoService iSecurityCryptoService;
     @Autowired
     private MerchantBaseInfoFacade merchantBaseInfoFacade;
     @Autowired
@@ -352,9 +348,7 @@ public class OssDataServiceImpl extends AbstractService implements OssDataServic
             vo.setCanDownload(canDownload(log));
             if (task != null) {
                 vo.setUniqueId(task.getUniqueId());
-                if (StringUtils.isNotBlank(task.getAccountNo())) {
-                    vo.setAccountNo(iSecurityCryptoService.decrypt(task.getAccountNo(), EncryptionIntensityEnum.NORMAL));
-                }
+                vo.setAccountNo(task.getAccountNo());
                 vo.setTaskStartTime(task.getCreateTime());
                 vo.setTaskStatusName(ETaskStatusEnum.getNameByStatus(task.getStatus()));
                 if (!ETaskStatusEnum.RUNNING.getStatus().equals(task.getStatus())) {

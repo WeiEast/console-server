@@ -28,6 +28,7 @@
 
     <properties>
         <shiro.version>1.2.5</shiro.version>
+        <merchant-center.version>2.2.0-SNAPSHOT</merchant-center.version>
     </properties>
 
     <dependencies>

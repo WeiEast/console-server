@@ -31,7 +31,7 @@ public class MerchantFunctionController {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     public SaasResult<Integer> insert(MerchantFunctionRequest request) {
-        if (request == null || StringUtils.isBlank(request.getAppId()) || StringUtils.isBlank(request.getSync()) || StringUtils.isBlank(request.getSyncUrl())) {
+        if (request == null || StringUtils.isBlank(request.getAppId()) || request.getSync() == null || StringUtils.isBlank(request.getSyncUrl())) {
             throw new BizException("请求参数不能为空");
         }
         logger.info("增加埋点功能参数request={}", JSONObject.toJSONString(request));
@@ -44,7 +44,7 @@ public class MerchantFunctionController {
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public SaasResult<Integer> update(MerchantFunctionRequest request) {
-        if (request == null || StringUtils.isBlank(request.getAppId()) || StringUtils.isBlank(request.getSync()) || StringUtils.isBlank(request.getSyncUrl())) {
+        if (request == null || StringUtils.isBlank(request.getAppId()) || request.getSync() == null || StringUtils.isBlank(request.getSyncUrl())) {
             throw new BizException("请求参数不能为空");
         }
         logger.info("更新埋点功能参数request={}", JSONObject.toJSONString(request));

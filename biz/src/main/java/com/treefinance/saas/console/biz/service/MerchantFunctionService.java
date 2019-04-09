@@ -23,6 +23,8 @@ public interface MerchantFunctionService {
 
    SaasResult<Map<String, Object>> queryMerchantFunctionList(PageRequest request);
 
+   SaasResult<Integer> delete(MerchantFunctionRequest request);
+
 
 
 }

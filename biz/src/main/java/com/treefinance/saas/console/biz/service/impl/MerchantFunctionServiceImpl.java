@@ -99,4 +99,20 @@ public class MerchantFunctionServiceImpl extends AbstractService implements Merc
         return Results.newPageResult(request, result.getTotalCount(), merchantFunctionVOS);
 
     }
+
+    @Override
+    public SaasResult<Integer> delete(MerchantFunctionRequest request) {
+        MerchantResult<Integer> result;
+        try {
+            result = merchantFunctionFacade.delete(request);
+        } catch (RpcException e) {
+            logger.error("埋点删除商户异常", e);
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        if (!result.isSuccess()) {
+            logger.error("删除商户埋点失败，errorMsg={}", result.getRetMsg());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        return Results.newSuccessResult(result.getData());
+    }
 }

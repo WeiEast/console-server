@@ -60,4 +60,13 @@ public class MerchantFunctionController {
         return merchantFunctionService.queryMerchantFunctionList(request);
     }
 
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public SaasResult<Integer> delete(MerchantFunctionRequest request) {
+        if (request == null || request.getId() == null) {
+            throw new BizException("请求参数不能为空");
+        }
+        logger.info("获取埋点商户类表参数request={}", JSONObject.toJSONString(request));
+        return merchantFunctionService.delete(request);
+    }
+
 }

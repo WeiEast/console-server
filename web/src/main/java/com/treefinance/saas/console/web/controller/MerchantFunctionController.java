@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,22 +62,22 @@ public class MerchantFunctionController {
         return merchantFunctionService.queryMerchantFunctionList(request);
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public SaasResult<Integer> delete(MerchantFunctionRequest request) {
-        if (request == null || request.getId() == null) {
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public SaasResult<Integer> delete(@PathVariable Long id ) {
+        if (id == null ) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("删除埋点商户参数request={}", JSONObject.toJSONString(request));
-        return merchantFunctionService.delete(request);
+        logger.info("删除埋点商户参数id={}", id);
+        return merchantFunctionService.delete(id);
     }
 
-    @RequestMapping(value = "/searchByAppId", method = RequestMethod.POST)
-    public SaasResult<MerchantFunctionResult> searchByAppId(MerchantFunctionRequest request) {
-        if (request == null || request.getAppId() == null) {
+    @RequestMapping(value = "/searchByAppId", method = RequestMethod.GET)
+    public SaasResult<MerchantFunctionResult> searchByAppId(@PathVariable Long id) {
+        if (id == null) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("获取埋点商户参数request={}", JSONObject.toJSONString(request));
-        return merchantFunctionService.searchByAppId(request);
+        logger.info("获取埋点商户参数id={}", id);
+        return merchantFunctionService.searchByAppId(id);
     }
 
 }

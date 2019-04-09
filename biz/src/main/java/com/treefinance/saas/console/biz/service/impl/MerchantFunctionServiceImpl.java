@@ -101,7 +101,9 @@ public class MerchantFunctionServiceImpl extends AbstractService implements Merc
     }
 
     @Override
-    public SaasResult<Integer> delete(MerchantFunctionRequest request) {
+    public SaasResult<Integer> delete(Long id) {
+        MerchantFunctionRequest request=new MerchantFunctionRequest();
+        request.setId(id);
         MerchantResult<Integer> result;
         try {
             result = merchantFunctionFacade.delete(request);
@@ -116,11 +118,14 @@ public class MerchantFunctionServiceImpl extends AbstractService implements Merc
         return Results.newSuccessResult(result.getData());
     }
 
+
     @Override
-    public SaasResult<MerchantFunctionResult> searchByAppId(MerchantFunctionRequest request) {
+    public SaasResult<MerchantFunctionResult> searchByAppId(Long id) {
+        MerchantFunctionRequest request=new MerchantFunctionRequest();
+        request.setId(id);
         MerchantResult<MerchantFunctionResult> result;
         try {
-            result = merchantFunctionFacade.getMerchantFunctionByAppId(request);
+            result = merchantFunctionFacade.getMerchantFunctionById(request);
         } catch (RpcException e) {
             logger.error("埋点查询商户异常", e);
             return Results.newFailedResult(CommonStateCode.FAILURE);

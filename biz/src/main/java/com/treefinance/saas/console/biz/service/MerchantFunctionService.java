@@ -23,9 +23,9 @@ public interface MerchantFunctionService {
 
    SaasResult<Map<String, Object>> queryMerchantFunctionList(PageRequest request);
 
-   SaasResult<Integer> delete(MerchantFunctionRequest request);
+   SaasResult<Integer> delete(Long id);
 
-   SaasResult<MerchantFunctionResult> searchByAppId(MerchantFunctionRequest request);
+   SaasResult<MerchantFunctionResult> searchByAppId(Long id);
 
 
 

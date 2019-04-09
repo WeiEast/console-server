@@ -25,6 +25,8 @@ public interface MerchantFunctionService {
 
    SaasResult<Integer> delete(MerchantFunctionRequest request);
 
+   SaasResult<MerchantFunctionResult> searchByAppId(MerchantFunctionRequest request);
+
 
 
 }

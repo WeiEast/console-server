@@ -115,4 +115,20 @@ public class MerchantFunctionServiceImpl extends AbstractService implements Merc
         }
         return Results.newSuccessResult(result.getData());
     }
+
+    @Override
+    public SaasResult<MerchantFunctionResult> searchByAppId(MerchantFunctionRequest request) {
+        MerchantResult<MerchantFunctionResult> result;
+        try {
+            result = merchantFunctionFacade.getMerchantFunctionByAppId(request);
+        } catch (RpcException e) {
+            logger.error("埋点查询商户异常", e);
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        if (!result.isSuccess()) {
+            logger.error("查询商户埋点失败，errorMsg={}", result.getRetMsg());
+            return Results.newFailedResult(CommonStateCode.FAILURE);
+        }
+        return Results.newSuccessResult(result.getData());
+    }
 }

@@ -7,6 +7,7 @@ import com.treefinance.saas.console.exception.BizException;
 import com.treefinance.saas.knife.request.PageRequest;
 import com.treefinance.saas.knife.result.SaasResult;
 import com.treefinance.saas.merchant.facade.request.console.MerchantFunctionRequest;
+import com.treefinance.saas.merchant.facade.result.console.MerchantFunctionResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class MerchantFunctionController {
         if (request == null) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("获取埋点商户类表参数request={}", JSONObject.toJSONString(request));
+        logger.info("获取埋点商户列表参数request={}", JSONObject.toJSONString(request));
         return merchantFunctionService.queryMerchantFunctionList(request);
     }
 
@@ -65,8 +66,17 @@ public class MerchantFunctionController {
         if (request == null || request.getId() == null) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("获取埋点商户类表参数request={}", JSONObject.toJSONString(request));
+        logger.info("删除埋点商户参数request={}", JSONObject.toJSONString(request));
         return merchantFunctionService.delete(request);
+    }
+
+    @RequestMapping(value = "/searchByAppId", method = RequestMethod.POST)
+    public SaasResult<MerchantFunctionResult> searchByAppId(MerchantFunctionRequest request) {
+        if (request == null || request.getAppId() == null) {
+            throw new BizException("请求参数不能为空");
+        }
+        logger.info("获取埋点商户参数request={}", JSONObject.toJSONString(request));
+        return merchantFunctionService.searchByAppId(request);
     }
 
 }

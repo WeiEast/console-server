@@ -28,12 +28,12 @@ public class MerchantFunctionController {
     @Autowired
     private MerchantFunctionService merchantFunctionService;
 
-    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    @RequestMapping(value = "/insert", method = RequestMethod.POST, produces = "application/json")
     public SaasResult<Integer> insert(@RequestBody MerchantFunctionRequest request) {
+        logger.info("增加埋点功能参数request={}", JSONObject.toJSONString(request));
         if (request == null || StringUtils.isBlank(request.getAppId()) || request.getSync() == null || StringUtils.isBlank(request.getSyncUrl())) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("增加埋点功能参数request={}", JSONObject.toJSONString(request));
         MerchantFunctionVO result = merchantFunctionService.getMerchantFunctionByAppId(request);
         if (result != null) {
             throw new BizException("此商户已经存在");
@@ -41,39 +41,39 @@ public class MerchantFunctionController {
         return merchantFunctionService.insert(request);
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", method = RequestMethod.POST, produces = "application/json")
     public SaasResult<Integer> update(@RequestBody MerchantFunctionRequest request) {
+        logger.info("更新埋点功能参数request={}", JSONObject.toJSONString(request));
         if (request == null || StringUtils.isBlank(request.getAppId()) || request.getSync() == null || StringUtils.isBlank(request.getSyncUrl())) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("更新埋点功能参数request={}", JSONObject.toJSONString(request));
         return merchantFunctionService.update(request);
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @RequestMapping(value = "/list", method = RequestMethod.POST, produces = "application/json")
     public SaasResult<Map<String, Object>> queryMerchantFunctionList(@RequestBody PageRequest request) {
+        logger.info("获取埋点商户列表参数request={}", JSONObject.toJSONString(request));
         if (request == null) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("获取埋点商户列表参数request={}", JSONObject.toJSONString(request));
         return merchantFunctionService.queryMerchantFunctionList(request);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
-    public SaasResult<Integer> delete(@PathVariable Long id ) {
-        if (id == null ) {
+    public SaasResult<Integer> delete(@PathVariable Long id) {
+        logger.info("删除埋点商户参数id={}", id);
+        if (id == null) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("删除埋点商户参数id={}", id);
         return merchantFunctionService.delete(id);
     }
 
     @RequestMapping(value = "/searchByAppId/{id}", method = RequestMethod.GET)
     public SaasResult<MerchantFunctionResult> searchByAppId(@PathVariable Long id) {
+        logger.info("获取埋点商户参数id={}", id);
         if (id == null) {
             throw new BizException("请求参数不能为空");
         }
-        logger.info("获取埋点商户参数id={}", id);
         return merchantFunctionService.searchByAppId(id);
     }
 

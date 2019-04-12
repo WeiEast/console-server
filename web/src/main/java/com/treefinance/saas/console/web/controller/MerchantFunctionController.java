@@ -62,7 +62,7 @@ public class MerchantFunctionController {
         return merchantFunctionService.queryMerchantFunctionList(request);
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
     public SaasResult<Integer> delete(@PathVariable Long id ) {
         if (id == null ) {
             throw new BizException("请求参数不能为空");
@@ -71,7 +71,7 @@ public class MerchantFunctionController {
         return merchantFunctionService.delete(id);
     }
 
-    @RequestMapping(value = "/searchByAppId", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchByAppId/{id}", method = RequestMethod.GET)
     public SaasResult<MerchantFunctionResult> searchByAppId(@PathVariable Long id) {
         if (id == null) {
             throw new BizException("请求参数不能为空");

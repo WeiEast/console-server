@@ -68,7 +68,7 @@ public class MerchantFunctionController {
         return merchantFunctionService.delete(id);
     }
 
-    @RequestMapping(value = "/searchByAppId/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchById/{id}", method = RequestMethod.GET)
     public SaasResult<MerchantFunctionResult> searchByAppId(@PathVariable Long id) {
         logger.info("获取埋点商户参数id={}", id);
         if (id == null) {

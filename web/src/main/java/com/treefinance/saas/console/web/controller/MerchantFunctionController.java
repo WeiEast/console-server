@@ -12,10 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -32,7 +29,7 @@ public class MerchantFunctionController {
     private MerchantFunctionService merchantFunctionService;
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
-    public SaasResult<Integer> insert(MerchantFunctionRequest request) {
+    public SaasResult<Integer> insert(@RequestBody MerchantFunctionRequest request) {
         if (request == null || StringUtils.isBlank(request.getAppId()) || request.getSync() == null || StringUtils.isBlank(request.getSyncUrl())) {
             throw new BizException("请求参数不能为空");
         }
@@ -45,7 +42,7 @@ public class MerchantFunctionController {
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public SaasResult<Integer> update(MerchantFunctionRequest request) {
+    public SaasResult<Integer> update(@RequestBody MerchantFunctionRequest request) {
         if (request == null || StringUtils.isBlank(request.getAppId()) || request.getSync() == null || StringUtils.isBlank(request.getSyncUrl())) {
             throw new BizException("请求参数不能为空");
         }
@@ -54,7 +51,7 @@ public class MerchantFunctionController {
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
-    public SaasResult<Map<String, Object>> queryMerchantFunctionList(PageRequest request) {
+    public SaasResult<Map<String, Object>> queryMerchantFunctionList(@RequestBody PageRequest request) {
         if (request == null) {
             throw new BizException("请求参数不能为空");
         }
